@@ -1,0 +1,28 @@
+# Product Requirements Document (PRD) Template
+
+## Project Overview
+[Brief description of what you're building]
+
+## Problem Statement
+[What problem does this solve?]
+
+## Target Users
+[Who will use this?]
+
+## Core Features
+[Main functionality]
+
+## Technical Requirements
+[Technology stack, performance, etc.]
+
+## Success Metrics
+[How will you measure success?]
+
+## Timeline
+[Expected completion date]
+
+## Constraints
+[Any limitations or requirements]
+
+## Future Enhancements
+[Potential future features]

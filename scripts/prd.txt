@@ -1,0 +1,346 @@
+# Product Requirements Document (PRD)
+## Heat Pump Savings Calculator - Energiaykkönen Oy
+
+### 1. Project Overview
+
+**Product Name:** Energiaykkönen Heat Pump Calculator  
+**Version:** 1.0 MVP  
+**Date:** December 2024  
+**Product Type:** Custom Web Calculator (Single Client)  
+**Client:** Energiaykkönen Oy  
+**Timeline:** 3-5 days development  
+
+**Purpose:** A simple, embedded calculator for Energiaykkönen's WordPress website that calculates potential savings from heat pump installation and captures qualified leads.
+
+### 2. Business Objectives
+
+- **Generate qualified leads:** Capture 150+ leads per month
+- **Automate calculations:** Replace manual quote calculations
+- **Improve conversion:** Target 20%+ lead-to-customer conversion
+- **Professional image:** Modern, trustworthy calculator that builds confidence
+- **Quick deployment:** Live within one week
+
+### 3. User Personas
+
+#### 3.1 **End User (Homeowner)**
+- Considering heat pump installation
+- Wants quick savings estimate
+- Not technical, needs simple interface
+- Accessing via mobile (60%) or desktop (40%)
+
+#### 3.2 **Sales Team (Energiaykkönen)**
+- Receives lead notifications
+- Needs complete customer data
+- Reviews calculations for follow-up
+
+#### 3.3 **Administrator (You)**
+- Makes updates as requested
+- Monitors lead capture
+- Exports data for client
+
+### 4. Core Features
+
+#### 4.1 Multi-Step Form
+
+**Step 1: House Information**
+- Square meters (number input, 10-1000m²)
+- Ceiling height (dropdown: 2.5m, 3.0m, 3.5m)
+- Construction year (dropdown: <1970, 1970-1990, 1991-2010, >2010)
+- Number of floors (dropdown: 1, 2, 3+)
+
+**Step 2: Current Heating**
+- Heating type (dropdown: Oil, Electric, District, Other)
+- Annual heating cost (number input with € symbol)
+- Current energy consumption (optional, kWh/year)
+
+**Step 3: Household**
+- Number of residents (dropdown: 1-8+)
+- Hot water usage (dropdown: Low, Normal, High)
+
+**Step 4: Contact Information**
+- First name (required)
+- Last name (required)
+- Email (required, validated)
+- Phone (required, Finnish format)
+- Street address (optional)
+- City (optional)
+- Preferred contact method (radio: Email, Phone, Both)
+- Message/questions (optional textarea)
+
+#### 4.2 Calculations
+
+```javascript
+// Core calculations
+annual_energy_need = (square_meters × ceiling_height × 17 × 3.2) + (residents × 1500)
+heat_pump_consumption = annual_energy_need × 0.3 // COP factor
+heat_pump_cost_annual = heat_pump_consumption × 0.12 // €/kWh
+annual_savings = current_heating_cost - heat_pump_cost_annual
+five_year_savings = annual_savings × 5
+ten_year_savings = annual_savings × 10
+payback_period = 15000 / annual_savings // Assuming 15k€ investment
+co2_reduction = annual_energy_need × 0.2 // kg CO2
+```
+
+#### 4.3 Results Display
+
+- Visual savings summary with big numbers
+- Bar chart comparing current vs. heat pump costs
+- Timeline showing payback period
+- Environmental impact (CO2 reduction)
+- Call-to-action: "Get Personal Quote"
+
+#### 4.4 Lead Management
+
+- All form data saved to database
+- Email to customer with results
+- Notification to sales team
+- Simple admin view with CSV export
+
+### 5. Technical Architecture
+
+#### 5.1 Frontend
+- **Framework:** Next.js 14 (App Router)
+- **Styling:** Tailwind CSS
+- **Components:** shadcn/ui
+- **Forms:** React Hook Form + Zod
+- **Charts:** Recharts or Chart.js
+- **Hosting:** Vercel (free tier)
+
+#### 5.2 Backend
+- **Database:** Supabase (PostgreSQL)
+- **Email:** Resend
+- **Analytics:** Vercel Analytics
+
+#### 5.3 Database Schema (Simple)
+
+```sql
+CREATE TABLE leads (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  -- Form inputs
+  square_meters INTEGER,
+  ceiling_height DECIMAL,
+  construction_year VARCHAR(20),
+  floors INTEGER,
+  heating_type VARCHAR(50),
+  current_cost DECIMAL,
+  residents INTEGER,
+  
+  -- Contact info
+  first_name VARCHAR(100),
+  last_name VARCHAR(100),
+  email VARCHAR(255),
+  phone VARCHAR(50),
+  address TEXT,
+  city VARCHAR(100),
+  contact_preference VARCHAR(20),
+  message TEXT,
+  
+  -- Calculations
+  energy_need DECIMAL,
+  annual_savings DECIMAL,
+  five_year_savings DECIMAL,
+  ten_year_savings DECIMAL,
+  payback_years DECIMAL,
+  co2_reduction DECIMAL,
+  
+  -- Metadata
+  created_at TIMESTAMP DEFAULT NOW(),
+  ip_address INET,
+  user_agent TEXT,
+  source_page VARCHAR(255)
+);
+```
+
+### 6. User Interface
+
+#### 6.1 Design Specifications
+
+**Brand Colors:**
+- Primary: #22c55e (Energiaykkönen green)
+- Secondary: #1f2937 (Professional dark)
+- Accent: #fbbf24 (Energy yellow)
+- Background: #ffffff
+- Text: #111827
+
+**Typography:**
+- Font: Inter or system fonts
+- Headings: Bold, 1.5-2x base size
+- Body: 16px minimum
+
+**Mobile-First Design:**
+- Responsive breakpoints: 640px, 768px, 1024px
+- Touch-friendly buttons (min 44px height)
+- Single column layout on mobile
+
+#### 6.2 User Flow
+
+```
+Landing → Step 1 → Step 2 → Step 3 → Step 4 → Results → Thank You
+                ↓                      ↓
+          [Progress Bar]          [Back Button]
+```
+
+### 7. Email Templates
+
+#### 7.1 Customer Email
+- Subject: "Your Heat Pump Savings Calculation - Energiaykkönen"
+- Personalized greeting
+- Calculation summary
+- Savings highlights
+- Next steps CTA
+- Contact information
+
+#### 7.2 Sales Notification
+- Subject: "New Lead: [Name] - [City] - Savings: [Amount]€/year"
+- All form data
+- Calculation results
+- Lead score/priority
+- Direct link to CRM
+
+### 8. WordPress Integration
+
+**Method:** iFrame embed
+```html
+<iframe src="https://laskuri.energiaykkonen.fi" 
+        width="100%" height="800" frameborder="0">
+</iframe>
+```
+
+**Subdomain:** laskuri.energiaykkonen.fi → Vercel
+
+### 9. Admin Features
+
+#### 9.1 Simple Admin Panel (/admin)
+- Password protected (environment variable)
+- Leads table with search/filter
+- CSV export
+- Basic statistics (leads per day/week/month)
+
+### 10. Testing Requirements
+
+- Cross-browser testing (Chrome, Firefox, Safari, Edge)
+- Mobile testing (iOS Safari, Chrome Android)
+- Form validation testing
+- Calculation accuracy verification
+- Email delivery testing
+- Load testing (100 concurrent users)
+
+### 11. Success Metrics
+
+**Primary KPIs:**
+- Lead generation: 150+ leads/month
+- Conversion rate: 20%+ lead-to-customer
+- Form completion rate: 60%+
+- Average time to complete: <3 minutes
+
+**Secondary Metrics:**
+- Email open rate: 40%+
+- Mobile vs desktop usage
+- Drop-off points in form
+- Most common configurations
+
+### 12. Implementation Timeline
+
+**Day 1: Setup & Form UI**
+- Next.js project setup
+- shadcn/ui components
+- Multi-step form implementation
+- Responsive design
+
+**Day 2: Logic & Calculations**
+- Calculation engine
+- Results display
+- Data visualization
+
+**Day 3: Backend Integration**
+- Supabase setup
+- Lead storage
+- Email integration with Resend
+
+**Day 4: Polish & Deploy**
+- Admin panel
+- Testing & bug fixes
+- Vercel deployment
+- WordPress integration
+
+**Day 5: Buffer**
+- Final adjustments
+- Client feedback implementation
+- Documentation
+
+### 13. Maintenance & Updates
+
+**Change Process:**
+1. Client requests change
+2. Update in Cursor AI
+3. Test locally
+4. Git push to main
+5. Auto-deploy via Vercel
+6. Live in 2 minutes
+
+**Expected Updates:**
+- Calculation formula adjustments
+- New form fields
+- Text and translation updates
+- Seasonal campaigns
+- A/B testing variations
+
+### 14. Security & Compliance
+
+- GDPR compliant with privacy notice
+- SSL encryption (automatic via Vercel)
+- Input sanitization
+- Rate limiting (10 submissions per IP per hour)
+- No sensitive data stored
+- Regular backups via Supabase
+
+### 15. Future Enhancements (Post-MVP)
+
+- Multiple calculator types (solar, insulation)
+- Finnish/Swedish language toggle
+- CRM integration
+- Advanced analytics dashboard
+- PDF report generation
+- Appointment booking integration
+
+### 16. Development Notes
+
+**Repository Structure:**
+```
+energiaykkonen-calculator/
+├── app/
+│   ├── page.tsx           # Calculator
+│   ├── admin/page.tsx     # Admin panel
+│   └── api/               # API routes
+├── components/
+│   ├── Calculator.tsx
+│   ├── Results.tsx
+│   └── ui/               # shadcn components
+├── lib/
+│   ├── calculations.ts
+│   ├── supabase.ts
+│   └── resend.ts
+└── public/
+    └── embed.js          # WordPress embed script
+```
+
+**Environment Variables:**
+```
+NEXT_PUBLIC_SUPABASE_URL=
+NEXT_PUBLIC_SUPABASE_ANON_KEY=
+RESEND_API_KEY=
+ADMIN_PASSWORD=
+```
+
+### 17. Conclusion
+
+This MVP focuses on delivering a functional heat pump savings calculator quickly and efficiently. By eliminating complex features like multi-tenancy and drag-and-drop builders, we can deliver a production-ready solution in under a week that meets Energiaykkönen's immediate needs while maintaining flexibility for future updates.
+
+**Key Success Factors:**
+- Simple, focused functionality
+- Fast deployment
+- Easy maintenance
+- Professional appearance
+- Reliable lead capture
+
+**Contact:** [Your contact information for client support]
