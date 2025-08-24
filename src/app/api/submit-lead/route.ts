@@ -1,25 +1,25 @@
-import { NextRequest, NextResponse } from 'next/server'
+import { NextResponse } from 'next/server';
 
-export async function POST(request: NextRequest) {
+export async function POST() {
   try {
     // This will be implemented in later tasks
     // For now, just return a placeholder response
-    
+
     return NextResponse.json(
-      { 
+      {
         message: 'Lead submission endpoint created',
         status: 'success',
-        note: 'Full implementation will be added in database integration task'
+        note: 'Full implementation will be added in database integration task',
       },
       { status: 200 }
-    )
-  } catch (error) {
+    );
+  } catch {
     return NextResponse.json(
-      { 
+      {
         message: 'Internal server error',
-        status: 'error'
+        status: 'error',
       },
       { status: 500 }
-    )
+    );
   }
 }

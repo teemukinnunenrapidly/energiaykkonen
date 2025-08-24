@@ -1,9 +1,10 @@
-import { Metadata } from 'next'
+import { Metadata } from 'next';
 
 export const metadata: Metadata = {
   title: 'E1 Calculator - Energiaykkönen',
-  description: 'Calculate your energy savings and payback period for heat pump installation',
-}
+  description:
+    'Calculate your energy savings and payback period for heat pump installation',
+};
 
 export default function CalculatorPage() {
   return (
@@ -14,10 +15,11 @@ export default function CalculatorPage() {
             E1 Calculator
           </h1>
           <p className="text-xl text-gray-600">
-            Calculate your energy savings and payback period for heat pump installation
+            Calculate your energy savings and payback period for heat pump
+            installation
           </p>
         </div>
-        
+
         <div className="bg-white rounded-lg shadow-lg p-6">
           <div className="text-center py-12">
             <p className="text-gray-500 text-lg">
@@ -30,5 +32,5 @@ export default function CalculatorPage() {
         </div>
       </div>
     </div>
-  )
+  );
 }

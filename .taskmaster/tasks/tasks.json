@@ -24,9 +24,7 @@
             "id": 2,
             "title": "Initialize Next.js 14 Project with TypeScript",
             "description": "Set up a new Next.js 14 project using TypeScript via the official CLI.",
-            "dependencies": [
-              "1.1"
-            ],
+            "dependencies": ["1.1"],
             "details": "Run `npx create-next-app@latest --typescript` in the repository directory. Confirm TypeScript configuration is present.",
             "status": "done",
             "testStrategy": ""
@@ -35,9 +33,7 @@
             "id": 3,
             "title": "Configure App Router Structure",
             "description": "Set up the App Router structure using the `/app` directory as per Next.js 14 conventions.",
-            "dependencies": [
-              "1.2"
-            ],
+            "dependencies": ["1.2"],
             "details": "Ensure the `/app` directory exists. Create initial layout and page files. Verify routing works with server and client components.",
             "status": "done",
             "testStrategy": ""
@@ -46,20 +42,16 @@
             "id": 4,
             "title": "Set Up Vercel Project for Deployment",
             "description": "Configure Vercel for hosting and deployment of the Next.js project on the free tier.",
-            "dependencies": [
-              "1.3"
-            ],
+            "dependencies": ["1.3"],
             "details": "Connect the Git repository to Vercel. Set up deployment pipeline and verify successful build and deployment.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": ""
           },
           {
             "id": 5,
             "title": "Add Environment Variable Support",
             "description": "Create and configure a `.env.local` file for managing environment variables securely.",
-            "dependencies": [
-              "1.4"
-            ],
+            "dependencies": ["1.4"],
             "details": "Add `.env.local` to the project root. Ensure sensitive values are not committed to version control.",
             "status": "pending",
             "testStrategy": ""
@@ -68,9 +60,7 @@
             "id": 6,
             "title": "Install and Configure Code Quality Tooling",
             "description": "Install Prettier, ESLint, and Husky for code formatting, linting, and pre-commit hooks.",
-            "dependencies": [
-              "1.5"
-            ],
+            "dependencies": ["1.5"],
             "details": "Add and configure Prettier and ESLint. Set up Husky for enforcing code quality on commits.",
             "status": "pending",
             "testStrategy": ""
@@ -79,9 +69,7 @@
             "id": 7,
             "title": "Integrate Inter Font",
             "description": "Add the Inter font to the project using npm or Google Fonts CDN as specified in the design requirements.",
-            "dependencies": [
-              "1.6"
-            ],
+            "dependencies": ["1.6"],
             "details": "Install Inter via npm or link via CDN. Update global styles or layout to use Inter as the default font.",
             "status": "pending",
             "testStrategy": ""
@@ -95,9 +83,7 @@
         "details": "- Install Tailwind CSS (`^3.4.1`), shadcn/ui, React Hook Form (`^7.50.0`), Zod (`^3.22.4`), Recharts (`^2.7.2`) or Chart.js (`^4.4.1`), Supabase JS (`^2.39.7`), Resend (`^2.0.0`), and Vercel Analytics.\n- Configure Tailwind with custom color palette and breakpoints as per PRD.\n- Set up shadcn/ui components using CLI.\n- Configure React Hook Form with Zod resolver for schema validation.\n- Add Supabase client in `/lib/supabase.ts`.\n- Add Resend client in `/lib/resend.ts`.",
         "testStrategy": "Check that all libraries are installed and imported without errors. Render a test component from each library. Confirm Tailwind and shadcn/ui styles apply.",
         "priority": "high",
-        "dependencies": [
-          1
-        ],
+        "dependencies": [1],
         "status": "pending",
         "subtasks": [
           {
@@ -113,9 +99,7 @@
             "id": 2,
             "title": "Install and Set Up shadcn/ui Components",
             "description": "Install shadcn/ui and initialize it using the CLI, ensuring integration with Tailwind CSS and project structure.",
-            "dependencies": [
-              "2.1"
-            ],
+            "dependencies": ["2.1"],
             "details": "Run 'npx shadcn-ui init' after Tailwind is set up. Configure path aliases and styles as per documentation. Add initial shadcn/ui components using the CLI.",
             "status": "pending",
             "testStrategy": ""
@@ -124,10 +108,7 @@
             "id": 3,
             "title": "Set Up Form and Validation Libraries",
             "description": "Install React Hook Form (^7.50.0) and Zod (^3.22.4), and configure them for schema-based form validation.",
-            "dependencies": [
-              "2.1",
-              "2.2"
-            ],
+            "dependencies": ["2.1", "2.2"],
             "details": "Install both libraries. Set up React Hook Form with Zod resolver. Create a sample form to verify integration and validation.",
             "status": "pending",
             "testStrategy": ""
@@ -136,9 +117,7 @@
             "id": 4,
             "title": "Install and Configure Charting Library",
             "description": "Install Recharts (^2.7.2) or Chart.js (^4.4.1) and render a test chart component to verify setup.",
-            "dependencies": [
-              "2.1"
-            ],
+            "dependencies": ["2.1"],
             "details": "Choose and install either Recharts or Chart.js. Import and render a basic chart in a test component to confirm correct installation.",
             "status": "pending",
             "testStrategy": ""
@@ -147,9 +126,7 @@
             "id": 5,
             "title": "Set Up Supabase Database Client",
             "description": "Install Supabase JS (^2.39.7) and add the Supabase client initialization in /lib/supabase.ts.",
-            "dependencies": [
-              "2.1"
-            ],
+            "dependencies": ["2.1"],
             "details": "Install the Supabase JS library. Create /lib/supabase.ts and initialize the client with environment variables.",
             "status": "pending",
             "testStrategy": ""
@@ -158,9 +135,7 @@
             "id": 6,
             "title": "Set Up Resend Email Client and Integrate Analytics",
             "description": "Install Resend (^2.0.0) and Vercel Analytics, and add the Resend client initialization in /lib/resend.ts.",
-            "dependencies": [
-              "2.1"
-            ],
+            "dependencies": ["2.1"],
             "details": "Install Resend and Vercel Analytics. Create /lib/resend.ts and initialize the Resend client. Integrate Vercel Analytics as per documentation.",
             "status": "pending",
             "testStrategy": ""
@@ -174,9 +149,7 @@
         "details": "- Build four steps: House Info, Current Heating, Household, Contact Info.\n- Use shadcn/ui components (Input, Select, Radio, ProgressBar, Button).\n- Group related fields, use clear labels, and add placeholder/help text.\n- Implement progress bar and back/next navigation.\n- Ensure touch targets (min 44px), single-column mobile layout, and responsive breakpoints (640px, 768px, 1024px).\n- Add accessibility attributes (aria-labels, focus states).\n- Use Inter font and color palette from PRD.",
         "testStrategy": "Test on Chrome, Firefox, Safari, Edge, iOS Safari, and Android Chrome. Validate accessibility with screen readers and keyboard navigation. Check responsiveness at all breakpoints.",
         "priority": "high",
-        "dependencies": [
-          2
-        ],
+        "dependencies": [2],
         "status": "pending",
         "subtasks": [
           {
@@ -192,9 +165,7 @@
             "id": 2,
             "title": "Implement Step Components Using shadcn/ui and React Hook Form",
             "description": "Develop individual React components for each form step using shadcn/ui components (Input, Select, Radio, ProgressBar, Button) and integrate with React Hook Form.",
-            "dependencies": [
-              "3.1"
-            ],
+            "dependencies": ["3.1"],
             "details": "For each step, use shadcn/ui components to build the UI, connect fields to React Hook Form, and ensure clear labels, placeholders, and help text are present. Integrate the progress bar and navigation controls.",
             "status": "pending",
             "testStrategy": ""
@@ -203,9 +174,7 @@
             "id": 3,
             "title": "Enhance Accessibility for All Form Steps",
             "description": "Add accessibility features such as aria-labels, focus states, and ensure all interactive elements meet accessibility standards.",
-            "dependencies": [
-              "3.2"
-            ],
+            "dependencies": ["3.2"],
             "details": "Review each component to add appropriate aria attributes, ensure keyboard navigation works, and verify that focus indicators are visible. Confirm that all touch targets are at least 44px.",
             "status": "pending",
             "testStrategy": ""
@@ -214,9 +183,7 @@
             "id": 4,
             "title": "Design and Implement Responsive Layout",
             "description": "Apply Tailwind CSS to achieve a mobile-first, single-column layout with responsive breakpoints at 640px, 768px, and 1024px.",
-            "dependencies": [
-              "3.2"
-            ],
+            "dependencies": ["3.2"],
             "details": "Ensure the form adapts to different screen sizes, maintains usability on mobile devices, and follows the specified breakpoints. Test layout on various devices and browsers.",
             "status": "pending",
             "testStrategy": ""
@@ -225,9 +192,7 @@
             "id": 5,
             "title": "Integrate PRD-Specified Styles (Font and Color Palette)",
             "description": "Apply the Inter font and the color palette defined in the PRD across all form steps and components.",
-            "dependencies": [
-              "3.2"
-            ],
+            "dependencies": ["3.2"],
             "details": "Update Tailwind configuration and component styles to use the Inter font and PRD color palette. Verify visual consistency and adherence to design requirements.",
             "status": "pending",
             "testStrategy": ""
@@ -241,9 +206,7 @@
         "details": "- Define Zod schemas for each step.\n- Validate email, phone (Finnish regex), required fields, and number ranges (e.g., 10-1000m²).\n- Add input masking for phone and currency fields.\n- Show inline error messages and disable next button until valid.\n- Ensure GDPR consent if required.",
         "testStrategy": "Attempt invalid inputs for each field and verify correct error messages. Test edge cases (min/max values, invalid emails/phones). Confirm form cannot proceed with invalid data.",
         "priority": "high",
-        "dependencies": [
-          3
-        ],
+        "dependencies": [3],
         "status": "pending",
         "subtasks": [
           {
@@ -259,9 +222,7 @@
             "id": 2,
             "title": "Implement Validation Logic with React Hook Form",
             "description": "Integrate the defined Zod schemas with React Hook Form using the zodResolver to enforce validation on form inputs.",
-            "dependencies": [
-              "4.1"
-            ],
+            "dependencies": ["4.1"],
             "details": "Configure React Hook Form to use the Zod schemas for validation, ensuring all required fields and formats are checked before submission.",
             "status": "pending",
             "testStrategy": ""
@@ -270,9 +231,7 @@
             "id": 3,
             "title": "Set Up Input Masking for Phone and Currency Fields",
             "description": "Add input masking to the phone and currency fields to guide user input and enforce correct formatting.",
-            "dependencies": [
-              "4.2"
-            ],
+            "dependencies": ["4.2"],
             "details": "Use a masking library or custom logic to ensure Finnish phone numbers and currency values are entered in the correct format.",
             "status": "pending",
             "testStrategy": ""
@@ -281,9 +240,7 @@
             "id": 4,
             "title": "Handle Inline Error Messages and Button State",
             "description": "Display inline error messages for invalid inputs and disable the next button until all fields are valid.",
-            "dependencies": [
-              "4.2"
-            ],
+            "dependencies": ["4.2"],
             "details": "Map Zod validation errors to user-friendly messages and update the UI to reflect validation state, including disabling navigation until valid.",
             "status": "pending",
             "testStrategy": ""
@@ -292,10 +249,7 @@
             "id": 5,
             "title": "Integrate GDPR Consent Validation",
             "description": "Ensure GDPR consent is required and validated as part of the form submission process.",
-            "dependencies": [
-              "4.1",
-              "4.2"
-            ],
+            "dependencies": ["4.1", "4.2"],
             "details": "Add a checkbox for GDPR consent, validate its state using Zod, and prevent form submission if not accepted.",
             "status": "pending",
             "testStrategy": ""
@@ -309,9 +263,7 @@
         "details": "- Create `/lib/calculations.ts` with exported functions for each calculation (energy need, savings, payback, CO2, etc.).\n- Accept form data as input and return all calculated outputs.\n- Write unit tests for calculation accuracy (Jest or Vitest).\n- Ensure calculations handle missing/optional fields gracefully.",
         "testStrategy": "Run unit tests with sample inputs and verify outputs match PRD formulas. Cross-check with manual calculations for accuracy.",
         "priority": "high",
-        "dependencies": [
-          4
-        ],
+        "dependencies": [4],
         "status": "pending",
         "subtasks": []
       },
@@ -322,9 +274,7 @@
         "details": "- Design results summary with large, readable numbers for savings and payback.\n- Implement bar chart comparing current vs. heat pump costs.\n- Add timeline visualization for payback period.\n- Show CO2 reduction with iconography.\n- Add prominent CTA button ('Get Personal Quote').\n- Ensure responsive and accessible design.",
         "testStrategy": "Verify all results display correctly for a range of inputs. Test chart rendering on all devices. Confirm CTA is visible and actionable.",
         "priority": "high",
-        "dependencies": [
-          5
-        ],
+        "dependencies": [5],
         "status": "pending",
         "subtasks": [
           {
@@ -340,9 +290,7 @@
             "id": 2,
             "title": "Implement Bar Chart Visualization",
             "description": "Develop a bar chart comparing current vs. heat pump costs using Recharts or Chart.js integrated with shadcn/ui.",
-            "dependencies": [
-              "6.1"
-            ],
+            "dependencies": ["6.1"],
             "details": "Configure chart data and axes. Style chart to match summary UI. Validate chart responsiveness and accessibility.",
             "status": "pending",
             "testStrategy": ""
@@ -351,9 +299,7 @@
             "id": 3,
             "title": "Add Timeline Visualization for Payback Period",
             "description": "Create a timeline or progress bar showing the payback period, leveraging shadcn/ui and a suitable chart library.",
-            "dependencies": [
-              "6.1"
-            ],
+            "dependencies": ["6.1"],
             "details": "Design a clear visual representation of the payback timeline. Ensure it integrates seamlessly with the summary UI and is accessible.",
             "status": "pending",
             "testStrategy": ""
@@ -362,9 +308,7 @@
             "id": 4,
             "title": "Display CO2 Reduction and Environmental Impact",
             "description": "Show CO2 reduction using iconography and concise text, ensuring the display is visually integrated and accessible.",
-            "dependencies": [
-              "6.1"
-            ],
+            "dependencies": ["6.1"],
             "details": "Select appropriate icons and colors. Present environmental impact data clearly. Confirm accessibility for screen readers.",
             "status": "pending",
             "testStrategy": ""
@@ -373,12 +317,7 @@
             "id": 5,
             "title": "Integrate CTA Button and Ensure Responsiveness/Accessibility",
             "description": "Add a prominent 'Get Personal Quote' CTA button and validate that the entire results page is responsive and accessible.",
-            "dependencies": [
-              "6.1",
-              "6.2",
-              "6.3",
-              "6.4"
-            ],
+            "dependencies": ["6.1", "6.2", "6.3", "6.4"],
             "details": "Use shadcn/ui for button styling. Test layout on multiple devices. Perform accessibility checks for all interactive elements.",
             "status": "pending",
             "testStrategy": ""
@@ -392,9 +331,7 @@
         "details": "- Create Supabase project and configure PostgreSQL.\n- Create `leads` table with all fields from PRD (including metadata).\n- Add row-level security (RLS) and enable SSL.\n- Store IP address and user agent from request headers.\n- Implement `/api/submit-lead` route to insert validated form and calculation data.\n- Store source page for analytics.",
         "testStrategy": "Submit test leads and verify data is stored correctly in Supabase. Check RLS and SSL are enforced. Validate all fields are populated.",
         "priority": "high",
-        "dependencies": [
-          5
-        ],
+        "dependencies": [5],
         "status": "pending",
         "subtasks": [
           {
@@ -410,9 +347,7 @@
             "id": 2,
             "title": "Create Leads Table per PRD Schema",
             "description": "Define and create the 'leads' table in Supabase with all required fields, including metadata, as specified in the PRD.",
-            "dependencies": [
-              "7.1"
-            ],
+            "dependencies": ["7.1"],
             "details": "Use the Supabase dashboard or SQL editor to create the 'leads' table, ensuring all fields (including metadata such as timestamps, IP, user agent, and source page) are included according to the PRD.",
             "status": "pending",
             "testStrategy": ""
@@ -421,9 +356,7 @@
             "id": 3,
             "title": "Configure Row-Level Security (RLS) and Enable SSL",
             "description": "Set up RLS policies for the leads table and ensure SSL is enforced for all database connections.",
-            "dependencies": [
-              "7.2"
-            ],
+            "dependencies": ["7.2"],
             "details": "Enable RLS in the Supabase dashboard, write policies to restrict access as needed, and verify SSL is enabled for secure data transmission.",
             "status": "pending",
             "testStrategy": ""
@@ -432,10 +365,7 @@
             "id": 4,
             "title": "Connect Next.js App to Supabase Using Supabase JS Client",
             "description": "Integrate the Supabase JS client into the Next.js application and configure it to connect to the Supabase project.",
-            "dependencies": [
-              "7.1",
-              "7.3"
-            ],
+            "dependencies": ["7.1", "7.3"],
             "details": "Install the Supabase JS client, set up the client instance with environment variables, and test the connection from the Next.js backend.",
             "status": "pending",
             "testStrategy": ""
@@ -444,10 +374,7 @@
             "id": 5,
             "title": "Implement /api/submit-lead Route with Metadata Capture",
             "description": "Develop the Next.js API route to accept, validate, and insert lead data, capturing IP address, user agent, and calculation results.",
-            "dependencies": [
-              "7.2",
-              "7.4"
-            ],
+            "dependencies": ["7.2", "7.4"],
             "details": "Create the /api/submit-lead endpoint, validate incoming data, extract IP and user agent from request headers, and insert all relevant fields into the leads table.",
             "status": "pending",
             "testStrategy": ""
@@ -456,9 +383,7 @@
             "id": 6,
             "title": "Store Source Page for Analytics",
             "description": "Ensure the source page information is captured and stored with each lead submission for analytics purposes.",
-            "dependencies": [
-              "7.5"
-            ],
+            "dependencies": ["7.5"],
             "details": "Modify the API route and database schema as needed to include the source page field, and verify it is populated on each lead insert.",
             "status": "pending",
             "testStrategy": ""
@@ -472,9 +397,7 @@
         "details": "- Create email templates for customer and sales (per PRD specs).\n- Use Resend API to send emails from `/api/submit-lead` after successful DB insert.\n- Personalize subject, greeting, and calculation summary.\n- Include all required data and CTA.\n- Handle email delivery errors gracefully.",
         "testStrategy": "Submit test leads and confirm emails are received by both customer and sales. Check spam/junk folders. Validate personalization and formatting.",
         "priority": "high",
-        "dependencies": [
-          7
-        ],
+        "dependencies": [7],
         "status": "pending",
         "subtasks": []
       },
@@ -485,9 +408,7 @@
         "details": "- Implement `/admin/page.tsx` route.\n- Add login form (password from env variable, no user accounts).\n- Display searchable/filterable leads table (fetch from Supabase).\n- Add CSV export button (client-side CSV generation).\n- Show basic stats: leads per day/week/month.\n- Protect all admin routes with server-side auth middleware.",
         "testStrategy": "Attempt access without password (should fail). Log in and verify all features work. Export CSV and check file integrity. Test stats accuracy.",
         "priority": "medium",
-        "dependencies": [
-          7
-        ],
+        "dependencies": [7],
         "status": "pending",
         "subtasks": [
           {
@@ -503,9 +424,7 @@
             "id": 2,
             "title": "Implement Leads Table with Supabase Integration",
             "description": "Develop a table component that fetches and displays leads data from Supabase. Ensure the table supports pagination for performance.",
-            "dependencies": [
-              "9.1"
-            ],
+            "dependencies": ["9.1"],
             "details": "Connect to Supabase, retrieve leads, and render them in a responsive table. Prepare for future enhancements like editing or deleting leads.",
             "status": "pending",
             "testStrategy": ""
@@ -514,9 +433,7 @@
             "id": 3,
             "title": "Add Search and Filter Functionality to Leads Table",
             "description": "Enable searching and filtering of leads within the table to allow admins to quickly find relevant records.",
-            "dependencies": [
-              "9.2"
-            ],
+            "dependencies": ["9.2"],
             "details": "Implement client-side search input and filter controls. Optimize for large datasets using debouncing and efficient filtering logic.",
             "status": "pending",
             "testStrategy": ""
@@ -525,9 +442,7 @@
             "id": 4,
             "title": "Develop CSV Export Feature for Leads",
             "description": "Add a button to export the currently displayed leads data as a CSV file, generated client-side.",
-            "dependencies": [
-              "9.3"
-            ],
+            "dependencies": ["9.3"],
             "details": "Use a CSV generation library or custom logic to convert table data to CSV format and trigger download. Ensure exported data matches current filters.",
             "status": "pending",
             "testStrategy": ""
@@ -536,9 +451,7 @@
             "id": 5,
             "title": "Display Basic Lead Statistics",
             "description": "Show summary statistics such as leads per day, week, and month within the admin panel.",
-            "dependencies": [
-              "9.2"
-            ],
+            "dependencies": ["9.2"],
             "details": "Calculate statistics from Supabase data and display them in a clear, accessible format. Consider using charts or summary cards for visualization.",
             "status": "pending",
             "testStrategy": ""
@@ -552,9 +465,7 @@
         "details": "- Add Vercel Analytics SDK and configure for subdomain.\n- Track key events: form start, step completion, form submit, drop-off, device type.\n- Store analytics events in Supabase or Vercel Analytics as appropriate.\n- Visualize most common configurations and drop-off points in admin panel (basic).",
         "testStrategy": "Check analytics dashboard for event data. Simulate user flows and verify events are tracked. Confirm device usage and drop-off points are recorded.",
         "priority": "medium",
-        "dependencies": [
-          9
-        ],
+        "dependencies": [9],
         "status": "pending",
         "subtasks": []
       },
@@ -565,9 +476,7 @@
         "details": "- Configure Vercel for `laskuri.energiaykkonen.fi` subdomain.\n- Generate and document iFrame embed code with correct sizing.\n- Add `/public/embed.js` for optional dynamic resizing.\n- Test embed on WordPress staging site for compatibility and responsiveness.",
         "testStrategy": "Embed calculator on WordPress test page. Verify full functionality, responsiveness, and no cross-origin issues. Confirm iFrame resizes as needed.",
         "priority": "medium",
-        "dependencies": [
-          6
-        ],
+        "dependencies": [6],
         "status": "pending",
         "subtasks": []
       },
@@ -578,9 +487,7 @@
         "details": "- Ensure SSL via Vercel (automatic).\n- Sanitize all user inputs server-side before DB insert.\n- Add privacy notice and consent checkbox to form.\n- Implement rate limiting middleware on API routes (e.g., Upstash Redis or Supabase RLS).\n- Exclude sensitive data from storage.\n- Set up regular Supabase backups.",
         "testStrategy": "Attempt XSS and injection attacks (should fail). Submit >10 leads from same IP/hour (should be blocked). Check privacy notice and consent flow.",
         "priority": "high",
-        "dependencies": [
-          7
-        ],
+        "dependencies": [7],
         "status": "pending",
         "subtasks": []
       },
@@ -591,9 +498,7 @@
         "details": "- Test on Chrome, Firefox, Safari, Edge, iOS Safari, Android Chrome.\n- Validate all form and calculation logic.\n- Test email delivery and formatting.\n- Use tools like k6 or Artillery for load testing (100 concurrent users).\n- Document all test cases and results.",
         "testStrategy": "Execute all test cases and log results. Fix any bugs found. Confirm system stability under load and all features work as intended.",
         "priority": "high",
-        "dependencies": [
-          12
-        ],
+        "dependencies": [12],
         "status": "pending",
         "subtasks": []
       },
@@ -604,9 +509,7 @@
         "details": "- Write README with setup, deployment, and environment variable instructions.\n- Document admin panel usage and CSV export.\n- Describe update/change process (per PRD).\n- Include troubleshooting and support contact info.",
         "testStrategy": "Review documentation for completeness and clarity. Have a non-developer follow setup steps. Confirm client can use admin panel and export data.",
         "priority": "medium",
-        "dependencies": [
-          13
-        ],
+        "dependencies": [13],
         "status": "pending",
         "subtasks": []
       },
@@ -617,16 +520,14 @@
         "details": "- Deploy latest build to Vercel production.\n- Run smoke tests on live environment.\n- Share with client for review and collect feedback.\n- Implement minor adjustments as needed.\n- Confirm all success metrics are trackable.",
         "testStrategy": "Verify live site matches requirements. Confirm all features work in production. Ensure client sign-off before public launch.",
         "priority": "high",
-        "dependencies": [
-          14
-        ],
+        "dependencies": [14],
         "status": "pending",
         "subtasks": []
       }
     ],
     "metadata": {
       "created": "2025-08-24T15:47:46.803Z",
-      "updated": "2025-08-24T16:08:51.494Z",
+      "updated": "2025-08-24T16:12:45.928Z",
       "description": "Tasks for master context"
     }
   }

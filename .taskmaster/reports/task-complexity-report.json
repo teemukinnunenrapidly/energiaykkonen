@@ -1,133 +1,133 @@
 {
-	"meta": {
-		"generatedAt": "2025-08-24T15:48:33.634Z",
-		"tasksAnalyzed": 15,
-		"totalTasks": 15,
-		"analysisCount": 15,
-		"thresholdScore": 5,
-		"projectName": "Taskmaster",
-		"usedResearch": true
-	},
-	"complexityAnalysis": [
-		{
-			"taskId": 1,
-			"taskTitle": "Initialize Next.js 14 Project and Repository",
-			"complexityScore": 4,
-			"recommendedSubtasks": 7,
-			"expansionPrompt": "Break down the initialization into: repository creation, Next.js 14 setup with TypeScript, App Router configuration, Vercel deployment setup, environment variable setup, code quality tooling (Prettier, ESLint, Husky), and font integration.",
-			"reasoning": "This task involves standard project setup steps that are well-documented and commonly performed in modern web development. Each step is independent and straightforward, but best practices recommend separating them for clarity and maintainability."
-		},
-		{
-			"taskId": 2,
-			"taskTitle": "Install and Configure Core Libraries",
-			"complexityScore": 6,
-			"recommendedSubtasks": 6,
-			"expansionPrompt": "Divide into: UI library installation/configuration (Tailwind, shadcn/ui), form/validation setup (React Hook Form, Zod), charting library setup (Recharts/Chart.js), database client setup (Supabase), email client setup (Resend), and analytics integration.",
-			"reasoning": "Integrating multiple libraries requires careful configuration and testing for compatibility. Each library serves a distinct purpose and should be configured and validated separately to follow modular and maintainable patterns."
-		},
-		{
-			"taskId": 3,
-			"taskTitle": "Design Responsive Multi-Step Form UI",
-			"complexityScore": 7,
-			"recommendedSubtasks": 5,
-			"expansionPrompt": "Expand into: step-wise form structure, component implementation (inputs, navigation), accessibility enhancements, responsive layout design, and style integration (font, color palette).",
-			"reasoning": "Building a multi-step, accessible, and responsive form involves UI/UX design, accessibility compliance, and device testing. Each aspect requires focused attention to meet industry standards for usability and inclusivity."
-		},
-		{
-			"taskId": 4,
-			"taskTitle": "Implement Form Validation and Input Masking",
-			"complexityScore": 6,
-			"recommendedSubtasks": 5,
-			"expansionPrompt": "Separate into: Zod schema definition, validation logic implementation, input masking setup, error message handling, and GDPR consent integration.",
-			"reasoning": "Robust validation and masking require schema design, regex implementation, error handling, and legal compliance. Each subtask addresses a distinct technical or regulatory requirement."
-		},
-		{
-			"taskId": 6,
-			"taskTitle": "Build Results Display and Data Visualization",
-			"complexityScore": 7,
-			"recommendedSubtasks": 5,
-			"expansionPrompt": "Break down into: summary UI design, bar chart implementation, timeline visualization, CO2 impact display, and CTA integration with responsive/accessibility checks.",
-			"reasoning": "Combining data visualization, summary UI, and accessibility requires specialized components and thorough testing. Each visualization and UI element should be implemented and validated separately."
-		},
-		{
-			"taskId": 7,
-			"taskTitle": "Integrate Supabase Database and Schema",
-			"complexityScore": 7,
-			"recommendedSubtasks": 6,
-			"expansionPrompt": "Expand into: Supabase project setup, schema/table creation, security configuration (RLS, SSL), API route implementation, metadata capture (IP, user agent), and analytics field integration.",
-			"reasoning": "Database integration involves backend setup, schema design, security enforcement, and API development. Each step is critical for data integrity and compliance."
-		},
-		{
-			"taskId": 9,
-			"taskTitle": "Develop Simple Admin Panel (/admin)",
-			"complexityScore": 6,
-			"recommendedSubtasks": 5,
-			"expansionPrompt": "Divide into: route and authentication setup, leads table implementation, search/filter functionality, CSV export feature, and statistics display.",
-			"reasoning": "Admin panel development requires secure authentication, data management, export functionality, and analytics. Each feature should be implemented and tested independently for reliability."
-		},
-		{
-			"taskId": 10,
-			"taskTitle": "Enable Analytics and Drop-off Tracking",
-			"complexityScore": 5,
-			"recommendedSubtasks": 4,
-			"expansionPrompt": "Separate into: analytics SDK integration, event tracking implementation, event storage configuration, and admin panel visualization.",
-			"reasoning": "Analytics integration involves SDK setup, event tracking logic, data storage, and visualization. Each subtask addresses a distinct technical requirement and should be modular."
-		},
-		{
-			"taskId": 11,
-			"taskTitle": "Implement WordPress iFrame Embed and Public Subdomain",
-			"complexityScore": 5,
-			"recommendedSubtasks": 4,
-			"expansionPrompt": "Break down into: Vercel subdomain configuration, iFrame embed code generation/documentation, dynamic resizing script implementation, and WordPress compatibility testing.",
-			"reasoning": "Embedding via iFrame and subdomain setup requires deployment configuration, code generation, cross-platform testing, and documentation. Each step is distinct and should be validated separately."
-		},
-		{
-			"taskId": 15,
-			"taskTitle": "Final Deployment and Client Feedback",
-			"complexityScore": 5,
-			"recommendedSubtasks": 4,
-			"expansionPrompt": "Expand into: production deployment, smoke testing, client review/feedback collection, and final adjustments/metrics verification.",
-			"reasoning": "Final deployment involves technical release, validation, client interaction, and last-minute fixes. Each subtask is sequential and critical for a successful launch."
-		},
-		{
-			"taskId": 5,
-			"taskTitle": "Develop Calculation Engine",
-			"complexityScore": 5,
-			"recommendedSubtasks": 3,
-			"expansionPrompt": "Break down this task with a focus on develop calculation engine.",
-			"reasoning": "Automatically added due to missing analysis in AI response."
-		},
-		{
-			"taskId": 8,
-			"taskTitle": "Implement Email Delivery with Resend",
-			"complexityScore": 5,
-			"recommendedSubtasks": 3,
-			"expansionPrompt": "Break down this task with a focus on implement email delivery with resend.",
-			"reasoning": "Automatically added due to missing analysis in AI response."
-		},
-		{
-			"taskId": 12,
-			"taskTitle": "Enforce Security, GDPR, and Rate Limiting",
-			"complexityScore": 5,
-			"recommendedSubtasks": 3,
-			"expansionPrompt": "Break down this task with a focus on enforce security, gdpr, and rate limiting.",
-			"reasoning": "Automatically added due to missing analysis in AI response."
-		},
-		{
-			"taskId": 13,
-			"taskTitle": "Comprehensive Testing and QA",
-			"complexityScore": 5,
-			"recommendedSubtasks": 3,
-			"expansionPrompt": "Break down this task with a focus on comprehensive testing and qa.",
-			"reasoning": "Automatically added due to missing analysis in AI response."
-		},
-		{
-			"taskId": 14,
-			"taskTitle": "Prepare Documentation and Handover",
-			"complexityScore": 5,
-			"recommendedSubtasks": 3,
-			"expansionPrompt": "Break down this task with a focus on prepare documentation and handover.",
-			"reasoning": "Automatically added due to missing analysis in AI response."
-		}
-	]
+  "meta": {
+    "generatedAt": "2025-08-24T15:48:33.634Z",
+    "tasksAnalyzed": 15,
+    "totalTasks": 15,
+    "analysisCount": 15,
+    "thresholdScore": 5,
+    "projectName": "Taskmaster",
+    "usedResearch": true
+  },
+  "complexityAnalysis": [
+    {
+      "taskId": 1,
+      "taskTitle": "Initialize Next.js 14 Project and Repository",
+      "complexityScore": 4,
+      "recommendedSubtasks": 7,
+      "expansionPrompt": "Break down the initialization into: repository creation, Next.js 14 setup with TypeScript, App Router configuration, Vercel deployment setup, environment variable setup, code quality tooling (Prettier, ESLint, Husky), and font integration.",
+      "reasoning": "This task involves standard project setup steps that are well-documented and commonly performed in modern web development. Each step is independent and straightforward, but best practices recommend separating them for clarity and maintainability."
+    },
+    {
+      "taskId": 2,
+      "taskTitle": "Install and Configure Core Libraries",
+      "complexityScore": 6,
+      "recommendedSubtasks": 6,
+      "expansionPrompt": "Divide into: UI library installation/configuration (Tailwind, shadcn/ui), form/validation setup (React Hook Form, Zod), charting library setup (Recharts/Chart.js), database client setup (Supabase), email client setup (Resend), and analytics integration.",
+      "reasoning": "Integrating multiple libraries requires careful configuration and testing for compatibility. Each library serves a distinct purpose and should be configured and validated separately to follow modular and maintainable patterns."
+    },
+    {
+      "taskId": 3,
+      "taskTitle": "Design Responsive Multi-Step Form UI",
+      "complexityScore": 7,
+      "recommendedSubtasks": 5,
+      "expansionPrompt": "Expand into: step-wise form structure, component implementation (inputs, navigation), accessibility enhancements, responsive layout design, and style integration (font, color palette).",
+      "reasoning": "Building a multi-step, accessible, and responsive form involves UI/UX design, accessibility compliance, and device testing. Each aspect requires focused attention to meet industry standards for usability and inclusivity."
+    },
+    {
+      "taskId": 4,
+      "taskTitle": "Implement Form Validation and Input Masking",
+      "complexityScore": 6,
+      "recommendedSubtasks": 5,
+      "expansionPrompt": "Separate into: Zod schema definition, validation logic implementation, input masking setup, error message handling, and GDPR consent integration.",
+      "reasoning": "Robust validation and masking require schema design, regex implementation, error handling, and legal compliance. Each subtask addresses a distinct technical or regulatory requirement."
+    },
+    {
+      "taskId": 6,
+      "taskTitle": "Build Results Display and Data Visualization",
+      "complexityScore": 7,
+      "recommendedSubtasks": 5,
+      "expansionPrompt": "Break down into: summary UI design, bar chart implementation, timeline visualization, CO2 impact display, and CTA integration with responsive/accessibility checks.",
+      "reasoning": "Combining data visualization, summary UI, and accessibility requires specialized components and thorough testing. Each visualization and UI element should be implemented and validated separately."
+    },
+    {
+      "taskId": 7,
+      "taskTitle": "Integrate Supabase Database and Schema",
+      "complexityScore": 7,
+      "recommendedSubtasks": 6,
+      "expansionPrompt": "Expand into: Supabase project setup, schema/table creation, security configuration (RLS, SSL), API route implementation, metadata capture (IP, user agent), and analytics field integration.",
+      "reasoning": "Database integration involves backend setup, schema design, security enforcement, and API development. Each step is critical for data integrity and compliance."
+    },
+    {
+      "taskId": 9,
+      "taskTitle": "Develop Simple Admin Panel (/admin)",
+      "complexityScore": 6,
+      "recommendedSubtasks": 5,
+      "expansionPrompt": "Divide into: route and authentication setup, leads table implementation, search/filter functionality, CSV export feature, and statistics display.",
+      "reasoning": "Admin panel development requires secure authentication, data management, export functionality, and analytics. Each feature should be implemented and tested independently for reliability."
+    },
+    {
+      "taskId": 10,
+      "taskTitle": "Enable Analytics and Drop-off Tracking",
+      "complexityScore": 5,
+      "recommendedSubtasks": 4,
+      "expansionPrompt": "Separate into: analytics SDK integration, event tracking implementation, event storage configuration, and admin panel visualization.",
+      "reasoning": "Analytics integration involves SDK setup, event tracking logic, data storage, and visualization. Each subtask addresses a distinct technical requirement and should be modular."
+    },
+    {
+      "taskId": 11,
+      "taskTitle": "Implement WordPress iFrame Embed and Public Subdomain",
+      "complexityScore": 5,
+      "recommendedSubtasks": 4,
+      "expansionPrompt": "Break down into: Vercel subdomain configuration, iFrame embed code generation/documentation, dynamic resizing script implementation, and WordPress compatibility testing.",
+      "reasoning": "Embedding via iFrame and subdomain setup requires deployment configuration, code generation, cross-platform testing, and documentation. Each step is distinct and should be validated separately."
+    },
+    {
+      "taskId": 15,
+      "taskTitle": "Final Deployment and Client Feedback",
+      "complexityScore": 5,
+      "recommendedSubtasks": 4,
+      "expansionPrompt": "Expand into: production deployment, smoke testing, client review/feedback collection, and final adjustments/metrics verification.",
+      "reasoning": "Final deployment involves technical release, validation, client interaction, and last-minute fixes. Each subtask is sequential and critical for a successful launch."
+    },
+    {
+      "taskId": 5,
+      "taskTitle": "Develop Calculation Engine",
+      "complexityScore": 5,
+      "recommendedSubtasks": 3,
+      "expansionPrompt": "Break down this task with a focus on develop calculation engine.",
+      "reasoning": "Automatically added due to missing analysis in AI response."
+    },
+    {
+      "taskId": 8,
+      "taskTitle": "Implement Email Delivery with Resend",
+      "complexityScore": 5,
+      "recommendedSubtasks": 3,
+      "expansionPrompt": "Break down this task with a focus on implement email delivery with resend.",
+      "reasoning": "Automatically added due to missing analysis in AI response."
+    },
+    {
+      "taskId": 12,
+      "taskTitle": "Enforce Security, GDPR, and Rate Limiting",
+      "complexityScore": 5,
+      "recommendedSubtasks": 3,
+      "expansionPrompt": "Break down this task with a focus on enforce security, gdpr, and rate limiting.",
+      "reasoning": "Automatically added due to missing analysis in AI response."
+    },
+    {
+      "taskId": 13,
+      "taskTitle": "Comprehensive Testing and QA",
+      "complexityScore": 5,
+      "recommendedSubtasks": 3,
+      "expansionPrompt": "Break down this task with a focus on comprehensive testing and qa.",
+      "reasoning": "Automatically added due to missing analysis in AI response."
+    },
+    {
+      "taskId": 14,
+      "taskTitle": "Prepare Documentation and Handover",
+      "complexityScore": 5,
+      "recommendedSubtasks": 3,
+      "expansionPrompt": "Break down this task with a focus on prepare documentation and handover.",
+      "reasoning": "Automatically added due to missing analysis in AI response."
+    }
+  ]
 }
