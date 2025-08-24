@@ -28,7 +28,7 @@
               "1.1"
             ],
             "details": "Run `npx create-next-app@latest --typescript` in the repository directory. Confirm TypeScript configuration is present.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": ""
           },
           {
@@ -626,7 +626,7 @@
     ],
     "metadata": {
       "created": "2025-08-24T15:47:46.803Z",
-      "updated": "2025-08-24T16:00:03.361Z",
+      "updated": "2025-08-24T16:04:01.187Z",
       "description": "Tasks for master context"
     }
   }
