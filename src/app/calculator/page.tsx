@@ -1,12 +1,13 @@
-import { Metadata } from 'next';
+'use client';
 
-export const metadata: Metadata = {
-  title: 'E1 Calculator - Energiaykkönen',
-  description:
-    'Calculate your energy savings and payback period for heat pump installation',
-};
+import { MultiStepForm } from '@/components/calculator';
 
 export default function CalculatorPage() {
+  const handleFormComplete = () => {
+    // This will be handled by the form component
+    // For now, we'll just handle it silently
+  };
+
   return (
     <div className="min-h-screen bg-gray-50 py-8">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -20,16 +21,7 @@ export default function CalculatorPage() {
           </p>
         </div>
 
-        <div className="bg-white rounded-lg shadow-lg p-6">
-          <div className="text-center py-12">
-            <p className="text-gray-500 text-lg">
-              Calculator form will be implemented in the next subtasks
-            </p>
-            <p className="text-sm text-gray-400 mt-2">
-              This is the foundation structure for the E1 Calculator
-            </p>
-          </div>
-        </div>
+        <MultiStepForm onComplete={handleFormComplete} />
       </div>
     </div>
   );
