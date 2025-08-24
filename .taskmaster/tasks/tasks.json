@@ -17,7 +17,7 @@
             "description": "Initialize a new Git repository named 'energiaykkonen-calculator' for version control.",
             "dependencies": [],
             "details": "Set up the repository locally or on a platform like GitHub. Ensure .gitignore is configured for Next.js and Node projects.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": ""
           },
           {
@@ -626,7 +626,7 @@
     ],
     "metadata": {
       "created": "2025-08-24T15:47:46.803Z",
-      "updated": "2025-08-24T15:47:46.803Z",
+      "updated": "2025-08-24T16:00:03.361Z",
       "description": "Tasks for master context"
     }
   }
