@@ -10,6 +10,12 @@ import {
   calculatorFormSchema,
   type CalculatorFormData,
 } from '@/lib/validation';
+import {
+  BasicInfoStep,
+  PropertyDetailsStep,
+  CurrentHeatingStep,
+  ResultsStep,
+} from './steps';
 
 // Form steps configuration
 const FORM_STEPS = [
@@ -119,6 +125,22 @@ export function MultiStepForm({ onComplete }: MultiStepFormProps) {
     }
   };
 
+  // Render the appropriate step component
+  const renderStepContent = () => {
+    switch (currentStep) {
+      case 1:
+        return <BasicInfoStep form={form} />;
+      case 2:
+        return <PropertyDetailsStep form={form} />;
+      case 3:
+        return <CurrentHeatingStep form={form} />;
+      case 4:
+        return <ResultsStep form={form} />;
+      default:
+        return null;
+    }
+  };
+
   return (
     <div className="w-full max-w-4xl mx-auto">
       {/* Progress Bar */}
@@ -169,14 +191,8 @@ export function MultiStepForm({ onComplete }: MultiStepFormProps) {
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-            {/* Step content will be rendered here */}
-            <div className="min-h-[300px]">
-              {/* This will be replaced with actual step components */}
-              <p className="text-center text-gray-500 py-20">
-                Step {currentStep} content will be implemented in the next
-                subtasks
-              </p>
-            </div>
+            {/* Step content */}
+            <div className="min-h-[300px]">{renderStepContent()}</div>
 
             {/* Navigation Buttons */}
             <div className="flex justify-between pt-6 border-t">

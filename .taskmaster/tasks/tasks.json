@@ -158,7 +158,7 @@
             "description": "Outline the four-step form flow (House Info, Current Heating, Household, Contact Info), specifying the fields, step order, and navigation logic (next/back).",
             "dependencies": [],
             "details": "Document the fields for each step, determine how steps are grouped, and define the navigation logic to move between steps. Ensure the structure supports validation and progress tracking.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": ""
           },
           {
@@ -167,7 +167,7 @@
             "description": "Develop individual React components for each form step using shadcn/ui components (Input, Select, Radio, ProgressBar, Button) and integrate with React Hook Form.",
             "dependencies": ["3.1"],
             "details": "For each step, use shadcn/ui components to build the UI, connect fields to React Hook Form, and ensure clear labels, placeholders, and help text are present. Integrate the progress bar and navigation controls.",
-            "status": "pending",
+            "status": "in-progress",
             "testStrategy": ""
           },
           {
@@ -527,7 +527,7 @@
     ],
     "metadata": {
       "created": "2025-08-24T15:47:46.803Z",
-      "updated": "2025-08-24T16:48:56.031Z",
+      "updated": "2025-08-24T17:08:21.702Z",
       "description": "Tasks for master context"
     }
   }
