@@ -14,7 +14,7 @@ export default function HomePage() {
             our sales team.
           </p>
 
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+          <div className="flex flex-col sm:flex-row gap-4 justify-center mb-8">
             <Link
               href="/calculator"
               className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-8 rounded-lg transition-colors duration-200"
@@ -27,32 +27,46 @@ export default function HomePage() {
             >
               Admin Panel
             </Link>
+            <Link
+              href="/font-test"
+              className="bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-8 rounded-lg transition-colors duration-200"
+            >
+              Font Test
+            </Link>
           </div>
 
-          <div className="mt-12 grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="bg-white p-6 rounded-lg shadow-md">
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                Energy Savings
-              </h3>
-              <p className="text-gray-600">
-                Calculate potential savings on your heating costs
-              </p>
+          <div className="grid md:grid-cols-3 gap-8 mt-16">
+            <div className="text-center">
+              <div className="bg-white rounded-lg p-6 shadow-lg">
+                <h3 className="text-xl font-semibold text-gray-800 mb-3">
+                  Energy Savings
+                </h3>
+                <p className="text-gray-600">
+                  Calculate potential savings on your heating costs
+                </p>
+              </div>
             </div>
-            <div className="bg-white p-6 rounded-lg shadow-md">
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                Payback Period
-              </h3>
-              <p className="text-gray-600">
-                See how long until your investment pays off
-              </p>
+
+            <div className="text-center">
+              <div className="bg-white rounded-lg p-6 shadow-lg">
+                <h3 className="text-xl font-semibold text-gray-800 mb-3">
+                  Payback Period
+                </h3>
+                <p className="text-gray-600">
+                  See how long until your investment pays off
+                </p>
+              </div>
             </div>
-            <div className="bg-white p-6 rounded-lg shadow-md">
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                Environmental Impact
-              </h3>
-              <p className="text-gray-600">
-                Understand your CO2 reduction contribution
-              </p>
+
+            <div className="text-center">
+              <div className="bg-white rounded-lg p-6 shadow-lg">
+                <h3 className="text-xl font-semibold text-gray-800 mb-3">
+                  Environmental Impact
+                </h3>
+                <p className="text-gray-600">
+                  Understand your CO2 reduction contribution
+                </p>
+              </div>
             </div>
           </div>
         </div>
