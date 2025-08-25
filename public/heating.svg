@@ -1,0 +1,21 @@
+<svg width="200" height="200" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Heating unit -->
+  <rect x="60" y="80" width="80" height="60" rx="8" fill="#EF4444" stroke="#DC2626" stroke-width="3"/>
+  
+  <!-- Heat waves -->
+  <path d="M50 100C50 100 60 90 70 100C80 110 70 120 70 120" stroke="#F97316" stroke-width="3" stroke-linecap="round"/>
+  <path d="M45 110C45 110 55 100 65 110C75 120 65 130 65 130" stroke="#F97316" stroke-width="3" stroke-linecap="round"/>
+  
+  <!-- Temperature gauge -->
+  <circle cx="100" cy="110" r="20" fill="none" stroke="#374151" stroke-width="4"/>
+  <path d="M100 90L100 110L110 110" stroke="#374151" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+  
+  <!-- Heat indicator -->
+  <path d="M100 90C100 90 95 85 100 80C105 85 100 90 100 90" fill="#F97316"/>
+  
+  <!-- Control panel -->
+  <rect x="70" y="150" width="60" height="20" rx="4" fill="#6B7280" stroke="#374151" stroke-width="2"/>
+  <circle cx="80" cy="160" r="3" fill="#10B981"/>
+  <circle cx="100" cy="160" r="3" fill="#F59E0B"/>
+  <circle cx="120" cy="160" r="3" fill="#EF4444"/>
+</svg>

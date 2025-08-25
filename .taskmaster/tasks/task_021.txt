@@ -1,0 +1,156 @@
+# Task ID: 21
+# Title: Implement Form Builder Page with Visual Content System in Admin Panel
+# Status: pending
+# Dependencies: 17, 18, 19, 25
+# Priority: high
+# Description: Develop a simplified admin panel feature enabling administrators to customize existing energy calculator forms with essential fields and properties, focusing on practical form customization needs rather than complex enterprise features.
+# Details:
+1. Create a React-based simple form builder page in the admin panel, with a straightforward interface for field management and editing of field properties.
+2. Implement field management for existing form field types: text, number, select, checkbox, and radio buttons with simple property editing.
+3. Support simple validation rules including required fields, min/max length, min/max values, and basic regex patterns.
+4. Enable administrators to edit field labels, placeholder text, help text, and validation error messages.
+5. Implement section management to edit titles, descriptions, and show/hide entire sections.
+6. Build a simple preview panel that shows how the form will appear to users.
+7. Support basic responsive design considerations and accessibility (WCAG 2.1).
+8. Provide form testing capabilities to verify form functionality.
+9. Store form schemas in Supabase with basic validation.
+10. Focus on editing existing form structure rather than building from scratch.
+11. Implement save functionality with save changes button, reset to defaults button, and simple unsaved changes warning.
+12. Leverage the Unified Form System (Task 25) for underlying form functionality, focusing on building a simple admin customization interface.
+
+# Test Strategy:
+1. Verify basic field management functionality: enable/disable fields, reorder fields with up/down arrows, mark fields as required/optional.
+2. Test field editing capabilities: edit labels, placeholder text, help text, and validation error messages.
+3. Validate simple validation rules: test required fields, min/max length, min/max values, and basic regex patterns.
+4. Test section management: edit section titles and descriptions, show/hide entire sections.
+5. Confirm preview functionality: ensure the preview panel accurately reflects the form being customized.
+6. Test responsive design and basic accessibility: verify forms display properly on different screen sizes and meet basic accessibility requirements.
+7. Validate form testing capabilities: complete test form submissions and verify data capture.
+8. Test save functionality: verify save changes button, reset to defaults button, and unsaved changes warning work correctly.
+9. Review Supabase schema: ensure form data is stored and retrievable as designed.
+10. Test integration with the Unified Form System: verify that the admin builder correctly interfaces with the shared schema and visual infrastructure.
+
+# Subtasks:
+## 1. Create Form Builder UI Shell [pending]
+### Dependencies: None
+### Description: Set up admin route /admin/form-builder. Create two-panel layout (form editor, properties). Integrate with admin authentication. Apply consistent admin styling.
+### Details:
+Set up admin route /admin/form-builder. Create two-panel layout (form editor, properties). Integrate with admin authentication. Apply consistent admin styling.
+<info added on 2025-08-25T11:36:49.888Z>
+**Updated MVP Approach:**
+
+**Simplified Two-Panel Layout:**
+- **Left Panel**: Form Editor showing current form structure with field management
+- **Right Panel**: Properties panel for editing selected fields/sections
+
+**Key Features:**
+- Field list/card layout (no complex drag-and-drop)
+- Simple up/down arrows for reordering
+- Enable/disable toggles for fields and sections
+- Clean, admin-consistent styling
+- Integration with existing admin authentication
+
+**Technical Implementation:**
+- Use existing admin route structure
+- Leverage shadcn/ui components for consistency
+- Focus on practical field management over visual design tools
+- Simple state management for form customization
+</info added on 2025-08-25T11:36:49.888Z>
+
+## 2. Implement Basic Field Management [pending]
+### Dependencies: None
+### Description: Build field list/card layout showing all current form fields. Add enable/disable toggle for fields. Implement up/down arrows for reordering. Add required/optional toggle.
+### Details:
+Build field list/card layout showing all current form fields. Add enable/disable toggle for fields. Implement up/down arrows for reordering. Add required/optional toggle.
+<info added on 2025-08-25T11:37:02.502Z>
+**MVP Field Management - Simplified Approach:**
+
+**Field List/Card Layout:**
+- Display all current form fields in a clean, organized list
+- Each field shows: type, label, required status, enabled/disabled state
+- Simple card design with clear visual hierarchy
+
+**Enable/Disable Functionality:**
+- Toggle switch for each field (show/hide without deletion)
+- Visual indication of disabled fields (grayed out, opacity reduced)
+- Maintain field data even when disabled
+
+**Simple Reordering:**
+- Up/down arrow buttons for each field
+- No complex drag-and-drop - just click to move up/down
+- Visual feedback during reordering
+- Prevent moving disabled fields
+
+**Required/Optional Toggle:**
+- Simple toggle for each field
+- Clear visual indication of required fields
+- Update validation rules automatically
+</info added on 2025-08-25T11:37:02.502Z>
+
+## 3. Build Field Properties Panel [pending]
+### Dependencies: None
+### Description: Create property editor for selected fields. Build forms for editing field labels, placeholder text, help text, and error messages. Implement validation rule options (required, min/max length, min/max values, regex patterns).
+### Details:
+Create property editor for selected fields. Build forms for editing field labels, placeholder text, help text, and error messages. Implement validation rule options (required, min/max length, min/max values, regex patterns).
+<info added on 2025-08-25T11:39:10.489Z>
+Enhance the field properties panel with shortcode integration from active calculations. Add functionality to display available shortcodes from active calculations, allowing admins to insert them into field help text, placeholders, or labels. Implement shortcode preview with actual calculation results to enable dynamic field content. 
+
+Create a shortcode management interface that lists all active calculation formulas with their shortcodes, shows proper syntax (e.g., `[calc:annual-savings]`), provides real-time preview of calculation results, and includes easy copy/paste functionality. Implement validation to ensure shortcodes reference valid calculations.
+
+Support use cases such as dynamic field labels showing calculation results (e.g., "Annual Savings: [calc:annual-savings]"), help text with contextual information (e.g., "Based on your current costs: [calc:current-heating-cost]"), and placeholders with estimated values (e.g., "Estimated: [calc:estimated-savings] €/year").
+</info added on 2025-08-25T11:39:10.489Z>
+
+## 4. Implement Section Management [pending]
+### Dependencies: None
+### Description: Create interface for managing form sections (Property, Heating, Costs, Contact). Add ability to edit section titles and descriptions. Implement show/hide toggle for entire sections.
+### Details:
+Create interface for managing form sections (Property, Heating, Costs, Contact). Add ability to edit section titles and descriptions. Implement show/hide toggle for entire sections.
+
+## 5. Add Basic Preview and Testing Tools [pending]
+### Dependencies: None
+### Description: Create simple preview panel. Implement basic form testing mode. Add mobile/desktop preview toggle. Connect to calculator preview (Task 19).
+### Details:
+Create simple preview panel. Implement basic form testing mode. Add mobile/desktop preview toggle. Connect to calculator preview (Task 19).
+
+## 6. Implement Save Functionality [pending]
+### Dependencies: None
+### Description: Create save changes button to persist form customizations. Add reset to defaults button. Implement unsaved changes warning when navigating away with unsaved changes.
+### Details:
+Create save changes button to persist form customizations. Add reset to defaults button. Implement unsaved changes warning when navigating away with unsaved changes.
+
+## 7. Implement Shortcode Management System [pending]
+### Dependencies: None
+### Description: Create a comprehensive shortcode management interface that integrates with active calculations. Display available shortcodes, provide preview functionality, and enable easy insertion into form fields.
+### Details:
+**Shortcode Management System:**
+
+**Available Shortcodes Display:**
+- List all active calculation formulas with their generated shortcodes
+- Show shortcode syntax (e.g., `[calc:annual-savings]`, `[calc:payback-period]`)
+- Display calculation description and current status
+- Group shortcodes by category (savings, costs, efficiency)
+
+**Shortcode Preview & Testing:**
+- Real-time preview of calculation results
+- Test shortcodes with sample data
+- Show calculation execution time and validation status
+- Preview how shortcodes render in different contexts
+
+**Integration with Form Builder:**
+- Easy copy/paste functionality for shortcodes
+- Insert shortcodes into field labels, placeholders, help text
+- Validate that shortcodes reference valid, active calculations
+- Auto-complete suggestions when typing shortcode syntax
+
+**Shortcode Context Examples:**
+- Field Label: "Annual Savings: [calc:annual-savings]"
+- Help Text: "Based on current costs: [calc:current-heating-cost]"
+- Placeholder: "Estimated: [calc:estimated-savings] €/year"
+- Error Message: "Must be less than [calc:max-allowable-cost]"
+
+**Technical Implementation:**
+- Connect to existing formula service from Task 20
+- Use shortcode generation functions already implemented
+- Real-time validation and preview
+- Error handling for invalid or inactive shortcodes
+

@@ -1,327 +1,421 @@
-# WordPress Integration Guide
+# WordPress Integration Guide - Energiaykkonen Calculator
 
-## Energiaykkonen Calculator Embed
+This guide provides complete instructions for embedding the Energiaykkonen Calculator in WordPress websites using iframe integration.
 
-This guide provides complete instructions for embedding the Energiaykkonen heat pump calculator into WordPress websites using an iframe with automatic resizing.
+## 🚀 Quick Start
 
-## ✅ Integration Test Results
+### 1. Simple Embed (Copy & Paste)
 
-**All 13 critical tests passed!** The calculator is ready for WordPress integration.
-
-- ✅ Embed script accessible and optimized (5KB)
-- ✅ Security headers configured for iframe embedding
-- ✅ Cross-origin communication working
-- ✅ Dynamic resizing functionality active
-- ✅ WordPress compatibility verified
-
-## 📋 Quick Start
-
-### Method 1: Simple Iframe Embed
-
-Add this code to your WordPress post or page:
+Add this HTML code to any WordPress page or post:
 
 ```html
-<!-- Energiaykkonen Calculator Embed -->
-<div
-  style="margin: 20px 0; padding: 20px; background: #f8f9fa; border-left: 4px solid #0073aa; border-radius: 4px;"
->
-  <h3 style="color: #0073aa; margin-bottom: 15px;">
-    📊 Lämpöpumpun Takaisinmaksuaika Laskuri
-  </h3>
+<iframe 
+  src="https://laskuri.energiaykkonen.fi/calculator" 
+  width="100%" 
+  height="600" 
+  frameborder="0" 
+  scrolling="no" 
+  allowtransparency="true"
+  title="Energiaykkonen Calculator">
+</iframe>
+```
 
-  <iframe
+### 2. Advanced Embed with Dynamic Resizing
+
+For automatic height adjustment, use this enhanced version:
+
+```html
+<div class="energiaykkonen-calculator-container">
+  <iframe 
     id="energiaykkonen-calculator"
-    src="https://laskuri.energiaykkonen.fi/calculator"
-    style="width: 100%; border: none; overflow: hidden; border-radius: 4px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);"
-    scrolling="no"
-    frameborder="0"
+    src="https://laskuri.energiaykkonen.fi/calculator" 
+    width="100%" 
+    height="600" 
+    frameborder="0" 
+    scrolling="no" 
     allowtransparency="true"
-    title="Energiaykkonen Heat Pump Calculator"
-    allow="clipboard-write"
-  ></iframe>
-
-  <script src="https://laskuri.energiaykkonen.fi/embed.js" async></script>
-</div>
-```
-
-### Method 2: With Advanced Message Handling
-
-For more control over the integration:
-
-```html
-<!-- Calculator Container -->
-<div id="calculator-container" style="margin: 20px 0;">
-  <iframe
-    id="energiaykkonen-calculator"
-    src="https://laskuri.energiaykkonen.fi/calculator"
-    style="width: 100%; height: 600px; border: none; border-radius: 4px;"
-    scrolling="no"
-    title="Energiaykkonen Calculator"
-  ></iframe>
+    title="Energiaykkonen Calculator">
+  </iframe>
 </div>
 
-<!-- Integration Script -->
 <script>
-  // WordPress integration with custom event handling
-  window.addEventListener('message', function (event) {
-    // Optional: Verify origin for security
-    if (event.origin !== 'https://laskuri.energiaykkonen.fi') return;
-
-    if (event.data && event.data.type === 'calculator-resize') {
-      const iframe = document.getElementById('energiaykkonen-calculator');
-      if (iframe && event.data.height) {
-        iframe.style.height = event.data.height + 'px';
-        iframe.style.transition = 'height 0.3s ease';
-
-        // Optional: Custom analytics or callbacks
-        console.log('Calculator resized to:', event.data.height + 'px');
-      }
+// Listen for resize messages from the calculator
+window.addEventListener('message', function(event) {
+  if (event.data.type === 'calculator-resize' && 
+      event.data.source === 'energiaykkonen-calculator') {
+    
+    const iframe = document.getElementById('energiaykkonen-calculator');
+    if (iframe) {
+      iframe.style.height = event.data.height + 'px';
     }
-  });
+  }
+});
 </script>
+
+<style>
+.energiaykkonen-calculator-container {
+  margin: 2rem 0;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.energiaykkonen-calculator-container iframe {
+  transition: height 0.3s ease;
+}
+</style>
 ```
 
-## 🎨 Styling Options
+## 📋 Step-by-Step Integration
 
-### WordPress Block Editor (Gutenberg)
+### Method 1: Gutenberg Block Editor
 
-1. Add a **Custom HTML** block
-2. Paste the embed code above
-3. Style with additional CSS if needed
+1. **Create a new page or post**
+2. **Add a "Custom HTML" block**
+3. **Paste the embed code** from above
+4. **Publish or update** the page
 
-### Classic Editor
+### Method 2: Classic Editor
 
-1. Switch to **Text** mode
-2. Paste the embed code
-3. Switch back to **Visual** mode to preview
+1. **Switch to "Text" mode** in the editor
+2. **Paste the embed code** where you want the calculator
+3. **Switch back to "Visual" mode** to see the result
+4. **Publish or update** the page
 
-### Custom CSS for Better Integration
+### Method 3: Theme Files (Advanced)
 
-Add this CSS to your theme's `style.css` or via **Customizer → Additional CSS**:
+For permanent placement in your theme:
+
+1. **Edit your theme files** (e.g., `page.php`, `single.php`)
+2. **Add the embed code** in the desired location
+3. **Save and test** the changes
+
+## 🎨 Customization Options
+
+### Basic Styling
 
 ```css
-/* Energiaykkonen Calculator Embed Styles */
-.energiaykkonen-embed {
+/* Custom container styling */
+.energiaykkonen-calculator-container {
   margin: 2rem 0;
-  padding: 1.5rem;
+  padding: 1rem;
   background: #f8f9fa;
   border-left: 4px solid #0073aa;
   border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 }
 
-.energiaykkonen-embed h3 {
-  color: #0073aa;
-  margin-bottom: 1rem;
-  font-size: 1.2rem;
+/* Custom iframe styling */
+.energiaykkonen-calculator-container iframe {
+  border-radius: 8px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
 }
+```
 
-.energiaykkonen-calculator {
-  width: 100%;
-  border: none;
-  overflow: hidden;
-  border-radius: 6px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  transition: height 0.3s ease;
-  background: white;
-}
+### Responsive Design
 
-/* Responsive adjustments */
+```css
+/* Mobile optimization */
 @media (max-width: 768px) {
-  .energiaykkonen-embed {
+  .energiaykkonen-calculator-container {
     margin: 1rem 0;
-    padding: 1rem;
+    padding: 0.5rem;
+  }
+  
+  .energiaykkonen-calculator-container iframe {
+    height: 500px !important; /* Force mobile height */
   }
 }
 ```
 
-Then use this simplified HTML:
+### Theme Integration
 
-```html
-<div class="energiaykkonen-embed">
-  <h3>📊 Lämpöpumpun Takaisinmaksuaika Laskuri</h3>
-  <iframe
-    class="energiaykkonen-calculator"
-    src="https://laskuri.energiaykkonen.fi/calculator"
-    title="Energiaykkonen Calculator"
-    scrolling="no"
-  ></iframe>
-  <script src="https://laskuri.energiaykkonen.fi/embed.js" async></script>
-</div>
+```css
+/* Match your WordPress theme colors */
+.energiaykkonen-calculator-container {
+  border-left-color: var(--wp--preset--color--primary);
+  background: var(--wp--preset--color--background);
+}
 ```
 
-## 🔧 Technical Details
+## 🔧 Advanced Features
 
-### How Dynamic Resizing Works
+### 1. Dynamic Resizing
 
-1. **Calculator sends height updates** via `postMessage` when content changes
-2. **Parent page listens** for `calculator-resize` messages
-3. **Iframe height adjusts** automatically with smooth transitions
-4. **No manual configuration** required
+The calculator automatically adjusts its height based on content. Enable this by:
 
-### Security Features
+1. **Including the resize listener script** (see Advanced Embed above)
+2. **Adding CSS transitions** for smooth height changes
+3. **Setting appropriate min/max heights** for your layout
 
-- ✅ **HTTPS only** - All communications encrypted
-- ✅ **Content Security Policy** - XSS protection enabled
-- ✅ **Cross-origin safe** - postMessage API used securely
-- ✅ **No data storage** - Calculator runs client-side
-- ✅ **Privacy compliant** - GDPR considerations included
+### 2. Event Handling
 
-### Performance Optimization
-
-- **Lightweight script** - Only 5KB overhead
-- **Debounced updates** - Prevents excessive resizing
-- **Lazy loading ready** - Use `loading="lazy"` on iframe if needed
-- **CDN delivered** - Fast global content delivery
-
-## 🧪 Testing Your Integration
-
-### Local Testing
-
-1. **Test Page Available**: Visit `/wordpress-demo.html` on the calculator domain
-2. **Real-time monitoring** of iframe communication
-3. **Responsive testing** across different screen sizes
-4. **Message logging** for debugging
-
-### Production Testing Checklist
-
-- [ ] Calculator loads without errors
-- [ ] Iframe resizes automatically as user progresses
-- [ ] No console errors in browser developer tools
-- [ ] Mobile responsiveness works correctly
-- [ ] Form submission completes successfully
-- [ ] Email delivery functions (if enabled)
-
-### Debug Mode
-
-Add this to troubleshoot integration issues:
+Listen for calculator events:
 
 ```javascript
-// Debug iframe communication
-window.addEventListener('message', function (event) {
-  console.log('Iframe message received:', event.data);
+window.addEventListener('message', function(event) {
+  if (event.data.source === 'energiaykkonen-calculator') {
+    switch(event.data.type) {
+      case 'calculator-resize':
+        // Handle height changes
+        console.log('Calculator height:', event.data.height);
+        break;
+      case 'form-submitted':
+        // Handle form submission
+        console.log('Form submitted with data:', event.data.formData);
+        break;
+    }
+  }
 });
-
-// Check if iframe loaded
-document
-  .getElementById('energiaykkonen-calculator')
-  .addEventListener('load', function () {
-    console.log('Calculator iframe loaded successfully');
-  });
 ```
 
-## 🎯 Common WordPress Scenarios
+### 3. Custom Styling
 
-### Embedding in Posts
+Override calculator styles from your WordPress theme:
 
-Use the **Custom HTML** block or **HTML** widget:
+```css
+/* Target calculator elements within iframe */
+.energiaykkonen-calculator-container iframe {
+  /* Your custom styles */
+}
 
-```html
-<div class="wp-block-group">
-  <h3>Laske Lämpöpumpun Säästöt</h3>
-  <iframe
-    src="https://laskuri.energiaykkonen.fi/calculator"
-    style="width:100%; border:none;"
-    title="Energiaykkonen Calculator"
-  ></iframe>
-  <script src="https://laskuri.energiaykkonen.fi/embed.js" async></script>
-</div>
+/* Note: Direct CSS targeting of iframe content is limited due to cross-origin restrictions */
 ```
 
-### Sidebar Widget
+## 📱 Mobile Optimization
 
-Create a **Custom HTML** widget:
+### Responsive Breakpoints
 
-```html
-<div style="text-align: center; margin-bottom: 20px;">
-  <h4>💡 Laske Säästösi</h4>
-  <iframe
-    src="https://laskuri.energiaykkonen.fi/calculator"
-    style="width:100%; height:400px; border:none;"
-    title="Calculator"
-  ></iframe>
-  <script src="https://laskuri.energiaykkonen.fi/embed.js" async></script>
-</div>
+```css
+/* Tablet */
+@media (max-width: 1024px) {
+  .energiaykkonen-calculator-container iframe {
+    height: 550px !important;
+  }
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+  .energiaykkonen-calculator-container iframe {
+    height: 500px !important;
+  }
+}
+
+/* Small Mobile */
+@media (max-width: 480px) {
+  .energiaykkonen-calculator-container iframe {
+    height: 450px !important;
+  }
+}
 ```
 
-### Landing Page
+### Touch-Friendly Design
 
-For dedicated calculator pages, use a page builder or custom template:
+The calculator is optimized for touch devices with:
+- Large touch targets
+- Swipe-friendly navigation
+- Mobile-optimized form controls
 
-```html
-<section class="calculator-hero">
-  <div class="container">
-    <h1>Lämpöpumpun Takaisinmaksuaika</h1>
-    <p>Laske säästösi ja CO2-vähennys nopeasti ja helposti.</p>
-
-    <div class="calculator-wrapper">
-      <iframe
-        src="https://laskuri.energiaykkonen.fi/calculator"
-        style="width:100%; border:none; min-height:600px;"
-        title="Calculator"
-      ></iframe>
-      <script src="https://laskuri.energiaykkonen.fi/embed.js" async></script>
-    </div>
-  </div>
-</section>
-```
-
-## 🔒 Privacy & GDPR Compliance
-
-### Data Handling
-
-- **No personal data stored** without explicit consent
-- **Privacy notice** included in calculator form
-- **Consent checkbox** for email communications
-- **Data retention** policies clearly stated
-
-### WordPress Privacy Tools
-
-The calculator integrates with WordPress privacy features:
-
-- **Privacy Policy** - Include calculator data handling
-- **Cookie Notice** - No tracking cookies used by default
-- **GDPR compliance** - Built-in consent mechanisms
-
-## 📞 Support & Troubleshooting
+## 🚨 Troubleshooting
 
 ### Common Issues
 
-**Issue: Iframe not resizing**
+#### 1. Calculator Not Loading
 
-- Check browser console for JavaScript errors
-- Verify embed.js is loading correctly
-- Ensure iframe has a unique ID
+**Problem**: Iframe shows blank or error
+**Solution**: 
+- Check if the URL is correct: `https://laskuri.energiaykkonen.fi/calculator`
+- Verify your hosting allows iframe embedding
+- Check browser console for errors
 
-**Issue: Calculator not loading**
+#### 2. Height Not Adjusting
 
-- Check domain/URL is correct
-- Verify HTTPS is used
-- Check for Content Security Policy conflicts
+**Problem**: Calculator height remains fixed
+**Solution**:
+- Ensure the resize listener script is included
+- Check that postMessage communication is working
+- Verify iframe has proper ID attribute
 
-**Issue: Mobile display problems**
+#### 3. Styling Conflicts
 
-- Ensure responsive CSS is applied
+**Problem**: Calculator looks different than expected
+**Solution**:
+- Check for CSS conflicts in your theme
+- Use more specific CSS selectors
+- Consider using `!important` for critical styles
+
+#### 4. Mobile Display Issues
+
+**Problem**: Calculator doesn't work well on mobile
+**Solution**:
+- Ensure responsive CSS is included
 - Test on actual mobile devices
-- Check viewport meta tag in theme
+- Check viewport meta tag is present
 
-### Getting Help
+### Debug Mode
 
-- **Documentation**: Full guides available at calculator domain
-- **Test Environment**: Use `/wordpress-demo.html` for testing
-- **Technical Support**: Contact via calculator website
+Enable debug logging:
+
+```javascript
+// Add this before the resize listener
+window.addEventListener('message', function(event) {
+  console.log('Calculator message received:', event.data);
+  
+  if (event.data.type === 'calculator-resize' && 
+      event.data.source === 'energiaykkonen-calculator') {
+    
+    console.log('Resizing calculator to:', event.data.height);
+    const iframe = document.getElementById('energiaykkonen-calculator');
+    if (iframe) {
+      iframe.style.height = event.data.height + 'px';
+    }
+  }
+});
+```
+
+## 🔒 Security Considerations
+
+### Content Security Policy
+
+If you have strict CSP, add these directives:
+
+```html
+<meta http-equiv="Content-Security-Policy" 
+      content="frame-ancestors 'self' https://laskuri.energiaykkonen.fi;">
+```
+
+### Origin Verification
+
+For enhanced security, verify message origin:
+
+```javascript
+window.addEventListener('message', function(event) {
+  // Verify origin for security
+  if (event.origin !== 'https://laskuri.energiaykkonen.fi') {
+    return;
+  }
+  
+  // Process message...
+});
+```
+
+## 📊 Performance Optimization
+
+### Lazy Loading
+
+Load calculator only when needed:
+
+```javascript
+// Lazy load calculator
+function loadCalculator() {
+  const container = document.getElementById('calculator-container');
+  container.innerHTML = `
+    <iframe src="https://laskuri.energiaykkonen.fi/calculator" 
+            width="100%" height="600" frameborder="0">
+    </iframe>
+  `;
+}
+
+// Load on scroll or button click
+document.getElementById('load-calculator').addEventListener('click', loadCalculator);
+```
+
+### Preloading
+
+Preload calculator for better performance:
+
+```html
+<link rel="preload" href="https://laskuri.energiaykkonen.fi/calculator" as="document">
+```
+
+## 🌐 Multi-Language Support
+
+### Finnish Content
+
+The calculator displays content in Finnish by default. For international sites:
+
+1. **Use the Finnish version** for Finnish-speaking audiences
+2. **Add language indicators** in your WordPress content
+3. **Consider multiple calculators** for different languages if needed
+
+### Language Detection
+
+```javascript
+// Detect user language and show appropriate calculator
+const userLang = navigator.language || navigator.userLanguage;
+if (userLang.startsWith('fi')) {
+  // Show Finnish calculator
+  iframe.src = 'https://laskuri.energiaykkonen.fi/calculator';
+} else {
+  // Show English calculator (when available)
+  iframe.src = 'https://laskuri.energiaykkonen.fi/calculator/en';
+}
+```
+
+## 📈 Analytics Integration
+
+### Track Calculator Usage
+
+```javascript
+// Google Analytics 4
+window.addEventListener('message', function(event) {
+  if (event.data.source === 'energiaykkonen-calculator') {
+    if (event.data.type === 'form-submitted') {
+      gtag('event', 'calculator_completed', {
+        'event_category': 'calculator',
+        'event_label': 'energy_calculator',
+        'value': event.data.formData.savings
+      });
+    }
+  }
+});
+
+// Google Analytics Universal
+window.addEventListener('message', function(event) {
+  if (event.data.source === 'energiaykkonen-calculator') {
+    if (event.data.type === 'form-submitted') {
+      ga('send', 'event', 'Calculator', 'Completed', 'Energy Calculator');
+    }
+  }
+});
+```
+
+## 🧪 Testing
+
+### Test Checklist
+
+- [ ] Calculator loads correctly
+- [ ] Form navigation works
+- [ ] Height adjusts automatically
+- [ ] Mobile responsive
+- [ ] No console errors
+- [ ] Cross-browser compatibility
+- [ ] Performance acceptable
+
+### Test URLs
+
+- **Development**: `http://localhost:3000/calculator`
+- **Production**: `https://laskuri.energiaykkonen.fi/calculator`
+- **Test Page**: `https://laskuri.energiaykkonen.fi/embed-test.html`
+
+## 📞 Support
+
+### Technical Support
+
+For technical issues:
+- Check browser console for errors
+- Verify iframe permissions
+- Test with different browsers
+- Contact development team
+
+### Documentation
+
+- **API Reference**: See embed.js source code
+- **Examples**: Check embed-test.html and wordpress-demo.html
+- **Updates**: Monitor for calculator updates
 
 ---
 
-## 📊 Integration Examples
-
-Live examples and demos available at:
-
-- **Demo Page**: https://laskuri.energiaykkonen.fi/wordpress-demo.html
-- **Test Environment**: https://laskuri.energiaykkonen.fi/embed-test.html
-
----
-
-**Last Updated**: August 24, 2025  
+**Last Updated**: August 25, 2025  
 **Version**: 1.0.0  
-**Compatibility**: WordPress 5.0+, All modern browsers
+**Calculator Version**: Latest  
+**WordPress Compatibility**: 5.0+

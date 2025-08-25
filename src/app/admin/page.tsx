@@ -8,7 +8,6 @@ import LeadsTable from '@/components/admin/LeadsTable';
 import SearchFilters from '@/components/admin/SearchFilters';
 import ExportButton from '@/components/admin/ExportButton';
 import StatisticsDashboard from '@/components/admin/StatisticsDashboard';
-import AnalyticsDashboard from '@/components/admin/AnalyticsDashboard';
 import { getLeadsWithPagination, getLeadStats } from '@/lib/admin-data';
 import { Lead } from '@/lib/supabase';
 
@@ -131,16 +130,20 @@ function AdminContent() {
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="flex justify-between items-center mb-8">
-        <h1 className="text-3xl font-bold text-foreground">Admin Panel</h1>
+        <div>
+          <h1 className="text-3xl font-bold text-foreground">
+            Leads Management
+          </h1>
+          <p className="text-muted-foreground mt-1">
+            Manage and track your energy calculator leads
+          </p>
+        </div>
         <LogoutButton />
       </div>
 
       <div className="space-y-6">
-        {/* Comprehensive Statistics Dashboard */}
+        {/* Essential Statistics Overview */}
         {stats && <StatisticsDashboard stats={stats} />}
-
-        {/* Analytics Dashboard */}
-        <AnalyticsDashboard />
 
         {/* Search and Filters */}
         <SearchFilters
@@ -187,19 +190,21 @@ export default function AdminPage() {
   return (
     <div className="min-h-screen bg-background">
       <AdminNavigation />
-      <Suspense fallback={
-        <div className="min-h-screen bg-background">
-          <AdminNavigation />
-          <div className="container mx-auto px-4 py-8">
-            <div className="flex items-center justify-center py-12">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-              <span className="ml-3 text-muted-foreground">
-                Loading admin panel...
-              </span>
+      <Suspense
+        fallback={
+          <div className="min-h-screen bg-background">
+            <AdminNavigation />
+            <div className="container mx-auto px-4 py-8">
+              <div className="flex items-center justify-center py-12">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+                <span className="ml-3 text-muted-foreground">
+                  Loading admin panel...
+                </span>
+              </div>
             </div>
           </div>
-        </div>
-      }>
+        }
+      >
         <AdminContent />
       </Suspense>
     </div>

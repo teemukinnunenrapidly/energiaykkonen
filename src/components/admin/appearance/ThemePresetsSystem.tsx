@@ -168,7 +168,11 @@ export default function ThemePresetsSystem({
                 <div>
                   <span className="text-gray-500">Created:</span>
                   <span className="ml-2 font-medium">
-                    {selectedPreset.createdAt.toLocaleDateString()}
+                    {selectedPreset.createdAt.toLocaleDateString('en-GB', {
+                      day: '2-digit',
+                      month: '2-digit',
+                      year: 'numeric',
+                    })}
                   </span>
                 </div>
                 <div>

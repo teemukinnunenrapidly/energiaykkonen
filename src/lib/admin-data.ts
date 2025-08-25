@@ -118,22 +118,13 @@ export async function getLeadsWithPagination(
 }
 
 /**
- * Get comprehensive lead statistics for dashboard
+ * Get essential lead statistics for dashboard
  */
 export async function getLeadStats() {
   try {
     const { data, error } = await supabase.from('leads').select(`
-        status,
         created_at,
-        annual_savings,
-        five_year_savings,
-        ten_year_savings,
-        heating_type,
-        city,
-        source_page,
-        contact_preference,
-        square_meters,
-        payback_period
+        annual_savings
       `);
 
     if (error) {
@@ -152,22 +143,13 @@ export async function getLeadStats() {
     const lastWeek = new Date(thisWeek.getTime() - 7 * 24 * 60 * 60 * 1000);
     const thisMonth = new Date(now.getFullYear(), now.getMonth(), 1);
     const lastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
-    // const thisYear = new Date(now.getFullYear(), 0, 1); // Reserved for future use
 
     // Basic counts
     const totalLeads = leads.length;
     const todayLeads = leads.filter(lead => new Date(lead.created_at) >= today);
-    const yesterdayLeads = leads.filter(lead => {
-      const date = new Date(lead.created_at);
-      return date >= yesterday && date < today;
-    });
     const thisWeekLeads = leads.filter(
       lead => new Date(lead.created_at) >= thisWeek
     );
-    const lastWeekLeads = leads.filter(lead => {
-      const date = new Date(lead.created_at);
-      return date >= lastWeek && date < thisWeek;
-    });
     const thisMonthLeads = leads.filter(
       lead => new Date(lead.created_at) >= thisMonth
     );
@@ -176,144 +158,37 @@ export async function getLeadStats() {
       return date >= lastMonth && date < thisMonth;
     });
 
-    // Status distribution
-    const byStatus = {
-      new: leads.filter(lead => lead.status === 'new').length,
-      contacted: leads.filter(lead => lead.status === 'contacted').length,
-      qualified: leads.filter(lead => lead.status === 'qualified').length,
-      converted: leads.filter(lead => lead.status === 'converted').length,
-    };
-
-    // Conversion rates
-    const conversionRate =
-      totalLeads > 0 ? (byStatus.converted / totalLeads) * 100 : 0;
-    const qualificationRate =
-      totalLeads > 0
-        ? ((byStatus.qualified + byStatus.converted) / totalLeads) * 100
-        : 0;
-
     // Financial metrics
     const totalAnnualSavings = leads.reduce(
       (sum, lead) => sum + (lead.annual_savings || 0),
       0
     );
-    const totalFiveYearSavings = leads.reduce(
-      (sum, lead) => sum + (lead.five_year_savings || 0),
-      0
-    );
     const averageAnnualSavings =
       totalLeads > 0 ? totalAnnualSavings / totalLeads : 0;
-    const medianSavings = calculateMedian(
-      leads.map(lead => lead.annual_savings || 0)
-    );
-
-    // Heating type distribution
-    const heatingTypes = leads.reduce(
-      (acc, lead) => {
-        const type = lead.heating_type || 'Unknown';
-        acc[type] = (acc[type] || 0) + 1;
-        return acc;
-      },
-      {} as Record<string, number>
-    );
-
-    // Geographic distribution (top 10 cities)
-    const cities = leads.reduce(
-      (acc, lead) => {
-        const city = lead.city || 'Unknown';
-        acc[city] = (acc[city] || 0) + 1;
-        return acc;
-      },
-      {} as Record<string, number>
-    );
-    const topCities = Object.entries(cities)
-      .sort(([, a], [, b]) => b - a)
-      .slice(0, 10)
-      .map(([city, count]) => ({ city, count }));
-
-    // Source page analysis
-    const sources = leads.reduce(
-      (acc, lead) => {
-        const source = lead.source_page || 'Unknown';
-        acc[source] = (acc[source] || 0) + 1;
-        return acc;
-      },
-      {} as Record<string, number>
-    );
-
-    // Contact preferences
-    const contactPreferences = leads.reduce(
-      (acc, lead) => {
-        const pref = lead.contact_preference || 'Unknown';
-        acc[pref] = (acc[pref] || 0) + 1;
-        return acc;
-      },
-      {} as Record<string, number>
-    );
-
-    // Property size analysis
-    const propertySizes = leads
-      .filter(lead => lead.square_meters)
-      .map(lead => lead.square_meters!);
-    const averagePropertySize =
-      propertySizes.length > 0
-        ? propertySizes.reduce((sum, size) => sum + size, 0) /
-          propertySizes.length
-        : 0;
-
-    // Payback period analysis
-    const paybackPeriods = leads
-      .filter(lead => lead.payback_period)
-      .map(lead => lead.payback_period!);
-    const averagePaybackPeriod =
-      paybackPeriods.length > 0
-        ? paybackPeriods.reduce((sum, period) => sum + period, 0) /
-          paybackPeriods.length
-        : 0;
 
     // Growth trends
-    const dailyGrowth = todayLeads.length - yesterdayLeads.length;
-    const weeklyGrowth = thisWeekLeads.length - lastWeekLeads.length;
+    const dailyGrowth =
+      todayLeads.length -
+      leads.filter(lead => {
+        const date = new Date(lead.created_at);
+        return date >= yesterday && date < today;
+      }).length;
+    const weeklyGrowth =
+      thisWeekLeads.length -
+      leads.filter(lead => {
+        const date = new Date(lead.created_at);
+        return date >= lastWeek && date < thisWeek;
+      }).length;
     const monthlyGrowth = thisMonthLeads.length - lastMonthLeads.length;
-
-    // Quality metrics
-    const highValueLeads = leads.filter(
-      lead => (lead.annual_savings || 0) > averageAnnualSavings
-    ).length;
-    const quickPaybackLeads = leads.filter(
-      lead => (lead.payback_period || 100) <= 5
-    ).length;
 
     const stats = {
       // Basic counts
       total: totalLeads,
       today: todayLeads.length,
-      yesterday: yesterdayLeads.length,
       thisWeek: thisWeekLeads.length,
-      lastWeek: lastWeekLeads.length,
-      thisMonth: thisMonthLeads.length,
-      lastMonth: lastMonthLeads.length,
-
-      // Status distribution
-      byStatus,
-
-      // Conversion metrics
-      conversionRate,
-      qualificationRate,
 
       // Financial metrics
-      totalSavings: totalAnnualSavings,
-      totalFiveYearSavings,
       averageSavings: averageAnnualSavings,
-      medianSavings,
-
-      // Property metrics
-      averagePropertySize,
-      averagePaybackPeriod,
-
-      // Quality metrics
-      highValueLeads,
-      quickPaybackLeads,
 
       // Growth trends
       trends: {
@@ -321,12 +196,6 @@ export async function getLeadStats() {
         weekly: weeklyGrowth,
         monthly: monthlyGrowth,
       },
-
-      // Distributions
-      heatingTypes,
-      topCities,
-      sources,
-      contactPreferences,
     };
 
     return stats;
@@ -334,24 +203,6 @@ export async function getLeadStats() {
     console.error('Error in getLeadStats:', error);
     throw error;
   }
-}
-
-/**
- * Calculate median value from array of numbers
- */
-function calculateMedian(numbers: number[]): number {
-  if (numbers.length === 0) {
-    return 0;
-  }
-
-  const sorted = [...numbers].sort((a, b) => a - b);
-  const middle = Math.floor(sorted.length / 2);
-
-  if (sorted.length % 2 === 0) {
-    return (sorted[middle - 1] + sorted[middle]) / 2;
-  }
-
-  return sorted[middle];
 }
 
 /**

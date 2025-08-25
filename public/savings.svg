@@ -1,0 +1,21 @@
+<svg width="200" height="200" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Euro symbol -->
+  <path d="M120 80C120 80 110 70 100 70C90 70 80 80 80 80" stroke="#10B981" stroke-width="6" stroke-linecap="round" fill="none"/>
+  <path d="M120 120C120 120 110 130 100 130C90 130 80 120 80 120" stroke="#10B981" stroke-width="6" stroke-linecap="round" fill="none"/>
+  <line x1="85" y1="70" x2="85" y2="130" stroke="#10B981" stroke-width="6" stroke-linecap="round"/>
+  <line x1="115" y1="70" x2="115" y2="130" stroke="#10B981" stroke-width="6" stroke-linecap="round"/>
+  
+  <!-- Savings chart -->
+  <rect x="60" y="140" width="20" height="30" fill="#10B981" rx="2"/>
+  <rect x="85" y="130" width="20" height="40" fill="#10B981" rx="2"/>
+  <rect x="110" y="120" width="20" height="50" fill="#10B981" rx="2"/>
+  <rect x="135" y="110" width="20" height="60" fill="#10B981" rx="2"/>
+  
+  <!-- Trend line -->
+  <path d="M70 170L95 160L120 150L145 140" stroke="#059669" stroke-width="3" stroke-linecap="round" fill="none"/>
+  
+  <!-- Percentage symbol -->
+  <circle cx="160" cy="80" r="15" fill="none" stroke="#10B981" stroke-width="3"/>
+  <circle cx="160" cy="80" r="3" fill="#10B981"/>
+  <circle cx="160" cy="110" r="3" fill="#10B981"/>
+</svg>

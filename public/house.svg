@@ -1,0 +1,22 @@
+<svg width="200" height="200" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- House outline -->
+  <path d="M40 120L100 60L160 120V160H40V120Z" fill="#3B82F6" stroke="#1E40AF" stroke-width="4"/>
+  
+  <!-- Roof -->
+  <path d="M30 120L100 50L170 120" stroke="#1E40AF" stroke-width="6" stroke-linecap="round"/>
+  
+  <!-- Door -->
+  <rect x="85" y="120" width="30" height="40" fill="#F59E0B" stroke="#D97706" stroke-width="2"/>
+  <circle cx="95" cy="140" r="2" fill="#92400E"/>
+  
+  <!-- Windows -->
+  <rect x="55" y="100" width="25" height="25" fill="#60A5FA" stroke="#3B82F6" stroke-width="2"/>
+  <rect x="120" y="100" width="25" height="25" fill="#60A5FA" stroke="#3B82F6" stroke-width="2"/>
+  
+  <!-- Chimney -->
+  <rect x="130" y="70" width="15" height="30" fill="#6B7280" stroke="#374151" stroke-width="2"/>
+  
+  <!-- Smoke -->
+  <path d="M135 65C135 65 130 60 135 55C140 50 135 65 135 65" stroke="#9CA3AF" stroke-width="2" stroke-linecap="round"/>
+  <path d="M140 60C140 60 135 55 140 50C145 45 140 60 140 60" stroke="#9CA3AF" stroke-width="2" stroke-linecap="round"/>
+</svg>
