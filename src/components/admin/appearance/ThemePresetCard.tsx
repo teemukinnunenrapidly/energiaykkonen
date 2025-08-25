@@ -11,7 +11,7 @@ import {
   Trash2,
   CheckCircle,
   Eye,
-  Palette
+  Palette,
 } from 'lucide-react';
 
 interface ThemePresetCardProps {
@@ -31,7 +31,7 @@ export default function ThemePresetCard({
   onEdit,
   onDuplicate,
   onDelete,
-  onPreview
+  onPreview,
 }: ThemePresetCardProps) {
   const [showMenu, setShowMenu] = useState(false);
 
@@ -46,10 +46,10 @@ export default function ThemePresetCard({
   };
 
   return (
-    <div 
+    <div
       className={`relative group cursor-pointer transition-all duration-200 ${
-        isSelected 
-          ? 'ring-2 ring-orange-500 ring-offset-2' 
+        isSelected
+          ? 'ring-2 ring-orange-500 ring-offset-2'
           : 'hover:shadow-lg hover:-translate-y-1'
       }`}
       onClick={() => onSelect(preset)}
@@ -59,8 +59,8 @@ export default function ThemePresetCard({
         {/* Thumbnail */}
         <div className="relative h-32 bg-gradient-to-br from-gray-50 to-gray-100">
           {preset.thumbnail ? (
-            <img 
-              src={preset.thumbnail} 
+            <img
+              src={preset.thumbnail}
               alt={preset.name}
               className="w-full h-full object-cover"
             />
@@ -70,11 +70,13 @@ export default function ThemePresetCard({
                 <div className="w-16 h-16 mx-auto mb-2 rounded-lg bg-gradient-to-br from-orange-400 to-orange-600 flex items-center justify-center">
                   <Palette className="w-8 h-8 text-white" />
                 </div>
-                <p className="text-xs text-gray-500 font-medium">Theme Preview</p>
+                <p className="text-xs text-gray-500 font-medium">
+                  Theme Preview
+                </p>
               </div>
             </div>
           )}
-          
+
           {/* Status indicators */}
           <div className="absolute top-2 left-2 flex items-center space-x-1">
             {preset.isDefault && (
@@ -150,7 +152,7 @@ export default function ThemePresetCard({
                 Preview
               </button>
             )}
-            
+
             {onEdit && !preset.locked && (
               <button
                 onClick={() => handleAction(() => onEdit(preset))}
@@ -160,7 +162,7 @@ export default function ThemePresetCard({
                 Edit
               </button>
             )}
-            
+
             {onDuplicate && (
               <button
                 onClick={() => handleAction(() => onDuplicate(preset))}
@@ -170,7 +172,7 @@ export default function ThemePresetCard({
                 Duplicate
               </button>
             )}
-            
+
             {onDelete && !preset.locked && !preset.isDefault && (
               <button
                 onClick={() => handleAction(() => onDelete(preset))}

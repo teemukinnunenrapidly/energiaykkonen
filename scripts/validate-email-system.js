@@ -3,8 +3,8 @@
 /**
  * Email System Validation Script
  *
- * Validates the email delivery system for the Heat Pump Calculator
- * Can be run locally or in CI/CD pipelines
+ * This script validates the email system configuration and functionality
+ * by running various tests against the local development server.
  *
  * Usage:
  *   node scripts/validate-email-system.js
@@ -12,8 +12,8 @@
  *   node scripts/validate-email-system.js --mode full
  */
 
-const path = require('path');
-const fs = require('fs');
+import path from 'path';
+import fs from 'fs';
 
 // Parse command line arguments
 const args = process.argv.slice(2);

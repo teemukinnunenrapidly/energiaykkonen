@@ -25,20 +25,20 @@ export interface ColorSettings {
   primary: ColorPalette;
   secondary: ColorPalette;
   accent: ColorPalette;
-  
+
   // UI Colors
   background: BackgroundColors;
   surface: SurfaceColors;
-  
+
   // Text Colors
   text: TextColors;
-  
+
   // Semantic Colors
   success: ColorPalette;
   warning: ColorPalette;
   error: ColorPalette;
   info: ColorPalette;
-  
+
   // Component Specific
   divider: string;
   border: string;
@@ -282,75 +282,75 @@ export const DEFAULT_THEME_CONFIG: ThemeConfig = {
       main: '#FF6B00',
       light: '#FF8533',
       dark: '#CC5500',
-      contrast: '#FFFFFF'
+      contrast: '#FFFFFF',
     },
     secondary: {
       main: '#1F2937',
       light: '#374151',
       dark: '#111827',
-      contrast: '#FFFFFF'
+      contrast: '#FFFFFF',
     },
     accent: {
       main: '#10B981',
       light: '#34D399',
       dark: '#059669',
-      contrast: '#FFFFFF'
+      contrast: '#FFFFFF',
     },
     background: {
       default: '#FFFFFF',
       paper: '#F9FAFB',
       elevated: '#FFFFFF',
-      overlay: 'rgba(0,0,0,0.5)'
+      overlay: 'rgba(0,0,0,0.5)',
     },
     surface: {
       default: '#FFFFFF',
       hover: '#F3F4F6',
       active: '#E5E7EB',
-      disabled: '#F9FAFB'
+      disabled: '#F9FAFB',
     },
     text: {
       primary: '#111827',
       secondary: '#6B7280',
       disabled: '#9CA3AF',
       hint: '#D1D5DB',
-      inverse: '#FFFFFF'
+      inverse: '#FFFFFF',
     },
     success: {
       main: '#10B981',
       light: '#34D399',
       dark: '#059669',
-      contrast: '#FFFFFF'
+      contrast: '#FFFFFF',
     },
     warning: {
       main: '#F59E0B',
       light: '#FBBF24',
       dark: '#D97706',
-      contrast: '#FFFFFF'
+      contrast: '#FFFFFF',
     },
     error: {
       main: '#EF4444',
       light: '#F87171',
       dark: '#DC2626',
-      contrast: '#FFFFFF'
+      contrast: '#FFFFFF',
     },
     info: {
       main: '#3B82F6',
       light: '#60A5FA',
       dark: '#2563EB',
-      contrast: '#FFFFFF'
+      contrast: '#FFFFFF',
     },
     divider: '#E5E7EB',
     border: '#D1D5DB',
     shadow: 'rgba(0,0,0,0.1)',
     focus: '#3B82F6',
     hover: '#F3F4F6',
-    selected: '#DBEAFE'
+    selected: '#DBEAFE',
   },
   typography: {
     fontFamily: {
       primary: 'Inter, system-ui, sans-serif',
       secondary: 'Georgia, serif',
-      monospace: 'Fira Code, monospace'
+      monospace: 'Fira Code, monospace',
     },
     fontSize: {
       xs: '0.75rem',
@@ -361,7 +361,7 @@ export const DEFAULT_THEME_CONFIG: ThemeConfig = {
       '2xl': '1.5rem',
       '3xl': '1.875rem',
       '4xl': '2.25rem',
-      '5xl': '3rem'
+      '5xl': '3rem',
     },
     fontWeight: {
       thin: 100,
@@ -370,14 +370,14 @@ export const DEFAULT_THEME_CONFIG: ThemeConfig = {
       medium: 500,
       semibold: 600,
       bold: 700,
-      extrabold: 800
+      extrabold: 800,
     },
     lineHeight: {
       none: 1,
       tight: 1.25,
       normal: 1.5,
       relaxed: 1.75,
-      loose: 2
+      loose: 2,
     },
     letterSpacing: {
       tighter: '-0.05em',
@@ -385,14 +385,14 @@ export const DEFAULT_THEME_CONFIG: ThemeConfig = {
       normal: '0',
       wide: '0.025em',
       wider: '0.05em',
-      widest: '0.1em'
-    }
+      widest: '0.1em',
+    },
   },
   layout: {
     container: {
       maxWidth: '1200px',
       padding: '20px',
-      centered: true
+      centered: true,
     },
     spacing: {
       xs: '4px',
@@ -401,7 +401,7 @@ export const DEFAULT_THEME_CONFIG: ThemeConfig = {
       lg: '24px',
       xl: '32px',
       '2xl': '48px',
-      '3xl': '64px'
+      '3xl': '64px',
     },
     borderRadius: {
       none: '0',
@@ -411,7 +411,7 @@ export const DEFAULT_THEME_CONFIG: ThemeConfig = {
       xl: '12px',
       '2xl': '16px',
       '3xl': '24px',
-      full: '9999px'
+      full: '9999px',
     },
     shadows: {
       none: 'none',
@@ -420,21 +420,21 @@ export const DEFAULT_THEME_CONFIG: ThemeConfig = {
       lg: '0 10px 15px -3px rgba(0, 0, 0, 0.1)',
       xl: '0 20px 25px -5px rgba(0, 0, 0, 0.1)',
       '2xl': '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
-      inner: 'inset 0 2px 4px 0 rgba(0, 0, 0, 0.06)'
+      inner: 'inset 0 2px 4px 0 rgba(0, 0, 0, 0.06)',
     },
     transitions: {
       duration: {
         fast: '150ms',
         normal: '300ms',
-        slow: '500ms'
+        slow: '500ms',
       },
       easing: {
         linear: 'linear',
         easeIn: 'ease-in',
         easeOut: 'ease-out',
-        easeInOut: 'ease-in-out'
-      }
-    }
+        easeInOut: 'ease-in-out',
+      },
+    },
   },
   components: {
     button: {
@@ -453,7 +453,7 @@ export const DEFAULT_THEME_CONFIG: ThemeConfig = {
           borderColor: '#FF6B00',
           hoverBackgroundColor: '#CC5500',
           hoverTextColor: '#FFFFFF',
-          hoverBorderColor: '#CC5500'
+          hoverBorderColor: '#CC5500',
         },
         secondary: {
           backgroundColor: '#1F2937',
@@ -461,7 +461,7 @@ export const DEFAULT_THEME_CONFIG: ThemeConfig = {
           borderColor: '#1F2937',
           hoverBackgroundColor: '#111827',
           hoverTextColor: '#FFFFFF',
-          hoverBorderColor: '#111827'
+          hoverBorderColor: '#111827',
         },
         outline: {
           backgroundColor: 'transparent',
@@ -469,7 +469,7 @@ export const DEFAULT_THEME_CONFIG: ThemeConfig = {
           borderColor: '#FF6B00',
           hoverBackgroundColor: '#FF6B00',
           hoverTextColor: '#FFFFFF',
-          hoverBorderColor: '#FF6B00'
+          hoverBorderColor: '#FF6B00',
         },
         ghost: {
           backgroundColor: 'transparent',
@@ -477,9 +477,9 @@ export const DEFAULT_THEME_CONFIG: ThemeConfig = {
           borderColor: 'transparent',
           hoverBackgroundColor: '#F3F4F6',
           hoverTextColor: '#374151',
-          hoverBorderColor: 'transparent'
-        }
-      }
+          hoverBorderColor: 'transparent',
+        },
+      },
     },
     input: {
       borderRadius: '6px',
@@ -491,7 +491,7 @@ export const DEFAULT_THEME_CONFIG: ThemeConfig = {
       focusRing: true,
       focusColor: '#3B82F6',
       errorColor: '#EF4444',
-      backgroundColor: '#FFFFFF'
+      backgroundColor: '#FFFFFF',
     },
     card: {
       borderRadius: '8px',
@@ -499,29 +499,30 @@ export const DEFAULT_THEME_CONFIG: ThemeConfig = {
       shadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
       borderWidth: '1px',
       borderColor: '#E5E7EB',
-      backgroundColor: '#FFFFFF'
+      backgroundColor: '#FFFFFF',
     },
     progress: {
       height: '8px',
       borderRadius: '4px',
       backgroundColor: '#E5E7EB',
       fillColor: '#10B981',
-      stripedAnimation: false
+      stripedAnimation: false,
     },
     section: {
       spacing: '32px',
       dividerStyle: 'line',
       completedOpacity: 0.7,
-      lockedBlur: '2px'
-    }
+      lockedBlur: '2px',
+    },
   },
   metadata: {
     version: '1.0.0',
     tags: ['default', 'energia-ykkonen'],
-    description: 'Default Energia Ykkönen theme with orange primary colors and modern design',
+    description:
+      'Default Energia Ykkönen theme with orange primary colors and modern design',
     author: 'E1 Calculator Team',
-    license: 'MIT'
-  }
+    license: 'MIT',
+  },
 };
 
 // Default theme presets
@@ -537,7 +538,7 @@ export const DEFAULT_THEME_PRESETS: ThemePreset[] = [
     config: DEFAULT_THEME_CONFIG,
     createdAt: new Date(),
     updatedAt: new Date(),
-    createdBy: 'system'
+    createdBy: 'system',
   },
   {
     id: 'modern-blue',
@@ -555,19 +556,19 @@ export const DEFAULT_THEME_PRESETS: ThemePreset[] = [
           main: '#2563EB',
           light: '#3B82F6',
           dark: '#1D4ED8',
-          contrast: '#FFFFFF'
-        }
+          contrast: '#FFFFFF',
+        },
       },
       metadata: {
         ...DEFAULT_THEME_CONFIG.metadata,
         version: '1.0.0',
         tags: ['blue', 'corporate', 'professional'],
-        description: 'Modern blue theme for professional applications'
-      }
+        description: 'Modern blue theme for professional applications',
+      },
     },
     createdAt: new Date(),
     updatedAt: new Date(),
-    createdBy: 'system'
+    createdBy: 'system',
   },
   {
     id: 'eco-green',
@@ -585,18 +586,19 @@ export const DEFAULT_THEME_PRESETS: ThemePreset[] = [
           main: '#10B981',
           light: '#34D399',
           dark: '#059669',
-          contrast: '#FFFFFF'
-        }
+          contrast: '#FFFFFF',
+        },
       },
       metadata: {
         ...DEFAULT_THEME_CONFIG.metadata,
         version: '1.0.0',
         tags: ['green', 'eco', 'sustainable'],
-        description: 'Eco-friendly green theme for sustainable energy applications'
-      }
+        description:
+          'Eco-friendly green theme for sustainable energy applications',
+      },
     },
     createdAt: new Date(),
     updatedAt: new Date(),
-    createdBy: 'system'
-  }
+    createdBy: 'system',
+  },
 ];

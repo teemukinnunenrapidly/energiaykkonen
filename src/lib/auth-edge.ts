@@ -1,8 +1,5 @@
 import { NextRequest } from 'next/server';
 
-// Edge-compatible JWT secret (base64 encoded)
-const JWT_SECRET = process.env.JWT_SECRET || 'fallback-secret-key-change-in-production';
-
 export interface SessionData {
   user: {
     id: string;
@@ -18,11 +15,13 @@ async function verifyJWT(token: string): Promise<any> {
   try {
     // Split the JWT token
     const parts = token.split('.');
-    if (parts.length !== 3) return null;
+    if (parts.length !== 3) {
+      return null;
+    }
 
     // Decode the payload (second part)
     const payload = JSON.parse(atob(parts[1]));
-    
+
     // Check if token is expired
     if (payload.exp && Date.now() >= payload.exp * 1000) {
       return null;

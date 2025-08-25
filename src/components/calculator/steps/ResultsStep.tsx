@@ -162,7 +162,8 @@ export function ResultsStep({ form }: ResultsStepProps) {
               {results.co2Reduction.toFixed(0)} kg CO2 vähennys vuodessa
             </p>
             <p className="text-xs sm:text-sm text-gray-600">
-              Vastaa {Math.round(results.co2Reduction / 22)} puun istutusta vuodessa
+              Vastaa {Math.round(results.co2Reduction / 22)} puun istutusta
+              vuodessa
             </p>
           </div>
         </CardContent>
@@ -198,7 +199,8 @@ export function ResultsStep({ form }: ResultsStepProps) {
                 {formData.lastName}
               </p>
               <p>
-                <span className="font-medium">Sähköposti:</span> {formData.email}
+                <span className="font-medium">Sähköposti:</span>{' '}
+                {formData.email}
               </p>
               <p>
                 <span className="font-medium">Puhelin:</span> {formData.phone}

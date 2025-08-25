@@ -6,7 +6,6 @@ import { MultiStepForm } from '@/components/calculator/MultiStepForm';
 export default function CalculatorPage() {
   const [currentStep, setCurrentStep] = useState(1);
   const totalSteps = 5;
-  const progress = (currentStep / totalSteps) * 100;
 
   const handleStepChange = useCallback((step: number) => {
     setCurrentStep(step);
@@ -22,7 +21,8 @@ export default function CalculatorPage() {
               E1 Calculator
             </h1>
             <p className="text-sm lg:text-base text-gray-600">
-              Laske energiansäästösi ja takaisinmaksuaika lämpöpumpun asennukselle
+              Laske energiansäästösi ja takaisinmaksuaika lämpöpumpun
+              asennukselle
             </p>
           </div>
         </div>
@@ -43,17 +43,31 @@ export default function CalculatorPage() {
                   Interaktiivinen esitys kiinteistöstäsi ja energiatehokkuudesta
                 </p>
               </div>
-              
+
               {/* Placeholder for Dynamic Visualization Content */}
               <div className="bg-gradient-to-br from-gray-100 to-gray-200 rounded-lg h-64 lg:h-80 xl:h-96 flex items-center justify-center">
                 <div className="text-center">
                   <div className="w-20 h-20 lg:w-24 lg:h-24 bg-gradient-to-br from-blue-400 to-indigo-500 rounded-xl mx-auto mb-4 flex items-center justify-center shadow-lg">
-                    <svg className="w-10 h-10 lg:w-12 lg:h-12 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                    <svg
+                      className="w-10 h-10 lg:w-12 lg:h-12 text-white"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"
+                      />
                     </svg>
                   </div>
-                  <p className="text-gray-600 font-medium text-sm lg:text-base">3D Kiinteistömalli</p>
-                  <p className="text-gray-500 text-xs lg:text-sm mt-1">Interaktiivinen visualisointi</p>
+                  <p className="text-gray-600 font-medium text-sm lg:text-base">
+                    3D Kiinteistömalli
+                  </p>
+                  <p className="text-gray-500 text-xs lg:text-sm mt-1">
+                    Interaktiivinen visualisointi
+                  </p>
                 </div>
               </div>
 
@@ -84,8 +98,8 @@ export default function CalculatorPage() {
         {/* Right Side - Form Panel (30% on desktop, full width on mobile) */}
         <div className="w-full lg:w-[30%] bg-white border-l border-gray-200">
           <div className="sticky top-20 lg:top-24 h-full overflow-y-auto">
-            <MultiStepForm 
-              onComplete={(results) => {
+            <MultiStepForm
+              onComplete={results => {
                 console.log('Form completed:', results);
                 // You can add additional logic here like redirecting to results page
                 // or showing a success message

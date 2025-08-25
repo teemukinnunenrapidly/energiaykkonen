@@ -23,7 +23,8 @@ export function PropertyDetailsStep({ form }: PropertyDetailsStepProps) {
           Kiinteistösi tiedot
         </h3>
         <p className="text-sm sm:text-base text-gray-600 px-2 sm:px-0">
-          Nämä tiedot auttavat laskemaan energiantarpeesi ja potentiaaliset säästösi
+          Nämä tiedot auttavat laskemaan energiantarpeesi ja potentiaaliset
+          säästösi
         </p>
       </div>
 
@@ -115,7 +116,10 @@ export function PropertyDetailsStep({ form }: PropertyDetailsStepProps) {
       <Card className="bg-green-50 border-green-200 mx-2 sm:mx-0">
         <CardContent className="pt-4 px-4 sm:px-6">
           <p className="text-sm text-green-800">
-            <strong>Miten tämä vaikuttaa laskelmaasi:</strong> Suuremmat kiinteistöt ja enemmän asukkaita tarkoittavat tyypillisesti korkeampaa energiankulutusta, mutta myös suurempia potentiaalisia säästöjä lämpöpumpulla.
+            <strong>Miten tämä vaikuttaa laskelmaasi:</strong> Suuremmat
+            kiinteistöt ja enemmän asukkaita tarkoittavat tyypillisesti
+            korkeampaa energiankulutusta, mutta myös suurempia potentiaalisia
+            säästöjä lämpöpumpulla.
           </p>
         </CardContent>
       </Card>

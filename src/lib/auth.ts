@@ -2,9 +2,15 @@ import { cookies } from 'next/headers';
 import { NextRequest } from 'next/server';
 import { SignJWT, jwtVerify } from 'jose';
 
-const JWT_SECRET = new TextEncoder().encode(
-  process.env.JWT_SECRET || 'fallback-secret-key-change-in-production'
-);
+// Support both legacy and new JWT systems
+// Use a simpler approach for JWT secret encoding
+const JWT_SECRET =
+  process.env.JWT_SECRET ||
+  process.env.NEXT_PUBLIC_SUPABASE_JWT_SECRET ||
+  'fallback-secret-key-change-in-production';
+
+// Convert to Uint8Array for jose library
+const JWT_SECRET_BYTES = new TextEncoder().encode(JWT_SECRET);
 
 export interface SessionPayload {
   userId: string;
@@ -41,7 +47,7 @@ export async function createSessionToken(userData: {
     .setProtectedHeader({ alg: 'HS256' })
     .setIssuedAt()
     .setExpirationTime('8h')
-    .sign(JWT_SECRET);
+    .sign(JWT_SECRET_BYTES);
 
   return token;
 }
@@ -53,7 +59,7 @@ export async function verifySessionToken(
   token: string
 ): Promise<SessionData | null> {
   try {
-    const { payload } = await jwtVerify(token, JWT_SECRET);
+    const { payload } = await jwtVerify(token, JWT_SECRET_BYTES);
 
     if (!payload.userId || !payload.role || !payload.expiresAt) {
       return null;

@@ -2,19 +2,15 @@ import { NextResponse, type NextRequest } from 'next/server';
 
 // Inline JWT verification for Edge Runtime compatibility
 // Support both legacy and new JWT systems
-async function verifyJWTSession(
-  token: string
-): Promise<{ userId: string; role: string; expiresAt: string } | null> {
+async function verifyJWTSession(token: string): Promise<{ userId: string; role: string; expiresAt: string } | null> {
   try {
     // Split the JWT token
     const parts = token.split('.');
-    if (parts.length !== 3) {
-      return null;
-    }
+    if (parts.length !== 3) return null;
 
     // Decode the payload (second part)
     const payload = JSON.parse(atob(parts[1]));
-
+    
     // Check if token is expired
     if (payload.exp && Date.now() >= payload.exp * 1000) {
       return null;
@@ -51,7 +47,7 @@ export async function middleware(request: NextRequest) {
   // Check for session on protected admin routes
   if (pathname.startsWith('/admin') || pathname.startsWith('/api/admin')) {
     const sessionCookie = request.cookies.get('admin-session')?.value;
-
+    
     if (!sessionCookie) {
       // Redirect to login if no session cookie
       const loginUrl = new URL('/admin/login', request.url);
@@ -60,7 +56,7 @@ export async function middleware(request: NextRequest) {
     }
 
     const session = await verifyJWTSession(sessionCookie);
-
+    
     if (!session) {
       // Redirect to login if invalid session
       const loginUrl = new URL('/admin/login', request.url);

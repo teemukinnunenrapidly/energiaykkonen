@@ -1,180 +1,207 @@
-import { Metadata } from 'next';
-import { requireAdmin } from '@/lib/auth';
-import { redirect } from 'next/navigation';
-import { Suspense } from 'react';
+'use client';
+
+import { useState, useEffect, Suspense } from 'react';
+import { useSearchParams, useRouter } from 'next/navigation';
 import LogoutButton from '@/components/admin/LogoutButton';
+import AdminNavigation from '@/components/admin/AdminNavigation';
 import LeadsTable from '@/components/admin/LeadsTable';
 import SearchFilters from '@/components/admin/SearchFilters';
 import ExportButton from '@/components/admin/ExportButton';
 import StatisticsDashboard from '@/components/admin/StatisticsDashboard';
 import AnalyticsDashboard from '@/components/admin/AnalyticsDashboard';
 import { getLeadsWithPagination, getLeadStats } from '@/lib/admin-data';
+import { Lead } from '@/lib/supabase';
 
-export const metadata: Metadata = {
-  title: 'Admin Panel - E1 Calculator',
-  description: 'Lead management and analytics for E1 Calculator',
-};
+function AdminContent() {
+  const searchParams = useSearchParams();
+  const router = useRouter();
 
-interface AdminPageProps {
-  searchParams: {
-    page?: string;
-    search?: string;
-    status?: string;
-    dateFrom?: string;
-    dateTo?: string;
-    savingsMin?: string;
-    savingsMax?: string;
+  const [leads, setLeads] = useState<Lead[]>([]);
+  const [stats, setStats] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalCount, setTotalCount] = useState(0);
+
+  // Parse search parameters
+  const search = searchParams.get('search') || '';
+  const status = searchParams.get('status') || '';
+  const dateFrom = searchParams.get('dateFrom') || '';
+  const dateTo = searchParams.get('dateTo') || '';
+  const savingsMin = searchParams.get('savingsMin') || '';
+  const savingsMax = searchParams.get('savingsMax') || '';
+
+  useEffect(() => {
+    fetchData();
+  }, [currentPage, search, status, dateFrom, dateTo, savingsMin, savingsMax]);
+
+  const fetchData = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      const filters = {
+        page: currentPage,
+        limit: 10,
+        search,
+        status,
+        dateFrom,
+        dateTo,
+        savingsMin: savingsMin ? parseFloat(savingsMin) : undefined,
+        savingsMax: savingsMax ? parseFloat(savingsMax) : undefined,
+      };
+
+      const [leadsData, statsData] = await Promise.all([
+        getLeadsWithPagination(filters),
+        getLeadStats(),
+      ]);
+
+      setLeads(leadsData.leads);
+      setTotalCount(leadsData.totalCount);
+      setStats(statsData);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to fetch data');
+    } finally {
+      setLoading(false);
+    }
   };
-}
 
-function LoadingSpinner() {
-  return (
-    <div className="flex items-center justify-center py-12">
-      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
-      <span className="ml-3 text-gray-600">Loading leads...</span>
-    </div>
-  );
-}
+  const handleFiltersChange = (newFilters: any) => {
+    const params = new URLSearchParams(searchParams);
 
-async function LeadsSection({
-  page,
-  searchParams,
-}: {
-  page: number;
-  searchParams: AdminPageProps['searchParams'];
-}) {
-  try {
-    // Parse search parameters
-    const filters = {
-      page,
-      limit: 10,
-      search: searchParams.search || '',
-      status: searchParams.status || '',
-      dateFrom: searchParams.dateFrom || '',
-      dateTo: searchParams.dateTo || '',
-      savingsMin: searchParams.savingsMin
-        ? parseFloat(searchParams.savingsMin)
-        : undefined,
-      savingsMax: searchParams.savingsMax
-        ? parseFloat(searchParams.savingsMax)
-        : undefined,
-    };
+    if (newFilters.search !== undefined) {
+      params.set('search', newFilters.search);
+    }
+    if (newFilters.status !== undefined) {
+      params.set('status', newFilters.status);
+    }
+    if (newFilters.dateFrom !== undefined) {
+      params.set('dateFrom', newFilters.dateFrom);
+    }
+    if (newFilters.dateTo !== undefined) {
+      params.set('dateTo', newFilters.dateTo);
+    }
+    if (newFilters.savingsMin !== undefined) {
+      params.set('savingsMin', newFilters.savingsMin);
+    }
+    if (newFilters.savingsMax !== undefined) {
+      params.set('savingsMax', newFilters.savingsMax);
+    }
 
-    const [leadsData, stats] = await Promise.all([
-      getLeadsWithPagination(filters),
-      getLeadStats(),
-    ]);
+    // Reset to first page when filters change
+    params.set('page', '1');
+    setCurrentPage(1);
 
+    router.push(`/admin?${params.toString()}`);
+  };
+
+  const handlePageChange = (newPage: number) => {
+    setCurrentPage(newPage);
+    const params = new URLSearchParams(searchParams);
+    params.set('page', newPage.toString());
+    router.push(`/admin?${params.toString()}`);
+  };
+
+  if (loading && leads.length === 0) {
     return (
+      <div className="container mx-auto px-4 py-8">
+        <div className="flex items-center justify-center py-12">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+          <span className="ml-3 text-muted-foreground">
+            Loading admin panel...
+          </span>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="container mx-auto px-4 py-8">
+        <div className="bg-destructive/10 border border-destructive text-destructive px-4 py-3 rounded-md">
+          <h2 className="text-lg font-semibold mb-2">
+            Error Loading Admin Panel
+          </h2>
+          <p>{error}</p>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="container mx-auto px-4 py-8">
+      <div className="flex justify-between items-center mb-8">
+        <h1 className="text-3xl font-bold text-foreground">Admin Panel</h1>
+        <LogoutButton />
+      </div>
+
       <div className="space-y-6">
         {/* Comprehensive Statistics Dashboard */}
-        <StatisticsDashboard stats={stats} />
+        {stats && <StatisticsDashboard stats={stats} />}
 
         {/* Analytics Dashboard */}
         <AnalyticsDashboard />
 
         {/* Search and Filters */}
-        <Suspense
-          fallback={
-            <div className="p-4 mb-6 bg-white rounded-lg border animate-pulse">
-              <div className="h-4 bg-gray-200 rounded w-1/4 mb-4"></div>
-              <div className="h-10 bg-gray-200 rounded mb-4"></div>
-              <div className="h-10 bg-gray-200 rounded w-1/3"></div>
-            </div>
-          }
-        >
-          <SearchFilters
-            onFiltersChange={() => {
-              // Filters are handled via URL params and page refresh
-            }}
-            initialFilters={{
-              search: searchParams.search || '',
-              status: searchParams.status || '',
-              dateFrom: searchParams.dateFrom || '',
-              dateTo: searchParams.dateTo || '',
-              savingsMin: searchParams.savingsMin || '',
-              savingsMax: searchParams.savingsMax || '',
-            }}
-          />
-        </Suspense>
-
-        {/* Export Button */}
-        <div className="flex justify-between items-center">
-          <h2 className="text-xl font-semibold text-gray-900">
-            Leads ({leadsData.totalCount})
-          </h2>
-          <ExportButton
-            leads={leadsData.leads}
-            totalCount={leadsData.totalCount}
-            currentFilters={{
-              search: searchParams.search || '',
-              status: searchParams.status || '',
-              dateFrom: searchParams.dateFrom || '',
-              dateTo: searchParams.dateTo || '',
-              savingsMin: searchParams.savingsMin || '',
-              savingsMax: searchParams.savingsMax || '',
-            }}
-          />
-        </div>
+        <SearchFilters
+          initialFilters={{
+            search,
+            status,
+            dateFrom,
+            dateTo,
+            savingsMin,
+            savingsMax,
+          }}
+          onFiltersChange={handleFiltersChange}
+        />
 
         {/* Leads Table */}
         <LeadsTable
-          leads={leadsData.leads}
-          totalCount={leadsData.totalCount}
-          currentPage={leadsData.currentPage}
-          onPageChange={newPage => {
-            // This will be handled client-side with URL updates
-            const currentUrl = new URL(window.location.href);
-            currentUrl.searchParams.set('page', newPage.toString());
-            window.location.href = currentUrl.toString();
-          }}
+          leads={leads}
+          totalCount={totalCount}
+          currentPage={currentPage}
+          onPageChange={handlePageChange}
         />
+
+        {/* Export Button */}
+        <div className="flex justify-end">
+          <ExportButton
+            leads={leads}
+            totalCount={totalCount}
+            currentFilters={{
+              search,
+              status,
+              dateFrom,
+              dateTo,
+              savingsMin,
+              savingsMax,
+            }}
+          />
+        </div>
       </div>
-    );
-  } catch (error) {
-    console.error('Error loading leads:', error);
-    return (
-      <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-        <p className="text-red-800">
-          Error loading leads:{' '}
-          {error instanceof Error ? error.message : 'Unknown error'}
-        </p>
-        <p className="text-red-600 text-sm mt-2">
-          Please check your Supabase configuration and try again.
-        </p>
-      </div>
-    );
-  }
+    </div>
+  );
 }
 
-export default async function AdminPage({ searchParams }: AdminPageProps) {
-  // Server-side authentication check
-  try {
-    await requireAdmin();
-  } catch (error) {
-    console.error('Admin authentication failed:', error);
-    redirect('/admin/login');
-  }
-
-  const currentPage = parseInt(searchParams.page || '1', 10);
-
+export default function AdminPage() {
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="mb-8 flex justify-between items-center">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900">Admin Panel</h1>
-            <p className="text-gray-600 mt-2">
-              Manage leads and view analytics for the E1 Calculator
-            </p>
+    <div className="min-h-screen bg-background">
+      <AdminNavigation />
+      <Suspense fallback={
+        <div className="min-h-screen bg-background">
+          <AdminNavigation />
+          <div className="container mx-auto px-4 py-8">
+            <div className="flex items-center justify-center py-12">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+              <span className="ml-3 text-muted-foreground">
+                Loading admin panel...
+              </span>
+            </div>
           </div>
-          <LogoutButton />
         </div>
-
-        <Suspense fallback={<LoadingSpinner />}>
-          <LeadsSection page={currentPage} searchParams={searchParams} />
-        </Suspense>
-      </div>
+      }>
+        <AdminContent />
+      </Suspense>
     </div>
   );
 }

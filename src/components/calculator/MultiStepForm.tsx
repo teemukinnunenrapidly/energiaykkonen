@@ -5,9 +5,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import {
-  calculatorFormSchema
-} from '@/lib/validation';
+import { calculatorFormSchema } from '@/lib/validation';
 import {
   BasicInfoStep,
   PropertyDetailsStep,
@@ -27,7 +25,13 @@ const FORM_STEPS = [
     id: 1,
     title: 'Kiinteistön tiedot',
     description: 'Anna kiinteistösi perustiedot laskelmaa varten',
-    fields: ['squareMeters', 'ceilingHeight', 'constructionYear', 'floors', 'residents'],
+    fields: [
+      'squareMeters',
+      'ceilingHeight',
+      'constructionYear',
+      'floors',
+      'residents',
+    ],
   },
   {
     id: 2,
@@ -51,7 +55,16 @@ const FORM_STEPS = [
     id: 5,
     title: 'Yhteystiedot',
     description: 'Anna yhteystiedot laskelmaan',
-    fields: ['firstName', 'lastName', 'email', 'phone', 'streetAddress', 'city', 'gdprConsent', 'marketingConsent'],
+    fields: [
+      'firstName',
+      'lastName',
+      'email',
+      'phone',
+      'streetAddress',
+      'city',
+      'gdprConsent',
+      'marketingConsent',
+    ],
   },
 ];
 
@@ -110,7 +123,7 @@ export function MultiStepForm({
     if (sectionIndex === 3) {
       return true; // Savings calculation section is always accessible
     }
-    
+
     return sectionFields.every(field => {
       const value = formData[field as keyof any];
       if (field === 'gdprConsent') {
@@ -127,7 +140,7 @@ export function MultiStepForm({
     if (sectionIndex === 0) {
       return true; // First section is always accessible
     }
-    
+
     // Check if all previous sections are completed
     for (let i = 0; i < sectionIndex; i++) {
       if (!isSectionComplete(i)) {
@@ -162,12 +175,14 @@ export function MultiStepForm({
       threshold: [0, 0.25, 0.5, 0.75, 1],
     };
 
-    const sectionObserver = new IntersectionObserver((entries) => {
-      entries.forEach((entry) => {
+    const sectionObserver = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
         if (entry.isIntersecting && entry.intersectionRatio > 0.5) {
-          const sectionIndex = parseInt(entry.target.getAttribute('data-section') || '0');
+          const sectionIndex = parseInt(
+            entry.target.getAttribute('data-section') || '0'
+          );
           setActiveSection(sectionIndex);
-          
+
           // Update parent component with current step
           onStepChange?.(sectionIndex + 1);
         }
@@ -175,7 +190,7 @@ export function MultiStepForm({
     }, observerOptions);
 
     // Observe all section refs
-    sectionRefs.current.forEach((ref) => {
+    sectionRefs.current.forEach(ref => {
       if (ref) {
         sectionObserver.observe(ref);
       }
@@ -186,32 +201,218 @@ export function MultiStepForm({
     };
   }, [onStepChange]);
 
-  // Smooth scroll to section
-  const scrollToSection = useCallback((sectionIndex: number) => {
-    const targetSection = sectionRefs.current[sectionIndex];
-    if (targetSection) {
-      targetSection.scrollIntoView({
-        behavior: 'smooth',
-        block: 'start',
-        inline: 'nearest',
-      });
-    }
-  }, []);
+  // Enhanced smooth scroll to section with better configuration
+  const scrollToSection = useCallback(
+    (
+      sectionIndex: number,
+      options?: {
+        behavior?: ScrollBehavior;
+        block?: ScrollLogicalPosition;
+        inline?: ScrollLogicalPosition;
+        smooth?: boolean;
+      }
+    ) => {
+      const targetSection = sectionRefs.current[sectionIndex];
+      if (targetSection) {
+        // Enhanced scroll configuration
+        const scrollOptions: ScrollIntoViewOptions = {
+          behavior: options?.smooth !== false ? 'smooth' : 'auto',
+          block: options?.block || 'start',
+          inline: options?.inline || 'nearest',
+        };
 
-  // Auto-scroll to next section when current section is completed
+        // Add visual feedback during scroll
+        targetSection.classList.add('scrolling-to');
+
+        // Perform the scroll
+        targetSection.scrollIntoView(scrollOptions);
+
+        // Remove visual feedback after scroll completes
+        setTimeout(() => {
+          targetSection.classList.remove('scrolling-to');
+        }, 1000);
+      }
+    },
+    []
+  );
+
+  // Enhanced auto-scroll to next section when current section is completed
   useEffect(() => {
     if (completedSections.size > 0) {
       const lastCompletedSection = Math.max(...Array.from(completedSections));
       const nextSection = lastCompletedSection + 1;
-      
+
       if (nextSection < FORM_STEPS.length && isSectionAccessible(nextSection)) {
-        // Small delay to allow form state to update
+        // Enhanced delay to allow form state to update and provide better UX
+        const scrollDelay = 500; // Increased from 300ms for better user experience
+
         setTimeout(() => {
-          scrollToSection(nextSection);
-        }, 300);
+          scrollToSection(nextSection, {
+            behavior: 'smooth',
+            block: 'start',
+            smooth: true,
+          });
+        }, scrollDelay);
       }
     }
   }, [completedSections, scrollToSection]);
+
+  // Add keyboard navigation support for smooth scrolling
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      // Only handle keyboard navigation when form is focused
+      if (!document.activeElement?.closest('form')) {
+        return;
+      }
+
+      switch (event.key) {
+        case 'ArrowDown':
+        case 'PageDown':
+          event.preventDefault();
+          const nextSection = Math.min(
+            activeSection + 1,
+            FORM_STEPS.length - 1
+          );
+          if (isSectionAccessible(nextSection)) {
+            scrollToSection(nextSection, { smooth: true });
+          }
+          break;
+
+        case 'ArrowUp':
+        case 'PageUp':
+          event.preventDefault();
+          const prevSection = Math.max(activeSection - 1, 0);
+          scrollToSection(prevSection, { smooth: true });
+          break;
+
+        case 'Home':
+          event.preventDefault();
+          scrollToSection(0, { smooth: true });
+          break;
+
+        case 'End':
+          event.preventDefault();
+          scrollToSection(FORM_STEPS.length - 1, { smooth: true });
+          break;
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [activeSection, scrollToSection]);
+
+  // Add touch/swipe support for mobile smooth scrolling
+  useEffect(() => {
+    let touchStartY = 0;
+    let touchEndY = 0;
+
+    const handleTouchStart = (event: Event) => {
+      const touchEvent = event as TouchEvent;
+      touchStartY = touchEvent.touches[0].clientY;
+    };
+
+    const handleTouchEnd = (event: Event) => {
+      const touchEvent = event as TouchEvent;
+      touchEndY = touchEvent.changedTouches[0].clientY;
+      const touchDiff = touchStartY - touchEndY;
+      const minSwipeDistance = 50; // Minimum distance for swipe detection
+
+      if (Math.abs(touchDiff) > minSwipeDistance) {
+        if (touchDiff > 0) {
+          // Swipe up - go to next section
+          const nextSection = Math.min(
+            activeSection + 1,
+            FORM_STEPS.length - 1
+          );
+          if (isSectionAccessible(nextSection)) {
+            scrollToSection(nextSection, { smooth: true });
+          }
+        } else {
+          // Swipe down - go to previous section
+          const prevSection = Math.max(activeSection - 1, 0);
+          scrollToSection(prevSection, { smooth: true });
+        }
+      }
+    };
+
+    // Add touch event listeners to the form container
+    const formContainer = document.querySelector('.form-container');
+    if (formContainer) {
+      formContainer.addEventListener('touchstart', handleTouchStart, {
+        passive: true,
+      });
+      formContainer.addEventListener('touchend', handleTouchEnd, {
+        passive: true,
+      });
+    }
+
+    return () => {
+      if (formContainer) {
+        formContainer.removeEventListener('touchstart', handleTouchStart);
+        formContainer.removeEventListener('touchend', handleTouchEnd);
+      }
+    };
+  }, [activeSection, scrollToSection]);
+
+  // Enhanced scroll behavior configuration
+  useEffect(() => {
+    // Configure smooth scrolling behavior for the entire page
+    const style = document.createElement('style');
+    style.textContent = `
+      html {
+        scroll-behavior: smooth;
+      }
+      
+      .form-container {
+        scroll-behavior: smooth;
+        -webkit-overflow-scrolling: touch; /* iOS smooth scrolling */
+      }
+      
+      .scrolling-to {
+        animation: scroll-highlight 1s ease-out;
+      }
+      
+      @keyframes scroll-highlight {
+        0% { 
+          box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.7);
+          transform: scale(1);
+        }
+        50% { 
+          box-shadow: 0 0 0 10px rgba(59, 130, 246, 0.3);
+          transform: scale(1.02);
+        }
+        100% { 
+          box-shadow: 0 0 0 0 rgba(59, 130, 246, 0);
+          transform: scale(1);
+        }
+      }
+      
+      /* Enhanced scrollbar styling for better UX */
+      .form-container::-webkit-scrollbar {
+        width: 8px;
+      }
+      
+      .form-container::-webkit-scrollbar-track {
+        background: #f1f5f9;
+        border-radius: 4px;
+      }
+      
+      .form-container::-webkit-scrollbar-thumb {
+        background: #cbd5e1;
+        border-radius: 4px;
+        transition: background 0.2s ease;
+      }
+      
+      .form-container::-webkit-scrollbar-thumb:hover {
+        background: #94a3b8;
+      }
+    `;
+    document.head.appendChild(style);
+
+    return () => {
+      document.head.removeChild(style);
+    };
+  }, []);
 
   // Analytics tracking effects
   useEffect(() => {
@@ -307,22 +508,6 @@ export function MultiStepForm({
     }
   };
 
-  // Get section completion percentage
-  const getSectionCompletionPercentage = (sectionIndex: number): number => {
-    const sectionFields = FORM_STEPS[sectionIndex]?.fields || [];
-    if (sectionFields.length === 0) return 100;
-    
-    const completedFields = sectionFields.filter(field => {
-      const value = formData[field as keyof any];
-      if (field === 'gdprConsent') {
-        return value === true;
-      }
-      return value !== undefined && value !== null && value !== '' && value !== 0;
-    });
-    
-    return (completedFields.length / sectionFields.length) * 100;
-  };
-
   return (
     <div className="w-full h-full">
       {/* Form Content */}
@@ -334,7 +519,7 @@ export function MultiStepForm({
           <p className="text-sm text-gray-500 text-center px-2 sm:px-0">
             Täytä lomake alla laskeaksesi potentiaaliset säästösi
           </p>
-          
+
           {/* Section Progress Indicator */}
           <div className="flex justify-center mt-4">
             <div className="flex space-x-3">
@@ -347,8 +532,8 @@ export function MultiStepForm({
                         status === 'completed'
                           ? 'bg-green-500 text-white'
                           : status === 'active'
-                          ? 'bg-blue-500 text-white'
-                          : 'bg-gray-300 text-gray-500'
+                            ? 'bg-blue-500 text-white'
+                            : 'bg-gray-300 text-gray-500'
                       }`}
                     >
                       {status === 'completed' ? '✓' : index + 1}
@@ -363,12 +548,19 @@ export function MultiStepForm({
           </div>
         </CardHeader>
         <CardContent className="px-4 sm:px-6 py-6 h-full overflow-y-auto">
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-8 h-full">
+          <form
+            onSubmit={handleSubmit(onSubmit)}
+            className="space-y-8 h-full form-container"
+          >
             {/* Section 1: Property Questions */}
             <div className="space-y-4">
-              <div className={`border-b border-gray-200 pb-4 ${
-                getSectionStatus(0) === 'locked' ? 'opacity-50 pointer-events-none' : ''
-              }`}>
+              <div
+                className={`border-b border-gray-200 pb-4 ${
+                  getSectionStatus(0) === 'locked'
+                    ? 'opacity-50 pointer-events-none'
+                    : ''
+                }`}
+              >
                 <div className="flex items-center justify-between mb-2">
                   <h3 className="text-lg font-semibold text-gray-900">
                     {FORM_STEPS[0].title}
@@ -386,9 +578,13 @@ export function MultiStepForm({
 
             {/* Section 2: Current Heating */}
             <div className="space-y-4">
-              <div className={`border-b border-gray-200 pb-4 ${
-                getSectionStatus(1) === 'locked' ? 'opacity-50 pointer-events-none' : ''
-              }`}>
+              <div
+                className={`border-b border-gray-200 pb-4 ${
+                  getSectionStatus(1) === 'locked'
+                    ? 'opacity-50 pointer-events-none'
+                    : ''
+                }`}
+              >
                 <div className="flex items-center justify-between mb-2">
                   <h3 className="text-lg font-semibold text-gray-900">
                     {FORM_STEPS[1].title}
@@ -406,9 +602,13 @@ export function MultiStepForm({
 
             {/* Section 3: Current Heating Costs */}
             <div className="space-y-4">
-              <div className={`border-b border-gray-200 pb-4 ${
-                getSectionStatus(2) === 'locked' ? 'opacity-50 pointer-events-none' : ''
-              }`}>
+              <div
+                className={`border-b border-gray-200 pb-4 ${
+                  getSectionStatus(2) === 'locked'
+                    ? 'opacity-50 pointer-events-none'
+                    : ''
+                }`}
+              >
                 <div className="flex items-center justify-between mb-2">
                   <h3 className="text-lg font-semibold text-gray-900">
                     {FORM_STEPS[2].title}
@@ -426,9 +626,13 @@ export function MultiStepForm({
 
             {/* Section 4: Check How Much You'd Save */}
             <div className="space-y-4">
-              <div className={`border-b border-gray-200 pb-4 ${
-                getSectionStatus(3) === 'locked' ? 'opacity-50 pointer-events-none' : ''
-              }`}>
+              <div
+                className={`border-b border-gray-200 pb-4 ${
+                  getSectionStatus(3) === 'locked'
+                    ? 'opacity-50 pointer-events-none'
+                    : ''
+                }`}
+              >
                 <div className="flex items-center justify-between mb-2">
                   <h3 className="text-lg font-semibold text-gray-900">
                     {FORM_STEPS[3].title}
@@ -446,9 +650,13 @@ export function MultiStepForm({
 
             {/* Section 5: Contact Information */}
             <div className="space-y-4">
-              <div className={`pb-4 ${
-                getSectionStatus(4) === 'locked' ? 'opacity-50 pointer-events-none' : ''
-              }`}>
+              <div
+                className={`pb-4 ${
+                  getSectionStatus(4) === 'locked'
+                    ? 'opacity-50 pointer-events-none'
+                    : ''
+                }`}
+              >
                 <div className="flex items-center justify-between mb-2">
                   <h3 className="text-lg font-semibold text-gray-900">
                     {FORM_STEPS[4].title}
@@ -559,7 +767,9 @@ export function MultiStepForm({
             <div className="pt-6 border-t border-gray-200">
               <Button
                 type="submit"
-                disabled={!isValid || isSubmitting || completedSections.size < 4}
+                disabled={
+                  !isValid || isSubmitting || completedSections.size < 4
+                }
                 className="w-full"
                 size="lg"
               >

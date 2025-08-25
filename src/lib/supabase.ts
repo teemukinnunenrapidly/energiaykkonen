@@ -7,6 +7,7 @@ if (!supabaseUrl || !supabaseAnonKey) {
   throw new Error('Missing Supabase environment variables');
 }
 
+// Create Supabase client with basic configuration
 export const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 // Database types for our leads table (matches PRD schema)

@@ -24,7 +24,8 @@ export function BasicInfoStep({ form }: BasicInfoStepProps) {
           Kerro itsestäsi
         </h3>
         <p className="text-sm sm:text-base text-gray-600 px-2 sm:px-0">
-          Käytämme näitä tietoja lähettääksemme sinulle henkilökohtaiset laskelmatulokset
+          Käytämme näitä tietoja lähettääksemme sinulle henkilökohtaiset
+          laskelmatulokset
         </p>
       </div>
 
@@ -216,7 +217,8 @@ export function BasicInfoStep({ form }: BasicInfoStepProps) {
                   >
                     tietosuojaselosteen
                   </a>{' '}
-                  ja suostun henkilötietojeni käsittelyyn lämpöpumpun laskelmaa ja neuvontapalveluja varten. *
+                  ja suostun henkilötietojeni käsittelyyn lämpöpumpun laskelmaa
+                  ja neuvontapalveluja varten. *
                 </Label>
                 {errors.gdprConsent && (
                   <p className="text-sm text-red-600 mt-1">
@@ -237,7 +239,10 @@ export function BasicInfoStep({ form }: BasicInfoStepProps) {
                   htmlFor="marketingConsent"
                   className="text-sm text-gray-600 cursor-pointer"
                 >
-                  Haluan vastaanottaa markkinointiviestintää lämpöpumpun ratkaisuista, energiansäästövinkeistä ja erikoistarjouksista sähköpostilla ja puhelimella. (Valinnainen - voit perua tilauksen milloin tahansa)
+                  Haluan vastaanottaa markkinointiviestintää lämpöpumpun
+                  ratkaisuista, energiansäästövinkeistä ja erikoistarjouksista
+                  sähköpostilla ja puhelimella. (Valinnainen - voit perua
+                  tilauksen milloin tahansa)
                 </Label>
               </div>
             </div>
@@ -245,7 +250,11 @@ export function BasicInfoStep({ form }: BasicInfoStepProps) {
 
           <div className="mt-4 pt-3 border-t border-gray-200">
             <p className="text-xs text-gray-600">
-              <strong>Miksi tarvitsemme nämä tiedot?</strong> Lähetämme sinulle yksityiskohtaisen laskelmaraportin ja myyntitiimimme saattaa ottaa sinuun yhteyttä keskustellakseen lämpöpumpun vaihtoehdoista, jotka vastaavat tarpeitasi. Tietojasi käsitellään turvallisesti GDPR-säädösten mukaisesti.
+              <strong>Miksi tarvitsemme nämä tiedot?</strong> Lähetämme sinulle
+              yksityiskohtaisen laskelmaraportin ja myyntitiimimme saattaa ottaa
+              sinuun yhteyttä keskustellakseen lämpöpumpun vaihtoehdoista, jotka
+              vastaavat tarpeitasi. Tietojasi käsitellään turvallisesti
+              GDPR-säädösten mukaisesti.
             </p>
           </div>
         </CardContent>

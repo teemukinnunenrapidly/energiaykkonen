@@ -24,30 +24,46 @@ export default function ThemePresetsGrid({
   onPresetDuplicate,
   onPresetDelete,
   onPresetPreview,
-  onCreateNew
+  onCreateNew,
 }: ThemePresetsGridProps) {
   const [searchTerm, setSearchTerm] = useState('');
   const [filterCategory, setFilterCategory] = useState<string>('all');
 
   // Filter presets based on search and category
   const filteredPresets = presets.filter(preset => {
-    const matchesSearch = preset.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         preset.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         preset.config.metadata.tags.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase()));
-    
-    const matchesCategory = filterCategory === 'all' || 
-                           (filterCategory === 'default' && preset.isDefault) ||
-                           (filterCategory === 'custom' && !preset.locked) ||
-                           (filterCategory === 'locked' && preset.locked);
-    
+    const matchesSearch =
+      preset.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      preset.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      preset.config.metadata.tags.some(tag =>
+        tag.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+
+    const matchesCategory =
+      filterCategory === 'all' ||
+      (filterCategory === 'default' && preset.isDefault) ||
+      (filterCategory === 'custom' && !preset.locked) ||
+      (filterCategory === 'locked' && preset.locked);
+
     return matchesSearch && matchesCategory;
   });
 
   const categories = [
     { id: 'all', name: 'All Themes', count: presets.length },
-    { id: 'default', name: 'Default', count: presets.filter(p => p.isDefault).length },
-    { id: 'custom', name: 'Custom', count: presets.filter(p => !p.locked).length },
-    { id: 'locked', name: 'Locked', count: presets.filter(p => p.locked).length }
+    {
+      id: 'default',
+      name: 'Default',
+      count: presets.filter(p => p.isDefault).length,
+    },
+    {
+      id: 'custom',
+      name: 'Custom',
+      count: presets.filter(p => !p.locked).length,
+    },
+    {
+      id: 'locked',
+      name: 'Locked',
+      count: presets.filter(p => p.locked).length,
+    },
   ];
 
   return (
@@ -61,7 +77,7 @@ export default function ThemePresetsGrid({
               type="text"
               placeholder="Search themes..."
               value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
+              onChange={e => setSearchTerm(e.target.value)}
               className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
             />
           </div>
@@ -73,7 +89,7 @@ export default function ThemePresetsGrid({
             <Filter className="w-4 h-4 text-gray-500" />
             <select
               value={filterCategory}
-              onChange={(e) => setFilterCategory(e.target.value)}
+              onChange={e => setFilterCategory(e.target.value)}
               className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 text-sm"
             >
               {categories.map(category => (
@@ -101,13 +117,14 @@ export default function ThemePresetsGrid({
       <div className="text-sm text-gray-600">
         {filteredPresets.length} of {presets.length} themes
         {searchTerm && ` matching "${searchTerm}"`}
-        {filterCategory !== 'all' && ` in ${categories.find(c => c.id === filterCategory)?.name}`}
+        {filterCategory !== 'all' &&
+          ` in ${categories.find(c => c.id === filterCategory)?.name}`}
       </div>
 
       {/* Themes grid */}
       {filteredPresets.length > 0 ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {filteredPresets.map((preset) => (
+          {filteredPresets.map(preset => (
             <ThemePresetCard
               key={preset.id}
               preset={preset}
@@ -125,12 +142,13 @@ export default function ThemePresetsGrid({
           <div className="w-16 h-16 mx-auto mb-4 bg-gray-100 rounded-full flex items-center justify-center">
             <Search className="w-8 h-8 text-gray-400" />
           </div>
-          <h3 className="text-lg font-medium text-gray-900 mb-2">No themes found</h3>
+          <h3 className="text-lg font-medium text-gray-900 mb-2">
+            No themes found
+          </h3>
           <p className="text-gray-500 mb-4">
-            {searchTerm 
+            {searchTerm
               ? `No themes match "${searchTerm}"`
-              : 'No themes available in this category'
-            }
+              : 'No themes available in this category'}
           </p>
           {searchTerm && (
             <button

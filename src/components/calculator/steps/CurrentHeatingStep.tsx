@@ -42,7 +42,8 @@ export function CurrentHeatingStep({ form }: CurrentHeatingStepProps) {
           Nykyinen lämmitysjärjestelmäsi
         </h3>
         <p className="text-sm sm:text-base text-gray-600 px-2 sm:px-0">
-          Tämä auttaa vertailemaan nykyisiä kustannuksiasi lämpöpumpun potentiaalisiin säästöihin
+          Tämä auttaa vertailemaan nykyisiä kustannuksiasi lämpöpumpun
+          potentiaalisiin säästöihin
         </p>
       </div>
 
@@ -132,7 +133,10 @@ export function CurrentHeatingStep({ form }: CurrentHeatingStepProps) {
       <Card className="bg-blue-50 border-blue-200 mx-2 sm:mx-0">
         <CardContent className="pt-4 px-4 sm:px-6">
           <p className="text-sm text-blue-800">
-            <strong>Miksi tämä on tärkeää:</strong> Nykyiset lämmityskustannuksesi ovat perusta potentiaalisten säästöjen laskemiselle. Mitä korkeammat nykyiset kustannuksesi ovat, sitä enemmän voit säästää lämpöpumpulla.
+            <strong>Miksi tämä on tärkeää:</strong> Nykyiset
+            lämmityskustannuksesi ovat perusta potentiaalisten säästöjen
+            laskemiselle. Mitä korkeammat nykyiset kustannuksesi ovat, sitä
+            enemmän voit säästää lämpöpumpulla.
           </p>
         </CardContent>
       </Card>

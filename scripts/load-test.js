@@ -3,7 +3,7 @@
  * Simulates concurrent users submitting forms
  */
 
-const http = require('http');
+import http from 'http';
 
 const TEST_CONFIG = {
   baseUrl: 'http://localhost:3000',
@@ -315,8 +315,8 @@ async function runLoadTest() {
 }
 
 // Run the load test if script is executed directly
-if (require.main === module) {
+if (import.meta.url === path.toFileURL(process.argv[1]).href) {
   runLoadTest().catch(console.error);
 }
 
-module.exports = { runLoadTest, generateTestData };
+export { runLoadTest, generateTestData };

@@ -5,7 +5,13 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-// Select component is used in the JSX but not directly imported
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { X, Search, Filter } from 'lucide-react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useDebounce } from '@/hooks/useDebounce';
@@ -139,12 +145,12 @@ export default function SearchFilters({
           <div className="flex-1">
             <Label
               htmlFor="search"
-              className="text-sm font-medium text-gray-700"
+              className="text-sm font-medium text-foreground"
             >
               Search Leads
             </Label>
             <div className="relative mt-1">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
               <Input
                 id="search"
                 type="text"
@@ -169,7 +175,7 @@ export default function SearchFilters({
             <Button
               variant="outline"
               onClick={clearAllFilters}
-              className="flex items-center gap-2 text-red-600 hover:text-red-700"
+              className="flex items-center gap-2 text-destructive hover:text-destructive"
             >
               <X className="w-4 h-4" />
               Clear All
@@ -184,29 +190,32 @@ export default function SearchFilters({
             <div>
               <Label
                 htmlFor="status"
-                className="text-sm font-medium text-gray-700"
+                className="text-sm font-medium text-foreground"
               >
                 Status
               </Label>
-              <select
-                id="status"
+              <Select
                 value={filters.status}
-                onChange={e => handleFilterChange('status', e.target.value)}
-                className="mt-1 block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring"
+                onValueChange={value => handleFilterChange('status', value)}
               >
-                {statusOptions.map(option => (
-                  <option key={option.value} value={option.value}>
-                    {option.label}
-                  </option>
-                ))}
-              </select>
+                <SelectTrigger className="mt-1">
+                  <SelectValue placeholder="All Statuses" />
+                </SelectTrigger>
+                <SelectContent>
+                  {statusOptions.map(option => (
+                    <SelectItem key={option.value} value={option.value}>
+                      {option.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
 
             {/* Date From */}
             <div>
               <Label
                 htmlFor="dateFrom"
-                className="text-sm font-medium text-gray-700"
+                className="text-sm font-medium text-foreground"
               >
                 From Date
               </Label>
@@ -223,7 +232,7 @@ export default function SearchFilters({
             <div>
               <Label
                 htmlFor="dateTo"
-                className="text-sm font-medium text-gray-700"
+                className="text-sm font-medium text-foreground"
               >
                 To Date
               </Label>
@@ -238,7 +247,7 @@ export default function SearchFilters({
 
             {/* Savings Range */}
             <div>
-              <Label className="text-sm font-medium text-gray-700">
+              <Label className="text-sm font-medium text-foreground">
                 Annual Savings (€)
               </Label>
               <div className="flex gap-2 mt-1">
@@ -270,9 +279,11 @@ export default function SearchFilters({
         {/* Active Filters Summary */}
         {hasActiveFilters && (
           <div className="flex flex-wrap gap-2 pt-2 border-t">
-            <span className="text-sm text-gray-600">Active filters:</span>
+            <span className="text-sm text-muted-foreground">
+              Active filters:
+            </span>
             {filters.search && (
-              <span className="inline-flex items-center gap-1 px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full">
+              <span className="inline-flex items-center gap-1 px-2 py-1 bg-primary/10 text-primary text-xs rounded-full">
                 Search: &quot;{filters.search}&quot;
                 <button onClick={() => handleFilterChange('search', '')}>
                   <X className="w-3 h-3" />
@@ -280,7 +291,7 @@ export default function SearchFilters({
               </span>
             )}
             {filters.status && (
-              <span className="inline-flex items-center gap-1 px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full">
+              <span className="inline-flex items-center gap-1 px-2 py-1 bg-secondary/10 text-secondary-foreground text-xs rounded-full">
                 Status:{' '}
                 {statusOptions.find(opt => opt.value === filters.status)?.label}
                 <button onClick={() => handleFilterChange('status', '')}>
@@ -289,7 +300,7 @@ export default function SearchFilters({
               </span>
             )}
             {(filters.dateFrom || filters.dateTo) && (
-              <span className="inline-flex items-center gap-1 px-2 py-1 bg-purple-100 text-purple-800 text-xs rounded-full">
+              <span className="inline-flex items-center gap-1 px-2 py-1 bg-muted text-muted-foreground text-xs rounded-full">
                 Date: {filters.dateFrom || '∞'} - {filters.dateTo || '∞'}
                 <button
                   onClick={() => {
@@ -302,7 +313,7 @@ export default function SearchFilters({
               </span>
             )}
             {(filters.savingsMin || filters.savingsMax) && (
-              <span className="inline-flex items-center gap-1 px-2 py-1 bg-orange-100 text-orange-800 text-xs rounded-full">
+              <span className="inline-flex items-center gap-1 px-2 py-1 bg-muted text-muted-foreground text-xs rounded-full">
                 Savings: €{filters.savingsMin || '0'} - €
                 {filters.savingsMax || '∞'}
                 <button
