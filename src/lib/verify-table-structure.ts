@@ -11,7 +11,7 @@ export async function verifyLeadsTableStructure() {
   try {
     // Test 1: Check if table exists and basic structure
     console.log('\n📋 Test 1: Basic table structure');
-    const { data: tableInfo, error: tableError } = await supabase
+    const { error: tableError } = await supabase
       .from('leads')
       .select('*')
       .limit(0);

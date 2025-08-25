@@ -3,14 +3,13 @@
  * Provides aggregated analytics data for the admin dashboard
  */
 
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import { supabase } from '@/lib/supabase';
 
-export async function GET(request: NextRequest) {
+export async function GET() {
   try {
     // Get time ranges for analysis
     const now = new Date();
-    const last24Hours = new Date(now.getTime() - 24 * 60 * 60 * 1000);
     const last7Days = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
 
     // Fetch analytics summary

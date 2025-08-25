@@ -39,9 +39,6 @@ export function validateEmailConfiguration(): EmailConfigValidation {
     }
   }
 
-  // Check email addresses format
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
   // Note: We can't validate the actual email config here since it's not in env vars
   // This would be done at runtime in the email service
 

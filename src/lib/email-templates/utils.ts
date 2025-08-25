@@ -69,8 +69,7 @@ export function calculateLeadScore(lead: Lead): 'high' | 'medium' | 'low' {
  * Generate email subject lines
  */
 export const emailSubjects = {
-  customer: (firstName: string, lastName: string) =>
-    `Your Heat Pump Savings Calculation - Energiaykkönen`,
+  customer: () => `Your Heat Pump Savings Calculation - Energiaykkönen`,
 
   sales: (lead: Lead) =>
     `New Lead: ${lead.first_name} ${lead.last_name} - ${lead.city || 'Ei kaupunkia'} - Savings: ${lead.annual_savings.toLocaleString('fi-FI')}€/year`,

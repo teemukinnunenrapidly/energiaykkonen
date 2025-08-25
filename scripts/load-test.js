@@ -3,7 +3,6 @@
  * Simulates concurrent users submitting forms
  */
 
-const https = require('https');
 const http = require('http');
 
 const TEST_CONFIG = {
@@ -118,7 +117,7 @@ function makeRequest(userData) {
             data: result,
             timestamp: new Date().toISOString(),
           });
-        } catch (e) {
+        } catch {
           resolve({
             success: false,
             statusCode: res.statusCode,

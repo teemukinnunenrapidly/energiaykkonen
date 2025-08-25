@@ -38,7 +38,7 @@ export default function TestEmailsPage() {
       const response = await fetch('/api/email-status');
       const data = await response.json();
       setConfigStatus(data);
-    } catch (error) {
+    } catch {
       setConfigStatus({
         status: 'error',
         isValid: false,
@@ -69,7 +69,7 @@ export default function TestEmailsPage() {
 
       const data = await response.json();
       setResult(data);
-    } catch (error) {
+    } catch {
       setResult({
         success: false,
         message: 'Test failed',

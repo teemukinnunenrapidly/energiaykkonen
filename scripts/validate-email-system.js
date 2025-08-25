@@ -12,7 +12,6 @@
  *   node scripts/validate-email-system.js --mode full
  */
 
-const { execSync } = require('child_process');
 const path = require('path');
 const fs = require('fs');
 
@@ -91,7 +90,7 @@ async function checkDevServer() {
   try {
     const response = await fetch('http://localhost:3000/api/email-status');
     return response.ok;
-  } catch (error) {
+  } catch {
     return false;
   }
 }

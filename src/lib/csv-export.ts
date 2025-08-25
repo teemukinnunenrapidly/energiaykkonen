@@ -54,7 +54,7 @@ function formatDateForCSV(
     }
 
     return date.toISOString();
-  } catch (error) {
+  } catch {
     return dateString;
   }
 }

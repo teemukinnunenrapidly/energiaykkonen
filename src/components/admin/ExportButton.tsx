@@ -106,8 +106,6 @@ export default function ExportButton({
   };
 
   // Display summary based on export mode
-  const displayCount =
-    exportMode === 'all-filtered' ? totalCount : leads.length;
   const exportSummary = getExportSummary(
     exportMode === 'all-filtered'
       ? (Array(totalCount).fill({}) as Lead[])

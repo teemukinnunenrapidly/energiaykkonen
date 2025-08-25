@@ -40,7 +40,7 @@ export async function sendCustomerResultsEmail(lead: Lead) {
     // Send email
     const result = await sendEmail({
       to: lead.email,
-      subject: emailSubjects.customer(lead.first_name, lead.last_name),
+      subject: emailSubjects.customer(),
       html,
     });
 

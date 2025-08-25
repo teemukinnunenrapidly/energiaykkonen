@@ -273,7 +273,7 @@ export const SalesNotificationTemplate = ({
                       marginTop: '8px',
                     }}
                   >
-                    "{lead.message}"
+                    &quot;{lead.message}&quot;
                   </div>
                 </div>
               )}

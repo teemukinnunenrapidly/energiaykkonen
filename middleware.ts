@@ -1,6 +1,5 @@
-import { NextResponse } from 'next/server';
-import type { NextRequest } from 'next/server';
-import { getSession } from '@/lib/auth';
+import { NextResponse, type NextRequest } from 'next/server';
+import { getSessionEdge } from '@/lib/auth-edge';
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
@@ -12,7 +11,7 @@ export async function middleware(request: NextRequest) {
 
   // Check for session on protected admin routes
   if (pathname.startsWith('/admin') || pathname.startsWith('/api/admin')) {
-    const session = await getSession(request);
+    const session = await getSessionEdge(request);
 
     if (!session) {
       // Redirect to login if no valid session

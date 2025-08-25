@@ -273,7 +273,7 @@ export default function SearchFilters({
             <span className="text-sm text-gray-600">Active filters:</span>
             {filters.search && (
               <span className="inline-flex items-center gap-1 px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full">
-                Search: "{filters.search}"
+                Search: &quot;{filters.search}&quot;
                 <button onClick={() => handleFilterChange('search', '')}>
                   <X className="w-3 h-3" />
                 </button>
