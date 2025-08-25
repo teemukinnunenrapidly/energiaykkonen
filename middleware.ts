@@ -1,5 +1,39 @@
 import { NextResponse, type NextRequest } from 'next/server';
-import { getSessionEdge } from '@/lib/auth-edge';
+
+// Inline JWT verification for Edge Runtime compatibility
+async function verifyJWTSession(token: string): Promise<{ userId: string; role: string; expiresAt: string } | null> {
+  try {
+    // Split the JWT token
+    const parts = token.split('.');
+    if (parts.length !== 3) return null;
+
+    // Decode the payload (second part)
+    const payload = JSON.parse(atob(parts[1]));
+    
+    // Check if token is expired
+    if (payload.exp && Date.now() >= payload.exp * 1000) {
+      return null;
+    }
+
+    // Validate required fields
+    if (!payload.userId || !payload.role || !payload.expiresAt) {
+      return null;
+    }
+
+    // Check if token is expired using expiresAt field
+    if (new Date() > new Date(payload.expiresAt)) {
+      return null;
+    }
+
+    return {
+      userId: payload.userId,
+      role: payload.role,
+      expiresAt: payload.expiresAt,
+    };
+  } catch {
+    return null;
+  }
+}
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
@@ -11,16 +45,25 @@ export async function middleware(request: NextRequest) {
 
   // Check for session on protected admin routes
   if (pathname.startsWith('/admin') || pathname.startsWith('/api/admin')) {
-    const session = await getSessionEdge(request);
-
-    if (!session) {
-      // Redirect to login if no valid session
+    const sessionCookie = request.cookies.get('admin-session')?.value;
+    
+    if (!sessionCookie) {
+      // Redirect to login if no session cookie
       const loginUrl = new URL('/admin/login', request.url);
       loginUrl.searchParams.set('redirect', pathname);
       return NextResponse.redirect(loginUrl);
     }
 
-    if (session.user.role !== 'admin') {
+    const session = await verifyJWTSession(sessionCookie);
+    
+    if (!session) {
+      // Redirect to login if invalid session
+      const loginUrl = new URL('/admin/login', request.url);
+      loginUrl.searchParams.set('redirect', pathname);
+      return NextResponse.redirect(loginUrl);
+    }
+
+    if (session.role !== 'admin') {
       // Return 403 if user doesn't have admin role
       return new NextResponse('Forbidden', { status: 403 });
     }
