@@ -12,8 +12,10 @@ async function verifyJWTSession(
       return null;
     }
 
-    // Decode the payload (second part)
-    const payload = JSON.parse(atob(parts[1]));
+    // Decode the payload (second part) - Edge Runtime compatible
+    const payload = JSON.parse(
+      Buffer.from(parts[1], 'base64').toString('utf-8')
+    );
 
     // Check if token is expired
     if (payload.exp && Date.now() >= payload.exp * 1000) {
