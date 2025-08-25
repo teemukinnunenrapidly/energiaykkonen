@@ -18,7 +18,7 @@ export interface ProcessedDisplayContent {
 
 /**
  * Shortcode Processor for Display Fields
- * 
+ *
  * This service processes shortcodes in display field content and replaces them
  * with actual calculation results. It supports the format [calc:formula-name]
  * where formula-name corresponds to a formula in the database.
@@ -34,7 +34,7 @@ export function parseDisplayContent(content: string): ProcessedDisplayContent {
     formulaId: string;
     variables: Record<string, any>;
   }> = [];
-  
+
   let match;
   while ((match = shortcodeRegex.exec(content)) !== null) {
     const [fullMatch, formulaName] = match;
@@ -60,7 +60,7 @@ export async function processDisplayContent(
 ): Promise<ShortcodeResult> {
   try {
     const parsed = parseDisplayContent(content);
-    
+
     if (parsed.shortcodes.length === 0) {
       // No shortcodes found, return content as-is
       return {
@@ -71,15 +71,17 @@ export async function processDisplayContent(
 
     // Get all formulas to find the ones referenced in shortcodes
     const formulas = await getFormulas();
-    
+
     let processedContent = content;
-    
+
     // Process each shortcode
     for (const shortcode of parsed.shortcodes) {
       // Find the formula by name (assuming formula names are unique)
-      const formula = formulas.find(f => 
-        f.name.toLowerCase() === shortcode.formulaId.toLowerCase() ||
-        f.name.toLowerCase().replace(/\s+/g, '-') === shortcode.formulaId.toLowerCase()
+      const formula = formulas.find(
+        f =>
+          f.name.toLowerCase() === shortcode.formulaId.toLowerCase() ||
+          f.name.toLowerCase().replace(/\s+/g, '-') ===
+            shortcode.formulaId.toLowerCase()
       );
 
       if (!formula) {
@@ -106,7 +108,7 @@ export async function processDisplayContent(
             executionResult.result,
             formula.formula_type || 'energy_calculation'
           );
-          
+
           // Replace the shortcode with the result
           processedContent = processedContent.replace(
             shortcode.original,
@@ -152,15 +154,15 @@ function formatCalculationResult(result: number, formulaType: string): string {
         return `${(result / 1000).toFixed(1)}k`;
       }
       return result.toFixed(0);
-      
+
     case 'efficiency':
       // Format efficiency as percentage
       return `${result.toFixed(1)}%`;
-      
+
     case 'payback_period':
       // Format payback period in years
       return `${result.toFixed(1)} years`;
-      
+
     default:
       // Default formatting
       return result.toFixed(2);
@@ -170,15 +172,17 @@ function formatCalculationResult(result: number, formulaType: string): string {
 /**
  * Get available shortcodes for display fields
  */
-export async function getAvailableShortcodes(): Promise<Array<{
-  name: string;
-  shortcode: string;
-  description: string;
-  category: string;
-}>> {
+export async function getAvailableShortcodes(): Promise<
+  Array<{
+    name: string;
+    shortcode: string;
+    description: string;
+    category: string;
+  }>
+> {
   try {
     const formulas = await getFormulas();
-    
+
     return formulas.map(formula => ({
       name: formula.name,
       shortcode: `[calc:${formula.name.toLowerCase().replace(/\s+/g, '-')}]`,
@@ -201,21 +205,23 @@ export function validateShortcodeSyntax(content: string): {
 } {
   const errors: string[] = [];
   const suggestions: string[] = [];
-  
+
   // Check for proper shortcode syntax
   const shortcodeRegex = /\[calc:([^\]]+)\]/g;
   const matches = content.match(shortcodeRegex);
-  
+
   if (matches) {
     for (const match of matches) {
       const formulaName = match.replace(/\[calc:([^\]]+)\]/, '$1');
-      
+
       // Check if formula name contains invalid characters
       if (!/^[a-zA-Z0-9\-\s]+$/.test(formulaName)) {
         errors.push(`Invalid characters in formula name: ${formulaName}`);
-        suggestions.push(`Use only letters, numbers, hyphens, and spaces in formula names`);
+        suggestions.push(
+          `Use only letters, numbers, hyphens, and spaces in formula names`
+        );
       }
-      
+
       // Check if formula name is too long
       if (formulaName.length > 50) {
         errors.push(`Formula name too long: ${formulaName}`);
@@ -223,7 +229,7 @@ export function validateShortcodeSyntax(content: string): {
       }
     }
   }
-  
+
   return {
     isValid: errors.length === 0,
     errors,

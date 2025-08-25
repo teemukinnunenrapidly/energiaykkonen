@@ -27,7 +27,12 @@ import {
   Eye,
   Save,
 } from 'lucide-react';
-import { getEmailTemplates, createEmailTemplate, updateEmailTemplate, type EmailTemplate } from '@/lib/email-templates-service';
+import {
+  getEmailTemplates,
+  createEmailTemplate,
+  updateEmailTemplate,
+  type EmailTemplate,
+} from '@/lib/email-templates-service';
 import { getShortcodes, type Shortcode } from '@/lib/shortcodes-service';
 
 // Use the imported types from the services
@@ -35,7 +40,9 @@ import { getShortcodes, type Shortcode } from '@/lib/shortcodes-service';
 export default function EmailBuilderPage() {
   const [templates, setTemplates] = useState<EmailTemplate[]>([]);
   const [shortcodes, setShortcodes] = useState<Shortcode[]>([]);
-  const [currentTemplate, setCurrentTemplate] = useState<Partial<EmailTemplate>>({
+  const [currentTemplate, setCurrentTemplate] = useState<
+    Partial<EmailTemplate>
+  >({
     name: '',
     subject: '',
     content: '',
@@ -55,7 +62,7 @@ export default function EmailBuilderPage() {
         setIsLoading(true);
         const [fetchedTemplates, fetchedShortcodes] = await Promise.all([
           getEmailTemplates(),
-          getShortcodes()
+          getShortcodes(),
         ]);
         setTemplates(fetchedTemplates);
         setShortcodes(fetchedShortcodes);
@@ -191,7 +198,7 @@ export default function EmailBuilderPage() {
     setIsSaving(true);
     try {
       let savedTemplate: EmailTemplate;
-      
+
       if (currentTemplate.id) {
         // Update existing template
         savedTemplate = await updateEmailTemplate(currentTemplate.id, {
@@ -200,11 +207,11 @@ export default function EmailBuilderPage() {
           content: currentTemplate.content,
           category: currentTemplate.category || 'results',
         });
-        
+
         // Update local state
-        setTemplates(prev => prev.map(t => 
-          t.id === currentTemplate.id ? savedTemplate : t
-        ));
+        setTemplates(prev =>
+          prev.map(t => (t.id === currentTemplate.id ? savedTemplate : t))
+        );
       } else {
         // Create new template
         savedTemplate = await createEmailTemplate({
@@ -213,7 +220,7 @@ export default function EmailBuilderPage() {
           content: currentTemplate.content || '',
           category: currentTemplate.category || 'results',
         });
-        
+
         // Add to local state
         setTemplates(prev => [savedTemplate, ...prev]);
       }
@@ -501,7 +508,9 @@ export default function EmailBuilderPage() {
               {isLoading ? (
                 <div className="text-center py-8">
                   <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
-                  <span className="text-muted-foreground">Loading templates...</span>
+                  <span className="text-muted-foreground">
+                    Loading templates...
+                  </span>
                 </div>
               ) : templates.length === 0 ? (
                 <div className="text-center py-8 text-muted-foreground">

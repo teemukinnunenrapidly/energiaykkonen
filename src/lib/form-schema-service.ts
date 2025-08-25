@@ -26,14 +26,31 @@ export interface UpdateFormSchemaData {
   is_active?: boolean;
 }
 
+// Get the current user ID
+async function getCurrentUserId(): Promise<string> {
+  const {
+    data: { user },
+    error,
+  } = await supabase.auth.getUser();
+  if (error || !user) {
+    throw new Error('User not authenticated');
+  }
+  return user.id;
+}
+
 // Create a new form schema
-export async function createFormSchema(data: CreateFormSchemaData): Promise<FormSchemaRecord> {
+export async function createFormSchema(
+  data: CreateFormSchemaData
+): Promise<FormSchemaRecord> {
+  const userId = await getCurrentUserId();
+
   const { data: result, error } = await supabase
     .from('form_schemas')
     .insert({
       name: data.name,
       description: data.description,
       schema_data: data.schema_data,
+      created_by: userId,
     })
     .select()
     .single();
@@ -47,7 +64,9 @@ export async function createFormSchema(data: CreateFormSchemaData): Promise<Form
 }
 
 // Get a form schema by ID
-export async function getFormSchema(id: string): Promise<FormSchemaRecord | null> {
+export async function getFormSchema(
+  id: string
+): Promise<FormSchemaRecord | null> {
   const { data, error } = await supabase
     .from('form_schemas')
     .select('*')
@@ -68,7 +87,9 @@ export async function getFormSchema(id: string): Promise<FormSchemaRecord | null
 }
 
 // Get the active form schema by name
-export async function getActiveFormSchema(name: string): Promise<FormSchemaRecord | null> {
+export async function getActiveFormSchema(
+  name: string
+): Promise<FormSchemaRecord | null> {
   const { data, error } = await supabase
     .from('form_schemas')
     .select('*')
@@ -92,7 +113,7 @@ export async function getActiveFormSchema(name: string): Promise<FormSchemaRecor
 
 // Update an existing form schema
 export async function updateFormSchema(
-  id: string, 
+  id: string,
   data: UpdateFormSchemaData
 ): Promise<FormSchemaRecord> {
   const { data: result, error } = await supabase
@@ -115,7 +136,7 @@ export async function updateFormSchema(
 
 // Create a new version of a form schema
 export async function createNewVersion(
-  id: string, 
+  id: string,
   data: UpdateFormSchemaData
 ): Promise<FormSchemaRecord> {
   // First, get the current schema to increment version
@@ -127,12 +148,12 @@ export async function createNewVersion(
   // Deactivate the current version
   await updateFormSchema(id, { is_active: false });
 
-      // Create a new version
-    const newVersion = await createFormSchema({
-      name: data.name || current.name,
-      description: data.description ?? current.description,
-      schema_data: data.schema_data || current.schema_data,
-    });
+  // Create a new version
+  const newVersion = await createFormSchema({
+    name: data.name || current.name,
+    description: data.description ?? current.description,
+    schema_data: data.schema_data || current.schema_data,
+  });
 
   return newVersion;
 }
@@ -167,10 +188,7 @@ export async function deleteFormSchema(id: string): Promise<void> {
 
 // Hard delete a form schema (use with caution)
 export async function hardDeleteFormSchema(id: string): Promise<void> {
-  const { error } = await supabase
-    .from('form_schemas')
-    .delete()
-    .eq('id', id);
+  const { error } = await supabase.from('form_schemas').delete().eq('id', id);
 
   if (error) {
     console.error('Error hard deleting form schema:', error);

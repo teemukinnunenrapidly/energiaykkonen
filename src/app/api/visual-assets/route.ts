@@ -1,5 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getVisualAssets, createVisualAsset } from '@/lib/visual-assets-service';
+import {
+  getVisualAssets,
+  createVisualAsset,
+} from '@/lib/visual-assets-service';
 
 export async function GET() {
   try {
@@ -17,11 +20,26 @@ export async function GET() {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { name, display_name, type, category, url, thumbnail_url, file_size, width, height, tags, used_in } = body;
+    const {
+      name,
+      display_name,
+      type,
+      category,
+      url,
+      thumbnail_url,
+      file_size,
+      width,
+      height,
+      tags,
+      used_in,
+    } = body;
 
     if (!name || !display_name || !type || !category || !url || !file_size) {
       return NextResponse.json(
-        { error: 'Missing required fields: name, display_name, type, category, url, file_size' },
+        {
+          error:
+            'Missing required fields: name, display_name, type, category, url, file_size',
+        },
         { status: 400 }
       );
     }

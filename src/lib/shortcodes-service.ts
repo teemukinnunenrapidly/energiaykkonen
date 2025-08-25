@@ -68,7 +68,9 @@ export async function getShortcode(id: string): Promise<Shortcode | null> {
 }
 
 // Create a new shortcode
-export async function createShortcode(data: CreateShortcodeData): Promise<Shortcode> {
+export async function createShortcode(
+  data: CreateShortcodeData
+): Promise<Shortcode> {
   const { data: result, error } = await supabase
     .from('shortcodes')
     .insert([data])
@@ -117,7 +119,9 @@ export async function deleteShortcode(id: string): Promise<void> {
 }
 
 // Get shortcodes by category
-export async function getShortcodesByCategory(category: Shortcode['category']): Promise<Shortcode[]> {
+export async function getShortcodesByCategory(
+  category: Shortcode['category']
+): Promise<Shortcode[]> {
   const { data, error } = await supabase
     .from('shortcodes')
     .select('*')
@@ -134,16 +138,19 @@ export async function getShortcodesByCategory(category: Shortcode['category']): 
 }
 
 // Process content by replacing shortcodes with their values
-export async function processShortcodes(content: string, context: Record<string, any>): Promise<string> {
+export async function processShortcodes(
+  content: string,
+  context: Record<string, any>
+): Promise<string> {
   const shortcodes = await getShortcodes();
   let processedContent = content;
 
   for (const shortcode of shortcodes) {
     const regex = new RegExp(`\\{\\{${shortcode.name}\\}\\}`, 'g');
-    
+
     // Get the actual value from context or use the replacement_value
     let value = shortcode.replacement_value;
-    
+
     // Try to get value from context if it's a dynamic shortcode
     if (shortcode.name.includes('.')) {
       const [category, field] = shortcode.name.split('.');
@@ -151,7 +158,7 @@ export async function processShortcodes(content: string, context: Record<string,
         value = context[category][field];
       }
     }
-    
+
     processedContent = processedContent.replace(regex, value);
   }
 

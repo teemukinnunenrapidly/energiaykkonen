@@ -81,7 +81,10 @@ export default function VisualAssetsPage() {
         if (category.id === 'all') {
           return { ...category, count: assets.length };
         }
-        return { ...category, count: assets.filter(a => a.category === category.id).length };
+        return {
+          ...category,
+          count: assets.filter(a => a.category === category.id).length,
+        };
       });
       // Update the ASSET_CATEGORIES array
       ASSET_CATEGORIES.splice(0, ASSET_CATEGORIES.length, ...counts);
@@ -384,163 +387,169 @@ export default function VisualAssetsPage() {
           ) : filteredAssets.length === 0 ? (
             <div className="text-center py-12">
               <ImageIcon className="w-16 h-16 mx-auto text-gray-400 mb-4" />
-              <h3 className="text-lg font-medium text-gray-900 mb-2">No assets found</h3>
-              <p className="text-gray-500">Upload some assets to get started.</p>
+              <h3 className="text-lg font-medium text-gray-900 mb-2">
+                No assets found
+              </h3>
+              <p className="text-gray-500">
+                Upload some assets to get started.
+              </p>
             </div>
           ) : (
             <>
               {/* Assets Display */}
               {viewMode === 'grid' ? (
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
-              {filteredAssets.map(asset => (
-                <Card
-                  key={asset.id}
-                  className={`cursor-pointer transition-all duration-200 hover:shadow-md ${
-                    selectedAssets.has(asset.id)
-                      ? 'ring-2 ring-blue-500 bg-blue-50'
-                      : ''
-                  }`}
-                  onClick={() => toggleAssetSelection(asset.id)}
-                >
-                  <CardContent className="p-3">
-                    <div className="relative">
-                      <div className="aspect-square bg-gray-100 rounded-lg flex items-center justify-center mb-2">
-                        {asset.type === 'svg' ? (
-                          <img
-                            src={asset.thumbnail_url || asset.url}
-                            alt={asset.display_name}
-                            className="w-12 h-12 object-contain"
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
+                  {filteredAssets.map(asset => (
+                    <Card
+                      key={asset.id}
+                      className={`cursor-pointer transition-all duration-200 hover:shadow-md ${
+                        selectedAssets.has(asset.id)
+                          ? 'ring-2 ring-blue-500 bg-blue-50'
+                          : ''
+                      }`}
+                      onClick={() => toggleAssetSelection(asset.id)}
+                    >
+                      <CardContent className="p-3">
+                        <div className="relative">
+                          <div className="aspect-square bg-gray-100 rounded-lg flex items-center justify-center mb-2">
+                            {asset.type === 'svg' ? (
+                              <img
+                                src={asset.thumbnail_url || asset.url}
+                                alt={asset.display_name}
+                                className="w-12 h-12 object-contain"
+                              />
+                            ) : (
+                              <ImageIcon className="w-12 h-12 text-gray-400" />
+                            )}
+                          </div>
+
+                          {/* Selection Checkbox */}
+                          <input
+                            type="checkbox"
+                            checked={selectedAssets.has(asset.id)}
+                            onChange={e => {
+                              e.stopPropagation();
+                              toggleAssetSelection(asset.id);
+                            }}
+                            className="absolute top-2 right-2 h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
                           />
-                        ) : (
-                          <ImageIcon className="w-12 h-12 text-gray-400" />
-                        )}
-                      </div>
+                        </div>
 
-                      {/* Selection Checkbox */}
-                      <input
-                        type="checkbox"
-                        checked={selectedAssets.has(asset.id)}
-                        onChange={e => {
-                          e.stopPropagation();
-                          toggleAssetSelection(asset.id);
-                        }}
-                        className="absolute top-2 right-2 h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-                      />
-                    </div>
-
-                    <div className="text-center">
-                      <p
-                        className="text-sm font-medium text-gray-900 truncate"
-                        title={asset.display_name}
-                      >
-                        {asset.display_name}
-                      </p>
-                      <p className="text-xs text-gray-500">
-                        {asset.type.toUpperCase()}
-                      </p>
-                      <p className="text-xs text-gray-500">
-                        {formatFileSize(asset.file_size)}
-                      </p>
-                      {getAssetUsageCount(asset) > 0 && (
-                        <Badge variant="secondary" className="mt-1 text-xs">
-                          Used in {getAssetUsageCount(asset)} place
-                          {getAssetUsageCount(asset) !== 1 ? 's' : ''}
-                        </Badge>
-                      )}
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          ) : (
-            <div className="space-y-2">
-              {filteredAssets.map(asset => (
-                <Card
-                  key={asset.id}
-                  className={`cursor-pointer transition-all duration-200 hover:bg-gray-50 ${
-                    selectedAssets.has(asset.id)
-                      ? 'ring-2 ring-blue-500 bg-blue-50'
-                      : ''
-                  }`}
-                  onClick={() => toggleAssetSelection(asset.id)}
-                >
-                  <CardContent className="p-4">
-                    <div className="flex items-center space-x-4">
-                      <input
-                        type="checkbox"
-                        checked={selectedAssets.has(asset.id)}
-                        onChange={e => {
-                          e.stopPropagation();
-                          toggleAssetSelection(asset.id);
-                        }}
-                        className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-                      />
-
-                      <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                        {asset.type === 'svg' ? (
-                          <img
-                            src={asset.thumbnail_url || asset.url}
-                            alt={asset.display_name}
-                            className="w-8 h-8 object-contain"
-                          />
-                        ) : (
-                          <ImageIcon className="w-8 h-8 text-gray-400" />
-                        )}
-                      </div>
-
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium text-gray-900">
-                          {asset.display_name}
-                        </p>
-                        <p className="text-sm text-gray-500">
-                          {asset.type.toUpperCase()} •{' '}
-                          {formatFileSize(asset.file_size)}
-                        </p>
-                        <div className="flex flex-wrap gap-1 mt-1">
-                          {asset.tags.slice(0, 3).map(tag => (
-                            <Badge
-                              key={tag}
-                              variant="secondary"
-                              className="text-xs"
-                            >
-                              {tag}
-                            </Badge>
-                          ))}
-                          {asset.tags.length > 3 && (
-                            <Badge variant="secondary" className="text-xs">
-                              +{asset.tags.length - 3}
+                        <div className="text-center">
+                          <p
+                            className="text-sm font-medium text-gray-900 truncate"
+                            title={asset.display_name}
+                          >
+                            {asset.display_name}
+                          </p>
+                          <p className="text-xs text-gray-500">
+                            {asset.type.toUpperCase()}
+                          </p>
+                          <p className="text-xs text-gray-500">
+                            {formatFileSize(asset.file_size)}
+                          </p>
+                          {getAssetUsageCount(asset) > 0 && (
+                            <Badge variant="secondary" className="mt-1 text-xs">
+                              Used in {getAssetUsageCount(asset)} place
+                              {getAssetUsageCount(asset) !== 1 ? 's' : ''}
                             </Badge>
                           )}
                         </div>
-                      </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  {filteredAssets.map(asset => (
+                    <Card
+                      key={asset.id}
+                      className={`cursor-pointer transition-all duration-200 hover:bg-gray-50 ${
+                        selectedAssets.has(asset.id)
+                          ? 'ring-2 ring-blue-500 bg-blue-50'
+                          : ''
+                      }`}
+                      onClick={() => toggleAssetSelection(asset.id)}
+                    >
+                      <CardContent className="p-4">
+                        <div className="flex items-center space-x-4">
+                          <input
+                            type="checkbox"
+                            checked={selectedAssets.has(asset.id)}
+                            onChange={e => {
+                              e.stopPropagation();
+                              toggleAssetSelection(asset.id);
+                            }}
+                            className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                          />
 
-                      <div className="flex items-center space-x-2 text-sm text-gray-500">
-                        <span>{new Date(asset.created_at).toLocaleDateString()}</span>
-                        {getAssetUsageCount(asset) > 0 && (
-                          <Badge variant="secondary" className="text-xs">
-                            Used in {getAssetUsageCount(asset)} place
-                            {getAssetUsageCount(asset) !== 1 ? 's' : ''}
-                          </Badge>
-                        )}
-                      </div>
+                          <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                            {asset.type === 'svg' ? (
+                              <img
+                                src={asset.thumbnail_url || asset.url}
+                                alt={asset.display_name}
+                                className="w-8 h-8 object-contain"
+                              />
+                            ) : (
+                              <ImageIcon className="w-8 h-8 text-gray-400" />
+                            )}
+                          </div>
 
-                      <div className="flex items-center space-x-1">
-                        <Button variant="ghost" size="sm" className="p-2">
-                          <Eye className="w-4 h-4" />
-                        </Button>
-                        <Button variant="ghost" size="sm" className="p-2">
-                          <Edit3 className="w-4 h-4" />
-                        </Button>
-                        <Button variant="ghost" size="sm" className="p-2">
-                          <Download className="w-4 h-4" />
-                        </Button>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          )}
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm font-medium text-gray-900">
+                              {asset.display_name}
+                            </p>
+                            <p className="text-sm text-gray-500">
+                              {asset.type.toUpperCase()} •{' '}
+                              {formatFileSize(asset.file_size)}
+                            </p>
+                            <div className="flex flex-wrap gap-1 mt-1">
+                              {asset.tags.slice(0, 3).map(tag => (
+                                <Badge
+                                  key={tag}
+                                  variant="secondary"
+                                  className="text-xs"
+                                >
+                                  {tag}
+                                </Badge>
+                              ))}
+                              {asset.tags.length > 3 && (
+                                <Badge variant="secondary" className="text-xs">
+                                  +{asset.tags.length - 3}
+                                </Badge>
+                              )}
+                            </div>
+                          </div>
+
+                          <div className="flex items-center space-x-2 text-sm text-gray-500">
+                            <span>
+                              {new Date(asset.created_at).toLocaleDateString()}
+                            </span>
+                            {getAssetUsageCount(asset) > 0 && (
+                              <Badge variant="secondary" className="text-xs">
+                                Used in {getAssetUsageCount(asset)} place
+                                {getAssetUsageCount(asset) !== 1 ? 's' : ''}
+                              </Badge>
+                            )}
+                          </div>
+
+                          <div className="flex items-center space-x-1">
+                            <Button variant="ghost" size="sm" className="p-2">
+                              <Eye className="w-4 h-4" />
+                            </Button>
+                            <Button variant="ghost" size="sm" className="p-2">
+                              <Edit3 className="w-4 h-4" />
+                            </Button>
+                            <Button variant="ghost" size="sm" className="p-2">
+                              <Download className="w-4 h-4" />
+                            </Button>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              )}
             </>
           )}
         </div>

@@ -1,7 +1,10 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { processDisplayContent, ShortcodeResult } from '@/lib/shortcode-processor';
+import {
+  processDisplayContent,
+  ShortcodeResult,
+} from '@/lib/shortcode-processor';
 import { FormField } from '@/types/form';
 
 interface DisplayFieldProps {
@@ -10,7 +13,11 @@ interface DisplayFieldProps {
   className?: string;
 }
 
-export function DisplayField({ field, formVariables = {}, className = '' }: DisplayFieldProps) {
+export function DisplayField({
+  field,
+  formVariables = {},
+  className = '',
+}: DisplayFieldProps) {
   const [processedContent, setProcessedContent] = useState<string>('');
   const [isProcessing, setIsProcessing] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -22,7 +29,9 @@ export function DisplayField({ field, formVariables = {}, className = '' }: Disp
   }, [field.displayContent, formVariables]);
 
   const processShortcodes = async () => {
-    if (!field.displayContent) return;
+    if (!field.displayContent) {
+      return;
+    }
 
     setIsProcessing(true);
     setError(null);
@@ -54,7 +63,7 @@ export function DisplayField({ field, formVariables = {}, className = '' }: Disp
 
   // Apply custom styling from field configuration
   const customStyles: React.CSSProperties = {};
-  
+
   if (field.displayStyle) {
     if (field.displayStyle.backgroundColor) {
       customStyles.backgroundColor = field.displayStyle.backgroundColor;
@@ -77,18 +86,14 @@ export function DisplayField({ field, formVariables = {}, className = '' }: Disp
           {field.label}
         </div>
       )}
-      
+
       <div className="display-field-content">
         {isProcessing ? (
-          <div className="text-gray-500 italic">
-            Processing calculations...
-          </div>
+          <div className="text-gray-500 italic">Processing calculations...</div>
         ) : error ? (
-          <div className="text-red-600 text-sm">
-            {error}
-          </div>
+          <div className="text-red-600 text-sm">{error}</div>
         ) : (
-          <div 
+          <div
             className="display-field-text"
             dangerouslySetInnerHTML={{ __html: processedContent }}
           />

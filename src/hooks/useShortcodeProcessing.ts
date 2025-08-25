@@ -1,5 +1,9 @@
 import { useState, useEffect } from 'react';
-import { processDisplayContent, ShortcodeResult, getAvailableShortcodes } from '@/lib/shortcode-processor';
+import {
+  processDisplayContent,
+  ShortcodeResult,
+  getAvailableShortcodes,
+} from '@/lib/shortcode-processor';
 
 interface UseShortcodeProcessingProps {
   content: string;
@@ -26,12 +30,14 @@ export function useShortcodeProcessing({
   const [processedContent, setProcessedContent] = useState<string>('');
   const [isProcessing, setIsProcessing] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [availableShortcodes, setAvailableShortcodes] = useState<Array<{
-    name: string;
-    shortcode: string;
-    description: string;
-    category: string;
-  }>>([]);
+  const [availableShortcodes, setAvailableShortcodes] = useState<
+    Array<{
+      name: string;
+      shortcode: string;
+      description: string;
+      category: string;
+    }>
+  >([]);
 
   // Process shortcodes when content or form variables change
   useEffect(() => {
@@ -46,7 +52,9 @@ export function useShortcodeProcessing({
   }, []);
 
   const processShortcodes = async () => {
-    if (!content) return;
+    if (!content) {
+      return;
+    }
 
     setIsProcessing(true);
     setError(null);

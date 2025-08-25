@@ -80,7 +80,9 @@ export async function getVisualAsset(id: string): Promise<VisualAsset | null> {
 }
 
 // Create a new visual asset
-export async function createVisualAsset(data: CreateVisualAssetData): Promise<VisualAsset> {
+export async function createVisualAsset(
+  data: CreateVisualAssetData
+): Promise<VisualAsset> {
   const { data: result, error } = await supabase
     .from('visual_assets')
     .insert([data])
@@ -129,7 +131,9 @@ export async function deleteVisualAsset(id: string): Promise<void> {
 }
 
 // Get assets by category
-export async function getVisualAssetsByCategory(category: VisualAsset['category']): Promise<VisualAsset[]> {
+export async function getVisualAssetsByCategory(
+  category: VisualAsset['category']
+): Promise<VisualAsset[]> {
   const { data, error } = await supabase
     .from('visual_assets')
     .select('*')
@@ -139,19 +143,25 @@ export async function getVisualAssetsByCategory(category: VisualAsset['category'
 
   if (error) {
     console.error('Error fetching visual assets by category:', error);
-    throw new Error(`Failed to fetch visual assets by category: ${error.message}`);
+    throw new Error(
+      `Failed to fetch visual assets by category: ${error.message}`
+    );
   }
 
   return data || [];
 }
 
 // Search assets by name or tags
-export async function searchVisualAssets(query: string): Promise<VisualAsset[]> {
+export async function searchVisualAssets(
+  query: string
+): Promise<VisualAsset[]> {
   const { data, error } = await supabase
     .from('visual_assets')
     .select('*')
     .eq('is_active', true)
-    .or(`name.ilike.%${query}%,display_name.ilike.%${query}%,tags.cs.{${query}}`)
+    .or(
+      `name.ilike.%${query}%,display_name.ilike.%${query}%,tags.cs.{${query}}`
+    )
     .order('created_at', { ascending: false });
 
   if (error) {

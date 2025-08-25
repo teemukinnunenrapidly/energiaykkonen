@@ -44,7 +44,11 @@ import {
 } from 'lucide-react';
 import { ImagePicker } from '@/components/admin/ImagePicker';
 import { FormSchema, FormSection, FormField } from '@/types/form';
-import { getActiveFormSchema, createFormSchema, updateFormSchema } from '@/lib/form-schema-service';
+import {
+  getActiveFormSchema,
+  createFormSchema,
+  updateFormSchema,
+} from '@/lib/form-schema-service';
 
 // Create a compatible mock structure for now
 const INITIAL_FORM_STRUCTURE: FormSchema = {
@@ -105,7 +109,6 @@ const INITIAL_FORM_STRUCTURE: FormSchema = {
       ],
     },
   ],
-
 };
 
 export default function FormBuilderPage() {
@@ -123,8 +126,10 @@ export default function FormBuilderPage() {
   );
   const [isSaving, setIsSaving] = useState(false);
   const [isResetting, setIsResetting] = useState(false);
-  const [saveStatus, setSaveStatus] = useState<'idle' | 'success' | 'error'>('idle');
-  
+  const [saveStatus, setSaveStatus] = useState<'idle' | 'success' | 'error'>(
+    'idle'
+  );
+
   // New section creation state
   const [isNewSectionDialogOpen, setIsNewSectionDialogOpen] = useState(false);
   const [newSectionData, setNewSectionData] = useState({
@@ -134,7 +139,7 @@ export default function FormBuilderPage() {
     collapsible: false,
     imageUrl: '',
   });
-  
+
   // New field creation state
   const [isNewFieldDialogOpen, setIsNewFieldDialogOpen] = useState(false);
   const [newFieldSectionId, setNewFieldSectionId] = useState<string>('');
@@ -176,7 +181,9 @@ export default function FormBuilderPage() {
   useEffect(() => {
     const loadExistingSchema = async () => {
       try {
-        const existingSchema = await getActiveFormSchema('Energy Calculator Form');
+        const existingSchema = await getActiveFormSchema(
+          'Energy Calculator Form'
+        );
         if (existingSchema) {
           setFormStructure(existingSchema.schema_data);
           setCurrentSchemaId(existingSchema.id);
@@ -199,7 +206,7 @@ export default function FormBuilderPage() {
 
     setIsSaving(true);
     setSaveStatus('idle');
-    
+
     try {
       if (currentSchemaId) {
         // Update existing schema
@@ -221,7 +228,7 @@ export default function FormBuilderPage() {
       setHasUnsavedChanges(false);
       setSaveStatus('success');
       console.log('Form changes saved successfully!');
-      
+
       // Clear success status after 3 seconds
       setTimeout(() => setSaveStatus('idle'), 3000);
     } catch (error) {
@@ -261,11 +268,7 @@ export default function FormBuilderPage() {
     }
   };
 
-  // Handle form structure changes
-  const handleFormStructureChange = useCallback((newStructure: FormSchema) => {
-    setFormStructure(newStructure);
-    setHasUnsavedChanges(true);
-  }, []);
+
 
   // Handle field selection
   const handleFieldSelect = useCallback((field: FormField) => {
@@ -407,12 +410,19 @@ export default function FormBuilderPage() {
       required: newFieldData.required,
       enabled: newFieldData.enabled,
       imageUrl: newFieldData.imageUrl || undefined,
-      options: (newFieldData.type === 'select' || newFieldData.type === 'radio' || newFieldData.type === 'checkbox') 
-        ? newFieldData.options 
-        : undefined,
+      options:
+        newFieldData.type === 'select' ||
+        newFieldData.type === 'radio' ||
+        newFieldData.type === 'checkbox'
+          ? newFieldData.options
+          : undefined,
       // Display field specific properties
-      displayContent: newFieldData.type === 'display' ? newFieldData.displayContent : undefined,
-      displayStyle: newFieldData.type === 'display' ? newFieldData.displayStyle : undefined,
+      displayContent:
+        newFieldData.type === 'display'
+          ? newFieldData.displayContent
+          : undefined,
+      displayStyle:
+        newFieldData.type === 'display' ? newFieldData.displayStyle : undefined,
       validation: {
         required: newFieldData.validation.required,
         min: newFieldData.validation.min,
@@ -488,7 +498,7 @@ export default function FormBuilderPage() {
   const updateFieldOption = (index: number, value: string) => {
     setNewFieldData(prev => ({
       ...prev,
-      options: prev.options.map((option, i) => i === index ? value : option),
+      options: prev.options.map((option, i) => (i === index ? value : option)),
     }));
   };
 
@@ -628,9 +638,12 @@ export default function FormBuilderPage() {
                     <Settings className="h-5 w-5" />
                     <span>Form Structure</span>
                   </div>
-                  
+
                   {/* New Section Button */}
-                  <Dialog open={isNewSectionDialogOpen} onOpenChange={setIsNewSectionDialogOpen}>
+                  <Dialog
+                    open={isNewSectionDialogOpen}
+                    onOpenChange={setIsNewSectionDialogOpen}
+                  >
                     <DialogTrigger asChild>
                       <Button size="sm" className="flex items-center space-x-2">
                         <Plus className="h-4 w-4" />
@@ -641,20 +654,29 @@ export default function FormBuilderPage() {
                       <DialogHeader>
                         <DialogTitle>Create New Section</DialogTitle>
                         <DialogDescription>
-                          Add a new section to your form. You can configure the section properties and add fields later.
+                          Add a new section to your form. You can configure the
+                          section properties and add fields later.
                         </DialogDescription>
                       </DialogHeader>
-                      
+
                       <div className="space-y-4">
                         {/* Section Title */}
                         <div className="space-y-2">
-                          <Label htmlFor="section-title" className="text-sm font-medium">
+                          <Label
+                            htmlFor="section-title"
+                            className="text-sm font-medium"
+                          >
                             Section Title *
                           </Label>
                           <Input
                             id="section-title"
                             value={newSectionData.title}
-                            onChange={(e) => setNewSectionData(prev => ({ ...prev, title: e.target.value }))}
+                            onChange={e =>
+                              setNewSectionData(prev => ({
+                                ...prev,
+                                title: e.target.value,
+                              }))
+                            }
                             placeholder="Enter section title"
                           />
                           <p className="text-xs text-muted-foreground">
@@ -664,18 +686,27 @@ export default function FormBuilderPage() {
 
                         {/* Section Description */}
                         <div className="space-y-2">
-                          <Label htmlFor="section-description" className="text-sm font-medium">
+                          <Label
+                            htmlFor="section-description"
+                            className="text-sm font-medium"
+                          >
                             Description
                           </Label>
                           <Textarea
                             id="section-description"
                             value={newSectionData.description}
-                            onChange={(e) => setNewSectionData(prev => ({ ...prev, description: e.target.value }))}
+                            onChange={e =>
+                              setNewSectionData(prev => ({
+                                ...prev,
+                                description: e.target.value,
+                              }))
+                            }
                             placeholder="Enter section description"
                             rows={3}
                           />
                           <p className="text-xs text-muted-foreground">
-                            Optional description to help users understand this section
+                            Optional description to help users understand this
+                            section
                           </p>
                         </div>
 
@@ -683,37 +714,58 @@ export default function FormBuilderPage() {
                         <div className="space-y-3">
                           <div className="flex items-center justify-between">
                             <div className="space-y-0.5">
-                              <Label className="text-sm font-medium">Visible by default</Label>
+                              <Label className="text-sm font-medium">
+                                Visible by default
+                              </Label>
                               <p className="text-xs text-muted-foreground">
                                 Show this section when the form loads
                               </p>
                             </div>
                             <Switch
                               checked={newSectionData.enabled}
-                              onCheckedChange={(checked) => setNewSectionData(prev => ({ ...prev, enabled: checked }))}
+                              onCheckedChange={checked =>
+                                setNewSectionData(prev => ({
+                                  ...prev,
+                                  enabled: checked,
+                                }))
+                              }
                             />
                           </div>
 
                           <div className="flex items-center justify-between">
                             <div className="space-y-0.5">
-                              <Label className="text-sm font-medium">Collapsible</Label>
+                              <Label className="text-sm font-medium">
+                                Collapsible
+                              </Label>
                               <p className="text-xs text-muted-foreground">
                                 Allow users to collapse this section
                               </p>
                             </div>
                             <Switch
                               checked={newSectionData.collapsible}
-                              onCheckedChange={(checked) => setNewSectionData(prev => ({ ...prev, collapsible: checked }))}
+                              onCheckedChange={checked =>
+                                setNewSectionData(prev => ({
+                                  ...prev,
+                                  collapsible: checked,
+                                }))
+                              }
                             />
                           </div>
                         </div>
 
                         {/* Section Image */}
                         <div className="space-y-2">
-                          <Label className="text-sm font-medium">Section Image</Label>
+                          <Label className="text-sm font-medium">
+                            Section Image
+                          </Label>
                           <ImagePicker
                             value={newSectionData.imageUrl}
-                            onChange={(imageUrl) => setNewSectionData(prev => ({ ...prev, imageUrl: imageUrl || '' }))}
+                            onChange={imageUrl =>
+                              setNewSectionData(prev => ({
+                                ...prev,
+                                imageUrl: imageUrl || '',
+                              }))
+                            }
                             placeholder="Select an image for this section"
                           />
                           <p className="text-xs text-muted-foreground">
@@ -910,7 +962,7 @@ export default function FormBuilderPage() {
                             {/* Section Fields */}
                             <CollapsibleContent>
                               <div className="px-4 pb-4 space-y-2">
-                                {section.fields.map((field, fieldIndex) => (
+                                {section.fields.map(field => (
                                   <div
                                     key={field.id}
                                     className={`flex items-center justify-between p-2 rounded border transition-all ${
@@ -973,14 +1025,16 @@ export default function FormBuilderPage() {
                                     </Tooltip>
                                   </div>
                                 ))}
-                                
+
                                 {/* Add New Field Button */}
                                 <div className="pt-2">
                                   <Button
                                     variant="outline"
                                     size="sm"
                                     className="w-full text-muted-foreground hover:text-foreground"
-                                    onClick={() => openNewFieldDialog(section.id)}
+                                    onClick={() =>
+                                      openNewFieldDialog(section.id)
+                                    }
                                   >
                                     <Plus className="h-4 w-4 mr-2" />
                                     Add Field
@@ -1240,456 +1294,702 @@ export default function FormBuilderPage() {
       </div>
 
       {/* New Field Dialog */}
-      <Dialog open={isNewFieldDialogOpen} onOpenChange={setIsNewFieldDialogOpen}>
-        <DialogContent className="sm:max-w-[500px]">
+      <Dialog
+        open={isNewFieldDialogOpen}
+        onOpenChange={setIsNewFieldDialogOpen}
+      >
+        <DialogContent className="sm:max-w-[800px] max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Create New Field</DialogTitle>
             <DialogDescription>
-              Add a new field to the selected section. Choose its type and configure its properties.
+              Add a new field to the selected section. Choose its type and
+              configure its properties.
             </DialogDescription>
           </DialogHeader>
 
-          <div className="space-y-4">
-            {/* Field Type Selection */}
-            <div className="space-y-2">
-              <Label htmlFor="field-type" className="text-sm font-medium">
-                Field Type *
-              </Label>
-              <select
-                id="field-type"
-                value={newFieldData.type}
-                onChange={(e) => setNewFieldData(prev => ({ ...prev, type: e.target.value as 'text' | 'number' | 'email' | 'select' | 'radio' | 'checkbox' | 'display' }))}
-                className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-              >
-                <option value="text">Text</option>
-                <option value="number">Number</option>
-                <option value="email">Email</option>
-                <option value="select">Select</option>
-                <option value="radio">Radio</option>
-                <option value="checkbox">Checkbox</option>
-                <option value="display">Display Field</option>
-              </select>
-              <p className="text-xs text-muted-foreground">
-                Choose the type of input you want for this field.
-              </p>
-            </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Left Column - Basic Field Properties */}
+            <div className="space-y-4">
+              {/* Field Type Selection */}
+              <div className="space-y-2">
+                <Label htmlFor="field-type" className="text-sm font-medium">
+                  Field Type *
+                </Label>
+                <select
+                  id="field-type"
+                  value={newFieldData.type}
+                  onChange={e =>
+                    setNewFieldData(prev => ({
+                      ...prev,
+                      type: e.target.value as
+                        | 'text'
+                        | 'number'
+                        | 'email'
+                        | 'select'
+                        | 'radio'
+                        | 'checkbox'
+                        | 'display',
+                    }))
+                  }
+                  className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  <option value="text">Text</option>
+                  <option value="number">Number</option>
+                  <option value="email">Email</option>
+                  <option value="select">Select</option>
+                  <option value="radio">Radio</option>
+                  <option value="checkbox">Checkbox</option>
+                  <option value="display">Display Field</option>
+                </select>
+                <p className="text-xs text-muted-foreground">
+                  Choose the type of input you want for this field.
+                </p>
+              </div>
 
-            {/* Field Label */}
-            <div className="space-y-2">
-              <Label htmlFor="field-label" className="text-sm font-medium">
-                Field Label *
-              </Label>
-              <Input
-                id="field-label"
-                value={newFieldData.label}
-                onChange={(e) => setNewFieldData(prev => ({ ...prev, label: e.target.value }))}
-                placeholder="Enter field label"
-              />
-              <p className="text-xs text-muted-foreground">
-                The label that users will see above this field.
-              </p>
-            </div>
+              {/* Field Label */}
+              <div className="space-y-2">
+                <Label htmlFor="field-label" className="text-sm font-medium">
+                  Field Label *
+                </Label>
+                <Input
+                  id="field-label"
+                  value={newFieldData.label}
+                  onChange={e =>
+                    setNewFieldData(prev => ({ ...prev, label: e.target.value }))
+                  }
+                  placeholder="Enter field label"
+                />
+                <p className="text-xs text-muted-foreground">
+                  The label that users will see above this field.
+                </p>
+              </div>
 
-            {/* Field Placeholder */}
-            <div className="space-y-2">
-              <Label htmlFor="field-placeholder" className="text-sm font-medium">
-                Placeholder Text
-              </Label>
-              <Input
-                id="field-placeholder"
-                value={newFieldData.placeholder}
-                onChange={(e) => setNewFieldData(prev => ({ ...prev, placeholder: e.target.value }))}
-                placeholder="Enter placeholder text"
-              />
-              <p className="text-xs text-muted-foreground">
-                Hint text shown inside the field before user input.
-              </p>
-            </div>
+              {/* Field Placeholder */}
+              <div className="space-y-2">
+                <Label
+                  htmlFor="field-placeholder"
+                  className="text-sm font-medium"
+                >
+                  Placeholder Text
+                </Label>
+                <Input
+                  id="field-placeholder"
+                  value={newFieldData.placeholder}
+                  onChange={e =>
+                    setNewFieldData(prev => ({
+                      ...prev,
+                      placeholder: e.target.value,
+                    }))
+                  }
+                  placeholder="Enter placeholder text"
+                />
+                <p className="text-xs text-muted-foreground">
+                  Hint text shown inside the field before user input.
+                </p>
+              </div>
 
-            {/* Field Help Text */}
-            <div className="space-y-2">
-              <Label htmlFor="field-help" className="text-sm font-medium">
-                Help Text
-              </Label>
-              <Textarea
-                id="field-help"
-                value={newFieldData.helpText}
-                onChange={(e) => setNewFieldData(prev => ({ ...prev, helpText: e.target.value }))}
-                placeholder="Enter help text"
-                rows={3}
-              />
-              <p className="text-xs text-muted-foreground">
-                Additional guidance for users filling out this field.
-              </p>
-            </div>
+              {/* Field Help Text */}
+              <div className="space-y-2">
+                <Label htmlFor="field-help" className="text-sm font-medium">
+                  Help Text
+                </Label>
+                <Textarea
+                  id="field-help"
+                  value={newFieldData.helpText}
+                  onChange={e =>
+                    setNewFieldData(prev => ({
+                      ...prev,
+                      helpText: e.target.value,
+                    }))
+                  }
+                  placeholder="Enter help text"
+                  rows={3}
+                />
+                <p className="text-xs text-muted-foreground">
+                  Additional guidance for users filling out this field.
+                </p>
+              </div>
 
-            {/* Field Required Toggle */}
-            <div className="flex items-center space-x-2">
-              <Switch
-                id="field-required"
-                checked={newFieldData.required}
-                onCheckedChange={(checked) => setNewFieldData(prev => ({ ...prev, required: checked }))}
-              />
-              <Label htmlFor="field-required" className="text-sm font-medium">
-                Required Field
-              </Label>
-            </div>
-
-            {/* Field Visibility Toggle */}
-            <div className="flex items-center space-x-2">
-              <Switch
-                id="field-enabled"
-                checked={newFieldData.enabled}
-                onCheckedChange={(checked) => setNewFieldData(prev => ({ ...prev, enabled: checked }))}
-              />
-              <Label htmlFor="field-enabled" className="text-sm font-medium">
-                Field Visible
-              </Label>
-            </div>
-
-            {/* Field Image */}
-            <div className="space-y-2">
-              <Label htmlFor="field-image" className="text-sm font-medium">
-                Field Image
-              </Label>
-                             <ImagePicker
-                 value={newFieldData.imageUrl}
-                 onChange={(imageUrl) => setNewFieldData(prev => ({ ...prev, imageUrl: imageUrl || '' }))}
-                 placeholder="Select an image for this field..."
-                 className="w-full"
-               />
-              <p className="text-xs text-muted-foreground">
-                Optional image to display with this field.
-              </p>
-            </div>
-
-            {/* Display Field Specific Properties */}
-            {newFieldData.type === 'display' && (
-              <div className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="display-content" className="text-sm font-medium">
-                    Display Content *
-                  </Label>
-                  <Textarea
-                    id="display-content"
-                    value={newFieldData.displayContent}
-                    onChange={(e) => setNewFieldData(prev => ({ ...prev, displayContent: e.target.value }))}
-                    placeholder="Enter content with shortcodes, e.g., 'Your savings: [calc:annual-savings] €'"
-                    rows={3}
+              {/* Field Toggles */}
+              <div className="space-y-3">
+                <div className="flex items-center space-x-2">
+                  <Switch
+                    id="field-required"
+                    checked={newFieldData.required}
+                    onCheckedChange={checked =>
+                      setNewFieldData(prev => ({ ...prev, required: checked }))
+                    }
                   />
-                  <p className="text-xs text-muted-foreground">
-                    Content to display. You can use shortcodes like [calc:annual-savings] for dynamic values.
-                  </p>
+                  <Label htmlFor="field-required" className="text-sm font-medium">
+                    Required Field
+                  </Label>
                 </div>
 
-                {/* Shortcode Preview Section */}
-                <div className="space-y-2">
-                  <Label className="text-sm font-medium">Available Shortcodes</Label>
-                  <div className="bg-gray-50 p-3 rounded-md border">
-                    <p className="text-xs text-gray-600 mb-2">
-                      Available calculation shortcodes you can use:
-                    </p>
-                    <div className="space-y-1">
-                      <div className="text-xs">
-                        <code className="bg-gray-200 px-1 py-0.5 rounded">[calc:annual-savings]</code>
-                        <span className="ml-2 text-gray-500">- Annual energy savings</span>
-                      </div>
-                      <div className="text-xs">
-                        <code className="bg-gray-200 px-1 py-0.5 rounded">[calc:payback-period]</code>
-                        <span className="ml-2 text-gray-500">- Investment payback period</span>
-                      </div>
-                      <div className="text-xs">
-                        <code className="bg-gray-200 px-1 py-0.5 rounded">[calc:efficiency-rating]</code>
-                        <span className="ml-2 text-gray-500">- System efficiency percentage</span>
-                      </div>
-                      <div className="text-xs">
-                        <code className="bg-gray-200 px-1 py-0.5 rounded">[calc:current-cost]</code>
-                        <span className="ml-2 text-gray-500">- Current heating cost</span>
-                      </div>
-                    </div>
-                    <p className="text-xs text-gray-500 mt-2">
-                      💡 Tip: Use these shortcodes in your display content to show real-time calculation results.
+                <div className="flex items-center space-x-2">
+                  <Switch
+                    id="field-enabled"
+                    checked={newFieldData.enabled}
+                    onCheckedChange={checked =>
+                      setNewFieldData(prev => ({ ...prev, enabled: checked }))
+                    }
+                  />
+                  <Label htmlFor="field-enabled" className="text-sm font-medium">
+                    Field Visible
+                  </Label>
+                </div>
+              </div>
+
+              {/* Field Image */}
+              <div className="space-y-2">
+                <Label htmlFor="field-image" className="text-sm font-medium">
+                  Field Image
+                </Label>
+                <ImagePicker
+                  value={newFieldData.imageUrl}
+                  onChange={imageUrl =>
+                    setNewFieldData(prev => ({
+                      ...prev,
+                      imageUrl: imageUrl || '',
+                    }))
+                  }
+                  placeholder="Select an image for this field..."
+                  className="w-full"
+                />
+                <p className="text-xs text-muted-foreground">
+                  Optional image to display with this field.
+                </p>
+              </div>
+            </div>
+
+            {/* Right Column - Advanced Properties & Validation */}
+            <div className="space-y-4">
+              {/* Display Field Specific Properties */}
+              {newFieldData.type === 'display' && (
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <Label
+                      htmlFor="display-content"
+                      className="text-sm font-medium"
+                    >
+                      Display Content *
+                    </Label>
+                    <Textarea
+                      id="display-content"
+                      value={newFieldData.displayContent}
+                      onChange={e =>
+                        setNewFieldData(prev => ({
+                          ...prev,
+                          displayContent: e.target.value,
+                        }))
+                      }
+                      placeholder="Enter content with shortcodes, e.g., 'Your savings: [calc:annual-savings] €'"
+                      rows={3}
+                    />
+                    <p className="text-xs text-muted-foreground">
+                      Content to display. You can use shortcodes like
+                      [calc:annual-savings] for dynamic values.
                     </p>
                   </div>
-                </div>
 
-                {/* Real-time Preview Section */}
-                {newFieldData.displayContent && (
+                  {/* Shortcode Preview Section */}
                   <div className="space-y-2">
-                    <Label className="text-sm font-medium">Live Preview</Label>
-                    <div className="bg-white p-3 rounded-md border border-dashed border-gray-300">
-                      <div className="text-xs text-gray-500 mb-2">Preview with sample data:</div>
-                      <div 
-                        className="text-sm p-2 bg-gray-50 rounded"
-                        style={{
-                          backgroundColor: newFieldData.displayStyle.backgroundColor || 'transparent',
-                          textAlign: newFieldData.displayStyle.textAlign || 'left',
-                          fontSize: newFieldData.displayStyle.fontSize || 'inherit',
-                          fontWeight: newFieldData.displayStyle.fontWeight || 'normal',
-                        }}
-                      >
-                        {newFieldData.displayContent.replace(/\[calc:([^\]]+)\]/g, (match, formulaName) => {
-                          // Show sample calculation results for preview
-                          const sampleResults: Record<string, string> = {
-                            'annual-savings': '€1,250',
-                            'payback-period': '3.2 years',
-                            'efficiency-rating': '85%',
-                            'current-cost': '€2,400',
-                            'monthly-savings': '€104',
-                            'total-investment': '€8,500',
-                          };
-                          
-                          const key = formulaName.toLowerCase().replace(/\s+/g, '-');
-                          return sampleResults[key] || `[${formulaName} result]`;
-                        })}
+                    <Label className="text-sm font-medium">
+                      Available Shortcodes
+                    </Label>
+                    <div className="bg-gray-50 p-3 rounded-md border">
+                      <p className="text-xs text-gray-600 mb-2">
+                        Available calculation shortcodes you can use:
+                      </p>
+                      <div className="space-y-1">
+                        <div className="text-xs">
+                          <code className="bg-gray-200 px-1 py-0.5 rounded">
+                            [calc:annual-savings]
+                          </code>
+                          <span className="ml-2 text-gray-500">
+                            - Annual energy savings
+                          </span>
+                        </div>
+                        <div className="text-xs">
+                          <code className="bg-gray-200 px-1 py-0.5 rounded">
+                            [calc:payback-period]
+                          </code>
+                          <span className="ml-2 text-gray-500">
+                            - Investment payback period
+                          </span>
+                        </div>
+                        <div className="text-xs">
+                          <code className="bg-gray-200 px-1 py-0.5 rounded">
+                            [calc:efficiency-rating]
+                          </code>
+                          <span className="ml-2 text-gray-500">
+                            - System efficiency percentage
+                          </span>
+                        </div>
+                        <div className="text-xs">
+                          <code className="bg-gray-200 px-1 py-0.5 rounded">
+                            [calc:current-cost]
+                          </code>
+                          <span className="ml-2 text-gray-500">
+                            - Current heating cost
+                          </span>
+                        </div>
                       </div>
                       <p className="text-xs text-gray-500 mt-2">
-                        💡 This preview shows how your display field will look with sample calculation results.
+                        💡 Tip: Use these shortcodes in your display content to
+                        show real-time calculation results.
                       </p>
                     </div>
                   </div>
-                )}
 
+                  {/* Real-time Preview Section */}
+                  {newFieldData.displayContent && (
+                    <div className="space-y-2">
+                      <Label className="text-sm font-medium">Live Preview</Label>
+                      <div className="bg-white p-3 rounded-md border border-dashed border-gray-300">
+                        <div className="text-xs text-gray-500 mb-2">
+                          Preview with sample data:
+                        </div>
+                        <div
+                          className="text-sm p-2 bg-gray-50 rounded"
+                          style={{
+                            backgroundColor:
+                              newFieldData.displayStyle.backgroundColor ||
+                              'transparent',
+                            textAlign:
+                              newFieldData.displayStyle.textAlign || 'left',
+                            fontSize:
+                              newFieldData.displayStyle.fontSize || 'inherit',
+                            fontWeight:
+                              newFieldData.displayStyle.fontWeight || 'normal',
+                          }}
+                        >
+                          {newFieldData.displayContent.replace(
+                            /\[calc:([^\]]+)\]/g,
+                            (match, formulaName) => {
+                              // Show sample calculation results for preview
+                              const sampleResults: Record<string, string> = {
+                                'annual-savings': '€1,250',
+                                'payback-period': '3.2 years',
+                                'efficiency-rating': '85%',
+                                'current-cost': '€2,400',
+                                'monthly-savings': '€104',
+                                'total-investment': '€8,500',
+                              };
+
+                              const key = formulaName
+                                .toLowerCase()
+                                .replace(/\s+/g, '-');
+                              return (
+                                sampleResults[key] || `[${formulaName} result]`
+                              );
+                            }
+                          )}
+                        </div>
+                        <p className="text-xs text-gray-500 mt-2">
+                          💡 This preview shows how your display field will look
+                          with sample calculation results.
+                        </p>
+                      </div>
+                    </div>
+                  )}
+
+                  <div className="space-y-2">
+                    <Label className="text-sm font-medium">Display Styling</Label>
+                    <div className="grid grid-cols-2 gap-2">
+                      <div className="space-y-1">
+                        <Label
+                          htmlFor="display-bg-color"
+                          className="text-xs text-muted-foreground"
+                        >
+                          Background Color
+                        </Label>
+                        <Input
+                          id="display-bg-color"
+                          type="color"
+                          value={newFieldData.displayStyle.backgroundColor}
+                          onChange={e =>
+                            setNewFieldData(prev => ({
+                              ...prev,
+                              displayStyle: {
+                                ...prev.displayStyle,
+                                backgroundColor: e.target.value,
+                              },
+                            }))
+                          }
+                          className="h-8 w-full"
+                        />
+                      </div>
+                      <div className="space-y-1">
+                        <Label
+                          htmlFor="display-text-align"
+                          className="text-xs text-muted-foreground"
+                        >
+                          Text Alignment
+                        </Label>
+                        <select
+                          id="display-text-align"
+                          value={newFieldData.displayStyle.textAlign}
+                          onChange={e =>
+                            setNewFieldData(prev => ({
+                              ...prev,
+                              displayStyle: {
+                                ...prev.displayStyle,
+                                textAlign: e.target.value as
+                                  | 'left'
+                                  | 'center'
+                                  | 'right',
+                              },
+                            }))
+                          }
+                          className="w-full rounded-md border border-input bg-background px-2 py-1 text-xs"
+                        >
+                          <option value="left">Left</option>
+                          <option value="center">Center</option>
+                          <option value="right">Right</option>
+                        </select>
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-2 gap-2">
+                      <div className="space-y-1">
+                        <Label
+                          htmlFor="display-font-size"
+                          className="text-xs text-muted-foreground"
+                        >
+                          Font Size
+                        </Label>
+                        <Input
+                          id="display-font-size"
+                          value={newFieldData.displayStyle.fontSize}
+                          onChange={e =>
+                            setNewFieldData(prev => ({
+                              ...prev,
+                              displayStyle: {
+                                ...prev.displayStyle,
+                                fontSize: e.target.value,
+                              },
+                            }))
+                          }
+                          placeholder="e.g., 16px, 1.2rem"
+                          className="h-8 text-xs"
+                        />
+                      </div>
+                      <div className="space-y-1">
+                        <Label
+                          htmlFor="display-font-weight"
+                          className="text-xs text-muted-foreground"
+                        >
+                          Font Weight
+                        </Label>
+                        <select
+                          id="display-font-weight"
+                          value={newFieldData.displayStyle.fontWeight}
+                          onChange={e =>
+                            setNewFieldData(prev => ({
+                              ...prev,
+                              displayStyle: {
+                                ...prev.displayStyle,
+                                fontWeight: e.target.value,
+                              },
+                            }))
+                          }
+                          className="w-full rounded-md border border-input bg-background px-2 py-1 text-xs"
+                        >
+                          <option value="">Normal</option>
+                          <option value="bold">Bold</option>
+                          <option value="600">Semi-Bold</option>
+                          <option value="300">Light</option>
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Field Options (for select, radio, checkbox) */}
+              {newFieldData.type === 'select' ||
+              newFieldData.type === 'radio' ||
+              newFieldData.type === 'checkbox' ? (
                 <div className="space-y-2">
-                  <Label className="text-sm font-medium">Display Styling</Label>
-                  <div className="grid grid-cols-2 gap-2">
-                    <div className="space-y-1">
-                      <Label htmlFor="display-bg-color" className="text-xs text-muted-foreground">
-                        Background Color
-                      </Label>
-                      <Input
-                        id="display-bg-color"
-                        type="color"
-                        value={newFieldData.displayStyle.backgroundColor}
-                        onChange={(e) => setNewFieldData(prev => ({ 
-                          ...prev, 
-                          displayStyle: { ...prev.displayStyle, backgroundColor: e.target.value } 
-                        }))}
-                        className="h-8 w-full"
-                      />
-                    </div>
-                    <div className="space-y-1">
-                      <Label htmlFor="display-text-align" className="text-xs text-muted-foreground">
-                        Text Alignment
-                      </Label>
-                      <select
-                        id="display-text-align"
-                        value={newFieldData.displayStyle.textAlign}
-                        onChange={(e) => setNewFieldData(prev => ({ 
-                          ...prev, 
-                          displayStyle: { ...prev.displayStyle, textAlign: e.target.value as 'left' | 'center' | 'right' } 
-                        }))}
-                        className="w-full rounded-md border border-input bg-background px-2 py-1 text-xs"
-                      >
-                        <option value="left">Left</option>
-                        <option value="center">Center</option>
-                        <option value="right">Right</option>
-                      </select>
-                    </div>
+                  <Label className="text-sm font-medium">Field Options</Label>
+                  <div className="space-y-1">
+                    {newFieldData.options.map((option, index) => (
+                      <div key={index} className="flex items-center space-x-2">
+                        <Input
+                          value={option}
+                          onChange={e => updateFieldOption(index, e.target.value)}
+                          onBlur={() => updateFieldOption(index, option)}
+                          placeholder={`Option ${index + 1}`}
+                        />
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => removeFieldOption(index)}
+                          className="h-6 w-6 p-1"
+                        >
+                          <X className="h-3 w-3" />
+                        </Button>
+                      </div>
+                    ))}
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={addFieldOption}
+                      className="w-full text-muted-foreground hover:text-foreground"
+                    >
+                      <Plus className="h-4 w-4 mr-2" />
+                      Add Option
+                    </Button>
                   </div>
-                  <div className="grid grid-cols-2 gap-2">
-                    <div className="space-y-1">
-                      <Label htmlFor="display-font-size" className="text-xs text-muted-foreground">
-                        Font Size
-                      </Label>
-                      <Input
-                        id="display-font-size"
-                        value={newFieldData.displayStyle.fontSize}
-                        onChange={(e) => setNewFieldData(prev => ({ 
-                          ...prev, 
-                          displayStyle: { ...prev.displayStyle, fontSize: e.target.value } 
-                        }))}
-                        placeholder="e.g., 16px, 1.2rem"
-                        className="h-8 text-xs"
-                      />
-                    </div>
-                    <div className="space-y-1">
-                      <Label htmlFor="display-font-weight" className="text-xs text-muted-foreground">
-                        Font Weight
-                      </Label>
-                      <select
-                        id="display-font-weight"
-                        value={newFieldData.displayStyle.fontWeight}
-                        onChange={(e) => setNewFieldData(prev => ({ 
-                          ...prev, 
-                          displayStyle: { ...prev.displayStyle, fontWeight: e.target.value } 
-                        }))}
-                        className="w-full rounded-md border border-input bg-background px-2 py-1 text-xs"
-                      >
-                        <option value="">Normal</option>
-                        <option value="bold">Bold</option>
-                        <option value="600">Semi-Bold</option>
-                        <option value="300">Light</option>
-                      </select>
-                    </div>
-                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    For select, radio, and checkbox fields, you can add multiple
+                    options.
+                  </p>
                 </div>
-              </div>
-            )}
+              ) : null}
 
-            {/* Field Options (for select, radio, checkbox) */}
-            {newFieldData.type === 'select' || newFieldData.type === 'radio' || newFieldData.type === 'checkbox' ? (
+              {/* Field Validation */}
               <div className="space-y-2">
-                <Label className="text-sm font-medium">Field Options</Label>
-                <div className="space-y-1">
-                  {newFieldData.options.map((option, index) => (
-                    <div key={index} className="flex items-center space-x-2">
+                <Label className="text-sm font-medium">Field Validation</Label>
+                <div className="space-y-3">
+                  <div className="flex items-center space-x-2">
+                    <Switch
+                      id="validation-required"
+                      checked={newFieldData.validation.required}
+                      onCheckedChange={checked =>
+                        setNewFieldData(prev => ({
+                          ...prev,
+                          validation: { ...prev.validation, required: checked },
+                        }))
+                      }
+                    />
+                    <Label
+                      htmlFor="validation-required"
+                      className="text-sm font-medium"
+                    >
+                      Required
+                    </Label>
+                  </div>
+                  
+                  {newFieldData.type === 'number' && (
+                    <div className="grid grid-cols-2 gap-2">
+                      <div className="space-y-1">
+                        <div className="flex items-center space-x-2">
+                          <Switch
+                            id="validation-min"
+                            checked={newFieldData.validation.min !== undefined}
+                            onCheckedChange={checked =>
+                              setNewFieldData(prev => ({
+                                ...prev,
+                                validation: {
+                                  ...prev.validation,
+                                  min: checked ? 0 : undefined,
+                                },
+                              }))
+                            }
+                          />
+                          <Label
+                            htmlFor="validation-min"
+                            className="text-xs font-medium"
+                          >
+                            Min Value
+                          </Label>
+                        </div>
+                        <Input
+                          id="validation-min-value"
+                          type="number"
+                          value={newFieldData.validation.min || ''}
+                          onChange={e =>
+                            setNewFieldData(prev => ({
+                              ...prev,
+                              validation: {
+                                ...prev.validation,
+                                min: e.target.value
+                                  ? parseFloat(e.target.value)
+                                  : undefined,
+                              },
+                            }))
+                          }
+                          placeholder="Min value"
+                          className="w-full h-8 text-xs"
+                        />
+                      </div>
+                      <div className="space-y-1">
+                        <div className="flex items-center space-x-2">
+                          <Switch
+                            id="validation-max"
+                            checked={newFieldData.validation.max !== undefined}
+                            onCheckedChange={checked =>
+                              setNewFieldData(prev => ({
+                                ...prev,
+                                validation: {
+                                  ...prev.validation,
+                                  max: checked ? 100 : undefined,
+                                },
+                              }))
+                            }
+                          />
+                          <Label
+                            id="validation-max"
+                            className="text-xs font-medium"
+                          >
+                            Max Value
+                          </Label>
+                        </div>
+                        <Input
+                          id="validation-max-value"
+                          type="number"
+                          value={newFieldData.validation.max || ''}
+                          onChange={e =>
+                            setNewFieldData(prev => ({
+                              ...prev,
+                              validation: {
+                                ...prev.validation,
+                                max: e.target.value
+                                  ? parseFloat(e.target.value)
+                                  : undefined,
+                              },
+                            }))
+                          }
+                          placeholder="Max value"
+                          className="w-full h-8 text-xs"
+                        />
+                      </div>
+                    </div>
+                  )}
+                  
+                  {newFieldData.type === 'text' && (
+                    <div className="grid grid-cols-2 gap-2">
+                      <div className="space-y-1">
+                        <div className="flex items-center space-x-2">
+                          <Switch
+                            id="validation-min-length"
+                            checked={
+                              newFieldData.validation.minLength !== undefined
+                            }
+                            onCheckedChange={checked =>
+                              setNewFieldData(prev => ({
+                                ...prev,
+                                validation: {
+                                  ...prev.validation,
+                                  minLength: checked ? 0 : undefined,
+                                },
+                              }))
+                            }
+                          />
+                          <Label
+                            htmlFor="validation-min-length"
+                            className="text-xs font-medium"
+                          >
+                            Min Length
+                          </Label>
+                        </div>
+                        <Input
+                          id="validation-min-length-value"
+                          type="number"
+                          value={newFieldData.validation.minLength || ''}
+                          onChange={e =>
+                            setNewFieldData(prev => ({
+                              ...prev,
+                              validation: {
+                                ...prev.validation,
+                                minLength: e.target.value
+                                  ? parseInt(e.target.value, 10)
+                                  : undefined,
+                              },
+                            }))
+                          }
+                          placeholder="Min length"
+                          className="w-full h-8 text-xs"
+                        />
+                      </div>
+                      <div className="space-y-1">
+                        <div className="flex items-center space-x-2">
+                          <Switch
+                            id="validation-max-length"
+                            checked={
+                              newFieldData.validation.maxLength !== undefined
+                            }
+                            onCheckedChange={checked =>
+                              setNewFieldData(prev => ({
+                                ...prev,
+                                validation: {
+                                  ...prev.validation,
+                                  maxLength: checked ? 100 : undefined,
+                                },
+                              }))
+                            }
+                          />
+                          <Label
+                            htmlFor="validation-max-length"
+                            className="text-xs font-medium"
+                          >
+                            Max Length
+                          </Label>
+                        </div>
+                        <Input
+                          id="validation-max-length-value"
+                          type="number"
+                          value={newFieldData.validation.maxLength || ''}
+                          onChange={e =>
+                            setNewFieldData(prev => ({
+                              ...prev,
+                              validation: {
+                                ...prev.validation,
+                                maxLength: e.target.value
+                                  ? parseInt(e.target.value, 10)
+                                  : undefined,
+                              },
+                            }))
+                          }
+                          placeholder="Max length"
+                          className="w-full h-8 text-xs"
+                        />
+                      </div>
+                    </div>
+                  )}
+                  
+                  {newFieldData.type === 'text' && (
+                    <div className="space-y-1">
+                      <div className="flex items-center space-x-2">
+                        <Switch
+                          id="validation-pattern"
+                          checked={newFieldData.validation.pattern !== ''}
+                          onCheckedChange={checked =>
+                            setNewFieldData(prev => ({
+                              ...prev,
+                              validation: {
+                                ...prev.validation,
+                                pattern: checked ? '.*' : '',
+                              },
+                            }))
+                          }
+                        />
+                        <Label
+                          htmlFor="validation-pattern"
+                          className="text-sm font-medium"
+                        >
+                          Pattern (Regex)
+                        </Label>
+                      </div>
                       <Input
-                        value={option}
-                        onChange={(e) => updateFieldOption(index, e.target.value)}
-                        onBlur={() => updateFieldOption(index, option)}
-                        placeholder={`Option ${index + 1}`}
+                        id="validation-pattern-value"
+                        type="text"
+                        value={newFieldData.validation.pattern}
+                        onChange={e =>
+                          setNewFieldData(prev => ({
+                            ...prev,
+                            validation: {
+                              ...prev.validation,
+                              pattern: e.target.value,
+                            },
+                          }))
+                        }
+                        placeholder="Enter regex pattern"
+                        className="w-full h-8 text-xs"
                       />
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => removeFieldOption(index)}
-                        className="h-6 w-6 p-1"
-                      >
-                        <X className="h-3 w-3" />
-                      </Button>
                     </div>
-                  ))}
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={addFieldOption}
-                    className="w-full text-muted-foreground hover:text-foreground"
-                  >
-                    <Plus className="h-4 w-4 mr-2" />
-                    Add Option
-                  </Button>
+                  )}
                 </div>
-                <p className="text-xs text-muted-foreground">
-                  For select, radio, and checkbox fields, you can add multiple options.
-                </p>
-              </div>
-            ) : null}
-
-            {/* Field Validation */}
-            <div className="space-y-2">
-              <Label className="text-sm font-medium">Field Validation</Label>
-              <div className="grid grid-cols-2 gap-2">
-                <div className="flex items-center space-x-2">
-                  <Switch
-                    id="validation-required"
-                    checked={newFieldData.validation.required}
-                    onCheckedChange={(checked) => setNewFieldData(prev => ({ ...prev, validation: { ...prev.validation, required: checked } }))}
-                  />
-                  <Label htmlFor="validation-required" className="text-sm font-medium">
-                    Required
-                  </Label>
-                </div>
-                {newFieldData.type === 'number' && (
-                  <>
-                    <div className="flex items-center space-x-2">
-                      <Switch
-                        id="validation-min"
-                        checked={newFieldData.validation.min !== undefined}
-                        onCheckedChange={(checked) => setNewFieldData(prev => ({ ...prev, validation: { ...prev.validation, min: checked ? 0 : undefined } }))}
-                      />
-                      <Label htmlFor="validation-min" className="text-sm font-medium">
-                        Min
-                      </Label>
-                    </div>
-                    <Input
-                      id="validation-min-value"
-                      type="number"
-                      value={newFieldData.validation.min || ''}
-                      onChange={(e) => setNewFieldData(prev => ({ ...prev, validation: { ...prev.validation, min: e.target.value ? parseFloat(e.target.value) : undefined } }))}
-                      placeholder="Min value"
-                      className="w-full"
-                    />
-                  </>
-                )}
-                {newFieldData.type === 'number' && (
-                  <>
-                    <div className="flex items-center space-x-2">
-                      <Switch
-                        id="validation-max"
-                        checked={newFieldData.validation.max !== undefined}
-                        onCheckedChange={(checked) => setNewFieldData(prev => ({ ...prev, validation: { ...prev.validation, max: checked ? 100 : undefined } }))}
-                      />
-                      <Label htmlFor="validation-max" className="text-sm font-medium">
-                        Max
-                      </Label>
-                    </div>
-                    <Input
-                      id="validation-max-value"
-                      type="number"
-                      value={newFieldData.validation.max || ''}
-                      onChange={(e) => setNewFieldData(prev => ({ ...prev, validation: { ...prev.validation, max: e.target.value ? parseFloat(e.target.value) : undefined } }))}
-                      placeholder="Max value"
-                      className="w-full"
-                    />
-                  </>
-                )}
-                {newFieldData.type === 'text' && (
-                  <>
-                    <div className="flex items-center space-x-2">
-                      <Switch
-                        id="validation-min-length"
-                        checked={newFieldData.validation.minLength !== undefined}
-                        onCheckedChange={(checked) => setNewFieldData(prev => ({ ...prev, validation: { ...prev.validation, minLength: checked ? 0 : undefined } }))}
-                      />
-                      <Label htmlFor="validation-min-length" className="text-sm font-medium">
-                        Min Length
-                      </Label>
-                    </div>
-                    <Input
-                      id="validation-min-length-value"
-                      type="number"
-                      value={newFieldData.validation.minLength || ''}
-                      onChange={(e) => setNewFieldData(prev => ({ ...prev, validation: { ...prev.validation, minLength: e.target.value ? parseInt(e.target.value, 10) : undefined } }))}
-                      placeholder="Min length"
-                      className="w-full"
-                    />
-                  </>
-                )}
-                {newFieldData.type === 'text' && (
-                  <>
-                    <div className="flex items-center space-x-2">
-                      <Switch
-                        id="validation-max-length"
-                        checked={newFieldData.validation.maxLength !== undefined}
-                        onCheckedChange={(checked) => setNewFieldData(prev => ({ ...prev, validation: { ...prev.validation, maxLength: checked ? 100 : undefined } }))}
-                      />
-                      <Label htmlFor="validation-max-length" className="text-sm font-medium">
-                        Max Length
-                      </Label>
-                    </div>
-                    <Input
-                      id="validation-max-length-value"
-                      type="number"
-                      value={newFieldData.validation.maxLength || ''}
-                      onChange={(e) => setNewFieldData(prev => ({ ...prev, validation: { ...prev.validation, maxLength: e.target.value ? parseInt(e.target.value, 10) : undefined } }))}
-                      placeholder="Max length"
-                      className="w-full"
-                    />
-                  </>
-                )}
-                {newFieldData.type === 'text' && (
-                  <>
-                    <div className="flex items-center space-x-2">
-                      <Switch
-                        id="validation-pattern"
-                        checked={newFieldData.validation.pattern !== ''}
-                        onCheckedChange={(checked) => setNewFieldData(prev => ({ ...prev, validation: { ...prev.validation, pattern: checked ? '.*' : '' } }))}
-                      />
-                      <Label htmlFor="validation-pattern" className="text-sm font-medium">
-                        Pattern
-                      </Label>
-                    </div>
-                    <Input
-                      id="validation-pattern-value"
-                      type="text"
-                      value={newFieldData.validation.pattern}
-                      onChange={(e) => setNewFieldData(prev => ({ ...prev, validation: { ...prev.validation, pattern: e.target.value } }))}
-                      placeholder="Enter regex pattern"
-                      className="w-full"
-                    />
-                  </>
-                )}
               </div>
             </div>
           </div>
@@ -1704,9 +2004,13 @@ export default function FormBuilderPage() {
             <Button
               onClick={handleCreateNewField}
               disabled={
-                !newFieldData.label.trim() || 
-                (newFieldData.type === 'select' || newFieldData.type === 'radio' || newFieldData.type === 'checkbox') && newFieldData.options.length === 0 ||
-                (newFieldData.type === 'display' && !newFieldData.displayContent.trim())
+                !newFieldData.label.trim() ||
+                ((newFieldData.type === 'select' ||
+                  newFieldData.type === 'radio' ||
+                  newFieldData.type === 'checkbox') &&
+                  newFieldData.options.length === 0) ||
+                (newFieldData.type === 'display' &&
+                  !newFieldData.displayContent.trim())
               }
             >
               Create Field

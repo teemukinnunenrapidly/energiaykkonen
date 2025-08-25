@@ -5,7 +5,12 @@ export interface EmailTemplate {
   name: string;
   subject: string;
   content: string;
-  category: 'results' | 'sales-notification' | 'welcome' | 'follow-up' | 'other';
+  category:
+    | 'results'
+    | 'sales-notification'
+    | 'welcome'
+    | 'follow-up'
+    | 'other';
   version: number;
   is_active: boolean;
   created_by: string | null;
@@ -45,7 +50,9 @@ export async function getEmailTemplates(): Promise<EmailTemplate[]> {
 }
 
 // Get email template by ID
-export async function getEmailTemplate(id: string): Promise<EmailTemplate | null> {
+export async function getEmailTemplate(
+  id: string
+): Promise<EmailTemplate | null> {
   const { data, error } = await supabase
     .from('email_templates')
     .select('*')
@@ -65,7 +72,9 @@ export async function getEmailTemplate(id: string): Promise<EmailTemplate | null
 }
 
 // Create a new email template
-export async function createEmailTemplate(data: CreateEmailTemplateData): Promise<EmailTemplate> {
+export async function createEmailTemplate(
+  data: CreateEmailTemplateData
+): Promise<EmailTemplate> {
   const { data: result, error } = await supabase
     .from('email_templates')
     .insert([data])
@@ -114,7 +123,9 @@ export async function deleteEmailTemplate(id: string): Promise<void> {
 }
 
 // Get templates by category
-export async function getEmailTemplatesByCategory(category: EmailTemplate['category']): Promise<EmailTemplate[]> {
+export async function getEmailTemplatesByCategory(
+  category: EmailTemplate['category']
+): Promise<EmailTemplate[]> {
   const { data, error } = await supabase
     .from('email_templates')
     .select('*')
@@ -124,7 +135,9 @@ export async function getEmailTemplatesByCategory(category: EmailTemplate['categ
 
   if (error) {
     console.error('Error fetching email templates by category:', error);
-    throw new Error(`Failed to fetch email templates by category: ${error.message}`);
+    throw new Error(
+      `Failed to fetch email templates by category: ${error.message}`
+    );
   }
 
   return data || [];
