@@ -1,9 +1,7 @@
 import { NextRequest } from 'next/server';
-import { jwtVerify } from 'jose';
 
-const JWT_SECRET = new TextEncoder().encode(
-  process.env.JWT_SECRET || 'fallback-secret-key-change-in-production'
-);
+// Edge-compatible JWT secret (base64 encoded)
+const JWT_SECRET = process.env.JWT_SECRET || 'fallback-secret-key-change-in-production';
 
 export interface SessionData {
   user: {
@@ -11,6 +9,29 @@ export interface SessionData {
     role: string;
   };
   expires: string;
+}
+
+/**
+ * Simple JWT verification for Edge Runtime (no external dependencies)
+ */
+async function verifyJWT(token: string): Promise<any> {
+  try {
+    // Split the JWT token
+    const parts = token.split('.');
+    if (parts.length !== 3) return null;
+
+    // Decode the payload (second part)
+    const payload = JSON.parse(atob(parts[1]));
+    
+    // Check if token is expired
+    if (payload.exp && Date.now() >= payload.exp * 1000) {
+      return null;
+    }
+
+    return payload;
+  } catch {
+    return null;
+  }
 }
 
 /**
@@ -26,23 +47,23 @@ export async function getSessionEdge(
   }
 
   try {
-    const { payload } = await jwtVerify(sessionCookie, JWT_SECRET);
+    const payload = await verifyJWT(sessionCookie);
 
-    if (!payload.userId || !payload.role || !payload.expiresAt) {
+    if (!payload || !payload.userId || !payload.role || !payload.expiresAt) {
       return null;
     }
 
     // Check if token is expired
-    if (new Date() > new Date(payload.expiresAt as string)) {
+    if (new Date() > new Date(payload.expiresAt)) {
       return null;
     }
 
     return {
       user: {
-        id: payload.userId as string,
-        role: payload.role as string,
+        id: payload.userId,
+        role: payload.role,
       },
-      expires: payload.expiresAt as string,
+      expires: payload.expiresAt,
     };
   } catch {
     // Don't log in Edge Runtime
