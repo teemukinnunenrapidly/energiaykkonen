@@ -186,7 +186,7 @@ function DistributionCard({
       </div>
 
       <div className="space-y-3">
-        {topItems.map((item, index) => {
+        {topItems.map(item => {
           const percentage = total > 0 ? (item.count / total) * 100 : 0;
           return (
             <div key={item.label} className="flex items-center justify-between">

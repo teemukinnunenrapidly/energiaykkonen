@@ -26,30 +26,28 @@ export function CurrentHeatingStep({ form }: CurrentHeatingStepProps) {
     formState: { errors },
   } = form;
 
-  const currentHeatingType = watch('currentHeatingType');
+  const currentHeatingType = watch('heatingType');
 
   const heatingTypes = [
     { value: 'electric', label: 'Electric Heating' },
     { value: 'oil', label: 'Oil Heating' },
-    { value: 'gas', label: 'Gas Heating' },
     { value: 'district', label: 'District Heating' },
-    { value: 'wood', label: 'Wood Heating' },
     { value: 'other', label: 'Other' },
   ];
 
   return (
-    <div className="space-y-6">
-      <div className="text-center mb-6">
-        <h3 className="text-lg font-semibold text-gray-900 mb-2">
+    <div className="space-y-4 sm:space-y-6">
+      <div className="text-center mb-4 sm:mb-6">
+        <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-2">
           Your current heating system
         </h3>
-        <p className="text-gray-600">
+        <p className="text-sm sm:text-base text-gray-600 px-2 sm:px-0">
           This helps us compare your current costs with potential heat pump
           savings
         </p>
       </div>
 
-      <div className="space-y-4">
+      <div className="space-y-3 sm:space-y-4">
         {/* Heating Type Field */}
         <div className="space-y-2">
           <Label
@@ -62,19 +60,13 @@ export function CurrentHeatingStep({ form }: CurrentHeatingStepProps) {
             value={currentHeatingType}
             onValueChange={value =>
               setValue(
-                'currentHeatingType',
-                value as
-                  | 'electric'
-                  | 'oil'
-                  | 'gas'
-                  | 'district'
-                  | 'wood'
-                  | 'other'
+                'heatingType',
+                value as 'electric' | 'oil' | 'district' | 'other'
               )
             }
           >
             <SelectTrigger
-              className={errors.currentHeatingType ? 'border-red-500' : ''}
+              className={`w-full ${errors.heatingType ? 'border-red-500' : ''}`}
             >
               <SelectValue placeholder="Select your heating type" />
             </SelectTrigger>
@@ -86,10 +78,8 @@ export function CurrentHeatingStep({ form }: CurrentHeatingStepProps) {
               ))}
             </SelectContent>
           </Select>
-          {errors.currentHeatingType && (
-            <p className="text-sm text-red-600">
-              {errors.currentHeatingType.message}
-            </p>
+          {errors.heatingType && (
+            <p className="text-sm text-red-600">{errors.heatingType.message}</p>
           )}
         </div>
 
@@ -108,12 +98,12 @@ export function CurrentHeatingStep({ form }: CurrentHeatingStepProps) {
             max="10000"
             step="50"
             placeholder="e.g., 2500"
-            {...register('currentHeatingCost', { valueAsNumber: true })}
-            className={errors.currentHeatingCost ? 'border-red-500' : ''}
+            {...register('annualHeatingCost', { valueAsNumber: true })}
+            className={`w-full ${errors.annualHeatingCost ? 'border-red-500' : ''}`}
           />
-          {errors.currentHeatingCost && (
+          {errors.annualHeatingCost && (
             <p className="text-sm text-red-600">
-              {errors.currentHeatingCost.message}
+              {errors.annualHeatingCost.message}
             </p>
           )}
           <p className="text-xs text-gray-500">
@@ -124,28 +114,24 @@ export function CurrentHeatingStep({ form }: CurrentHeatingStepProps) {
 
       {/* Dynamic Help Text Based on Heating Type */}
       {currentHeatingType && currentHeatingType !== 'other' && (
-        <Card className="bg-amber-50 border-amber-200">
-          <CardContent className="pt-4">
+        <Card className="bg-amber-50 border-amber-200 mx-2 sm:mx-0">
+          <CardContent className="pt-4 px-4 sm:px-6">
             <p className="text-sm text-amber-800">
               <strong>About {getHeatingTypeLabel(currentHeatingType)}:</strong>{' '}
               {currentHeatingType === 'electric' &&
                 'Electric heating is typically the most expensive option. A heat pump could reduce your costs by 60-80%.'}
               {currentHeatingType === 'oil' &&
                 'Oil heating costs fluctuate with market prices. A heat pump provides stable, predictable costs.'}
-              {currentHeatingType === 'gas' &&
-                'Gas heating is often cost-effective, but a heat pump can still provide 20-40% savings.'}
               {currentHeatingType === 'district' &&
                 'District heating is convenient but you have limited control. A heat pump gives you independence.'}
-              {currentHeatingType === 'wood' &&
-                'Wood heating is renewable but labor-intensive. A heat pump offers convenience with similar environmental benefits.'}
             </p>
           </CardContent>
         </Card>
       )}
 
       {/* General Help Text */}
-      <Card className="bg-blue-50 border-blue-200">
-        <CardContent className="pt-4">
+      <Card className="bg-blue-50 border-blue-200 mx-2 sm:mx-0">
+        <CardContent className="pt-4 px-4 sm:px-6">
           <p className="text-sm text-blue-800">
             <strong>Why this matters:</strong> Your current heating costs are
             the baseline for calculating potential savings. The higher your

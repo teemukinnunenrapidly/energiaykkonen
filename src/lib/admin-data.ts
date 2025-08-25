@@ -152,7 +152,7 @@ export async function getLeadStats() {
     const lastWeek = new Date(thisWeek.getTime() - 7 * 24 * 60 * 60 * 1000);
     const thisMonth = new Date(now.getFullYear(), now.getMonth(), 1);
     const lastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
-    const thisYear = new Date(now.getFullYear(), 0, 1);
+    // const thisYear = new Date(now.getFullYear(), 0, 1); // Reserved for future use
 
     // Basic counts
     const totalLeads = leads.length;

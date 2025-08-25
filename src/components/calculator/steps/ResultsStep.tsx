@@ -25,10 +25,10 @@ export function ResultsStep({ form }: ResultsStepProps) {
       try {
         const calculatedResults = calculateHeatPumpSavings({
           squareMeters: formData.squareMeters,
-          ceilingHeight: formData.ceilingHeight,
-          residents: formData.residents,
-          currentHeatingCost: formData.currentHeatingCost,
-          currentHeatingType: formData.currentHeatingType,
+          ceilingHeight: parseFloat(formData.ceilingHeight),
+          residents: parseInt(formData.residents),
+          currentHeatingCost: formData.annualHeatingCost,
+          currentHeatingType: formData.heatingType,
         });
         setResults(calculatedResults);
       } catch {
@@ -63,30 +63,30 @@ export function ResultsStep({ form }: ResultsStepProps) {
   }
 
   return (
-    <div className="space-y-6">
-      <div className="text-center mb-6">
-        <h3 className="text-lg font-semibold text-gray-900 mb-2">
+    <div className="space-y-4 sm:space-y-6">
+      <div className="text-center mb-4 sm:mb-6">
+        <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-2">
           Your Heat Pump Savings Calculation
         </h3>
-        <p className="text-gray-600">
+        <p className="text-sm sm:text-base text-gray-600 px-2 sm:px-0">
           Based on your property details, here&apos;s what you can expect
         </p>
       </div>
 
       {/* Key Results */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
         {/* Annual Savings */}
         <Card className="bg-green-50 border-green-200">
           <CardHeader className="pb-2">
-            <CardTitle className="text-lg text-green-800">
+            <CardTitle className="text-base sm:text-lg text-green-800">
               Annual Savings
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-3xl font-bold text-green-700">
+            <p className="text-2xl sm:text-3xl font-bold text-green-700">
               €{results.annualSavings.toFixed(0)}
             </p>
-            <p className="text-sm text-green-600">
+            <p className="text-xs sm:text-sm text-green-600">
               Per year with a heat pump system
             </p>
           </CardContent>
@@ -95,69 +95,73 @@ export function ResultsStep({ form }: ResultsStepProps) {
         {/* Payback Period */}
         <Card className="bg-blue-50 border-blue-200">
           <CardHeader className="pb-2">
-            <CardTitle className="text-lg text-blue-800">
+            <CardTitle className="text-base sm:text-lg text-blue-800">
               Payback Period
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-3xl font-bold text-blue-700">
+            <p className="text-2xl sm:text-3xl font-bold text-blue-700">
               {results.paybackPeriod.toFixed(1)} years
             </p>
-            <p className="text-sm text-blue-600">To recover your investment</p>
+            <p className="text-xs sm:text-sm text-blue-600">
+              To recover your investment
+            </p>
           </CardContent>
         </Card>
       </div>
 
       {/* Detailed Results */}
-      <Card>
+      <Card className="mx-2 sm:mx-0">
         <CardHeader>
-          <CardTitle className="text-lg">Detailed Analysis</CardTitle>
+          <CardTitle className="text-base sm:text-lg">
+            Detailed Analysis
+          </CardTitle>
         </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <CardContent className="space-y-3 sm:space-y-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
             <div>
-              <p className="text-sm font-medium text-gray-700">
+              <p className="text-xs sm:text-sm font-medium text-gray-700">
                 Current Annual Cost
               </p>
-              <p className="text-lg font-semibold">
-                €{formData.currentHeatingCost}
+              <p className="text-base sm:text-lg font-semibold">
+                €{formData.annualHeatingCost}
               </p>
             </div>
             <div>
-              <p className="text-sm font-medium text-gray-700">
+              <p className="text-xs sm:text-sm font-medium text-gray-700">
                 Heat Pump Annual Cost
               </p>
-              <p className="text-lg font-semibold">
+              <p className="text-base sm:text-lg font-semibold">
                 €{results.heatPumpCostAnnual.toFixed(0)}
               </p>
             </div>
             <div>
-              <p className="text-sm font-medium text-gray-700">
+              <p className="text-xs sm:text-sm font-medium text-gray-700">
                 5-Year Savings
               </p>
-              <p className="text-lg font-semibold text-green-600">
+              <p className="text-base sm:text-lg font-semibold text-green-600">
                 €{results.fiveYearSavings.toFixed(0)}
               </p>
             </div>
             <div>
-              <p className="text-sm font-medium text-gray-700">
+              <p className="text-xs sm:text-sm font-medium text-gray-700">
                 10-Year Savings
               </p>
-              <p className="text-lg font-semibold text-green-600">
+              <p className="text-base sm:text-lg font-semibold text-green-600">
                 €{results.tenYearSavings.toFixed(0)}
               </p>
             </div>
           </div>
 
           {/* CO2 Reduction */}
-          <div className="pt-4 border-t">
-            <p className="text-sm font-medium text-gray-700 mb-2">
+          <div className="pt-3 sm:pt-4 border-t">
+            <p className="text-xs sm:text-sm font-medium text-gray-700 mb-2">
               Environmental Impact
             </p>
-            <p className="text-lg font-semibold text-green-600">
+            <p className="text-base sm:text-lg font-semibold text-green-600">
               {results.co2Reduction.toFixed(0)} kg CO2 reduction per year
             </p>
-            <p className="text-sm text-gray-600">
+            <p className="text-xs sm:text-sm text-gray-600">
               Equivalent to planting {Math.round(results.co2Reduction / 22)}{' '}
               trees annually
             </p>
@@ -166,12 +170,12 @@ export function ResultsStep({ form }: ResultsStepProps) {
       </Card>
 
       {/* Next Steps */}
-      <Card className="bg-amber-50 border-amber-200">
-        <CardContent className="pt-4">
-          <h4 className="font-semibold text-amber-800 mb-2">
+      <Card className="bg-amber-50 border-amber-200 mx-2 sm:mx-0">
+        <CardContent className="pt-4 px-4 sm:px-6">
+          <h4 className="font-semibold text-amber-800 mb-2 text-sm sm:text-base">
             What happens next?
           </h4>
-          <ul className="text-sm text-amber-800 space-y-1">
+          <ul className="text-xs sm:text-sm text-amber-800 space-y-1">
             <li>• You&apos;ll receive a detailed report via email</li>
             <li>• Our sales team will contact you within 24 hours</li>
             <li>• We&apos;ll schedule a free consultation at your property</li>
@@ -181,15 +185,18 @@ export function ResultsStep({ form }: ResultsStepProps) {
       </Card>
 
       {/* Form Summary */}
-      <Card className="bg-gray-50 border-gray-200">
+      <Card className="bg-gray-50 border-gray-200 mx-2 sm:mx-0">
         <CardHeader>
-          <CardTitle className="text-lg">Your Information Summary</CardTitle>
+          <CardTitle className="text-base sm:text-lg">
+            Your Information Summary
+          </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 text-xs sm:text-sm">
             <div>
               <p>
-                <span className="font-medium">Name:</span> {formData.name}
+                <span className="font-medium">Name:</span> {formData.firstName}{' '}
+                {formData.lastName}
               </p>
               <p>
                 <span className="font-medium">Email:</span> {formData.email}
@@ -209,7 +216,7 @@ export function ResultsStep({ form }: ResultsStepProps) {
               </p>
               <p>
                 <span className="font-medium">Current Heating:</span>{' '}
-                {formData.currentHeatingType}
+                {formData.heatingType}
               </p>
             </div>
           </div>

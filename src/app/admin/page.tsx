@@ -4,11 +4,10 @@ import { redirect } from 'next/navigation';
 import { Suspense } from 'react';
 import LogoutButton from '@/components/admin/LogoutButton';
 import LeadsTable from '@/components/admin/LeadsTable';
-import SearchFilters, {
-  SearchFiltersState,
-} from '@/components/admin/SearchFilters';
+import SearchFilters from '@/components/admin/SearchFilters';
 import ExportButton from '@/components/admin/ExportButton';
 import StatisticsDashboard from '@/components/admin/StatisticsDashboard';
+import AnalyticsDashboard from '@/components/admin/AnalyticsDashboard';
 import { getLeadsWithPagination, getLeadStats } from '@/lib/admin-data';
 
 export const metadata: Metadata = {
@@ -71,20 +70,33 @@ async function LeadsSection({
         {/* Comprehensive Statistics Dashboard */}
         <StatisticsDashboard stats={stats} />
 
+        {/* Analytics Dashboard */}
+        <AnalyticsDashboard />
+
         {/* Search and Filters */}
-        <SearchFilters
-          onFiltersChange={() => {
-            // Filters are handled via URL params and page refresh
-          }}
-          initialFilters={{
-            search: searchParams.search || '',
-            status: searchParams.status || '',
-            dateFrom: searchParams.dateFrom || '',
-            dateTo: searchParams.dateTo || '',
-            savingsMin: searchParams.savingsMin || '',
-            savingsMax: searchParams.savingsMax || '',
-          }}
-        />
+        <Suspense
+          fallback={
+            <div className="p-4 mb-6 bg-white rounded-lg border animate-pulse">
+              <div className="h-4 bg-gray-200 rounded w-1/4 mb-4"></div>
+              <div className="h-10 bg-gray-200 rounded mb-4"></div>
+              <div className="h-10 bg-gray-200 rounded w-1/3"></div>
+            </div>
+          }
+        >
+          <SearchFilters
+            onFiltersChange={() => {
+              // Filters are handled via URL params and page refresh
+            }}
+            initialFilters={{
+              search: searchParams.search || '',
+              status: searchParams.status || '',
+              dateFrom: searchParams.dateFrom || '',
+              dateTo: searchParams.dateTo || '',
+              savingsMin: searchParams.savingsMin || '',
+              savingsMax: searchParams.savingsMax || '',
+            }}
+          />
+        </Suspense>
 
         {/* Export Button */}
         <div className="flex justify-between items-center">

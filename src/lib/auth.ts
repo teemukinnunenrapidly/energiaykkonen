@@ -10,6 +10,7 @@ export interface SessionPayload {
   userId: string;
   role: string;
   expiresAt: Date;
+  [key: string]: unknown;
 }
 
 export interface SessionData {

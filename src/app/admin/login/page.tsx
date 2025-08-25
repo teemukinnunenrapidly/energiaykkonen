@@ -1,13 +1,14 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card } from '@/components/ui/card';
 
-export default function AdminLoginPage() {
+// Separate component that uses useSearchParams
+function AdminLoginForm() {
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
@@ -47,6 +48,51 @@ export default function AdminLoginPage() {
   };
 
   return (
+    <Card className="p-6">
+      <form onSubmit={handleSubmit} className="space-y-6">
+        <div>
+          <Label
+            htmlFor="password"
+            className="block text-sm font-medium text-gray-700"
+          >
+            Admin Password
+          </Label>
+          <Input
+            id="password"
+            name="password"
+            type="password"
+            required
+            className="mt-1"
+            placeholder="Enter admin password"
+            value={password}
+            onChange={e => setPassword(e.target.value)}
+            disabled={isLoading}
+          />
+        </div>
+
+        {error && (
+          <div className="rounded-md bg-red-50 p-4">
+            <div className="text-sm text-red-700">{error}</div>
+          </div>
+        )}
+
+        <div>
+          <Button
+            type="submit"
+            className="w-full"
+            disabled={isLoading || !password.trim()}
+          >
+            {isLoading ? 'Signing in...' : 'Sign in'}
+          </Button>
+        </div>
+      </form>
+    </Card>
+  );
+}
+
+// Main page component with Suspense boundary
+export default function AdminLoginPage() {
+  return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-8">
         <div>
@@ -58,45 +104,21 @@ export default function AdminLoginPage() {
           </p>
         </div>
 
-        <Card className="p-6">
-          <form onSubmit={handleSubmit} className="space-y-6">
-            <div>
-              <Label
-                htmlFor="password"
-                className="block text-sm font-medium text-gray-700"
-              >
-                Admin Password
-              </Label>
-              <Input
-                id="password"
-                name="password"
-                type="password"
-                required
-                className="mt-1"
-                placeholder="Enter admin password"
-                value={password}
-                onChange={e => setPassword(e.target.value)}
-                disabled={isLoading}
-              />
-            </div>
-
-            {error && (
-              <div className="rounded-md bg-red-50 p-4">
-                <div className="text-sm text-red-700">{error}</div>
+        <Suspense
+          fallback={
+            <Card className="p-6">
+              <div className="space-y-6">
+                <div className="animate-pulse">
+                  <div className="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
+                  <div className="h-10 bg-gray-200 rounded"></div>
+                </div>
+                <div className="h-10 bg-gray-200 rounded"></div>
               </div>
-            )}
-
-            <div>
-              <Button
-                type="submit"
-                className="w-full"
-                disabled={isLoading || !password.trim()}
-              >
-                {isLoading ? 'Signing in...' : 'Sign in'}
-              </Button>
-            </div>
-          </form>
-        </Card>
+            </Card>
+          }
+        >
+          <AdminLoginForm />
+        </Suspense>
 
         <div className="text-center">
           <p className="text-xs text-gray-500">

@@ -17,18 +17,18 @@ export function PropertyDetailsStep({ form }: PropertyDetailsStepProps) {
   } = form;
 
   return (
-    <div className="space-y-6">
-      <div className="text-center mb-6">
-        <h3 className="text-lg font-semibold text-gray-900 mb-2">
+    <div className="space-y-4 sm:space-y-6">
+      <div className="text-center mb-4 sm:mb-6">
+        <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-2">
           About your property
         </h3>
-        <p className="text-gray-600">
+        <p className="text-sm sm:text-base text-gray-600 px-2 sm:px-0">
           These details help us calculate your energy needs and potential
           savings
         </p>
       </div>
 
-      <div className="space-y-4">
+      <div className="space-y-3 sm:space-y-4">
         {/* Square Meters Field */}
         <div className="space-y-2">
           <Label
@@ -45,7 +45,7 @@ export function PropertyDetailsStep({ form }: PropertyDetailsStepProps) {
             step="1"
             placeholder="e.g., 120"
             {...register('squareMeters', { valueAsNumber: true })}
-            className={errors.squareMeters ? 'border-red-500' : ''}
+            className={`w-full ${errors.squareMeters ? 'border-red-500' : ''}`}
           />
           {errors.squareMeters && (
             <p className="text-sm text-red-600">
@@ -73,7 +73,7 @@ export function PropertyDetailsStep({ form }: PropertyDetailsStepProps) {
             step="0.1"
             placeholder="e.g., 2.7"
             {...register('ceilingHeight', { valueAsNumber: true })}
-            className={errors.ceilingHeight ? 'border-red-500' : ''}
+            className={`w-full ${errors.ceilingHeight ? 'border-red-500' : ''}`}
           />
           {errors.ceilingHeight && (
             <p className="text-sm text-red-600">
@@ -101,7 +101,7 @@ export function PropertyDetailsStep({ form }: PropertyDetailsStepProps) {
             step="1"
             placeholder="e.g., 4"
             {...register('residents', { valueAsNumber: true })}
-            className={errors.residents ? 'border-red-500' : ''}
+            className={`w-full ${errors.residents ? 'border-red-500' : ''}`}
           />
           {errors.residents && (
             <p className="text-sm text-red-600">{errors.residents.message}</p>
@@ -113,8 +113,8 @@ export function PropertyDetailsStep({ form }: PropertyDetailsStepProps) {
       </div>
 
       {/* Help Text */}
-      <Card className="bg-green-50 border-green-200">
-        <CardContent className="pt-4">
+      <Card className="bg-green-50 border-green-200 mx-2 sm:mx-0">
+        <CardContent className="pt-4 px-4 sm:px-6">
           <p className="text-sm text-green-800">
             <strong>How this affects your calculation:</strong> Larger
             properties and more residents typically mean higher energy
