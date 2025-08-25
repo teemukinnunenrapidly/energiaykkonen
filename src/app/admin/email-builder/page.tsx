@@ -27,102 +27,15 @@ import {
   Eye,
   Save,
 } from 'lucide-react';
+import { getEmailTemplates, createEmailTemplate, updateEmailTemplate, type EmailTemplate } from '@/lib/email-templates-service';
+import { getShortcodes, type Shortcode } from '@/lib/shortcodes-service';
 
-interface EmailTemplate {
-  id?: string;
-  name: string;
-  subject: string;
-  content: string;
-  category: 'results' | 'sales-notification';
-  version: number;
-  createdAt?: string;
-  updatedAt?: string;
-}
-
-interface Shortcode {
-  name: string;
-  description: string;
-  example: string;
-  category: 'customer' | 'results' | 'company';
-}
-
-const shortcodes: Shortcode[] = [
-  // Customer information
-  {
-    name: 'customer.name',
-    description: 'Customer full name',
-    example: 'John Doe',
-    category: 'customer',
-  },
-  {
-    name: 'customer.email',
-    description: 'Customer email address',
-    example: 'john@example.com',
-    category: 'customer',
-  },
-  {
-    name: 'customer.phone',
-    description: 'Customer phone number',
-    example: '+358 40 123 4567',
-    category: 'customer',
-  },
-
-  // Calculation results
-  {
-    name: 'results.savings',
-    description: 'Annual energy savings',
-    example: '€1,200',
-    category: 'results',
-  },
-  {
-    name: 'results.payback',
-    description: 'Payback period',
-    example: '3.5 years',
-    category: 'results',
-  },
-  {
-    name: 'results.investment',
-    description: 'Total investment cost',
-    example: '€4,200',
-    category: 'results',
-  },
-  {
-    name: 'results.co2',
-    description: 'CO2 reduction',
-    example: '2.4 tons/year',
-    category: 'results',
-  },
-
-  // Company information
-  {
-    name: 'company.name',
-    description: 'Company name',
-    example: 'Energia Ykkönen',
-    category: 'company',
-  },
-  {
-    name: 'company.phone',
-    description: 'Company phone',
-    example: '+358 20 123 4567',
-    category: 'company',
-  },
-  {
-    name: 'company.email',
-    description: 'Company email',
-    example: 'info@energiaykkonen.fi',
-    category: 'company',
-  },
-  {
-    name: 'company.website',
-    description: 'Company website',
-    example: 'www.energiaykkonen.fi',
-    category: 'company',
-  },
-];
+// Use the imported types from the services
 
 export default function EmailBuilderPage() {
   const [templates, setTemplates] = useState<EmailTemplate[]>([]);
-  const [currentTemplate, setCurrentTemplate] = useState<EmailTemplate>({
+  const [shortcodes, setShortcodes] = useState<Shortcode[]>([]);
+  const [currentTemplate, setCurrentTemplate] = useState<Partial<EmailTemplate>>({
     name: '',
     subject: '',
     content: '',
@@ -133,6 +46,29 @@ export default function EmailBuilderPage() {
   const [previewData, setPreviewData] = useState<any>({});
   const [isPreviewMode, setIsPreviewMode] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+
+  // Fetch data from database
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setIsLoading(true);
+        const [fetchedTemplates, fetchedShortcodes] = await Promise.all([
+          getEmailTemplates(),
+          getShortcodes()
+        ]);
+        setTemplates(fetchedTemplates);
+        setShortcodes(fetchedShortcodes);
+      } catch (error) {
+        console.error('Error fetching data:', error);
+        // TODO: Show error message to user
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
 
   // Sample data for preview
   useEffect(() => {
@@ -254,15 +190,35 @@ export default function EmailBuilderPage() {
 
     setIsSaving(true);
     try {
-      // TODO: Implement actual save to Supabase
-      const newTemplate = {
-        ...currentTemplate,
-        id: Date.now().toString(),
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-      };
+      let savedTemplate: EmailTemplate;
+      
+      if (currentTemplate.id) {
+        // Update existing template
+        savedTemplate = await updateEmailTemplate(currentTemplate.id, {
+          name: currentTemplate.name,
+          subject: currentTemplate.subject,
+          content: currentTemplate.content,
+          category: currentTemplate.category || 'results',
+        });
+        
+        // Update local state
+        setTemplates(prev => prev.map(t => 
+          t.id === currentTemplate.id ? savedTemplate : t
+        ));
+      } else {
+        // Create new template
+        savedTemplate = await createEmailTemplate({
+          name: currentTemplate.name || '',
+          subject: currentTemplate.subject || '',
+          content: currentTemplate.content || '',
+          category: currentTemplate.category || 'results',
+        });
+        
+        // Add to local state
+        setTemplates(prev => [savedTemplate, ...prev]);
+      }
 
-      setTemplates(prev => [...prev, newTemplate]);
+      // Reset form
       setCurrentTemplate({
         name: '',
         subject: '',
@@ -273,6 +229,7 @@ export default function EmailBuilderPage() {
 
       alert('Template saved successfully!');
     } catch (error) {
+      console.error('Error saving template:', error);
       alert('Failed to save template');
     } finally {
       setIsSaving(false);
@@ -541,7 +498,12 @@ export default function EmailBuilderPage() {
               <CardTitle>Saved Templates</CardTitle>
             </CardHeader>
             <CardContent>
-              {templates.length === 0 ? (
+              {isLoading ? (
+                <div className="text-center py-8">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
+                  <span className="text-muted-foreground">Loading templates...</span>
+                </div>
+              ) : templates.length === 0 ? (
                 <div className="text-center py-8 text-muted-foreground">
                   No templates saved yet. Create your first template above!
                 </div>

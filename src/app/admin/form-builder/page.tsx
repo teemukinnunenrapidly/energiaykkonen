@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import AdminNavigation from '@/components/admin/AdminNavigation';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -8,8 +8,6 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Separator } from '@/components/ui/separator';
 import { Switch } from '@/components/ui/switch';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import {
@@ -24,24 +22,29 @@ import {
   TooltipTrigger,
 } from '@/components/ui/tooltip';
 import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog';
+import {
   Settings,
   Plus,
-  Trash2,
-  Eye,
-  EyeOff,
   ChevronUp,
   ChevronDown,
-  Image,
   ChevronRight,
   ChevronDown as ChevronDownIcon,
   Save,
   RotateCcw,
   X,
   AlertTriangle,
-  Info,
 } from 'lucide-react';
 import { ImagePicker } from '@/components/admin/ImagePicker';
-import { FormSchema, FormPage, FormSection, FormField } from '@/types/form';
+import { FormSchema, FormSection, FormField } from '@/types/form';
+import { getActiveFormSchema, createFormSchema, updateFormSchema } from '@/lib/form-schema-service';
 
 // Create a compatible mock structure for now
 const INITIAL_FORM_STRUCTURE: FormSchema = {
@@ -102,12 +105,14 @@ const INITIAL_FORM_STRUCTURE: FormSchema = {
       ],
     },
   ],
+
 };
 
 export default function FormBuilderPage() {
   const [formStructure, setFormStructure] = useState<FormSchema>(
     INITIAL_FORM_STRUCTURE
   );
+  const [currentSchemaId, setCurrentSchemaId] = useState<string | null>(null);
   const [selectedField, setSelectedField] = useState<FormField | null>(null);
   const [selectedSection, setSelectedSection] = useState<FormSection | null>(
     null
@@ -118,6 +123,73 @@ export default function FormBuilderPage() {
   );
   const [isSaving, setIsSaving] = useState(false);
   const [isResetting, setIsResetting] = useState(false);
+  const [saveStatus, setSaveStatus] = useState<'idle' | 'success' | 'error'>('idle');
+  
+  // New section creation state
+  const [isNewSectionDialogOpen, setIsNewSectionDialogOpen] = useState(false);
+  const [newSectionData, setNewSectionData] = useState({
+    title: '',
+    description: '',
+    enabled: true,
+    collapsible: false,
+    imageUrl: '',
+  });
+  
+  // New field creation state
+  const [isNewFieldDialogOpen, setIsNewFieldDialogOpen] = useState(false);
+  const [newFieldSectionId, setNewFieldSectionId] = useState<string>('');
+  const [newFieldData, setNewFieldData] = useState({
+    type: 'text' as
+      | 'text'
+      | 'number'
+      | 'email'
+      | 'select'
+      | 'radio'
+      | 'checkbox'
+      | 'display',
+    label: '',
+    placeholder: '',
+    helpText: '',
+    required: false,
+    enabled: true,
+    imageUrl: '',
+    options: [] as string[],
+    // Display field specific properties
+    displayContent: '',
+    displayStyle: {
+      backgroundColor: '',
+      textAlign: 'left' as 'left' | 'center' | 'right',
+      fontSize: '',
+      fontWeight: '',
+    },
+    validation: {
+      required: false,
+      min: undefined as number | undefined,
+      max: undefined as number | undefined,
+      minLength: undefined as number | undefined,
+      maxLength: undefined as number | undefined,
+      pattern: '',
+    },
+  });
+
+  // Load existing schema on component mount
+  useEffect(() => {
+    const loadExistingSchema = async () => {
+      try {
+        const existingSchema = await getActiveFormSchema('Energy Calculator Form');
+        if (existingSchema) {
+          setFormStructure(existingSchema.schema_data);
+          setCurrentSchemaId(existingSchema.id);
+          setHasUnsavedChanges(false);
+        }
+      } catch (error) {
+        console.error('Error loading existing schema:', error);
+        // If no existing schema, we'll start with the default one
+      }
+    };
+
+    loadExistingSchema();
+  }, []);
 
   // Save form changes to Supabase
   const handleSaveChanges = async () => {
@@ -126,17 +198,37 @@ export default function FormBuilderPage() {
     }
 
     setIsSaving(true);
+    setSaveStatus('idle');
+    
     try {
-      // TODO: Implement actual save to Supabase
-      // For now, we'll simulate the save operation
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      if (currentSchemaId) {
+        // Update existing schema
+        await updateFormSchema(currentSchemaId, {
+          name: formStructure.name,
+          description: formStructure.description,
+          schema_data: formStructure,
+        });
+      } else {
+        // Create new schema
+        const newSchema = await createFormSchema({
+          name: formStructure.name,
+          description: formStructure.description,
+          schema_data: formStructure,
+        });
+        setCurrentSchemaId(newSchema.id);
+      }
 
       setHasUnsavedChanges(false);
-      // Show success message
+      setSaveStatus('success');
       console.log('Form changes saved successfully!');
+      
+      // Clear success status after 3 seconds
+      setTimeout(() => setSaveStatus('idle'), 3000);
     } catch (error) {
       console.error('Error saving form changes:', error);
-      // TODO: Show error message to user
+      setSaveStatus('error');
+      // Clear error status after 5 seconds
+      setTimeout(() => setSaveStatus('idle'), 5000);
     } finally {
       setIsSaving(false);
     }
@@ -261,6 +353,153 @@ export default function FormBuilderPage() {
     [selectedSection]
   );
 
+  // Handle new section creation
+  const handleCreateNewSection = () => {
+    if (!newSectionData.title.trim()) {
+      return; // Don't create section without title
+    }
+
+    const newSection: FormSection = {
+      id: `section-${Date.now()}`, // Generate unique ID
+      title: newSectionData.title,
+      description: newSectionData.description,
+      enabled: newSectionData.enabled,
+      collapsible: newSectionData.collapsible,
+      imageUrl: newSectionData.imageUrl || undefined,
+      fields: [], // Start with no fields
+    };
+
+    setFormStructure(prev => ({
+      ...prev,
+      pages: prev.pages.map(page => ({
+        ...page,
+        sections: [...page.sections, newSection],
+      })),
+    }));
+
+    // Reset form and close dialog
+    setNewSectionData({
+      title: '',
+      description: '',
+      enabled: true,
+      collapsible: false,
+      imageUrl: '',
+    });
+    setIsNewSectionDialogOpen(false);
+    setHasUnsavedChanges(true);
+
+    // Select the new section
+    handleSectionSelect(newSection);
+  };
+
+  // Handle new field creation
+  const handleCreateNewField = () => {
+    if (!newFieldData.label.trim()) {
+      return; // Don't create field without label
+    }
+
+    const newField: FormField = {
+      id: `field-${Date.now()}`, // Generate unique ID
+      type: newFieldData.type,
+      label: newFieldData.label,
+      placeholder: newFieldData.placeholder,
+      helpText: newFieldData.helpText,
+      required: newFieldData.required,
+      enabled: newFieldData.enabled,
+      imageUrl: newFieldData.imageUrl || undefined,
+      options: (newFieldData.type === 'select' || newFieldData.type === 'radio' || newFieldData.type === 'checkbox') 
+        ? newFieldData.options 
+        : undefined,
+      // Display field specific properties
+      displayContent: newFieldData.type === 'display' ? newFieldData.displayContent : undefined,
+      displayStyle: newFieldData.type === 'display' ? newFieldData.displayStyle : undefined,
+      validation: {
+        required: newFieldData.validation.required,
+        min: newFieldData.validation.min,
+        max: newFieldData.validation.max,
+        minLength: newFieldData.validation.minLength,
+        maxLength: newFieldData.validation.maxLength,
+        pattern: newFieldData.validation.pattern,
+      },
+    };
+
+    setFormStructure(prev => ({
+      ...prev,
+      pages: prev.pages.map(page => ({
+        ...page,
+        sections: page.sections.map(section =>
+          section.id === newFieldSectionId
+            ? { ...section, fields: [...section.fields, newField] }
+            : section
+        ),
+      })),
+    }));
+
+    // Reset form and close dialog
+    setNewFieldData({
+      type: 'text',
+      label: '',
+      placeholder: '',
+      helpText: '',
+      required: false,
+      enabled: true,
+      imageUrl: '',
+      options: [],
+      // Display field specific properties
+      displayContent: '',
+      displayStyle: {
+        backgroundColor: '',
+        textAlign: 'left',
+        fontSize: '',
+        fontWeight: '',
+      },
+      validation: {
+        required: false,
+        min: undefined,
+        max: undefined,
+        minLength: undefined,
+        maxLength: undefined,
+        pattern: '',
+      },
+    });
+    setIsNewFieldDialogOpen(false);
+    setNewFieldSectionId('');
+    setHasUnsavedChanges(true);
+
+    // Select the new field
+    handleFieldSelect(newField);
+  };
+
+  // Open new field dialog
+  const openNewFieldDialog = (sectionId: string) => {
+    setNewFieldSectionId(sectionId);
+    setIsNewFieldDialogOpen(true);
+  };
+
+  // Add field option
+  const addFieldOption = () => {
+    setNewFieldData(prev => ({
+      ...prev,
+      options: [...prev.options, ''],
+    }));
+  };
+
+  // Update field option
+  const updateFieldOption = (index: number, value: string) => {
+    setNewFieldData(prev => ({
+      ...prev,
+      options: prev.options.map((option, i) => i === index ? value : option),
+    }));
+  };
+
+  // Remove field option
+  const removeFieldOption = (index: number) => {
+    setNewFieldData(prev => ({
+      ...prev,
+      options: prev.options.filter((_, i) => i !== index),
+    }));
+  };
+
   // Get section icon
   const getSectionIcon = (sectionId: string) => {
     switch (sectionId) {
@@ -290,6 +529,8 @@ export default function FormBuilderPage() {
         return '🔘';
       case 'checkbox':
         return '☑️';
+      case 'display':
+        return '📊';
       default:
         return '❓';
     }
@@ -342,6 +583,20 @@ export default function FormBuilderPage() {
                 </TooltipContent>
               </Tooltip>
 
+              {/* Save Status Indicator */}
+              {saveStatus === 'success' && (
+                <div className="flex items-center space-x-2 text-green-600 text-sm">
+                  <div className="w-2 h-2 bg-green-600 rounded-full animate-pulse"></div>
+                  <span>Changes saved successfully!</span>
+                </div>
+              )}
+              {saveStatus === 'error' && (
+                <div className="flex items-center space-x-2 text-red-600 text-sm">
+                  <div className="w-2 h-2 bg-red-600 rounded-full animate-pulse"></div>
+                  <span>Error saving changes</span>
+                </div>
+              )}
+
               <Tooltip>
                 <TooltipTrigger asChild>
                   <Button
@@ -368,9 +623,121 @@ export default function FormBuilderPage() {
           <div className="lg:col-span-2">
             <Card>
               <CardHeader>
-                <CardTitle className="flex items-center space-x-2">
-                  <Settings className="h-5 w-5" />
-                  <span>Form Structure</span>
+                <CardTitle className="flex items-center justify-between">
+                  <div className="flex items-center space-x-2">
+                    <Settings className="h-5 w-5" />
+                    <span>Form Structure</span>
+                  </div>
+                  
+                  {/* New Section Button */}
+                  <Dialog open={isNewSectionDialogOpen} onOpenChange={setIsNewSectionDialogOpen}>
+                    <DialogTrigger asChild>
+                      <Button size="sm" className="flex items-center space-x-2">
+                        <Plus className="h-4 w-4" />
+                        <span>New Section</span>
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent className="sm:max-w-[500px]">
+                      <DialogHeader>
+                        <DialogTitle>Create New Section</DialogTitle>
+                        <DialogDescription>
+                          Add a new section to your form. You can configure the section properties and add fields later.
+                        </DialogDescription>
+                      </DialogHeader>
+                      
+                      <div className="space-y-4">
+                        {/* Section Title */}
+                        <div className="space-y-2">
+                          <Label htmlFor="section-title" className="text-sm font-medium">
+                            Section Title *
+                          </Label>
+                          <Input
+                            id="section-title"
+                            value={newSectionData.title}
+                            onChange={(e) => setNewSectionData(prev => ({ ...prev, title: e.target.value }))}
+                            placeholder="Enter section title"
+                          />
+                          <p className="text-xs text-muted-foreground">
+                            The title that users will see for this section
+                          </p>
+                        </div>
+
+                        {/* Section Description */}
+                        <div className="space-y-2">
+                          <Label htmlFor="section-description" className="text-sm font-medium">
+                            Description
+                          </Label>
+                          <Textarea
+                            id="section-description"
+                            value={newSectionData.description}
+                            onChange={(e) => setNewSectionData(prev => ({ ...prev, description: e.target.value }))}
+                            placeholder="Enter section description"
+                            rows={3}
+                          />
+                          <p className="text-xs text-muted-foreground">
+                            Optional description to help users understand this section
+                          </p>
+                        </div>
+
+                        {/* Section Settings */}
+                        <div className="space-y-3">
+                          <div className="flex items-center justify-between">
+                            <div className="space-y-0.5">
+                              <Label className="text-sm font-medium">Visible by default</Label>
+                              <p className="text-xs text-muted-foreground">
+                                Show this section when the form loads
+                              </p>
+                            </div>
+                            <Switch
+                              checked={newSectionData.enabled}
+                              onCheckedChange={(checked) => setNewSectionData(prev => ({ ...prev, enabled: checked }))}
+                            />
+                          </div>
+
+                          <div className="flex items-center justify-between">
+                            <div className="space-y-0.5">
+                              <Label className="text-sm font-medium">Collapsible</Label>
+                              <p className="text-xs text-muted-foreground">
+                                Allow users to collapse this section
+                              </p>
+                            </div>
+                            <Switch
+                              checked={newSectionData.collapsible}
+                              onCheckedChange={(checked) => setNewSectionData(prev => ({ ...prev, collapsible: checked }))}
+                            />
+                          </div>
+                        </div>
+
+                        {/* Section Image */}
+                        <div className="space-y-2">
+                          <Label className="text-sm font-medium">Section Image</Label>
+                          <ImagePicker
+                            value={newSectionData.imageUrl}
+                            onChange={(imageUrl) => setNewSectionData(prev => ({ ...prev, imageUrl: imageUrl || '' }))}
+                            placeholder="Select an image for this section"
+                          />
+                          <p className="text-xs text-muted-foreground">
+                            Optional image to display with this section
+                          </p>
+                        </div>
+                      </div>
+
+                      <DialogFooter>
+                        <Button
+                          variant="outline"
+                          onClick={() => setIsNewSectionDialogOpen(false)}
+                        >
+                          Cancel
+                        </Button>
+                        <Button
+                          onClick={handleCreateNewSection}
+                          disabled={!newSectionData.title.trim()}
+                        >
+                          Create Section
+                        </Button>
+                      </DialogFooter>
+                    </DialogContent>
+                  </Dialog>
                 </CardTitle>
               </CardHeader>
               <CardContent>
@@ -606,6 +973,19 @@ export default function FormBuilderPage() {
                                     </Tooltip>
                                   </div>
                                 ))}
+                                
+                                {/* Add New Field Button */}
+                                <div className="pt-2">
+                                  <Button
+                                    variant="outline"
+                                    size="sm"
+                                    className="w-full text-muted-foreground hover:text-foreground"
+                                    onClick={() => openNewFieldDialog(section.id)}
+                                  >
+                                    <Plus className="h-4 w-4 mr-2" />
+                                    Add Field
+                                  </Button>
+                                </div>
                               </div>
                             </CollapsibleContent>
                           </div>
@@ -858,6 +1238,482 @@ export default function FormBuilderPage() {
           </div>
         </div>
       </div>
+
+      {/* New Field Dialog */}
+      <Dialog open={isNewFieldDialogOpen} onOpenChange={setIsNewFieldDialogOpen}>
+        <DialogContent className="sm:max-w-[500px]">
+          <DialogHeader>
+            <DialogTitle>Create New Field</DialogTitle>
+            <DialogDescription>
+              Add a new field to the selected section. Choose its type and configure its properties.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4">
+            {/* Field Type Selection */}
+            <div className="space-y-2">
+              <Label htmlFor="field-type" className="text-sm font-medium">
+                Field Type *
+              </Label>
+              <select
+                id="field-type"
+                value={newFieldData.type}
+                onChange={(e) => setNewFieldData(prev => ({ ...prev, type: e.target.value as 'text' | 'number' | 'email' | 'select' | 'radio' | 'checkbox' | 'display' }))}
+                className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                <option value="text">Text</option>
+                <option value="number">Number</option>
+                <option value="email">Email</option>
+                <option value="select">Select</option>
+                <option value="radio">Radio</option>
+                <option value="checkbox">Checkbox</option>
+                <option value="display">Display Field</option>
+              </select>
+              <p className="text-xs text-muted-foreground">
+                Choose the type of input you want for this field.
+              </p>
+            </div>
+
+            {/* Field Label */}
+            <div className="space-y-2">
+              <Label htmlFor="field-label" className="text-sm font-medium">
+                Field Label *
+              </Label>
+              <Input
+                id="field-label"
+                value={newFieldData.label}
+                onChange={(e) => setNewFieldData(prev => ({ ...prev, label: e.target.value }))}
+                placeholder="Enter field label"
+              />
+              <p className="text-xs text-muted-foreground">
+                The label that users will see above this field.
+              </p>
+            </div>
+
+            {/* Field Placeholder */}
+            <div className="space-y-2">
+              <Label htmlFor="field-placeholder" className="text-sm font-medium">
+                Placeholder Text
+              </Label>
+              <Input
+                id="field-placeholder"
+                value={newFieldData.placeholder}
+                onChange={(e) => setNewFieldData(prev => ({ ...prev, placeholder: e.target.value }))}
+                placeholder="Enter placeholder text"
+              />
+              <p className="text-xs text-muted-foreground">
+                Hint text shown inside the field before user input.
+              </p>
+            </div>
+
+            {/* Field Help Text */}
+            <div className="space-y-2">
+              <Label htmlFor="field-help" className="text-sm font-medium">
+                Help Text
+              </Label>
+              <Textarea
+                id="field-help"
+                value={newFieldData.helpText}
+                onChange={(e) => setNewFieldData(prev => ({ ...prev, helpText: e.target.value }))}
+                placeholder="Enter help text"
+                rows={3}
+              />
+              <p className="text-xs text-muted-foreground">
+                Additional guidance for users filling out this field.
+              </p>
+            </div>
+
+            {/* Field Required Toggle */}
+            <div className="flex items-center space-x-2">
+              <Switch
+                id="field-required"
+                checked={newFieldData.required}
+                onCheckedChange={(checked) => setNewFieldData(prev => ({ ...prev, required: checked }))}
+              />
+              <Label htmlFor="field-required" className="text-sm font-medium">
+                Required Field
+              </Label>
+            </div>
+
+            {/* Field Visibility Toggle */}
+            <div className="flex items-center space-x-2">
+              <Switch
+                id="field-enabled"
+                checked={newFieldData.enabled}
+                onCheckedChange={(checked) => setNewFieldData(prev => ({ ...prev, enabled: checked }))}
+              />
+              <Label htmlFor="field-enabled" className="text-sm font-medium">
+                Field Visible
+              </Label>
+            </div>
+
+            {/* Field Image */}
+            <div className="space-y-2">
+              <Label htmlFor="field-image" className="text-sm font-medium">
+                Field Image
+              </Label>
+                             <ImagePicker
+                 value={newFieldData.imageUrl}
+                 onChange={(imageUrl) => setNewFieldData(prev => ({ ...prev, imageUrl: imageUrl || '' }))}
+                 placeholder="Select an image for this field..."
+                 className="w-full"
+               />
+              <p className="text-xs text-muted-foreground">
+                Optional image to display with this field.
+              </p>
+            </div>
+
+            {/* Display Field Specific Properties */}
+            {newFieldData.type === 'display' && (
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="display-content" className="text-sm font-medium">
+                    Display Content *
+                  </Label>
+                  <Textarea
+                    id="display-content"
+                    value={newFieldData.displayContent}
+                    onChange={(e) => setNewFieldData(prev => ({ ...prev, displayContent: e.target.value }))}
+                    placeholder="Enter content with shortcodes, e.g., 'Your savings: [calc:annual-savings] €'"
+                    rows={3}
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    Content to display. You can use shortcodes like [calc:annual-savings] for dynamic values.
+                  </p>
+                </div>
+
+                {/* Shortcode Preview Section */}
+                <div className="space-y-2">
+                  <Label className="text-sm font-medium">Available Shortcodes</Label>
+                  <div className="bg-gray-50 p-3 rounded-md border">
+                    <p className="text-xs text-gray-600 mb-2">
+                      Available calculation shortcodes you can use:
+                    </p>
+                    <div className="space-y-1">
+                      <div className="text-xs">
+                        <code className="bg-gray-200 px-1 py-0.5 rounded">[calc:annual-savings]</code>
+                        <span className="ml-2 text-gray-500">- Annual energy savings</span>
+                      </div>
+                      <div className="text-xs">
+                        <code className="bg-gray-200 px-1 py-0.5 rounded">[calc:payback-period]</code>
+                        <span className="ml-2 text-gray-500">- Investment payback period</span>
+                      </div>
+                      <div className="text-xs">
+                        <code className="bg-gray-200 px-1 py-0.5 rounded">[calc:efficiency-rating]</code>
+                        <span className="ml-2 text-gray-500">- System efficiency percentage</span>
+                      </div>
+                      <div className="text-xs">
+                        <code className="bg-gray-200 px-1 py-0.5 rounded">[calc:current-cost]</code>
+                        <span className="ml-2 text-gray-500">- Current heating cost</span>
+                      </div>
+                    </div>
+                    <p className="text-xs text-gray-500 mt-2">
+                      💡 Tip: Use these shortcodes in your display content to show real-time calculation results.
+                    </p>
+                  </div>
+                </div>
+
+                {/* Real-time Preview Section */}
+                {newFieldData.displayContent && (
+                  <div className="space-y-2">
+                    <Label className="text-sm font-medium">Live Preview</Label>
+                    <div className="bg-white p-3 rounded-md border border-dashed border-gray-300">
+                      <div className="text-xs text-gray-500 mb-2">Preview with sample data:</div>
+                      <div 
+                        className="text-sm p-2 bg-gray-50 rounded"
+                        style={{
+                          backgroundColor: newFieldData.displayStyle.backgroundColor || 'transparent',
+                          textAlign: newFieldData.displayStyle.textAlign || 'left',
+                          fontSize: newFieldData.displayStyle.fontSize || 'inherit',
+                          fontWeight: newFieldData.displayStyle.fontWeight || 'normal',
+                        }}
+                      >
+                        {newFieldData.displayContent.replace(/\[calc:([^\]]+)\]/g, (match, formulaName) => {
+                          // Show sample calculation results for preview
+                          const sampleResults: Record<string, string> = {
+                            'annual-savings': '€1,250',
+                            'payback-period': '3.2 years',
+                            'efficiency-rating': '85%',
+                            'current-cost': '€2,400',
+                            'monthly-savings': '€104',
+                            'total-investment': '€8,500',
+                          };
+                          
+                          const key = formulaName.toLowerCase().replace(/\s+/g, '-');
+                          return sampleResults[key] || `[${formulaName} result]`;
+                        })}
+                      </div>
+                      <p className="text-xs text-gray-500 mt-2">
+                        💡 This preview shows how your display field will look with sample calculation results.
+                      </p>
+                    </div>
+                  </div>
+                )}
+
+                <div className="space-y-2">
+                  <Label className="text-sm font-medium">Display Styling</Label>
+                  <div className="grid grid-cols-2 gap-2">
+                    <div className="space-y-1">
+                      <Label htmlFor="display-bg-color" className="text-xs text-muted-foreground">
+                        Background Color
+                      </Label>
+                      <Input
+                        id="display-bg-color"
+                        type="color"
+                        value={newFieldData.displayStyle.backgroundColor}
+                        onChange={(e) => setNewFieldData(prev => ({ 
+                          ...prev, 
+                          displayStyle: { ...prev.displayStyle, backgroundColor: e.target.value } 
+                        }))}
+                        className="h-8 w-full"
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <Label htmlFor="display-text-align" className="text-xs text-muted-foreground">
+                        Text Alignment
+                      </Label>
+                      <select
+                        id="display-text-align"
+                        value={newFieldData.displayStyle.textAlign}
+                        onChange={(e) => setNewFieldData(prev => ({ 
+                          ...prev, 
+                          displayStyle: { ...prev.displayStyle, textAlign: e.target.value as 'left' | 'center' | 'right' } 
+                        }))}
+                        className="w-full rounded-md border border-input bg-background px-2 py-1 text-xs"
+                      >
+                        <option value="left">Left</option>
+                        <option value="center">Center</option>
+                        <option value="right">Right</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-2 gap-2">
+                    <div className="space-y-1">
+                      <Label htmlFor="display-font-size" className="text-xs text-muted-foreground">
+                        Font Size
+                      </Label>
+                      <Input
+                        id="display-font-size"
+                        value={newFieldData.displayStyle.fontSize}
+                        onChange={(e) => setNewFieldData(prev => ({ 
+                          ...prev, 
+                          displayStyle: { ...prev.displayStyle, fontSize: e.target.value } 
+                        }))}
+                        placeholder="e.g., 16px, 1.2rem"
+                        className="h-8 text-xs"
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <Label htmlFor="display-font-weight" className="text-xs text-muted-foreground">
+                        Font Weight
+                      </Label>
+                      <select
+                        id="display-font-weight"
+                        value={newFieldData.displayStyle.fontWeight}
+                        onChange={(e) => setNewFieldData(prev => ({ 
+                          ...prev, 
+                          displayStyle: { ...prev.displayStyle, fontWeight: e.target.value } 
+                        }))}
+                        className="w-full rounded-md border border-input bg-background px-2 py-1 text-xs"
+                      >
+                        <option value="">Normal</option>
+                        <option value="bold">Bold</option>
+                        <option value="600">Semi-Bold</option>
+                        <option value="300">Light</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Field Options (for select, radio, checkbox) */}
+            {newFieldData.type === 'select' || newFieldData.type === 'radio' || newFieldData.type === 'checkbox' ? (
+              <div className="space-y-2">
+                <Label className="text-sm font-medium">Field Options</Label>
+                <div className="space-y-1">
+                  {newFieldData.options.map((option, index) => (
+                    <div key={index} className="flex items-center space-x-2">
+                      <Input
+                        value={option}
+                        onChange={(e) => updateFieldOption(index, e.target.value)}
+                        onBlur={() => updateFieldOption(index, option)}
+                        placeholder={`Option ${index + 1}`}
+                      />
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => removeFieldOption(index)}
+                        className="h-6 w-6 p-1"
+                      >
+                        <X className="h-3 w-3" />
+                      </Button>
+                    </div>
+                  ))}
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={addFieldOption}
+                    className="w-full text-muted-foreground hover:text-foreground"
+                  >
+                    <Plus className="h-4 w-4 mr-2" />
+                    Add Option
+                  </Button>
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  For select, radio, and checkbox fields, you can add multiple options.
+                </p>
+              </div>
+            ) : null}
+
+            {/* Field Validation */}
+            <div className="space-y-2">
+              <Label className="text-sm font-medium">Field Validation</Label>
+              <div className="grid grid-cols-2 gap-2">
+                <div className="flex items-center space-x-2">
+                  <Switch
+                    id="validation-required"
+                    checked={newFieldData.validation.required}
+                    onCheckedChange={(checked) => setNewFieldData(prev => ({ ...prev, validation: { ...prev.validation, required: checked } }))}
+                  />
+                  <Label htmlFor="validation-required" className="text-sm font-medium">
+                    Required
+                  </Label>
+                </div>
+                {newFieldData.type === 'number' && (
+                  <>
+                    <div className="flex items-center space-x-2">
+                      <Switch
+                        id="validation-min"
+                        checked={newFieldData.validation.min !== undefined}
+                        onCheckedChange={(checked) => setNewFieldData(prev => ({ ...prev, validation: { ...prev.validation, min: checked ? 0 : undefined } }))}
+                      />
+                      <Label htmlFor="validation-min" className="text-sm font-medium">
+                        Min
+                      </Label>
+                    </div>
+                    <Input
+                      id="validation-min-value"
+                      type="number"
+                      value={newFieldData.validation.min || ''}
+                      onChange={(e) => setNewFieldData(prev => ({ ...prev, validation: { ...prev.validation, min: e.target.value ? parseFloat(e.target.value) : undefined } }))}
+                      placeholder="Min value"
+                      className="w-full"
+                    />
+                  </>
+                )}
+                {newFieldData.type === 'number' && (
+                  <>
+                    <div className="flex items-center space-x-2">
+                      <Switch
+                        id="validation-max"
+                        checked={newFieldData.validation.max !== undefined}
+                        onCheckedChange={(checked) => setNewFieldData(prev => ({ ...prev, validation: { ...prev.validation, max: checked ? 100 : undefined } }))}
+                      />
+                      <Label htmlFor="validation-max" className="text-sm font-medium">
+                        Max
+                      </Label>
+                    </div>
+                    <Input
+                      id="validation-max-value"
+                      type="number"
+                      value={newFieldData.validation.max || ''}
+                      onChange={(e) => setNewFieldData(prev => ({ ...prev, validation: { ...prev.validation, max: e.target.value ? parseFloat(e.target.value) : undefined } }))}
+                      placeholder="Max value"
+                      className="w-full"
+                    />
+                  </>
+                )}
+                {newFieldData.type === 'text' && (
+                  <>
+                    <div className="flex items-center space-x-2">
+                      <Switch
+                        id="validation-min-length"
+                        checked={newFieldData.validation.minLength !== undefined}
+                        onCheckedChange={(checked) => setNewFieldData(prev => ({ ...prev, validation: { ...prev.validation, minLength: checked ? 0 : undefined } }))}
+                      />
+                      <Label htmlFor="validation-min-length" className="text-sm font-medium">
+                        Min Length
+                      </Label>
+                    </div>
+                    <Input
+                      id="validation-min-length-value"
+                      type="number"
+                      value={newFieldData.validation.minLength || ''}
+                      onChange={(e) => setNewFieldData(prev => ({ ...prev, validation: { ...prev.validation, minLength: e.target.value ? parseInt(e.target.value, 10) : undefined } }))}
+                      placeholder="Min length"
+                      className="w-full"
+                    />
+                  </>
+                )}
+                {newFieldData.type === 'text' && (
+                  <>
+                    <div className="flex items-center space-x-2">
+                      <Switch
+                        id="validation-max-length"
+                        checked={newFieldData.validation.maxLength !== undefined}
+                        onCheckedChange={(checked) => setNewFieldData(prev => ({ ...prev, validation: { ...prev.validation, maxLength: checked ? 100 : undefined } }))}
+                      />
+                      <Label htmlFor="validation-max-length" className="text-sm font-medium">
+                        Max Length
+                      </Label>
+                    </div>
+                    <Input
+                      id="validation-max-length-value"
+                      type="number"
+                      value={newFieldData.validation.maxLength || ''}
+                      onChange={(e) => setNewFieldData(prev => ({ ...prev, validation: { ...prev.validation, maxLength: e.target.value ? parseInt(e.target.value, 10) : undefined } }))}
+                      placeholder="Max length"
+                      className="w-full"
+                    />
+                  </>
+                )}
+                {newFieldData.type === 'text' && (
+                  <>
+                    <div className="flex items-center space-x-2">
+                      <Switch
+                        id="validation-pattern"
+                        checked={newFieldData.validation.pattern !== ''}
+                        onCheckedChange={(checked) => setNewFieldData(prev => ({ ...prev, validation: { ...prev.validation, pattern: checked ? '.*' : '' } }))}
+                      />
+                      <Label htmlFor="validation-pattern" className="text-sm font-medium">
+                        Pattern
+                      </Label>
+                    </div>
+                    <Input
+                      id="validation-pattern-value"
+                      type="text"
+                      value={newFieldData.validation.pattern}
+                      onChange={(e) => setNewFieldData(prev => ({ ...prev, validation: { ...prev.validation, pattern: e.target.value } }))}
+                      placeholder="Enter regex pattern"
+                      className="w-full"
+                    />
+                  </>
+                )}
+              </div>
+            </div>
+          </div>
+
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setIsNewFieldDialogOpen(false)}
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={handleCreateNewField}
+              disabled={
+                !newFieldData.label.trim() || 
+                (newFieldData.type === 'select' || newFieldData.type === 'radio' || newFieldData.type === 'checkbox') && newFieldData.options.length === 0 ||
+                (newFieldData.type === 'display' && !newFieldData.displayContent.trim())
+              }
+            >
+              Create Field
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

@@ -1,6 +1,6 @@
 # Task ID: 19
 # Title: Implement Admin Panel Preview Page for Calculator
-# Status: pending
+# Status: done
 # Dependencies: 9, 17, 18
 # Priority: medium
 # Description: Create a preview page in the admin panel that displays the front-end calculator exactly as visitors see it, allowing administrators to test functionality and verify appearance without affecting the live site.
@@ -38,31 +38,34 @@
 9. Verify performance is acceptable within the admin panel context
 
 # Subtasks:
-## 1. Set Up Admin Preview Route and Navigation [pending]
+## 1. Set Up Admin Preview Route and Navigation [done]
 ### Dependencies: None
 ### Description: Create a new route `/admin/preview/page.tsx` and add a 'Calculator Preview' link to the admin sidebar menu, ensuring only authenticated admin users can access it.
 ### Details:
 Implement the route and navigation link in the admin panel. Restrict access to authenticated admin users only.
 
-## 2. Render Calculator Component with Admin Context [pending]
+## 2. Render Calculator Component with Admin Context [done]
 ### Dependencies: 19.1
 ### Description: Render the full calculator component inside the admin panel using the Tesla-style 70/30 split-screen layout, loading current brand customization settings from the database.
 ### Details:
 Ensure the calculator appears exactly as on the public site, with the visualization panel on the left and the scrollable form on the right, and loads the latest brand settings.
+<info added on 2025-08-25T13:03:33.035Z>
+All progress bars and step indicators have been removed from the preview page. The form now displays all sections together in a single scrollable container, eliminating step-by-step navigation elements and providing a cleaner, streamlined user experience that matches the scrollable design philosophy.
+</info added on 2025-08-25T13:03:33.035Z>
 
-## 3. Implement Preview Mode Functionality and Safety [pending]
+## 3. Implement Preview Mode Functionality and Safety [done]
 ### Dependencies: 19.2
 ### Description: Add a prominent 'Preview Mode' indicator, ensure no actual leads are submitted, and provide tooltips or help text explaining the safe testing environment.
 ### Details:
 Display a clear 'Preview Mode' banner, block real lead submissions, and add contextual help to reassure admins about safe testing.
 
-## 4. Add Interactive Preview Controls [pending]
+## 4. Add Interactive Preview Controls [done]
 ### Dependencies: 19.2
 ### Description: Implement a refresh button to reload the latest customization settings, a toggle for desktop/mobile viewport simulation, and a 'View Public Version' button opening the live calculator in a new tab.
 ### Details:
 Provide controls for refreshing the preview, switching viewport sizes, and comparing with the live site.
 
-## 5. Ensure Full Calculator Functionality and Validation [pending]
+## 5. Ensure Full Calculator Functionality and Validation [done]
 ### Dependencies: 19.2
 ### Description: Maintain all form validation, UI interactions, and calculation logic identical to the public version within the preview, using the same calculation engine.
 ### Details:

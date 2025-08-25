@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useCallback, useRef } from 'react';
+import React, { useState, useCallback, useRef, useEffect } from 'react';
 import AdminNavigation from '@/components/admin/AdminNavigation';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -21,104 +21,27 @@ import {
   Download,
 } from 'lucide-react';
 
-// Mock data for visual assets - this will be replaced with real data from Supabase
-const MOCK_ASSETS = [
-  {
-    id: '1',
-    name: 'house-icon.svg',
-    displayName: 'House Icon',
-    type: 'svg',
-    category: 'icons',
-    url: '/house.svg',
-    thumbnail: '/house.svg',
-    size: 2048,
-    uploadedAt: new Date('2024-01-15'),
-    tags: ['house', 'property', 'real-estate'],
-    usedIn: ['form-builder', 'calculator'],
-  },
-  {
-    id: '2',
-    name: 'heating-system.svg',
-    displayName: 'Heating System',
-    type: 'svg',
-    category: 'icons',
-    url: '/heating.svg',
-    thumbnail: '/heating.svg',
-    size: 1856,
-    uploadedAt: new Date('2024-01-16'),
-    tags: ['heating', 'energy', 'system'],
-    usedIn: ['form-builder'],
-  },
-  {
-    id: '3',
-    name: 'savings-chart.svg',
-    displayName: 'Savings Chart',
-    type: 'svg',
-    category: 'charts',
-    url: '/savings.svg',
-    thumbnail: '/savings.svg',
-    size: 2340,
-    uploadedAt: new Date('2024-01-17'),
-    tags: ['savings', 'money', 'chart'],
-    usedIn: ['calculator', 'results'],
-  },
-  {
-    id: '4',
-    name: 'contact-form.svg',
-    displayName: 'Contact Form',
-    type: 'svg',
-    category: 'forms',
-    url: '/contact.svg',
-    thumbnail: '/contact.svg',
-    size: 1980,
-    uploadedAt: new Date('2024-01-18'),
-    tags: ['contact', 'form', 'communication'],
-    usedIn: ['form-builder', 'contact'],
-  },
-  {
-    id: '5',
-    name: 'results-graph.svg',
-    displayName: 'Results Graph',
-    type: 'svg',
-    category: 'charts',
-    url: '/results.svg',
-    thumbnail: '/results.svg',
-    size: 2156,
-    uploadedAt: new Date('2024-01-19'),
-    tags: ['results', 'graph', 'data'],
-    usedIn: ['calculator', 'results'],
-  },
-];
+import { getVisualAssets, type VisualAsset } from '@/lib/visual-assets-service';
 
 const ASSET_CATEGORIES = [
-  { id: 'all', name: 'All Assets', count: MOCK_ASSETS.length },
-  {
-    id: 'icons',
-    name: 'Icons',
-    count: MOCK_ASSETS.filter(a => a.category === 'icons').length,
-  },
-  {
-    id: 'charts',
-    name: 'Charts',
-    count: MOCK_ASSETS.filter(a => a.category === 'charts').length,
-  },
-  {
-    id: 'forms',
-    name: 'Forms',
-    count: MOCK_ASSETS.filter(a => a.category === 'forms').length,
-  },
-  { id: 'illustrations', name: 'Illustrations', count: 0 },
-  { id: 'photos', name: 'Photos', count: 0 },
+  { id: 'all', name: 'All Assets', count: 0 },
+  { id: 'icons', name: 'Icons', count: 0 },
+  { id: 'charts', name: 'Charts', count: 0 },
+  { id: 'forms', name: 'Forms', count: 0 },
+  { id: 'backgrounds', name: 'Backgrounds', count: 0 },
+  { id: 'logos', name: 'Logos', count: 0 },
+  { id: 'other', name: 'Other', count: 0 },
 ];
 
 export default function VisualAssetsPage() {
-  const [assets, setAssets] = useState(MOCK_ASSETS);
+  const [assets, setAssets] = useState<VisualAsset[]>([]);
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [selectedAssets, setSelectedAssets] = useState<Set<string>>(new Set());
   const [isUploading, setIsUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
+  const [isLoading, setIsLoading] = useState(true);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Filter assets based on category and search
@@ -126,12 +49,46 @@ export default function VisualAssetsPage() {
     const matchesCategory =
       selectedCategory === 'all' || asset.category === selectedCategory;
     const matchesSearch =
-      asset.displayName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      asset.display_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       asset.tags.some(tag =>
         tag.toLowerCase().includes(searchQuery.toLowerCase())
       );
     return matchesCategory && matchesSearch;
   });
+
+  // Fetch assets from database
+  useEffect(() => {
+    const fetchAssets = async () => {
+      try {
+        setIsLoading(true);
+        const fetchedAssets = await getVisualAssets();
+        setAssets(fetchedAssets);
+      } catch (error) {
+        console.error('Error fetching assets:', error);
+        // TODO: Show error message to user
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchAssets();
+  }, []);
+
+  // Update category counts when assets change
+  useEffect(() => {
+    const updateCategoryCounts = () => {
+      const counts = ASSET_CATEGORIES.map(category => {
+        if (category.id === 'all') {
+          return { ...category, count: assets.length };
+        }
+        return { ...category, count: assets.filter(a => a.category === category.id).length };
+      });
+      // Update the ASSET_CATEGORIES array
+      ASSET_CATEGORIES.splice(0, ASSET_CATEGORIES.length, ...counts);
+    };
+
+    updateCategoryCounts();
+  }, [assets]);
 
   // Handle file upload
   const handleFileUpload = useCallback(async (files: FileList) => {
@@ -146,18 +103,24 @@ export default function VisualAssetsPage() {
       }
 
       // TODO: Implement actual file upload to Supabase storage
+      // For now, we'll create mock assets that match the database structure
       const newAssets = Array.from(files).map((file, index) => ({
         id: `new-${Date.now()}-${index}`,
         name: file.name,
-        displayName: file.name.replace(/\.[^/.]+$/, '').replace(/[-_]/g, ' '),
-        type: file.type.split('/')[1] || 'unknown',
-        category: 'icons', // Default category
+        display_name: file.name.replace(/\.[^/.]+$/, '').replace(/[-_]/g, ' '),
+        type: (file.type.split('/')[1] || 'unknown') as VisualAsset['type'],
+        category: 'icons' as VisualAsset['category'], // Default category
         url: URL.createObjectURL(file),
-        thumbnail: URL.createObjectURL(file),
-        size: file.size,
-        uploadedAt: new Date(),
+        thumbnail_url: URL.createObjectURL(file),
+        file_size: file.size,
+        width: null,
+        height: null,
         tags: [],
-        usedIn: [],
+        used_in: [],
+        is_active: true,
+        created_by: null,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
       }));
 
       setAssets(prev => [...newAssets, ...prev]);
@@ -237,8 +200,8 @@ export default function VisualAssetsPage() {
   };
 
   // Get asset usage count
-  const getAssetUsageCount = (asset: (typeof MOCK_ASSETS)[0]) => {
-    return asset.usedIn.length;
+  const getAssetUsageCount = (asset: VisualAsset) => {
+    return asset.used_in.length;
   };
 
   return (
@@ -412,8 +375,22 @@ export default function VisualAssetsPage() {
             </div>
           )}
 
-          {/* Assets Display */}
-          {viewMode === 'grid' ? (
+          {/* Loading State */}
+          {isLoading ? (
+            <div className="flex items-center justify-center py-12">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+              <span className="ml-3 text-gray-600">Loading assets...</span>
+            </div>
+          ) : filteredAssets.length === 0 ? (
+            <div className="text-center py-12">
+              <ImageIcon className="w-16 h-16 mx-auto text-gray-400 mb-4" />
+              <h3 className="text-lg font-medium text-gray-900 mb-2">No assets found</h3>
+              <p className="text-gray-500">Upload some assets to get started.</p>
+            </div>
+          ) : (
+            <>
+              {/* Assets Display */}
+              {viewMode === 'grid' ? (
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
               {filteredAssets.map(asset => (
                 <Card
@@ -430,8 +407,8 @@ export default function VisualAssetsPage() {
                       <div className="aspect-square bg-gray-100 rounded-lg flex items-center justify-center mb-2">
                         {asset.type === 'svg' ? (
                           <img
-                            src={asset.thumbnail}
-                            alt={asset.displayName}
+                            src={asset.thumbnail_url || asset.url}
+                            alt={asset.display_name}
                             className="w-12 h-12 object-contain"
                           />
                         ) : (
@@ -454,15 +431,15 @@ export default function VisualAssetsPage() {
                     <div className="text-center">
                       <p
                         className="text-sm font-medium text-gray-900 truncate"
-                        title={asset.displayName}
+                        title={asset.display_name}
                       >
-                        {asset.displayName}
+                        {asset.display_name}
                       </p>
                       <p className="text-xs text-gray-500">
                         {asset.type.toUpperCase()}
                       </p>
                       <p className="text-xs text-gray-500">
-                        {formatFileSize(asset.size)}
+                        {formatFileSize(asset.file_size)}
                       </p>
                       {getAssetUsageCount(asset) > 0 && (
                         <Badge variant="secondary" className="mt-1 text-xs">
@@ -502,8 +479,8 @@ export default function VisualAssetsPage() {
                       <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0">
                         {asset.type === 'svg' ? (
                           <img
-                            src={asset.thumbnail}
-                            alt={asset.displayName}
+                            src={asset.thumbnail_url || asset.url}
+                            alt={asset.display_name}
                             className="w-8 h-8 object-contain"
                           />
                         ) : (
@@ -513,11 +490,11 @@ export default function VisualAssetsPage() {
 
                       <div className="flex-1 min-w-0">
                         <p className="text-sm font-medium text-gray-900">
-                          {asset.displayName}
+                          {asset.display_name}
                         </p>
                         <p className="text-sm text-gray-500">
                           {asset.type.toUpperCase()} •{' '}
-                          {formatFileSize(asset.size)}
+                          {formatFileSize(asset.file_size)}
                         </p>
                         <div className="flex flex-wrap gap-1 mt-1">
                           {asset.tags.slice(0, 3).map(tag => (
@@ -538,7 +515,7 @@ export default function VisualAssetsPage() {
                       </div>
 
                       <div className="flex items-center space-x-2 text-sm text-gray-500">
-                        <span>{asset.uploadedAt.toLocaleDateString()}</span>
+                        <span>{new Date(asset.created_at).toLocaleDateString()}</span>
                         {getAssetUsageCount(asset) > 0 && (
                           <Badge variant="secondary" className="text-xs">
                             Used in {getAssetUsageCount(asset)} place
@@ -564,33 +541,9 @@ export default function VisualAssetsPage() {
               ))}
             </div>
           )}
+            </>
+          )}
         </div>
-
-        {/* Empty State */}
-        {filteredAssets.length === 0 && (
-          <Card className="text-center py-12">
-            <CardContent>
-              <ImageIcon className="w-16 h-16 mx-auto text-gray-300 mb-4" />
-              <h3 className="text-lg font-medium text-gray-900 mb-2">
-                No assets found
-              </h3>
-              <p className="text-gray-500 mb-4">
-                {searchQuery || selectedCategory !== 'all'
-                  ? 'Try adjusting your search or category filter'
-                  : 'Get started by uploading your first visual asset'}
-              </p>
-              {!searchQuery && selectedCategory === 'all' && (
-                <Button
-                  onClick={() => fileInputRef.current?.click()}
-                  className="bg-blue-600 hover:bg-blue-700"
-                >
-                  <Upload className="w-4 h-4 mr-2" />
-                  Upload Assets
-                </Button>
-              )}
-            </CardContent>
-          </Card>
-        )}
       </div>
     </div>
   );
