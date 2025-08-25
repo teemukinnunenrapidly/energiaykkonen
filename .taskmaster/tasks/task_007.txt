@@ -1,0 +1,54 @@
+# Task ID: 7
+# Title: Integrate Supabase Database and Schema
+# Status: done
+# Dependencies: 5
+# Priority: high
+# Description: Set up Supabase project, create the leads table per PRD schema, and connect from Next.js using Supabase JS client.
+# Details:
+- Create Supabase project and configure PostgreSQL.
+- Create `leads` table with all fields from PRD (including metadata).
+- Add row-level security (RLS) and enable SSL.
+- Store IP address and user agent from request headers.
+- Implement `/api/submit-lead` route to insert validated form and calculation data.
+- Store source page for analytics.
+
+# Test Strategy:
+Submit test leads and verify data is stored correctly in Supabase. Check RLS and SSL are enforced. Validate all fields are populated.
+
+# Subtasks:
+## 1. Set Up Supabase Project and Configure PostgreSQL [done]
+### Dependencies: None
+### Description: Create a new Supabase project, initialize the PostgreSQL database, and obtain connection credentials.
+### Details:
+Sign up or log in to Supabase, create a new project, and configure the PostgreSQL instance. Retrieve the connection string and set up environment variables for secure access.
+
+## 2. Create Leads Table per PRD Schema [done]
+### Dependencies: 7.1
+### Description: Define and create the 'leads' table in Supabase with all required fields, including metadata, as specified in the PRD.
+### Details:
+Use the Supabase dashboard or SQL editor to create the 'leads' table, ensuring all fields (including metadata such as timestamps, IP, user agent, and source page) are included according to the PRD.
+
+## 3. Configure Row-Level Security (RLS) and Enable SSL [done]
+### Dependencies: 7.2
+### Description: Set up RLS policies for the leads table and ensure SSL is enforced for all database connections.
+### Details:
+Enable RLS in the Supabase dashboard, write policies to restrict access as needed, and verify SSL is enabled for secure data transmission.
+
+## 4. Connect Next.js App to Supabase Using Supabase JS Client [done]
+### Dependencies: 7.1, 7.3
+### Description: Integrate the Supabase JS client into the Next.js application and configure it to connect to the Supabase project.
+### Details:
+Install the Supabase JS client, set up the client instance with environment variables, and test the connection from the Next.js backend.
+
+## 5. Implement /api/submit-lead Route with Metadata Capture [done]
+### Dependencies: 7.2, 7.4
+### Description: Develop the Next.js API route to accept, validate, and insert lead data, capturing IP address, user agent, and calculation results.
+### Details:
+Create the /api/submit-lead endpoint, validate incoming data, extract IP and user agent from request headers, and insert all relevant fields into the leads table.
+
+## 6. Store Source Page for Analytics [done]
+### Dependencies: 7.5
+### Description: Ensure the source page information is captured and stored with each lead submission for analytics purposes.
+### Details:
+Modify the API route and database schema as needed to include the source page field, and verify it is populated on each lead insert.
+

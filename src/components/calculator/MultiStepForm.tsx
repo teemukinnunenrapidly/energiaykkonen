@@ -1,14 +1,12 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Progress } from '@/components/ui/progress';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
-  calculatorFormSchema,
-  type CalculatorFormData,
+  calculatorFormSchema
 } from '@/lib/validation';
 import {
   BasicInfoStep,
@@ -18,55 +16,61 @@ import {
 } from './steps';
 import {
   trackFormStart,
-  trackStepCompleted,
-  trackStepError,
   trackFormSubmitted,
   trackFormAbandoned,
   trackCalculationCompleted,
-  type FormStep,
 } from '@/lib/analytics';
 
-// Form steps configuration with analytics mapping
+// Form steps configuration
 const FORM_STEPS = [
   {
     id: 1,
-    title: 'Basic Information',
-    description: 'Enter your contact details',
-    fields: ['firstName', 'lastName', 'email', 'phone', 'contactPreference'],
-    analyticsStep: 'basic-info' as FormStep,
+    title: 'Kiinteistön tiedot',
+    description: 'Anna kiinteistösi perustiedot laskelmaa varten',
+    fields: ['squareMeters', 'ceilingHeight', 'constructionYear', 'floors', 'residents'],
   },
   {
     id: 2,
-    title: 'Property Details',
-    description: 'Tell us about your property',
-    fields: ['squareMeters', 'ceilingHeight', 'constructionYear', 'floors'],
-    analyticsStep: 'property-details' as FormStep,
+    title: 'Nykyinen lämmitys',
+    description: 'Mitä lämmitystapaa käytät tällä hetkellä?',
+    fields: ['heatingType', 'hotWaterUsage'],
   },
   {
     id: 3,
-    title: 'Current Heating',
-    description: 'Information about your current heating system',
-    fields: ['heatingType', 'annualHeatingCost', 'residents', 'hotWaterUsage'],
-    analyticsStep: 'current-heating' as FormStep,
+    title: 'Lämmityskustannukset',
+    description: 'Paljonko maksat lämmityksestä vuosittain?',
+    fields: ['annualHeatingCost'],
   },
   {
     id: 4,
-    title: 'Results & Contact',
-    description: 'Review your results and submit',
+    title: 'Säästölaskelma',
+    description: 'Katso potentiaaliset säästösi lämpöpumpulla',
     fields: [],
-    analyticsStep: 'results' as FormStep,
+  },
+  {
+    id: 5,
+    title: 'Yhteystiedot',
+    description: 'Anna yhteystiedot laskelmaan',
+    fields: ['firstName', 'lastName', 'email', 'phone', 'streetAddress', 'city', 'gdprConsent', 'marketingConsent'],
   },
 ];
 
 interface MultiStepFormProps {
   onComplete?: (results: unknown) => void;
+  onStepChange?: (step: number) => void;
 }
 
-export function MultiStepForm({ onComplete }: MultiStepFormProps) {
-  const [currentStep, setCurrentStep] = useState(1);
+export function MultiStepForm({
+  onComplete,
+  onStepChange,
+}: MultiStepFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [stepStartTime, setStepStartTime] = useState(Date.now());
   const [formStarted, setFormStarted] = useState(false);
+  const [completedSections, setCompletedSections] = useState<Set<number>>(
+    new Set()
+  );
+  const [activeSection, setActiveSection] = useState(0);
+  const sectionRefs = useRef<(HTMLDivElement | null)[]>([]);
 
   const form = useForm<any>({
     resolver: zodResolver(calculatorFormSchema) as any,
@@ -100,75 +104,132 @@ export function MultiStepForm({ onComplete }: MultiStepFormProps) {
   } = form;
   const formData = watch();
 
-  // Calculate progress percentage
-  const progress = (currentStep / FORM_STEPS.length) * 100;
-
-  // Get current step analytics info
-  const getCurrentStepAnalytics = () => {
-    return FORM_STEPS[currentStep - 1]?.analyticsStep || 'basic-info';
+  // Check if a section is complete
+  const isSectionComplete = (sectionIndex: number): boolean => {
+    const sectionFields = FORM_STEPS[sectionIndex]?.fields || [];
+    if (sectionIndex === 3) {
+      return true; // Savings calculation section is always accessible
+    }
+    
+    return sectionFields.every(field => {
+      const value = formData[field as keyof any];
+      if (field === 'gdprConsent') {
+        return value === true; // GDPR consent must be explicitly checked
+      }
+      return (
+        value !== undefined && value !== null && value !== '' && value !== 0
+      );
+    });
   };
+
+  // Check if a section is accessible (previous sections completed)
+  const isSectionAccessible = (sectionIndex: number): boolean => {
+    if (sectionIndex === 0) {
+      return true; // First section is always accessible
+    }
+    
+    // Check if all previous sections are completed
+    for (let i = 0; i < sectionIndex; i++) {
+      if (!isSectionComplete(i)) {
+        return false;
+      }
+    }
+    return true;
+  };
+
+  // Update completed sections when form data changes
+  useEffect(() => {
+    const newCompletedSections = new Set<number>();
+    FORM_STEPS.forEach((_, index) => {
+      if (isSectionComplete(index)) {
+        newCompletedSections.add(index);
+      }
+    });
+    setCompletedSections(newCompletedSections);
+  }, [formData]);
+
+  // Notify parent component of step changes
+  useEffect(() => {
+    const activeSection = Array.from(completedSections).length + 1;
+    onStepChange?.(Math.min(activeSection, FORM_STEPS.length));
+  }, [completedSections, onStepChange]);
+
+  // Intersection Observer for smooth scrolling and section highlighting
+  useEffect(() => {
+    const observerOptions = {
+      root: null,
+      rootMargin: '-20% 0px -70% 0px',
+      threshold: [0, 0.25, 0.5, 0.75, 1],
+    };
+
+    const sectionObserver = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting && entry.intersectionRatio > 0.5) {
+          const sectionIndex = parseInt(entry.target.getAttribute('data-section') || '0');
+          setActiveSection(sectionIndex);
+          
+          // Update parent component with current step
+          onStepChange?.(sectionIndex + 1);
+        }
+      });
+    }, observerOptions);
+
+    // Observe all section refs
+    sectionRefs.current.forEach((ref) => {
+      if (ref) {
+        sectionObserver.observe(ref);
+      }
+    });
+
+    return () => {
+      sectionObserver.disconnect();
+    };
+  }, [onStepChange]);
+
+  // Smooth scroll to section
+  const scrollToSection = useCallback((sectionIndex: number) => {
+    const targetSection = sectionRefs.current[sectionIndex];
+    if (targetSection) {
+      targetSection.scrollIntoView({
+        behavior: 'smooth',
+        block: 'start',
+        inline: 'nearest',
+      });
+    }
+  }, []);
+
+  // Auto-scroll to next section when current section is completed
+  useEffect(() => {
+    if (completedSections.size > 0) {
+      const lastCompletedSection = Math.max(...Array.from(completedSections));
+      const nextSection = lastCompletedSection + 1;
+      
+      if (nextSection < FORM_STEPS.length && isSectionAccessible(nextSection)) {
+        // Small delay to allow form state to update
+        setTimeout(() => {
+          scrollToSection(nextSection);
+        }, 300);
+      }
+    }
+  }, [completedSections, scrollToSection]);
 
   // Analytics tracking effects
   useEffect(() => {
     if (!formStarted) {
-      trackFormStart(getCurrentStepAnalytics());
+      trackFormStart('basic-info');
       setFormStarted(true);
     }
-  }, [formStarted, getCurrentStepAnalytics]);
-
-  useEffect(() => {
-    setStepStartTime(Date.now());
-  }, [currentStep]);
+  }, [formStarted]);
 
   // Track page unload/abandon
   useEffect(() => {
     const handleBeforeUnload = () => {
-      const timeSpent = Date.now() - stepStartTime;
-      if (timeSpent > 30000 && currentStep < FORM_STEPS.length) {
-        // Only track if spent more than 30 seconds
-        trackFormAbandoned(getCurrentStepAnalytics(), timeSpent);
-      }
+      trackFormAbandoned('basic-info', 0);
     };
 
     window.addEventListener('beforeunload', handleBeforeUnload);
     return () => window.removeEventListener('beforeunload', handleBeforeUnload);
-  }, [currentStep, stepStartTime, getCurrentStepAnalytics]);
-
-  // Check if current step is valid
-  const isCurrentStepValid = () => {
-    if (currentStep === 4) {
-      return true; // Results step is always valid
-    }
-
-    const currentStepFields = FORM_STEPS[currentStep - 1]?.fields || [];
-    return currentStepFields.every(field => {
-      const value = formData[field as keyof CalculatorFormData];
-      return value !== undefined && value !== null && value !== '';
-    });
-  };
-
-  // Navigation functions with analytics
-  const goToNextStep = () => {
-    if (currentStep < FORM_STEPS.length && isCurrentStepValid()) {
-      // Track step completion
-      const timeSpent = Date.now() - stepStartTime;
-      trackStepCompleted(getCurrentStepAnalytics(), {
-        timeSpent,
-        fieldsCompleted: FORM_STEPS[currentStep - 1]?.fields.length || 0,
-      });
-
-      setCurrentStep(currentStep + 1);
-    } else if (!isCurrentStepValid()) {
-      // Track step error
-      trackStepError(getCurrentStepAnalytics(), 'Validation failed');
-    }
-  };
-
-  const goToPreviousStep = () => {
-    if (currentStep > 1) {
-      setCurrentStep(currentStep - 1);
-    }
-  };
+  }, []);
 
   // Form submission with analytics
   const onSubmit = async (data: any) => {
@@ -178,7 +239,7 @@ export function MultiStepForm({ onComplete }: MultiStepFormProps) {
       trackFormSubmitted({
         device: undefined, // Will be auto-detected
         totalSteps: FORM_STEPS.length,
-        completionTime: Date.now() - stepStartTime,
+        completionTime: 0,
       });
 
       // Submit form data to API
@@ -218,12 +279,6 @@ export function MultiStepForm({ onComplete }: MultiStepFormProps) {
       });
     } catch (error) {
       // Track form submission error
-      trackStepError(
-        'results',
-        error instanceof Error ? error.message : 'Unknown error'
-      );
-
-      // Handle error (show toast, etc.)
       // console.error('Form submission error:', error);
 
       // For now, call onComplete with error info
@@ -241,111 +296,279 @@ export function MultiStepForm({ onComplete }: MultiStepFormProps) {
     }
   };
 
-  // Render the appropriate step component
-  const renderStepContent = () => {
-    switch (currentStep) {
-      case 1:
-        return <BasicInfoStep form={form as any} />;
-      case 2:
-        return <PropertyDetailsStep form={form as any} />;
-      case 3:
-        return <CurrentHeatingStep form={form as any} />;
-      case 4:
-        return <ResultsStep form={form as any} />;
-      default:
-        return null;
+  // Get section status for visual indicators
+  const getSectionStatus = (sectionIndex: number) => {
+    if (completedSections.has(sectionIndex)) {
+      return 'completed';
+    } else if (isSectionAccessible(sectionIndex)) {
+      return 'active';
+    } else {
+      return 'locked';
     }
   };
 
+  // Get section completion percentage
+  const getSectionCompletionPercentage = (sectionIndex: number): number => {
+    const sectionFields = FORM_STEPS[sectionIndex]?.fields || [];
+    if (sectionFields.length === 0) return 100;
+    
+    const completedFields = sectionFields.filter(field => {
+      const value = formData[field as keyof any];
+      if (field === 'gdprConsent') {
+        return value === true;
+      }
+      return value !== undefined && value !== null && value !== '' && value !== 0;
+    });
+    
+    return (completedFields.length / sectionFields.length) * 100;
+  };
+
   return (
-    <div className="w-full max-w-4xl mx-auto">
-      {/* Progress Bar */}
-      <div className="mb-6 sm:mb-8">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-3 sm:mb-2 space-y-2 sm:space-y-0">
-          <span className="text-sm font-medium text-gray-700 text-center sm:text-left">
-            Step {currentStep} of {FORM_STEPS.length}
-          </span>
-          <span className="text-sm text-gray-500 text-center sm:text-right">
-            {Math.round(progress)}% Complete
-          </span>
-        </div>
-        <Progress value={progress} className="h-2" />
-
-        {/* Step Indicators */}
-        <div className="flex justify-between mt-4 px-2 sm:px-0">
-          {FORM_STEPS.map((step, index) => (
-            <div
-              key={step.id}
-              className={`flex flex-col items-center flex-1 ${
-                index + 1 <= currentStep ? 'text-blue-600' : 'text-gray-400'
-              }`}
-            >
-              <div
-                className={`w-6 h-6 sm:w-8 sm:h-8 rounded-full flex items-center justify-center text-xs sm:text-sm font-medium mb-1 ${
-                  index + 1 <= currentStep
-                    ? 'bg-blue-600 text-white'
-                    : 'bg-gray-200 text-gray-600'
-                }`}
-              >
-                {index + 1 < currentStep ? '✓' : step.id}
-              </div>
-              <span className="text-xs text-center max-w-[60px] sm:max-w-20 leading-tight">
-                {step.title}
-              </span>
-            </div>
-          ))}
-        </div>
-      </div>
-
+    <div className="w-full h-full">
       {/* Form Content */}
-      <Card className="mx-2 sm:mx-0">
-        <CardHeader className="pb-4 sm:pb-6">
-          <CardTitle className="text-xl sm:text-2xl font-bold text-center">
-            {FORM_STEPS[currentStep - 1]?.title}
+      <Card className="h-full border-0 shadow-none rounded-none">
+        <CardHeader className="pb-4 sm:pb-6 border-b bg-gray-50">
+          <CardTitle className="text-lg sm:text-xl font-bold text-center">
+            Lämpöpumpun laskuri
           </CardTitle>
-          <p className="text-sm sm:text-base text-gray-500 text-center px-2 sm:px-0">
-            {FORM_STEPS[currentStep - 1]?.description}
+          <p className="text-sm text-gray-500 text-center px-2 sm:px-0">
+            Täytä lomake alla laskeaksesi potentiaaliset säästösi
           </p>
+          
+          {/* Section Progress Indicator */}
+          <div className="flex justify-center mt-4">
+            <div className="flex space-x-3">
+              {FORM_STEPS.map((step, index) => {
+                const status = getSectionStatus(index);
+                return (
+                  <div key={step.id} className="flex flex-col items-center">
+                    <div
+                      className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium transition-all duration-200 ${
+                        status === 'completed'
+                          ? 'bg-green-500 text-white'
+                          : status === 'active'
+                          ? 'bg-blue-500 text-white'
+                          : 'bg-gray-300 text-gray-500'
+                      }`}
+                    >
+                      {status === 'completed' ? '✓' : index + 1}
+                    </div>
+                    <span className="text-xs text-center mt-1 max-w-[60px] leading-tight">
+                      {step.title}
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
         </CardHeader>
-        <CardContent className="px-4 sm:px-6">
-          <form
-            onSubmit={handleSubmit(onSubmit)}
-            className="space-y-4 sm:space-y-6"
-          >
-            {/* Step content */}
-            <div className="min-h-[250px] sm:min-h-[300px]">
-              {renderStepContent()}
+        <CardContent className="px-4 sm:px-6 py-6 h-full overflow-y-auto">
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-8 h-full">
+            {/* Section 1: Property Questions */}
+            <div className="space-y-4">
+              <div className={`border-b border-gray-200 pb-4 ${
+                getSectionStatus(0) === 'locked' ? 'opacity-50 pointer-events-none' : ''
+              }`}>
+                <div className="flex items-center justify-between mb-2">
+                  <h3 className="text-lg font-semibold text-gray-900">
+                    {FORM_STEPS[0].title}
+                  </h3>
+                  {getSectionStatus(0) === 'completed' && (
+                    <span className="text-green-600 text-sm">✓ Valmis</span>
+                  )}
+                </div>
+                <p className="text-sm text-gray-600 mb-4">
+                  {FORM_STEPS[0].description}
+                </p>
+                <PropertyDetailsStep form={form as any} />
+              </div>
             </div>
 
-            {/* Navigation Buttons */}
-            <div className="flex flex-col sm:flex-row justify-between pt-4 sm:pt-6 border-t space-y-3 sm:space-y-0">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={goToPreviousStep}
-                disabled={currentStep === 1}
-                className="w-full sm:w-auto min-w-[100px] order-2 sm:order-1"
-              >
-                Previous
-              </Button>
+            {/* Section 2: Current Heating */}
+            <div className="space-y-4">
+              <div className={`border-b border-gray-200 pb-4 ${
+                getSectionStatus(1) === 'locked' ? 'opacity-50 pointer-events-none' : ''
+              }`}>
+                <div className="flex items-center justify-between mb-2">
+                  <h3 className="text-lg font-semibold text-gray-900">
+                    {FORM_STEPS[1].title}
+                  </h3>
+                  {getSectionStatus(1) === 'completed' && (
+                    <span className="text-green-600 text-sm">✓ Valmis</span>
+                  )}
+                </div>
+                <p className="text-sm text-gray-600 mb-4">
+                  {FORM_STEPS[1].description}
+                </p>
+                <CurrentHeatingStep form={form as any} />
+              </div>
+            </div>
 
-              {currentStep < FORM_STEPS.length ? (
-                <Button
-                  type="button"
-                  onClick={goToNextStep}
-                  disabled={!isCurrentStepValid()}
-                  className="w-full sm:w-auto min-w-[100px] order-1 sm:order-2"
-                >
-                  Next
-                </Button>
-              ) : (
-                <Button
-                  type="submit"
-                  disabled={!isValid || isSubmitting}
-                  className="w-full sm:w-auto min-w-[100px] order-1 sm:order-2"
-                >
-                  {isSubmitting ? 'Submitting...' : 'Submit'}
-                </Button>
+            {/* Section 3: Current Heating Costs */}
+            <div className="space-y-4">
+              <div className={`border-b border-gray-200 pb-4 ${
+                getSectionStatus(2) === 'locked' ? 'opacity-50 pointer-events-none' : ''
+              }`}>
+                <div className="flex items-center justify-between mb-2">
+                  <h3 className="text-lg font-semibold text-gray-900">
+                    {FORM_STEPS[2].title}
+                  </h3>
+                  {getSectionStatus(2) === 'completed' && (
+                    <span className="text-green-600 text-sm">✓ Valmis</span>
+                  )}
+                </div>
+                <p className="text-sm text-gray-600 mb-4">
+                  {FORM_STEPS[2].description}
+                </p>
+                <BasicInfoStep form={form as any} />
+              </div>
+            </div>
+
+            {/* Section 4: Check How Much You'd Save */}
+            <div className="space-y-4">
+              <div className={`border-b border-gray-200 pb-4 ${
+                getSectionStatus(3) === 'locked' ? 'opacity-50 pointer-events-none' : ''
+              }`}>
+                <div className="flex items-center justify-between mb-2">
+                  <h3 className="text-lg font-semibold text-gray-900">
+                    {FORM_STEPS[3].title}
+                  </h3>
+                  {getSectionStatus(3) === 'completed' && (
+                    <span className="text-green-600 text-sm">✓ Valmis</span>
+                  )}
+                </div>
+                <p className="text-sm text-gray-600 mb-4">
+                  {FORM_STEPS[3].description}
+                </p>
+                <ResultsStep form={form as any} />
+              </div>
+            </div>
+
+            {/* Section 5: Contact Information */}
+            <div className="space-y-4">
+              <div className={`pb-4 ${
+                getSectionStatus(4) === 'locked' ? 'opacity-50 pointer-events-none' : ''
+              }`}>
+                <div className="flex items-center justify-between mb-2">
+                  <h3 className="text-lg font-semibold text-gray-900">
+                    {FORM_STEPS[4].title}
+                  </h3>
+                  {getSectionStatus(4) === 'completed' && (
+                    <span className="text-green-600 text-sm">✓ Valmis</span>
+                  )}
+                </div>
+                <p className="text-sm text-gray-600 mb-4">
+                  {FORM_STEPS[4].description}
+                </p>
+                <div className="space-y-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Etunimi
+                      </label>
+                      <input
+                        type="text"
+                        {...form.register('firstName')}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        placeholder="Matti"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Sukunimi
+                      </label>
+                      <input
+                        type="text"
+                        {...form.register('lastName')}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        placeholder="Meikäläinen"
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Sähköposti
+                    </label>
+                    <input
+                      type="email"
+                      {...form.register('email')}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      placeholder="matti@example.fi"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Puhelin
+                    </label>
+                    <input
+                      type="tel"
+                      {...form.register('phone')}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      placeholder="040 123 4567"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Osoite
+                    </label>
+                    <input
+                      type="text"
+                      {...form.register('streetAddress')}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      placeholder="Esimerkkikatu 1"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Paikkakunta
+                    </label>
+                    <input
+                      type="text"
+                      {...form.register('city')}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      placeholder="Helsinki"
+                    />
+                  </div>
+                  <div className="space-y-3">
+                    <label className="flex items-center">
+                      <input
+                        type="checkbox"
+                        {...form.register('gdprConsent')}
+                        className="mr-2 h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                      />
+                      <span className="text-sm text-gray-700">
+                        Hyväksyn tietosuojaselosteen ja tietojeni käsittelyn
+                      </span>
+                    </label>
+                    <label className="flex items-center">
+                      <input
+                        type="checkbox"
+                        {...form.register('marketingConsent')}
+                        className="mr-2 h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                      />
+                      <span className="text-sm text-gray-700">
+                        Haluan vastaanottaa tarjouksia ja uutiskirjeitä
+                      </span>
+                    </label>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Submit Button */}
+            <div className="pt-6 border-t border-gray-200">
+              <Button
+                type="submit"
+                disabled={!isValid || isSubmitting || completedSections.size < 4}
+                className="w-full"
+                size="lg"
+              >
+                {isSubmitting ? 'Lähetetään...' : 'Lähetä laskelma'}
+              </Button>
+              {completedSections.size < 4 && (
+                <p className="text-sm text-gray-500 text-center mt-2">
+                  Täytä kaikki osiot ennen lähettämistä
+                </p>
               )}
             </div>
           </form>

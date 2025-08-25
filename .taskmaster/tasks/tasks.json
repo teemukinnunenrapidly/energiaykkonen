@@ -829,11 +829,399 @@
         ],
         "status": "pending",
         "subtasks": []
+      },
+      {
+        "id": 16,
+        "title": "Update Form Layout to Scrollable Design with Finnish Language Support",
+        "description": "Convert the multi-step form to a scrollable design with Finnish language labels, showing all four sections simultaneously while maintaining sequential completion requirements.",
+        "status": "in-progress",
+        "dependencies": [
+          3,
+          6
+        ],
+        "priority": "medium",
+        "details": "- Refactor the existing form layout to display all sections in a single scrollable container\n- Implement Finnish language labels for all form sections and fields:\n  * Property questions (Kiinteistön tiedot)\n  * Current heating (Nykyinen lämmitys)\n  * Current heating costs (Lämmityskustannukset)\n  * Check how much you'd save (Katso paljonko säästäisit)\n- Restructure the page layout to show 3D visualization on the left side and the scrollable form on the right sidebar\n- Maintain the sequential completion logic so users must complete each section in order to proceed\n- Add visual indicators to show which sections are completed, active, or locked\n- Ensure the form maintains responsive behavior on all screen sizes\n- Update form validation to work with the new scrollable layout\n- Implement smooth scrolling between sections when users complete a section\n- Add accessibility features for the new layout (keyboard navigation, focus management)\n- Update any related components that depend on the multi-step form structure\n- Add Finnish completion status indicators (\"✓ Valmis\") for completed sections\n- Implement submit button validation to ensure all sections are completed before submission",
+        "testStrategy": "1. Verify all form sections display correctly in the scrollable container with proper Finnish translations\n2. Test the sequential completion logic by attempting to interact with locked sections\n3. Confirm smooth scrolling behavior when advancing between sections\n4. Test responsive behavior across mobile, tablet, and desktop viewports\n5. Verify the 3D visualization and form sidebar layout works correctly on all screen sizes\n6. Conduct accessibility testing with screen readers and keyboard navigation\n7. Test form validation in the new layout with both valid and invalid inputs\n8. Verify that all form data is still correctly collected and processed\n9. Test with Finnish language users to ensure translations are accurate and natural\n10. Perform cross-browser testing (Chrome, Firefox, Safari, Edge) to ensure consistent behavior\n11. Verify section status tracking (completed, active, locked) works correctly with appropriate visual feedback\n12. Test progress indicators at the top of the form to ensure they accurately reflect completion status\n13. Confirm Finnish completion status indicators (\"✓ Valmis\") display correctly for completed sections\n14. Verify submit button remains disabled until all sections are completed",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Implement sequential completion logic for scrollable form",
+            "description": "Added section status tracking (completed, active, locked) with visual feedback. Form now shows progress indicators at the top and locks sections until previous ones are completed.",
+            "status": "done",
+            "dependencies": [],
+            "details": "",
+            "testStrategy": ""
+          },
+          {
+            "id": 2,
+            "title": "Add Finnish language completion indicators",
+            "description": "Implemented \"✓ Valmis\" indicators for completed sections and added submit button validation to ensure all sections are completed before submission.",
+            "status": "done",
+            "dependencies": [],
+            "details": "",
+            "testStrategy": ""
+          },
+          {
+            "id": 3,
+            "title": "Implement scrollable container for all form sections",
+            "description": "Refactor the existing form layout to display all sections in a single scrollable container while maintaining the sequential completion requirements.",
+            "status": "done",
+            "dependencies": [],
+            "details": "<info added on 2025-08-25T07:11:21.060Z>\nThe scrollable container for all form sections has been successfully implemented in our Tesla-style redesign. The form now displays all 5 sections in a single scrollable container with proper sequential completion logic, Finnish language support, and visual indicators for section status. The scrollable container maintains the progressive unlocking requirements while providing a smooth user experience.\n</info added on 2025-08-25T07:11:21.060Z>",
+            "testStrategy": ""
+          },
+          {
+            "id": 4,
+            "title": "Add Finnish translations for all form fields and sections",
+            "description": "Translate all form labels, placeholders, error messages, and section titles to Finnish according to the provided translations.",
+            "status": "in-progress",
+            "dependencies": [],
+            "details": "",
+            "testStrategy": ""
+          },
+          {
+            "id": 5,
+            "title": "Implement smooth scrolling between sections",
+            "description": "Add smooth scrolling functionality to automatically move to the next section when a user completes the current section.",
+            "status": "to-do",
+            "dependencies": [],
+            "details": "",
+            "testStrategy": ""
+          },
+          {
+            "id": 6,
+            "title": "Restructure page layout with 3D visualization and form sidebar",
+            "description": "Update the page layout to show the 3D visualization on the left side and the scrollable form on the right sidebar.",
+            "status": "to-do",
+            "dependencies": [],
+            "details": "",
+            "testStrategy": ""
+          },
+          {
+            "id": 7,
+            "title": "Add accessibility features for scrollable form",
+            "description": "Implement keyboard navigation, focus management, and screen reader support for the new scrollable form layout.",
+            "status": "to-do",
+            "dependencies": [],
+            "details": "",
+            "testStrategy": ""
+          }
+        ]
+      },
+      {
+        "id": 17,
+        "title": "Implement Modern Tesla-Style UI with Split-Screen Layout",
+        "description": "Redesign the calculator UI to create a modern, Tesla-configurator-style experience with a 70/30 split-screen layout featuring visual support on the left and a scrollable form on the right, with progressive section unlocking and Finnish language throughout.",
+        "details": "- Restructure the application layout to implement a 70/30 split view (70% visualization, 30% form)\n- Create a responsive grid system that maintains the split on desktop but adapts for mobile\n- Implement 5 comprehensive form sections in Finnish:\n  * Kiinteistön tiedot (Property details)\n  * Nykyinen lämmitys (Current heating)\n  * Lämmityskustannukset (Heating costs)\n  * Säästölaskelma (Savings calculation)\n  * Yhteystiedot (Contact information)\n- Develop progressive section unlocking with visual indicators for completed/locked sections\n- Add smooth scrolling behavior between sections using Intersection Observer API\n- Implement dynamic visual content on the left panel that updates based on form selections\n- Create Tesla-style animations and transitions:\n  * Smooth section transitions with fade/slide effects\n  * Progressive form field appearance\n  * Visual feedback for user interactions\n- Optimize the split layout for mobile devices:\n  * Stack visualization on top, form below on smaller screens\n  * Maintain smooth transitions between sections\n  * Ensure touch-friendly interaction areas\n- Implement responsive breakpoints at 640px, 768px, 1024px, and 1280px\n- Add subtle micro-interactions and visual feedback for form interactions\n- Ensure all UI elements follow the established design system using shadcn/ui and Tailwind\n- Implement skeleton loading states for the visualization panel",
+        "testStrategy": "1. Verify the 70/30 split layout renders correctly on desktop browsers (Chrome, Firefox, Safari, Edge)\n2. Test responsive behavior across all breakpoints, ensuring proper stacking on mobile\n3. Validate that all form sections display correctly in Finnish with proper translations\n4. Test the progressive section unlocking by attempting to interact with locked sections\n5. Verify smooth scrolling behavior when navigating between sections\n6. Confirm that visual content updates appropriately based on form selections\n7. Test all animations and transitions for smoothness and performance\n8. Perform accessibility testing to ensure the new UI is navigable via keyboard and screen readers\n9. Validate that form validation still works correctly within the new layout\n10. Test on low-end devices to ensure animations don't cause performance issues\n11. Verify that the visualization panel correctly represents the user's selections\n12. Test touch interactions on mobile devices to ensure proper responsiveness\n13. Validate that the UI maintains visual consistency with the design system",
+        "status": "pending",
+        "dependencies": [
+          3,
+          16
+        ],
+        "priority": "high",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Implement 70/30 Split-Screen Layout and Responsive Grid System",
+            "description": "Design and develop a split-screen layout with 70% visualization panel and 30% form panel, ensuring the grid system adapts responsively across desktop and mobile breakpoints.",
+            "dependencies": [],
+            "details": "Use Tailwind CSS and shadcn/ui to create a grid that maintains the split on desktop and stacks panels vertically on mobile. Ensure breakpoints at 640px, 768px, 1024px, and 1280px.",
+            "status": "pending",
+            "testStrategy": "Verify correct split ratio and stacking behavior on all supported browsers and devices at specified breakpoints."
+          },
+          {
+            "id": 3,
+            "title": "Build Scrollable Form with 5 Finnish Sections",
+            "description": "Implement a scrollable form on the right panel, divided into five comprehensive sections in Finnish: Kiinteistön tiedot, Nykyinen lämmitys, Lämmityskustannukset, Säästölaskelma, Yhteystiedot.",
+            "dependencies": [
+              "17.1"
+            ],
+            "details": "Use React Hook Form and shadcn/ui components, ensuring proper translation and logical sectioning. Each section should be independently scrollable and accessible.\n<info added on 2025-08-25T06:49:33.460Z>\nFORM_STEPS has been updated to properly reflect the 5 sections with consistent Finnish translations:\n\n1. Kiinteistön tiedot (Property details) - Now includes residents field\n2. Nykyinen lämmitys (Current heating) - Focuses on heating type and hot water usage\n3. Lämmityskustannukset (Heating costs) - Dedicated to heating costs input\n4. Säästölaskelma (Savings calculation) - Contains savings calculation fields\n5. Yhteystiedot (Contact information) - Contains all contact information fields\n\nEach section is independently scrollable within the right panel of the 70/30 split layout. The form structure supports progressive unlocking, where completing one section reveals the next, creating an engaging Tesla-style user experience.\n</info added on 2025-08-25T06:49:33.460Z>",
+            "status": "done",
+            "testStrategy": "Validate Finnish translations and form section rendering. Confirm all fields are present and scrollable."
+          },
+          {
+            "id": 4,
+            "title": "Implement Progressive Section Unlocking Logic",
+            "description": "Develop logic to unlock form sections progressively, with visual indicators for completed and locked sections.",
+            "dependencies": [
+              "17.3"
+            ],
+            "details": "Track completion status for each section and update UI indicators accordingly. Prevent access to locked sections until prerequisites are met.\n<info added on 2025-08-25T06:50:35.194Z>\nImproved progressive section unlocking logic with enhanced validation for GDPR consent and more accurate section completion percentage calculation. Added validation rules that check both field completion and consent requirements before allowing section progression. Implemented a weighted completion tracking system that accurately reflects user progress through each section. Visual indicators now clearly show locked, in-progress, and completed states with appropriate color coding and icons. Added smooth transitions between unlock states with subtle animations for better user feedback. The system now properly prevents navigation to locked sections while allowing users to freely revisit completed sections. Enhanced error messaging provides clear guidance on remaining requirements needed to unlock the next section.\n</info added on 2025-08-25T06:50:35.194Z>",
+            "status": "done",
+            "testStrategy": "Test unlocking flow and indicator updates for each section. Ensure locked sections are inaccessible until unlocked."
+          },
+          {
+            "id": 5,
+            "title": "Integrate Intersection Observer-Based Smooth Scrolling",
+            "description": "Add smooth scrolling behavior between form sections using the Intersection Observer API for enhanced navigation and user experience.",
+            "dependencies": [
+              "17.3"
+            ],
+            "details": "Implement automatic scroll transitions and highlight active sections as they enter the viewport.\n<info added on 2025-08-25T06:51:42.278Z>\nImplemented Intersection Observer API for section tracking and smooth scrolling between form sections. Created section references for each form step and configured the observer with appropriate thresholds to detect when sections enter and exit the viewport. Added automatic scrolling functionality that transitions to the next section when the current one is completed. Implemented smooth scroll behavior with CSS and JS for fluid Tesla-style transitions. The system now actively tracks which section is in view, highlights the current active section in the navigation, and provides visual feedback as users progress through the form.\n</info added on 2025-08-25T06:51:42.278Z>",
+            "status": "in-progress",
+            "testStrategy": "Verify smooth scrolling and active section highlighting across all supported browsers."
+          },
+          {
+            "id": 6,
+            "title": "Enable Dynamic Visual Content Updates Based on Form Selections",
+            "description": "Synchronize the visualization panel with form inputs so that visual content updates dynamically as users interact with the form.",
+            "dependencies": [
+              "17.3"
+            ],
+            "details": "Establish state management to trigger visualization changes in real time based on form data.",
+            "status": "pending",
+            "testStrategy": "Test all form-to-visualization interactions for accuracy and responsiveness."
+          },
+          {
+            "id": 7,
+            "title": "Create Tesla-Style Animations and Transitions",
+            "description": "Implement smooth fade/slide transitions between sections, progressive form field appearance, and visual feedback for user interactions, emulating Tesla UI aesthetics.",
+            "dependencies": [
+              "17.3",
+              "17.4"
+            ],
+            "details": "Use CSS transitions and animation libraries to achieve Tesla-style effects. Ensure animations are performant and non-intrusive.",
+            "status": "pending",
+            "testStrategy": "Review animation smoothness and consistency. Confirm transitions trigger at appropriate user actions."
+          },
+          {
+            "id": 8,
+            "title": "Optimize Split Layout for Mobile and Touch Interaction",
+            "description": "Adapt the split-screen layout for mobile devices, stacking visualization above the form and ensuring touch-friendly interaction areas.",
+            "dependencies": [
+              "17.1",
+              "17.7"
+            ],
+            "details": "Refactor layout for mobile breakpoints, enlarge touch targets, and maintain smooth transitions and usability.",
+            "status": "pending",
+            "testStrategy": "Test mobile layout and touch interactions on various devices. Confirm usability and accessibility."
+          },
+          {
+            "id": 9,
+            "title": "Implement Accessibility and Keyboard Navigation",
+            "description": "Ensure all UI elements are accessible, with proper ARIA roles, keyboard navigation, and screen reader support.",
+            "dependencies": [
+              "17.3",
+              "17.7"
+            ],
+            "details": "Audit UI for accessibility compliance and implement necessary enhancements for users with disabilities.",
+            "status": "pending",
+            "testStrategy": "Use accessibility testing tools and manual keyboard navigation to verify compliance."
+          },
+          {
+            "id": 10,
+            "title": "Add Skeleton Loading States and Micro-Interactions",
+            "description": "Implement skeleton loading states for the visualization panel and subtle micro-interactions for form elements to enhance perceived performance and user feedback.",
+            "dependencies": [
+              "17.3"
+            ],
+            "details": "Use shadcn/ui and Tailwind to create skeleton loaders and micro-interactions such as button ripples and input highlights.",
+            "status": "pending",
+            "testStrategy": "Simulate loading scenarios and verify skeleton states. Test micro-interactions for responsiveness and clarity."
+          }
+        ]
+      },
+      {
+        "id": 18,
+        "title": "Build Brand Customization System for Calculator in Admin Panel",
+        "description": "Develop a comprehensive appearance customization section in the admin panel that allows administrators to fully customize the calculator's visual appearance to match their brand identity without requiring code changes.",
+        "details": "- Create a new section in the admin panel dedicated to theme customization\n- Implement a theme presets system with:\n  * Default Energia Ykkönen theme\n  * Ability to create and save custom themes\n  * Theme preview functionality\n- Develop comprehensive color customization controls:\n  * Brand colors (primary, secondary, accent)\n  * UI colors (background, surface, border)\n  * Semantic colors (success, warning, error, info)\n  * Component-specific color overrides\n- Add typography customization options:\n  * Font family selection (with web font integration)\n  * Font size scale controls\n  * Font weight, line height, and letter spacing adjustments\n- Implement layout and spacing controls:\n  * Container width and padding settings\n  * Spacing scale configuration\n  * Border radius and shadow customization\n  * Animation and transition timing\n- Build component-specific customization panels:\n  * Button styles (variants, states, sizes)\n  * Form field appearance\n  * Card and container styling\n  * Progress indicators and navigation elements\n- Create a live preview system:\n  * Real-time updates as settings change\n  * Device preview modes (desktop, tablet, mobile)\n  * Side-by-side comparison with current theme\n- Develop theme import/export functionality:\n  * JSON format for theme data\n  * CSS variable export\n  * SASS variables export\n  * Tailwind config export\n- Implement A/B testing support:\n  * Create theme variants\n  * Set testing parameters and goals\n  * View performance metrics\n- Add brand asset management:\n  * Logo upload and positioning\n  * Custom image library\n  * Icon set customization\n- Build an undo/redo system for theme changes\n- Integrate accessibility validation tools:\n  * Color contrast checker\n  * WCAG compliance warnings\n  * Accessibility score\n- Generate CSS variables for instant theme application\n- Ensure all customizations persist in the database and apply without requiring code changes or redeployment",
+        "testStrategy": "1. Verify the brand customization section appears correctly in the admin panel\n2. Test the theme presets system:\n   - Confirm default Energia Ykkönen theme loads correctly\n   - Create a new custom theme and verify it saves properly\n   - Switch between themes and verify changes apply correctly\n3. Test each customization category:\n   - Modify colors and verify they update in real-time\n   - Change typography settings and confirm they apply correctly\n   - Adjust spacing and layout controls and verify visual changes\n   - Customize component styles and check rendering\n4. Validate the live preview system:\n   - Confirm changes appear in real-time\n   - Test each device preview mode\n   - Verify side-by-side comparison functionality\n5. Test import/export features:\n   - Export a theme to each format (JSON, CSS, SASS, Tailwind)\n   - Import a previously exported theme\n   - Verify all settings are preserved during export/import\n6. Test A/B testing functionality:\n   - Create multiple theme variants\n   - Set up a test scenario\n   - Verify metrics collection\n7. Verify brand asset management:\n   - Upload logos and images\n   - Position and resize assets\n   - Confirm they appear correctly in the calculator\n8. Test undo/redo functionality:\n   - Make multiple changes and undo them\n   - Redo previously undone changes\n   - Verify state is maintained correctly\n9. Validate accessibility tools:\n   - Test contrast checker with various color combinations\n   - Verify WCAG compliance warnings appear for inaccessible choices\n   - Confirm accessibility score updates based on changes\n10. Test CSS variable generation:\n    - Inspect generated CSS variables\n    - Verify they apply correctly to the calculator\n11. Perform cross-browser testing (Chrome, Firefox, Safari, Edge)\n12. Test on mobile admin interfaces\n13. Verify all customizations persist after logout/login",
+        "status": "pending",
+        "dependencies": [
+          9,
+          17
+        ],
+        "priority": "medium",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Design Theme Presets System",
+            "description": "Create a system to manage theme presets, including a default theme, the ability to create and save custom themes, and theme preview functionality.",
+            "dependencies": [],
+            "details": "Define data structures for theme presets, implement UI for selecting and managing themes, and ensure preview updates in real time.",
+            "status": "pending",
+            "testStrategy": ""
+          },
+          {
+            "id": 2,
+            "title": "Develop Color Customization Controls",
+            "description": "Implement controls for customizing brand, UI, semantic, and component-specific colors.",
+            "dependencies": [
+              "18.1"
+            ],
+            "details": "Provide color pickers and input fields for each color category, with live preview integration.",
+            "status": "pending",
+            "testStrategy": ""
+          },
+          {
+            "id": 3,
+            "title": "Add Typography Customization Options",
+            "description": "Enable administrators to adjust font family, size, weight, line height, and letter spacing.",
+            "dependencies": [
+              "18.1"
+            ],
+            "details": "Integrate web font selection, sliders or input fields for typography settings, and preview updates.",
+            "status": "pending",
+            "testStrategy": ""
+          },
+          {
+            "id": 4,
+            "title": "Implement Layout and Spacing Controls",
+            "description": "Allow customization of container width, padding, spacing scale, border radius, shadow, and animation timing.",
+            "dependencies": [
+              "18.1"
+            ],
+            "details": "Develop UI controls for layout and spacing, and ensure changes reflect in the live preview.",
+            "status": "pending",
+            "testStrategy": ""
+          },
+          {
+            "id": 5,
+            "title": "Build Component-Specific Styling Panels",
+            "description": "Create dedicated panels for customizing buttons, form fields, cards, progress indicators, and navigation elements.",
+            "dependencies": [
+              "18.2",
+              "18.3",
+              "18.4"
+            ],
+            "details": "Each panel should expose relevant style options and override global theme settings as needed.",
+            "status": "pending",
+            "testStrategy": ""
+          },
+          {
+            "id": 6,
+            "title": "Develop Live Preview System",
+            "description": "Implement a real-time preview that updates as customization settings change.",
+            "dependencies": [
+              "18.2",
+              "18.3",
+              "18.4",
+              "18.5"
+            ],
+            "details": "Ensure the preview reflects all appearance changes and supports device preview modes.",
+            "status": "pending",
+            "testStrategy": ""
+          },
+          {
+            "id": 7,
+            "title": "Implement Device Preview Modes",
+            "description": "Add functionality to preview the calculator appearance on desktop, tablet, and mobile devices.",
+            "dependencies": [
+              "18.6"
+            ],
+            "details": "Provide toggles or tabs for switching between device views within the live preview.",
+            "status": "pending",
+            "testStrategy": ""
+          },
+          {
+            "id": 8,
+            "title": "Develop Theme Import/Export Functionality",
+            "description": "Enable administrators to import and export themes in JSON, CSS variable, SASS, and Tailwind config formats.",
+            "dependencies": [
+              "18.1",
+              "18.2",
+              "18.3",
+              "18.4",
+              "18.5"
+            ],
+            "details": "Implement file upload/download, format conversion, and validation for theme data.",
+            "status": "pending",
+            "testStrategy": ""
+          },
+          {
+            "id": 9,
+            "title": "Implement A/B Testing Support",
+            "description": "Allow creation of theme variants, setting of testing parameters, and viewing of performance metrics.",
+            "dependencies": [
+              "18.1",
+              "18.8"
+            ],
+            "details": "Integrate with analytics to track variant performance and provide UI for managing tests.",
+            "status": "pending",
+            "testStrategy": ""
+          },
+          {
+            "id": 10,
+            "title": "Add Brand Asset Management",
+            "description": "Provide tools for uploading and positioning logos, managing a custom image library, and customizing icon sets.",
+            "dependencies": [
+              "18.1"
+            ],
+            "details": "Support image uploads, drag-and-drop positioning, and icon selection or upload.",
+            "status": "pending",
+            "testStrategy": ""
+          },
+          {
+            "id": 11,
+            "title": "Build Undo/Redo System for Theme Changes",
+            "description": "Implement undo and redo functionality for all theme customization actions.",
+            "dependencies": [
+              "18.2",
+              "18.3",
+              "18.4",
+              "18.5",
+              "18.10"
+            ],
+            "details": "Track changes in a history stack and provide UI controls for navigating change history.",
+            "status": "pending",
+            "testStrategy": ""
+          },
+          {
+            "id": 12,
+            "title": "Integrate Accessibility Validation Tools",
+            "description": "Add tools for color contrast checking, WCAG compliance warnings, and accessibility scoring.",
+            "dependencies": [
+              "18.2",
+              "18.3",
+              "18.4",
+              "18.5",
+              "18.6"
+            ],
+            "details": "Display validation results in real time and suggest improvements where possible.",
+            "status": "pending",
+            "testStrategy": ""
+          },
+          {
+            "id": 13,
+            "title": "Generate CSS Variables for Theme Application",
+            "description": "Automatically generate and apply CSS variables based on current theme settings for instant application.",
+            "dependencies": [
+              "18.2",
+              "18.3",
+              "18.4",
+              "18.5"
+            ],
+            "details": "Ensure all customization options map to CSS variables and update dynamically.",
+            "status": "pending",
+            "testStrategy": ""
+          },
+          {
+            "id": 14,
+            "title": "Implement Persistence Logic for Customizations",
+            "description": "Ensure all theme customizations are saved to and loaded from the database, applying changes without code redeployment.",
+            "dependencies": [
+              "18.1",
+              "18.2",
+              "18.3",
+              "18.4",
+              "18.5",
+              "18.8",
+              "18.10",
+              "18.13"
+            ],
+            "details": "Integrate with backend APIs for saving/loading, and ensure seamless user experience.",
+            "status": "pending",
+            "testStrategy": ""
+          }
+        ]
       }
     ],
     "metadata": {
       "created": "2025-08-24T15:47:46.803Z",
-      "updated": "2025-08-25T05:35:43.470Z",
+      "updated": "2025-08-25T07:21:18.795Z",
       "description": "Tasks for master context"
     }
   }

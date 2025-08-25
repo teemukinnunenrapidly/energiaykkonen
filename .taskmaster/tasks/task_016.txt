@@ -1,0 +1,83 @@
+# Task ID: 16
+# Title: Update Form Layout to Scrollable Design with Finnish Language Support
+# Status: in-progress
+# Dependencies: 3, 6
+# Priority: medium
+# Description: Convert the multi-step form to a scrollable design with Finnish language labels, showing all four sections simultaneously while maintaining sequential completion requirements.
+# Details:
+- Refactor the existing form layout to display all sections in a single scrollable container
+- Implement Finnish language labels for all form sections and fields:
+  * Property questions (Kiinteistön tiedot)
+  * Current heating (Nykyinen lämmitys)
+  * Current heating costs (Lämmityskustannukset)
+  * Check how much you'd save (Katso paljonko säästäisit)
+- Restructure the page layout to show 3D visualization on the left side and the scrollable form on the right sidebar
+- Maintain the sequential completion logic so users must complete each section in order to proceed
+- Add visual indicators to show which sections are completed, active, or locked
+- Ensure the form maintains responsive behavior on all screen sizes
+- Update form validation to work with the new scrollable layout
+- Implement smooth scrolling between sections when users complete a section
+- Add accessibility features for the new layout (keyboard navigation, focus management)
+- Update any related components that depend on the multi-step form structure
+- Add Finnish completion status indicators ("✓ Valmis") for completed sections
+- Implement submit button validation to ensure all sections are completed before submission
+
+# Test Strategy:
+1. Verify all form sections display correctly in the scrollable container with proper Finnish translations
+2. Test the sequential completion logic by attempting to interact with locked sections
+3. Confirm smooth scrolling behavior when advancing between sections
+4. Test responsive behavior across mobile, tablet, and desktop viewports
+5. Verify the 3D visualization and form sidebar layout works correctly on all screen sizes
+6. Conduct accessibility testing with screen readers and keyboard navigation
+7. Test form validation in the new layout with both valid and invalid inputs
+8. Verify that all form data is still correctly collected and processed
+9. Test with Finnish language users to ensure translations are accurate and natural
+10. Perform cross-browser testing (Chrome, Firefox, Safari, Edge) to ensure consistent behavior
+11. Verify section status tracking (completed, active, locked) works correctly with appropriate visual feedback
+12. Test progress indicators at the top of the form to ensure they accurately reflect completion status
+13. Confirm Finnish completion status indicators ("✓ Valmis") display correctly for completed sections
+14. Verify submit button remains disabled until all sections are completed
+
+# Subtasks:
+## 1. Implement sequential completion logic for scrollable form [done]
+### Dependencies: None
+### Description: Added section status tracking (completed, active, locked) with visual feedback. Form now shows progress indicators at the top and locks sections until previous ones are completed.
+### Details:
+
+
+## 2. Add Finnish language completion indicators [done]
+### Dependencies: None
+### Description: Implemented "✓ Valmis" indicators for completed sections and added submit button validation to ensure all sections are completed before submission.
+### Details:
+
+
+## 3. Implement scrollable container for all form sections [in-progress]
+### Dependencies: None
+### Description: Refactor the existing form layout to display all sections in a single scrollable container while maintaining the sequential completion requirements.
+### Details:
+
+
+## 4. Add Finnish translations for all form fields and sections [to-do]
+### Dependencies: None
+### Description: Translate all form labels, placeholders, error messages, and section titles to Finnish according to the provided translations.
+### Details:
+
+
+## 5. Implement smooth scrolling between sections [to-do]
+### Dependencies: None
+### Description: Add smooth scrolling functionality to automatically move to the next section when a user completes the current section.
+### Details:
+
+
+## 6. Restructure page layout with 3D visualization and form sidebar [to-do]
+### Dependencies: None
+### Description: Update the page layout to show the 3D visualization on the left side and the scrollable form on the right sidebar.
+### Details:
+
+
+## 7. Add accessibility features for scrollable form [to-do]
+### Dependencies: None
+### Description: Implement keyboard navigation, focus management, and screen reader support for the new scrollable form layout.
+### Details:
+
+

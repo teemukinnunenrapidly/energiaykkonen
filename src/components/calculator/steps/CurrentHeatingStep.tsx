@@ -29,21 +29,20 @@ export function CurrentHeatingStep({ form }: CurrentHeatingStepProps) {
   const currentHeatingType = watch('heatingType');
 
   const heatingTypes = [
-    { value: 'electric', label: 'Electric Heating' },
-    { value: 'oil', label: 'Oil Heating' },
-    { value: 'district', label: 'District Heating' },
-    { value: 'other', label: 'Other' },
+    { value: 'electric', label: 'Sähkölämmitys' },
+    { value: 'oil', label: 'Öljylämmitys' },
+    { value: 'district', label: 'Kaukolämpö' },
+    { value: 'other', label: 'Muu' },
   ];
 
   return (
     <div className="space-y-4 sm:space-y-6">
       <div className="text-center mb-4 sm:mb-6">
         <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-2">
-          Your current heating system
+          Nykyinen lämmitysjärjestelmäsi
         </h3>
         <p className="text-sm sm:text-base text-gray-600 px-2 sm:px-0">
-          This helps us compare your current costs with potential heat pump
-          savings
+          Tämä auttaa vertailemaan nykyisiä kustannuksiasi lämpöpumpun potentiaalisiin säästöihin
         </p>
       </div>
 
@@ -54,7 +53,7 @@ export function CurrentHeatingStep({ form }: CurrentHeatingStepProps) {
             htmlFor="currentHeatingType"
             className="text-sm font-medium text-gray-700"
           >
-            Current Heating Type *
+            Nykyinen lämmitystapa *
           </Label>
           <Select
             value={currentHeatingType}
@@ -68,7 +67,7 @@ export function CurrentHeatingStep({ form }: CurrentHeatingStepProps) {
             <SelectTrigger
               className={`w-full ${errors.heatingType ? 'border-red-500' : ''}`}
             >
-              <SelectValue placeholder="Select your heating type" />
+              <SelectValue placeholder="Valitse lämmitystapasi" />
             </SelectTrigger>
             <SelectContent>
               {heatingTypes.map(type => (
@@ -89,7 +88,7 @@ export function CurrentHeatingStep({ form }: CurrentHeatingStepProps) {
             htmlFor="currentHeatingCost"
             className="text-sm font-medium text-gray-700"
           >
-            Annual Heating Cost (€) *
+            Vuosittaiset lämmityskustannukset (€) *
           </Label>
           <Input
             id="currentHeatingCost"
@@ -97,7 +96,7 @@ export function CurrentHeatingStep({ form }: CurrentHeatingStepProps) {
             min="100"
             max="10000"
             step="50"
-            placeholder="e.g., 2500"
+            placeholder="esim. 2500"
             {...register('annualHeatingCost', { valueAsNumber: true })}
             className={`w-full ${errors.annualHeatingCost ? 'border-red-500' : ''}`}
           />
@@ -107,7 +106,7 @@ export function CurrentHeatingStep({ form }: CurrentHeatingStepProps) {
             </p>
           )}
           <p className="text-xs text-gray-500">
-            Your total annual heating costs in euros
+            Kokonaiset vuosittaiset lämmityskustannuksesi euroissa
           </p>
         </div>
       </div>
@@ -117,13 +116,13 @@ export function CurrentHeatingStep({ form }: CurrentHeatingStepProps) {
         <Card className="bg-amber-50 border-amber-200 mx-2 sm:mx-0">
           <CardContent className="pt-4 px-4 sm:px-6">
             <p className="text-sm text-amber-800">
-              <strong>About {getHeatingTypeLabel(currentHeatingType)}:</strong>{' '}
+              <strong>Tietoa {getHeatingTypeLabel(currentHeatingType)}:</strong>{' '}
               {currentHeatingType === 'electric' &&
-                'Electric heating is typically the most expensive option. A heat pump could reduce your costs by 60-80%.'}
+                'Sähkölämmitys on tyypillisesti kallein vaihtoehto. Lämpöpumppu voi vähentää kustannuksiasi 60-80%.'}
               {currentHeatingType === 'oil' &&
-                'Oil heating costs fluctuate with market prices. A heat pump provides stable, predictable costs.'}
+                'Öljylämmityksen kustannukset vaihtelevat markkinahintojen mukaan. Lämpöpumppu tarjoaa vakaat, ennakoitavat kustannukset.'}
               {currentHeatingType === 'district' &&
-                'District heating is convenient but you have limited control. A heat pump gives you independence.'}
+                'Kaukolämpö on käytännöllinen, mutta sinulla on rajoitettu kontrolli. Lämpöpumppu antaa sinulle itsenäisyyden.'}
             </p>
           </CardContent>
         </Card>
@@ -133,10 +132,7 @@ export function CurrentHeatingStep({ form }: CurrentHeatingStepProps) {
       <Card className="bg-blue-50 border-blue-200 mx-2 sm:mx-0">
         <CardContent className="pt-4 px-4 sm:px-6">
           <p className="text-sm text-blue-800">
-            <strong>Why this matters:</strong> Your current heating costs are
-            the baseline for calculating potential savings. The higher your
-            current costs, the more you can potentially save with a heat pump
-            system.
+            <strong>Miksi tämä on tärkeää:</strong> Nykyiset lämmityskustannuksesi ovat perusta potentiaalisten säästöjen laskemiselle. Mitä korkeammat nykyiset kustannuksesi ovat, sitä enemmän voit säästää lämpöpumpulla.
           </p>
         </CardContent>
       </Card>

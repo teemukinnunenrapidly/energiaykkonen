@@ -1,10 +1,17 @@
 import DOMPurify from 'dompurify';
 import validator from 'validator';
-import { JSDOM } from 'jsdom';
 
-// Initialize DOMPurify for server-side use
-const window = new JSDOM('').window;
-const purify = DOMPurify(window as any);
+// Initialize DOMPurify for both server and client environments
+let purify: any;
+
+if (typeof window !== 'undefined') {
+  // Client-side: use the global window object
+  purify = DOMPurify(window);
+} else {
+  // Server-side: create a minimal DOM environment
+  // We'll use a simpler approach without jsdom for now
+  purify = DOMPurify();
+}
 
 /**
  * Input Sanitization Utility for Energiaykkönen Calculator

@@ -21,11 +21,10 @@ export function BasicInfoStep({ form }: BasicInfoStepProps) {
     <div className="space-y-4 sm:space-y-6">
       <div className="text-center mb-4 sm:mb-6">
         <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-2">
-          Tell us about yourself
+          Kerro itsestäsi
         </h3>
         <p className="text-sm sm:text-base text-gray-600 px-2 sm:px-0">
-          We&apos;ll use this information to send you your personalized
-          calculation results
+          Käytämme näitä tietoja lähettääksemme sinulle henkilökohtaiset laskelmatulokset
         </p>
       </div>
 
@@ -36,12 +35,12 @@ export function BasicInfoStep({ form }: BasicInfoStepProps) {
             htmlFor="firstName"
             className="text-sm font-medium text-gray-700"
           >
-            First Name *
+            Etunimi *
           </Label>
           <Input
             id="firstName"
             type="text"
-            placeholder="Enter your first name"
+            placeholder="Syötä etunimesi"
             {...register('firstName')}
             className={`w-full ${errors.firstName ? 'border-red-500' : ''}`}
           />
@@ -56,12 +55,12 @@ export function BasicInfoStep({ form }: BasicInfoStepProps) {
             htmlFor="lastName"
             className="text-sm font-medium text-gray-700"
           >
-            Last Name *
+            Sukunimi *
           </Label>
           <Input
             id="lastName"
             type="text"
-            placeholder="Enter your last name"
+            placeholder="Syötä sukunimesi"
             {...register('lastName')}
             className={`w-full ${errors.lastName ? 'border-red-500' : ''}`}
           />
@@ -73,12 +72,12 @@ export function BasicInfoStep({ form }: BasicInfoStepProps) {
         {/* Email Field */}
         <div className="space-y-2">
           <Label htmlFor="email" className="text-sm font-medium text-gray-700">
-            Email Address *
+            Sähköpostiosoite *
           </Label>
           <Input
             id="email"
             type="email"
-            placeholder="your.email@example.com"
+            placeholder="sähköposti@esimerkki.fi"
             {...register('email')}
             className={`w-full ${errors.email ? 'border-red-500' : ''}`}
           />
@@ -90,7 +89,7 @@ export function BasicInfoStep({ form }: BasicInfoStepProps) {
         {/* Phone Field */}
         <div className="space-y-2">
           <Label htmlFor="phone" className="text-sm font-medium text-gray-700">
-            Phone Number *
+            Puhelinnumero *
           </Label>
           <Input
             id="phone"
@@ -110,12 +109,12 @@ export function BasicInfoStep({ form }: BasicInfoStepProps) {
             htmlFor="streetAddress"
             className="text-sm font-medium text-gray-700"
           >
-            Street Address (Optional)
+            Katuosoite (valinnainen)
           </Label>
           <Input
             id="streetAddress"
             type="text"
-            placeholder="Street address"
+            placeholder="Katuosoite"
             {...register('streetAddress')}
             className={`w-full ${errors.streetAddress ? 'border-red-500' : ''}`}
           />
@@ -129,12 +128,12 @@ export function BasicInfoStep({ form }: BasicInfoStepProps) {
         {/* City Field */}
         <div className="space-y-2">
           <Label htmlFor="city" className="text-sm font-medium text-gray-700">
-            City (Optional)
+            Paikkakunta (valinnainen)
           </Label>
           <Input
             id="city"
             type="text"
-            placeholder="City"
+            placeholder="Paikkakunta"
             {...register('city')}
             className={`w-full ${errors.city ? 'border-red-500' : ''}`}
           />
@@ -149,17 +148,17 @@ export function BasicInfoStep({ form }: BasicInfoStepProps) {
             htmlFor="contactPreference"
             className="text-sm font-medium text-gray-700"
           >
-            Preferred Contact Method *
+            Suosikkiyhteystapa *
           </Label>
           <select
             id="contactPreference"
             {...register('contactPreference')}
             className={`w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${errors.contactPreference ? 'border-red-500' : 'border-gray-300'}`}
           >
-            <option value="">Select contact preference</option>
-            <option value="email">Email only</option>
-            <option value="phone">Phone only</option>
-            <option value="both">Both email and phone</option>
+            <option value="">Valitse yhteystapa</option>
+            <option value="email">Vain sähköposti</option>
+            <option value="phone">Vain puhelin</option>
+            <option value="both">Sekä sähköposti että puhelin</option>
           </select>
           {errors.contactPreference && (
             <p className="text-sm text-red-600">
@@ -174,11 +173,11 @@ export function BasicInfoStep({ form }: BasicInfoStepProps) {
             htmlFor="message"
             className="text-sm font-medium text-gray-700"
           >
-            Additional Message (Optional)
+            Lisätietoja (valinnainen)
           </Label>
           <textarea
             id="message"
-            placeholder="Any additional information or specific questions..."
+            placeholder="Mahdollisia lisätietoja tai erityiskysymyksiä..."
             {...register('message')}
             className={`w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 min-h-[80px] resize-y ${errors.message ? 'border-red-500' : 'border-gray-300'}`}
           />
@@ -192,7 +191,7 @@ export function BasicInfoStep({ form }: BasicInfoStepProps) {
       <Card className="bg-gray-50 border-gray-200 mx-2 sm:mx-0">
         <CardContent className="pt-4 px-4 sm:px-6">
           <h4 className="font-semibold text-gray-900 mb-3 text-sm">
-            Data Protection & Privacy
+            Tietosuoja ja yksityisyys
           </h4>
 
           {/* Required GDPR Consent */}
@@ -208,17 +207,16 @@ export function BasicInfoStep({ form }: BasicInfoStepProps) {
                   htmlFor="gdprConsent"
                   className="text-sm font-medium text-gray-700 cursor-pointer"
                 >
-                  I agree to the{' '}
+                  Hyväksyn{' '}
                   <a
                     href="/privacy"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="text-blue-600 hover:text-blue-800 underline"
                   >
-                    Privacy Policy
+                    tietosuojaselosteen
                   </a>{' '}
-                  and consent to the processing of my personal data for heat
-                  pump calculation and consultation services. *
+                  ja suostun henkilötietojeni käsittelyyn lämpöpumpun laskelmaa ja neuvontapalveluja varten. *
                 </Label>
                 {errors.gdprConsent && (
                   <p className="text-sm text-red-600 mt-1">
@@ -239,9 +237,7 @@ export function BasicInfoStep({ form }: BasicInfoStepProps) {
                   htmlFor="marketingConsent"
                   className="text-sm text-gray-600 cursor-pointer"
                 >
-                  I would like to receive marketing communications about heat
-                  pump solutions, energy-saving tips, and special offers via
-                  email and phone. (Optional - you can unsubscribe at any time)
+                  Haluan vastaanottaa markkinointiviestintää lämpöpumpun ratkaisuista, energiansäästövinkeistä ja erikoistarjouksista sähköpostilla ja puhelimella. (Valinnainen - voit perua tilauksen milloin tahansa)
                 </Label>
               </div>
             </div>
@@ -249,10 +245,7 @@ export function BasicInfoStep({ form }: BasicInfoStepProps) {
 
           <div className="mt-4 pt-3 border-t border-gray-200">
             <p className="text-xs text-gray-600">
-              <strong>Why do we need this information?</strong> We&apos;ll send
-              you a detailed calculation report and our sales team may contact
-              you to discuss heat pump options that match your needs. Your data
-              is processed securely according to GDPR regulations.
+              <strong>Miksi tarvitsemme nämä tiedot?</strong> Lähetämme sinulle yksityiskohtaisen laskelmaraportin ja myyntitiimimme saattaa ottaa sinuun yhteyttä keskustellakseen lämpöpumpun vaihtoehdoista, jotka vastaavat tarpeitasi. Tietojasi käsitellään turvallisesti GDPR-säädösten mukaisesti.
             </p>
           </div>
         </CardContent>

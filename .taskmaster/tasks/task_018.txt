@@ -1,0 +1,183 @@
+# Task ID: 18
+# Title: Build Brand Customization System for Calculator in Admin Panel
+# Status: pending
+# Dependencies: 9, 17
+# Priority: medium
+# Description: Develop a comprehensive appearance customization section in the admin panel that allows administrators to fully customize the calculator's visual appearance to match their brand identity without requiring code changes.
+# Details:
+- Create a new section in the admin panel dedicated to theme customization
+- Implement a theme presets system with:
+  * Default Energia Ykkönen theme
+  * Ability to create and save custom themes
+  * Theme preview functionality
+- Develop comprehensive color customization controls:
+  * Brand colors (primary, secondary, accent)
+  * UI colors (background, surface, border)
+  * Semantic colors (success, warning, error, info)
+  * Component-specific color overrides
+- Add typography customization options:
+  * Font family selection (with web font integration)
+  * Font size scale controls
+  * Font weight, line height, and letter spacing adjustments
+- Implement layout and spacing controls:
+  * Container width and padding settings
+  * Spacing scale configuration
+  * Border radius and shadow customization
+  * Animation and transition timing
+- Build component-specific customization panels:
+  * Button styles (variants, states, sizes)
+  * Form field appearance
+  * Card and container styling
+  * Progress indicators and navigation elements
+- Create a live preview system:
+  * Real-time updates as settings change
+  * Device preview modes (desktop, tablet, mobile)
+  * Side-by-side comparison with current theme
+- Develop theme import/export functionality:
+  * JSON format for theme data
+  * CSS variable export
+  * SASS variables export
+  * Tailwind config export
+- Implement A/B testing support:
+  * Create theme variants
+  * Set testing parameters and goals
+  * View performance metrics
+- Add brand asset management:
+  * Logo upload and positioning
+  * Custom image library
+  * Icon set customization
+- Build an undo/redo system for theme changes
+- Integrate accessibility validation tools:
+  * Color contrast checker
+  * WCAG compliance warnings
+  * Accessibility score
+- Generate CSS variables for instant theme application
+- Ensure all customizations persist in the database and apply without requiring code changes or redeployment
+
+# Test Strategy:
+1. Verify the brand customization section appears correctly in the admin panel
+2. Test the theme presets system:
+   - Confirm default Energia Ykkönen theme loads correctly
+   - Create a new custom theme and verify it saves properly
+   - Switch between themes and verify changes apply correctly
+3. Test each customization category:
+   - Modify colors and verify they update in real-time
+   - Change typography settings and confirm they apply correctly
+   - Adjust spacing and layout controls and verify visual changes
+   - Customize component styles and check rendering
+4. Validate the live preview system:
+   - Confirm changes appear in real-time
+   - Test each device preview mode
+   - Verify side-by-side comparison functionality
+5. Test import/export features:
+   - Export a theme to each format (JSON, CSS, SASS, Tailwind)
+   - Import a previously exported theme
+   - Verify all settings are preserved during export/import
+6. Test A/B testing functionality:
+   - Create multiple theme variants
+   - Set up a test scenario
+   - Verify metrics collection
+7. Verify brand asset management:
+   - Upload logos and images
+   - Position and resize assets
+   - Confirm they appear correctly in the calculator
+8. Test undo/redo functionality:
+   - Make multiple changes and undo them
+   - Redo previously undone changes
+   - Verify state is maintained correctly
+9. Validate accessibility tools:
+   - Test contrast checker with various color combinations
+   - Verify WCAG compliance warnings appear for inaccessible choices
+   - Confirm accessibility score updates based on changes
+10. Test CSS variable generation:
+    - Inspect generated CSS variables
+    - Verify they apply correctly to the calculator
+11. Perform cross-browser testing (Chrome, Firefox, Safari, Edge)
+12. Test on mobile admin interfaces
+13. Verify all customizations persist after logout/login
+
+# Subtasks:
+## 1. Design Theme Presets System [pending]
+### Dependencies: None
+### Description: Create a system to manage theme presets, including a default theme, the ability to create and save custom themes, and theme preview functionality.
+### Details:
+Define data structures for theme presets, implement UI for selecting and managing themes, and ensure preview updates in real time.
+
+## 2. Develop Color Customization Controls [pending]
+### Dependencies: 18.1
+### Description: Implement controls for customizing brand, UI, semantic, and component-specific colors.
+### Details:
+Provide color pickers and input fields for each color category, with live preview integration.
+
+## 3. Add Typography Customization Options [pending]
+### Dependencies: 18.1
+### Description: Enable administrators to adjust font family, size, weight, line height, and letter spacing.
+### Details:
+Integrate web font selection, sliders or input fields for typography settings, and preview updates.
+
+## 4. Implement Layout and Spacing Controls [pending]
+### Dependencies: 18.1
+### Description: Allow customization of container width, padding, spacing scale, border radius, shadow, and animation timing.
+### Details:
+Develop UI controls for layout and spacing, and ensure changes reflect in the live preview.
+
+## 5. Build Component-Specific Styling Panels [pending]
+### Dependencies: 18.2, 18.3, 18.4
+### Description: Create dedicated panels for customizing buttons, form fields, cards, progress indicators, and navigation elements.
+### Details:
+Each panel should expose relevant style options and override global theme settings as needed.
+
+## 6. Develop Live Preview System [pending]
+### Dependencies: 18.2, 18.3, 18.4, 18.5
+### Description: Implement a real-time preview that updates as customization settings change.
+### Details:
+Ensure the preview reflects all appearance changes and supports device preview modes.
+
+## 7. Implement Device Preview Modes [pending]
+### Dependencies: 18.6
+### Description: Add functionality to preview the calculator appearance on desktop, tablet, and mobile devices.
+### Details:
+Provide toggles or tabs for switching between device views within the live preview.
+
+## 8. Develop Theme Import/Export Functionality [pending]
+### Dependencies: 18.1, 18.2, 18.3, 18.4, 18.5
+### Description: Enable administrators to import and export themes in JSON, CSS variable, SASS, and Tailwind config formats.
+### Details:
+Implement file upload/download, format conversion, and validation for theme data.
+
+## 9. Implement A/B Testing Support [pending]
+### Dependencies: 18.1, 18.8
+### Description: Allow creation of theme variants, setting of testing parameters, and viewing of performance metrics.
+### Details:
+Integrate with analytics to track variant performance and provide UI for managing tests.
+
+## 10. Add Brand Asset Management [pending]
+### Dependencies: 18.1
+### Description: Provide tools for uploading and positioning logos, managing a custom image library, and customizing icon sets.
+### Details:
+Support image uploads, drag-and-drop positioning, and icon selection or upload.
+
+## 11. Build Undo/Redo System for Theme Changes [pending]
+### Dependencies: 18.2, 18.3, 18.4, 18.5, 18.10
+### Description: Implement undo and redo functionality for all theme customization actions.
+### Details:
+Track changes in a history stack and provide UI controls for navigating change history.
+
+## 12. Integrate Accessibility Validation Tools [pending]
+### Dependencies: 18.2, 18.3, 18.4, 18.5, 18.6
+### Description: Add tools for color contrast checking, WCAG compliance warnings, and accessibility scoring.
+### Details:
+Display validation results in real time and suggest improvements where possible.
+
+## 13. Generate CSS Variables for Theme Application [pending]
+### Dependencies: 18.2, 18.3, 18.4, 18.5
+### Description: Automatically generate and apply CSS variables based on current theme settings for instant application.
+### Details:
+Ensure all customization options map to CSS variables and update dynamically.
+
+## 14. Implement Persistence Logic for Customizations [pending]
+### Dependencies: 18.1, 18.2, 18.3, 18.4, 18.5, 18.8, 18.10, 18.13
+### Description: Ensure all theme customizations are saved to and loaded from the database, applying changes without code redeployment.
+### Details:
+Integrate with backend APIs for saving/loading, and ensure seamless user experience.
+

@@ -20,11 +20,10 @@ export function PropertyDetailsStep({ form }: PropertyDetailsStepProps) {
     <div className="space-y-4 sm:space-y-6">
       <div className="text-center mb-4 sm:mb-6">
         <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-2">
-          About your property
+          Kiinteistösi tiedot
         </h3>
         <p className="text-sm sm:text-base text-gray-600 px-2 sm:px-0">
-          These details help us calculate your energy needs and potential
-          savings
+          Nämä tiedot auttavat laskemaan energiantarpeesi ja potentiaaliset säästösi
         </p>
       </div>
 
@@ -35,7 +34,7 @@ export function PropertyDetailsStep({ form }: PropertyDetailsStepProps) {
             htmlFor="squareMeters"
             className="text-sm font-medium text-gray-700"
           >
-            Living Area (m²) *
+            Asuintila (m²) *
           </Label>
           <Input
             id="squareMeters"
@@ -43,7 +42,7 @@ export function PropertyDetailsStep({ form }: PropertyDetailsStepProps) {
             min="20"
             max="1000"
             step="1"
-            placeholder="e.g., 120"
+            placeholder="esim. 120"
             {...register('squareMeters', { valueAsNumber: true })}
             className={`w-full ${errors.squareMeters ? 'border-red-500' : ''}`}
           />
@@ -53,7 +52,7 @@ export function PropertyDetailsStep({ form }: PropertyDetailsStepProps) {
             </p>
           )}
           <p className="text-xs text-gray-500">
-            Total heated living area in square meters
+            Kokonaislämmitetty asuintila neliömetreissä
           </p>
         </div>
 
@@ -63,7 +62,7 @@ export function PropertyDetailsStep({ form }: PropertyDetailsStepProps) {
             htmlFor="ceilingHeight"
             className="text-sm font-medium text-gray-700"
           >
-            Ceiling Height (m) *
+            Katokorkeus (m) *
           </Label>
           <Input
             id="ceilingHeight"
@@ -71,7 +70,7 @@ export function PropertyDetailsStep({ form }: PropertyDetailsStepProps) {
             min="2.0"
             max="4.0"
             step="0.1"
-            placeholder="e.g., 2.7"
+            placeholder="esim. 2.7"
             {...register('ceilingHeight', { valueAsNumber: true })}
             className={`w-full ${errors.ceilingHeight ? 'border-red-500' : ''}`}
           />
@@ -81,7 +80,7 @@ export function PropertyDetailsStep({ form }: PropertyDetailsStepProps) {
             </p>
           )}
           <p className="text-xs text-gray-500">
-            Average ceiling height in meters (typically 2.4-3.0m)
+            Keskimääräinen katokorkeus metreissä (tyypillisesti 2.4-3.0m)
           </p>
         </div>
 
@@ -91,7 +90,7 @@ export function PropertyDetailsStep({ form }: PropertyDetailsStepProps) {
             htmlFor="residents"
             className="text-sm font-medium text-gray-700"
           >
-            Number of Residents *
+            Asukkaiden määrä *
           </Label>
           <Input
             id="residents"
@@ -99,7 +98,7 @@ export function PropertyDetailsStep({ form }: PropertyDetailsStepProps) {
             min="1"
             max="20"
             step="1"
-            placeholder="e.g., 4"
+            placeholder="esim. 4"
             {...register('residents', { valueAsNumber: true })}
             className={`w-full ${errors.residents ? 'border-red-500' : ''}`}
           />
@@ -107,7 +106,7 @@ export function PropertyDetailsStep({ form }: PropertyDetailsStepProps) {
             <p className="text-sm text-red-600">{errors.residents.message}</p>
           )}
           <p className="text-xs text-gray-500">
-            Total number of people living in the property
+            Kiinteistössä asuvien henkilöiden kokonaismäärä
           </p>
         </div>
       </div>
@@ -116,10 +115,7 @@ export function PropertyDetailsStep({ form }: PropertyDetailsStepProps) {
       <Card className="bg-green-50 border-green-200 mx-2 sm:mx-0">
         <CardContent className="pt-4 px-4 sm:px-6">
           <p className="text-sm text-green-800">
-            <strong>How this affects your calculation:</strong> Larger
-            properties and more residents typically mean higher energy
-            consumption, but also greater potential savings with a heat pump
-            system.
+            <strong>Miten tämä vaikuttaa laskelmaasi:</strong> Suuremmat kiinteistöt ja enemmän asukkaita tarkoittavat tyypillisesti korkeampaa energiankulutusta, mutta myös suurempia potentiaalisia säästöjä lämpöpumpulla.
           </p>
         </CardContent>
       </Card>

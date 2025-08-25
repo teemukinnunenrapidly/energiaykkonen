@@ -1,0 +1,49 @@
+# Task ID: 3
+# Title: Design Responsive Multi-Step Form UI
+# Status: done
+# Dependencies: 2
+# Priority: high
+# Description: Implement a mobile-first, multi-step form using shadcn/ui, React Hook Form, and Tailwind CSS, matching the PRD's UX and accessibility requirements.
+# Details:
+- Build four steps: House Info, Current Heating, Household, Contact Info.
+- Use shadcn/ui components (Input, Select, Radio, ProgressBar, Button).
+- Group related fields, use clear labels, and add placeholder/help text.
+- Implement progress bar and back/next navigation.
+- Ensure touch targets (min 44px), single-column mobile layout, and responsive breakpoints (640px, 768px, 1024px).
+- Add accessibility attributes (aria-labels, focus states).
+- Use Inter font and color palette from PRD.
+
+# Test Strategy:
+Test on Chrome, Firefox, Safari, Edge, iOS Safari, and Android Chrome. Validate accessibility with screen readers and keyboard navigation. Check responsiveness at all breakpoints.
+
+# Subtasks:
+## 1. Define Multi-Step Form Structure and Navigation [done]
+### Dependencies: None
+### Description: Outline the four-step form flow (House Info, Current Heating, Household, Contact Info), specifying the fields, step order, and navigation logic (next/back).
+### Details:
+Document the fields for each step, determine how steps are grouped, and define the navigation logic to move between steps. Ensure the structure supports validation and progress tracking.
+
+## 2. Implement Step Components Using shadcn/ui and React Hook Form [done]
+### Dependencies: 3.1
+### Description: Develop individual React components for each form step using shadcn/ui components (Input, Select, Radio, ProgressBar, Button) and integrate with React Hook Form.
+### Details:
+For each step, use shadcn/ui components to build the UI, connect fields to React Hook Form, and ensure clear labels, placeholders, and help text are present. Integrate the progress bar and navigation controls.
+
+## 3. Enhance Accessibility for All Form Steps [done]
+### Dependencies: 3.2
+### Description: Add accessibility features such as aria-labels, focus states, and ensure all interactive elements meet accessibility standards.
+### Details:
+Review each component to add appropriate aria attributes, ensure keyboard navigation works, and verify that focus indicators are visible. Confirm that all touch targets are at least 44px.
+
+## 4. Design and Implement Responsive Layout [done]
+### Dependencies: 3.2
+### Description: Apply Tailwind CSS to achieve a mobile-first, single-column layout with responsive breakpoints at 640px, 768px, and 1024px.
+### Details:
+Ensure the form adapts to different screen sizes, maintains usability on mobile devices, and follows the specified breakpoints. Test layout on various devices and browsers.
+
+## 5. Integrate PRD-Specified Styles (Font and Color Palette) [done]
+### Dependencies: 3.2
+### Description: Apply the Inter font and the color palette defined in the PRD across all form steps and components.
+### Details:
+Update Tailwind configuration and component styles to use the Inter font and PRD color palette. Verify visual consistency and adherence to design requirements.
+
