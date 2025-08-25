@@ -141,16 +141,24 @@ export function FormRenderer({
 
   // Check if section is accessible (all previous sections completed)
   const isSectionAccessible = (section: FormSection) => {
-    if (section.order === 0) return true;
-    
-    const previousSections = currentPage.sections.filter(s => s.order < section.order);
+    if (section.order === 0) {
+      return true;
+    }
+
+    const previousSections = currentPage.sections.filter(
+      s => s.order < section.order
+    );
     return previousSections.every(s => state.completedSections.has(s.id));
   };
 
   // Get section status
   const getSectionStatus = (section: FormSection) => {
-    if (!isSectionAccessible(section)) return 'locked';
-    if (state.completedSections.has(section.id)) return 'completed';
+    if (!isSectionAccessible(section)) {
+      return 'locked';
+    }
+    if (state.completedSections.has(section.id)) {
+      return 'completed';
+    }
     return 'pending';
   };
 
@@ -184,8 +192,8 @@ export function FormRenderer({
       case 'phone':
         return (
           <div key={field.id} className="mb-6">
-            <Label 
-              htmlFor={field.id} 
+            <Label
+              htmlFor={field.id}
               className="block text-sm font-medium text-gray-700 mb-2 transition-colors duration-200"
             >
               {field.label}
@@ -214,8 +222,8 @@ export function FormRenderer({
       case 'percentage':
         return (
           <div key={field.id} className="mb-6">
-            <Label 
-              htmlFor={field.id} 
+            <Label
+              htmlFor={field.id}
               className="block text-sm font-medium text-gray-700 mb-2 transition-colors duration-200"
             >
               {field.label}
@@ -242,8 +250,8 @@ export function FormRenderer({
       case 'textarea':
         return (
           <div key={field.id} className="mb-6">
-            <Label 
-              htmlFor={field.id} 
+            <Label
+              htmlFor={field.id}
               className="block text-sm font-medium text-gray-700 mb-2 transition-colors duration-200"
             >
               {field.label}
@@ -269,8 +277,8 @@ export function FormRenderer({
       case 'select':
         return (
           <div key={field.id} className="mb-6">
-            <Label 
-              htmlFor={field.id} 
+            <Label
+              htmlFor={field.id}
               className="block text-sm font-medium text-gray-700 mb-2 transition-colors duration-200"
             >
               {field.label}
@@ -375,8 +383,8 @@ export function FormRenderer({
       default:
         return (
           <div key={field.id} className="mb-6">
-            <Label 
-              htmlFor={field.id} 
+            <Label
+              htmlFor={field.id}
               className="block text-sm font-medium text-gray-700 mb-2 transition-colors duration-200"
             >
               {field.label}
@@ -412,9 +420,7 @@ export function FormRenderer({
       <div
         key={section.id}
         className={`group transition-all duration-300 ${
-          !isAccessible
-            ? 'opacity-50 pointer-events-none'
-            : ''
+          !isAccessible ? 'opacity-50 pointer-events-none' : ''
         }`}
       >
         <div className="pb-6">
@@ -490,10 +496,7 @@ export function FormRenderer({
           <div className="flex justify-center mt-6">
             <div className="flex space-x-4">
               {schema.pages.map((page, index) => (
-                <div
-                  key={page.id}
-                  className="flex flex-col items-center group"
-                >
+                <div key={page.id} className="flex flex-col items-center group">
                   <div
                     className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-semibold transition-all duration-300 transform group-hover:scale-110 cursor-pointer ${
                       index === state.currentPageIndex

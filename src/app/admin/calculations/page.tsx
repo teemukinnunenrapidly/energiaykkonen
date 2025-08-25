@@ -128,7 +128,7 @@ export default function AdminCalculationsPage() {
 
       const updatedFormula = await updateFormula({
         id: editingFormula.id,
-        ...formulaForm
+        ...formulaForm,
       });
       setFormulas(
         formulas.map(f => (f.id === editingFormula.id ? updatedFormula : f))

@@ -40,7 +40,10 @@ export const calculatorFormSchema: FormSchema = {
               ],
               validation: {
                 rules: [
-                  { type: 'required', message: 'Kiinteistön tyyppi on pakollinen' },
+                  {
+                    type: 'required',
+                    message: 'Kiinteistön tyyppi on pakollinen',
+                  },
                 ],
               },
               styling: { width: 'full', variant: 'outline' },

@@ -69,8 +69,13 @@ const INITIAL_FORM_STRUCTURE: FormSchema = {
               helpText: 'Choose the type of property you own',
               required: true,
               enabled: true,
-              options: ['Detached House', 'Row House', 'Semi-Detached', 'Apartment'],
-              validation: { required: true }
+              options: [
+                'Detached House',
+                'Row House',
+                'Semi-Detached',
+                'Apartment',
+              ],
+              validation: { required: true },
             },
             {
               id: 'square-meters',
@@ -78,7 +83,7 @@ const INITIAL_FORM_STRUCTURE: FormSchema = {
               label: 'Square Meters',
               required: true,
               enabled: true,
-              validation: { required: true, min: 10, max: 10000 }
+              validation: { required: true, min: 10, max: 10000 },
             },
             {
               id: 'construction-year',
@@ -86,18 +91,23 @@ const INITIAL_FORM_STRUCTURE: FormSchema = {
               label: 'Construction Year',
               required: true,
               enabled: true,
-              validation: { required: true, min: 1900, max: new Date().getFullYear() }
-            }
-          ]
-        }
-      ]
-    }
-  ]
+              validation: {
+                required: true,
+                min: 1900,
+                max: new Date().getFullYear(),
+              },
+            },
+          ],
+        },
+      ],
+    },
+  ],
 };
 
 export default function FormBuilderPage() {
-  const [formStructure, setFormStructure] =
-    useState<FormSchema>(INITIAL_FORM_STRUCTURE);
+  const [formStructure, setFormStructure] = useState<FormSchema>(
+    INITIAL_FORM_STRUCTURE
+  );
   const [selectedField, setSelectedField] = useState<FormField | null>(null);
   const [selectedSection, setSelectedSection] = useState<FormSection | null>(
     null

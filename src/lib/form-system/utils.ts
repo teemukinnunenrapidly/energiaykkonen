@@ -64,9 +64,13 @@ export function validateFormSchema(schema: FormSchema): {
         }
 
         if (field.validation?.rules) {
-          const minRule = field.validation.rules.find(rule => rule.type === 'min');
-          const maxRule = field.validation.rules.find(rule => rule.type === 'max');
-          
+          const minRule = field.validation.rules.find(
+            rule => rule.type === 'min'
+          );
+          const maxRule = field.validation.rules.find(
+            rule => rule.type === 'max'
+          );
+
           if (
             minRule?.value !== undefined &&
             maxRule?.value !== undefined &&
@@ -94,16 +98,30 @@ export function schemaToZod(schema: FormSchema): z.ZodObject<any> {
   schema.pages.forEach(page => {
     page.sections.forEach(section => {
       section.fields.forEach(field => {
-        let fieldSchema: z.ZodString | z.ZodNumber | z.ZodBoolean | z.ZodEnum<any> | z.ZodOptional<z.ZodString> | z.ZodOptional<z.ZodNumber> | z.ZodOptional<z.ZodBoolean> | z.ZodOptional<z.ZodEnum<any>>;
+        let fieldSchema:
+          | z.ZodString
+          | z.ZodNumber
+          | z.ZodBoolean
+          | z.ZodEnum<any>
+          | z.ZodOptional<z.ZodString>
+          | z.ZodOptional<z.ZodNumber>
+          | z.ZodOptional<z.ZodBoolean>
+          | z.ZodOptional<z.ZodEnum<any>>;
 
         switch (field.type) {
           case 'text':
           case 'textarea':
             fieldSchema = z.string();
-            const minLengthRule = field.validation?.rules?.find(rule => rule.type === 'min');
-            const maxLengthRule = field.validation?.rules?.find(rule => rule.type === 'max');
-            const patternRule = field.validation?.rules?.find(rule => rule.type === 'pattern');
-            
+            const minLengthRule = field.validation?.rules?.find(
+              rule => rule.type === 'min'
+            );
+            const maxLengthRule = field.validation?.rules?.find(
+              rule => rule.type === 'max'
+            );
+            const patternRule = field.validation?.rules?.find(
+              rule => rule.type === 'pattern'
+            );
+
             if (minLengthRule?.value !== undefined) {
               fieldSchema = fieldSchema.min(minLengthRule.value);
             }
@@ -111,17 +129,19 @@ export function schemaToZod(schema: FormSchema): z.ZodObject<any> {
               fieldSchema = fieldSchema.max(maxLengthRule.value);
             }
             if (patternRule?.value) {
-              fieldSchema = fieldSchema.regex(
-                new RegExp(patternRule.value)
-              );
+              fieldSchema = fieldSchema.regex(new RegExp(patternRule.value));
             }
             break;
 
           case 'email':
             fieldSchema = z.string().email();
-            const emailMinLengthRule = field.validation?.rules?.find(rule => rule.type === 'min');
-            const emailMaxLengthRule = field.validation?.rules?.find(rule => rule.type === 'max');
-            
+            const emailMinLengthRule = field.validation?.rules?.find(
+              rule => rule.type === 'min'
+            );
+            const emailMaxLengthRule = field.validation?.rules?.find(
+              rule => rule.type === 'max'
+            );
+
             if (emailMinLengthRule?.value !== undefined) {
               fieldSchema = fieldSchema.min(emailMinLengthRule.value);
             }
@@ -132,9 +152,13 @@ export function schemaToZod(schema: FormSchema): z.ZodObject<any> {
 
           case 'number':
             fieldSchema = z.number();
-            const numberMinRule = field.validation?.rules?.find(rule => rule.type === 'min');
-            const numberMaxRule = field.validation?.rules?.find(rule => rule.type === 'max');
-            
+            const numberMinRule = field.validation?.rules?.find(
+              rule => rule.type === 'min'
+            );
+            const numberMaxRule = field.validation?.rules?.find(
+              rule => rule.type === 'max'
+            );
+
             if (numberMinRule?.value !== undefined) {
               fieldSchema = fieldSchema.min(numberMinRule.value);
             }

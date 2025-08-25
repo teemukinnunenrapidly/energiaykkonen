@@ -436,7 +436,9 @@ export function EnergyCalculatorDemo() {
                         <p className="mt-1 text-sm text-red-600">
                           {(() => {
                             const error = form.formState.errors[field.name];
-                            return typeof error?.message === 'string' ? error.message : 'Invalid input';
+                            return typeof error?.message === 'string'
+                              ? error.message
+                              : 'Invalid input';
                           })()}
                         </p>
                       )}

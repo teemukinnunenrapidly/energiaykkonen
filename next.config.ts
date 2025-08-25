@@ -3,10 +3,13 @@ import type { NextConfig } from 'next';
 const nextConfig: NextConfig = {
   /* config options here */
   eslint: {
-    // Warning: This allows production builds to successfully complete even if
-    // your project has ESLint errors.
+    // Temporarily ignore during builds to get the app working
+    // We'll fix these errors systematically after deployment
     ignoreDuringBuilds: true,
   },
+
+  // Enable strict mode for better error detection
+  reactStrictMode: true,
 
   // Security headers for SSL enforcement and security best practices
   async headers() {
