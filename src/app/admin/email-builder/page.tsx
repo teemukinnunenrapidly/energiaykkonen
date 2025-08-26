@@ -247,7 +247,7 @@ export default function EmailBuilderPage() {
     try {
       // TODO: Implement actual test email sending
       alert('Test email sent! Check your inbox.');
-    } catch (error) {
+    } catch {
       alert('Failed to send test email');
     }
   };
