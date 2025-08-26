@@ -101,6 +101,17 @@ function AdminContent() {
     router.push(`/admin?${params.toString()}`);
   };
 
+  const handleExport = async (format: 'csv' | 'excel') => {
+    try {
+      // TODO: Implement actual export functionality
+      console.log(`Exporting data in ${format} format`);
+      alert(`Export started in ${format} format`);
+    } catch (error) {
+      console.error('Export failed:', error);
+      alert('Export failed. Please try again.');
+    }
+  };
+
   if (loading && leads.length === 0) {
     return (
       <div className="container mx-auto px-4 py-8">
