@@ -79,7 +79,6 @@ const useThemeSettings = () => {
 export default function AdminPreviewPage() {
   const [isMobileView, setIsMobileView] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
-  const [currentStep, setCurrentStep] = useState(1);
   const [formSchema, setFormSchema] = useState<FormSchema | null>(null);
   const [isLoadingForm, setIsLoadingForm] = useState(true);
   const pageRef = useRef<HTMLDivElement>(null);
@@ -123,9 +122,7 @@ export default function AdminPreviewPage() {
 
   // Get form data from the actual schema (or fallback to default)
   const currentFormSchema = formSchema || calculatorFormSchema;
-  const currentPage = currentFormSchema.pages[currentStep - 1];
-  const totalSteps = currentFormSchema.pages.length;
-  const progressPercentage = (currentStep / totalSteps) * 100;
+  const currentPage = currentFormSchema.pages[0]; // Always show first page
 
   // Handle refresh button
   const handleRefresh = useCallback(async () => {
@@ -148,18 +145,16 @@ export default function AdminPreviewPage() {
     window.open('/calculator', '_blank');
   }, []);
 
-  // Handle form submission (preview mode - no actual submission)
+  // Handle form submission in preview mode
   const handlePreviewSubmission = useCallback((formData: any) => {
-    console.log('Preview Mode: Form submission blocked', formData);
-    // In preview mode, we don't submit actual leads
-    alert(
-      'Preview Mode: This is a safe testing environment. No actual leads will be submitted.'
-    );
+    console.log('Preview form submission:', formData);
+    // In preview mode, just log the data - don't actually submit
+    alert('Preview Mode: Form data logged to console. No actual submission.');
   }, []);
 
   // Handle page changes
   const handlePageChange = useCallback((pageIndex: number) => {
-    setCurrentStep(pageIndex + 1);
+    // No page changes in preview mode - always show first page
   }, []);
 
   // Handle section completion
@@ -298,11 +293,8 @@ export default function AdminPreviewPage() {
               <div className="flex items-center space-x-2">
                 <span className="text-sm text-amber-700">Step:</span>
                 <Badge variant="outline" className="text-xs">
-                  {currentStep} of {totalSteps}
+                  {currentPage?.title || 'Step Information'}
                 </Badge>
-                <span className="text-sm text-amber-700">
-                  {Math.round(progressPercentage)}% complete
-                </span>
               </div>
             </div>
 
@@ -384,7 +376,7 @@ export default function AdminPreviewPage() {
 
                   {/* Step Number Badge */}
                   <div className="absolute -top-2 -right-2 w-8 h-8 rounded-full bg-gradient-to-r from-blue-500 to-blue-600 flex items-center justify-center text-white font-bold text-sm shadow-lg">
-                    {currentStep}
+                    {currentPage?.title || 'Step Information'}
                   </div>
                 </div>
 
