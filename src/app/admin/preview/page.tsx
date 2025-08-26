@@ -40,7 +40,6 @@ const LazyImage = lazy(() =>
 import { calculatorFormSchema } from '@/lib/form-system/calculator-adapter';
 
 // Import the form schema service to load actual form data
-import { getActiveFormSchema } from '@/lib/form-schema-service';
 import { FormSchema } from '@/types/form';
 
 // Custom hook for loading theme settings
@@ -92,11 +91,21 @@ export default function AdminPreviewPage() {
   const loadFormStructure = useCallback(async () => {
     try {
       setIsLoadingForm(true);
-      const activeSchema = await getActiveFormSchema();
-      if (activeSchema) {
-        setFormSchema(activeSchema.schema_data);
+      
+      // Call the server-side API endpoint that handles authentication
+      const response = await fetch('/api/admin/preview-form-schema');
+      
+      if (response.ok) {
+        const data = await response.json();
+        if (data.success && data.schema) {
+          setFormSchema(data.schema);
+        } else {
+          // Fallback to default schema if no active schema found
+          setFormSchema(calculatorFormSchema);
+        }
       } else {
-        // Fallback to default schema if no active schema found
+        // If API call fails, fallback to default schema
+        console.warn('Failed to load form schema, using default:', response.statusText);
         setFormSchema(calculatorFormSchema);
       }
     } catch (error) {
