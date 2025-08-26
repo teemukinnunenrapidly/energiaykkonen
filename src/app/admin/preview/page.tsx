@@ -356,8 +356,8 @@ export default function AdminPreviewPage() {
       >
         {/* Tesla-Style Split Screen Layout */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-          {/* Left Panel - Visualization (60%) */}
-          <div className="lg:col-span-7">
+          {/* Left Panel - Visualization (80%) */}
+          <div className="lg:col-span-10">
             <Card className="h-full min-h-[600px] bg-gradient-to-br from-gray-50 to-gray-100 border-0 shadow-lg">
               <CardContent className="p-8 h-full flex flex-col items-center justify-center">
                 {/* Step Image */}
@@ -373,11 +373,6 @@ export default function AdminPreviewPage() {
                       className="w-32 h-32 object-contain"
                     />
                   </Suspense>
-
-                  {/* Step Number Badge */}
-                  <div className="absolute -top-2 -right-2 w-8 h-8 rounded-full bg-gradient-to-r from-blue-500 to-blue-600 flex items-center justify-center text-white font-bold text-sm shadow-lg">
-                    {currentPage?.title || 'Step Information'}
-                  </div>
                 </div>
 
                 {/* Step Content */}
@@ -406,8 +401,8 @@ export default function AdminPreviewPage() {
             </Card>
           </div>
 
-          {/* Right Panel - Form (40%) */}
-          <div className="lg:col-span-5">
+          {/* Right Panel - Form (20%) */}
+          <div className="lg:col-span-2">
             <Card className="h-full border-0 shadow-lg">
               <CardContent className="p-8 h-full">
                 <Suspense fallback={<Skeleton className="w-full h-96" />}>
@@ -415,8 +410,8 @@ export default function AdminPreviewPage() {
                     <div className="space-y-4">
                       <Skeleton className="w-full h-8" />
                       <Skeleton className="w-full h-32" />
-                      <Skeleton className="w-full h-32" />
-                      <Skeleton className="w-full h-32" />
+                      <Skeleton className="w-32 h-32" />
+                      <Skeleton className="w-32 h-32" />
                     </div>
                   ) : (
                     <FormRenderer
