@@ -89,10 +89,10 @@ export function CardProvider({ children }: { children: React.ReactNode }) {
     setCardStates(prev => {
       const newStates = { ...prev };
       
-      // Deactivate all other cards
+      // Deactivate all other cards (set them to 'unlocked' if they were 'active')
       Object.keys(newStates).forEach(key => {
         if (newStates[key].status === 'active') {
-          newStates[key] = { ...newStates[key], status: 'complete' };
+          newStates[key] = { ...newStates[key], status: 'unlocked' };
         }
       });
       

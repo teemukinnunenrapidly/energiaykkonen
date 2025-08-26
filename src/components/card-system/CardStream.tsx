@@ -44,6 +44,15 @@ function CardStreamContent({ onFieldFocus, onCardChange }: CardStreamProps) {
     onCardChange?.(cardId, 'active');
   };
 
+  const handleCardClick = (card: CardTemplate) => {
+    const state = cardStates[card.id]?.status || 'locked';
+    
+    if (state === 'unlocked') {
+      // User clicked on an unlocked card - activate it
+      handleCardActivation(card.id);
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-full">
@@ -80,12 +89,9 @@ function CardStreamContent({ onFieldFocus, onCardChange }: CardStreamProps) {
                 ${state === 'active' ? 'ring-2 ring-green-500 ring-offset-2' : ''}
                 ${state === 'complete' ? 'border-l-4 border-green-500' : ''}
                 ${state === 'locked' ? 'pointer-events-none opacity-50' : ''}
+                ${state === 'unlocked' ? 'hover:scale-105 hover:shadow-lg transition-all duration-200' : ''}
               `}
-              onClick={() => {
-                if (state === 'unlocked') {
-                  handleCardActivation(card.id);
-                }
-              }}
+              onClick={() => handleCardClick(card)}
             >
               <CardRenderer 
                 card={card} 
