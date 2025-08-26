@@ -346,9 +346,7 @@ export default function FormBuilderPage() {
 
       // Update selected section if it's the one being edited
       if (selectedSection?.id === sectionId) {
-        setSelectedSection(prev =>
-          prev ? { ...prev, imageUrl: imageUrl || undefined } : null
-        );
+        setSelectedSection(prev => (prev ? { ...prev, imageUrl: imageUrl || undefined } : null));
       }
 
       setHasUnsavedChanges(true);
