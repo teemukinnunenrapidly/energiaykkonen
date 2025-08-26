@@ -1219,8 +1219,10 @@ export default function FormBuilderPage() {
                           id="section-description"
                           value={selectedSection.description || ''}
                           onChange={e => {
-                            // TODO: Implement section description update
-                            setHasUnsavedChanges(true);
+                            handleSectionPropertiesUpdate(
+                              selectedSection.id,
+                              { description: e.target.value }
+                            );
                           }}
                           placeholder="Enter section description"
                           rows={3}
