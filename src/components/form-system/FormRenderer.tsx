@@ -221,6 +221,11 @@ export default function FormRenderer({
   const renderSection = (section: FormSection) => {
     if (!section.enabled) return null;
 
+    // Emit section change when this section is rendered
+    React.useEffect(() => {
+      onSectionChange?.(section.id);
+    }, [section.id, onSectionChange]);
+
     return (
       <div key={section.id} className="space-y-4">
         {section.title && (

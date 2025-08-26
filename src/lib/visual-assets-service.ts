@@ -17,6 +17,16 @@ export interface VisualAsset {
   created_by: string | null;
   created_at: string;
   updated_at: string;
+  
+  // New fields for contextual visual support
+  section_id?: string;
+  field_id?: string;
+  field_value?: string;
+  priority?: number;
+  cloudflare_image_id?: string;
+  title?: string;
+  help_text?: string;
+  description?: string;
 }
 
 export interface CreateVisualAssetData {
@@ -74,6 +84,48 @@ export async function getVisualAsset(id: string): Promise<VisualAsset | null> {
     }
     console.error('Error fetching visual asset:', error);
     throw new Error(`Failed to fetch visual asset: ${error.message}`);
+  }
+
+  return data;
+}
+
+// Get visual asset by section, field, and value for contextual display
+export async function getVisualAssetByContext(
+  sectionId?: string,
+  fieldId?: string,
+  fieldValue?: string
+): Promise<VisualAsset | null> {
+  let query = supabase
+    .from('visual_assets')
+    .select('*')
+    .eq('is_active', true);
+
+  // Add filters based on available parameters
+  if (sectionId) {
+    query = query.eq('section_id', sectionId);
+  }
+  
+  if (fieldId) {
+    query = query.eq('field_id', fieldId);
+  }
+  
+  if (fieldValue) {
+    query = query.eq('field_value', fieldValue);
+  }
+
+  // Order by priority and get the first match
+  const { data, error } = await query
+    .order('priority', { ascending: false })
+    .order('created_at', { ascending: false })
+    .limit(1)
+    .single();
+
+  if (error) {
+    if (error.code === 'PGRST116') {
+      return null;
+    }
+    console.error('Error fetching visual asset by context:', error);
+    throw new Error(`Failed to fetch visual asset by context: ${error.message}`);
   }
 
   return data;
