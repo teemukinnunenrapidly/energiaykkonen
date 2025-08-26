@@ -1116,7 +1116,7 @@ export default function FormBuilderPage() {
                         <Input
                           id="field-placeholder"
                           value={selectedField.placeholder || ''}
-                          onChange={e => {
+                          onChange={() => {
                             // TODO: Implement field placeholder update
                             setHasUnsavedChanges(true);
                           }}

@@ -14,7 +14,6 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Separator } from '@/components/ui/separator';
 import {
   Calculator,
   FileText,
@@ -825,7 +824,7 @@ export default function AdminCalculationsPage() {
                     Select a formula to test
                   </h3>
                   <p className="text-muted-foreground">
-                    Go to the Formulas tab and click "Test" on any formula to
+                    Go to the Formulas tab and click &quot;Test&quot; on any formula to
                     start testing
                   </p>
                 </CardContent>
