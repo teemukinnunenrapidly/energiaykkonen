@@ -39,6 +39,10 @@ const LazyImage = lazy(() =>
 // Import the actual calculator form schema
 import { calculatorFormSchema } from '@/lib/form-system/calculator-adapter';
 
+// Import the form schema service to load actual form data
+import { getActiveFormSchema } from '@/lib/form-schema-service';
+import { FormSchema } from '@/types/form';
+
 // Custom hook for loading theme settings
 const useThemeSettings = () => {
   const [themeConfig, setThemeConfig] =
@@ -77,23 +81,53 @@ export default function AdminPreviewPage() {
   const [isMobileView, setIsMobileView] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [currentStep, setCurrentStep] = useState(1);
+  const [formSchema, setFormSchema] = useState<FormSchema | null>(null);
+  const [isLoadingForm, setIsLoadingForm] = useState(true);
   const pageRef = useRef<HTMLDivElement>(null);
 
   // Load theme settings
   const { themeConfig, isLoadingTheme, loadThemeSettings } = useThemeSettings();
 
-  // Get form data from the actual schema
-  const currentPage = calculatorFormSchema.pages[currentStep - 1];
-  const totalSteps = calculatorFormSchema.pages.length;
+  // Load actual form structure from Form Builder
+  const loadFormStructure = useCallback(async () => {
+    try {
+      setIsLoadingForm(true);
+      const activeSchema = await getActiveFormSchema();
+      if (activeSchema) {
+        setFormSchema(activeSchema.schema_data);
+      } else {
+        // Fallback to default schema if no active schema found
+        setFormSchema(calculatorFormSchema);
+      }
+    } catch (error) {
+      console.error('Failed to load form structure:', error);
+      // Fallback to default schema
+      setFormSchema(calculatorFormSchema);
+    } finally {
+      setIsLoadingForm(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    loadFormStructure();
+  }, [loadFormStructure]);
+
+  // Get form data from the actual schema (or fallback to default)
+  const currentFormSchema = formSchema || calculatorFormSchema;
+  const currentPage = currentFormSchema.pages[currentStep - 1];
+  const totalSteps = currentFormSchema.pages.length;
   const progressPercentage = (currentStep / totalSteps) * 100;
 
   // Handle refresh button
   const handleRefresh = useCallback(async () => {
     setIsRefreshing(true);
     // Reload latest customization settings from database
-    await loadThemeSettings();
+    await Promise.all([
+      loadThemeSettings(),
+      loadFormStructure()
+    ]);
     setIsRefreshing(false);
-  }, [loadThemeSettings]);
+  }, [loadThemeSettings, loadFormStructure]);
 
   // Handle viewport toggle
   const handleViewportToggle = useCallback(() => {
@@ -376,17 +410,21 @@ export default function AdminPreviewPage() {
             <Card className="h-full border-0 shadow-lg">
               <CardContent className="p-8 h-full">
                 <Suspense fallback={<Skeleton className="w-full h-96" />}>
-                  <FormRenderer
-                    schema={calculatorFormSchema}
-                    onSubmit={handlePreviewSubmission}
-                    onPageChange={handlePageChange}
-                    onSectionComplete={handleSectionComplete}
-                    showProgress={false}
-                    showNavigation={true}
-                    submitButtonText="Preview Submit"
-                    loadingButtonText="Submitting..."
-                    className="w-full space-y-6"
-                  />
+                  {isLoadingForm ? (
+                    <div className="space-y-4">
+                      <Skeleton className="w-full h-8" />
+                      <Skeleton className="w-full h-32" />
+                      <Skeleton className="w-full h-32" />
+                      <Skeleton className="w-full h-32" />
+                    </div>
+                  ) : (
+                    <FormRenderer
+                      schema={currentFormSchema}
+                      onSubmit={handlePreviewSubmission}
+                      onPageChange={handlePageChange}
+                      isPreviewMode={true}
+                    />
+                  )}
                 </Suspense>
               </CardContent>
             </Card>
