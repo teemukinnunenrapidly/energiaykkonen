@@ -11,10 +11,7 @@ interface FormCardProps {
 export function FormCard({ card, onFieldFocus }: FormCardProps) {
   const [fields, setFields] = useState<CardField[]>([]);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
-  const { formData, updateField, cardStates, completeCard } = useCardContext();
-  
-  // Remove isActive dependency - allow editing at any time
-  // const isActive = cardStates[card.id]?.status === 'active';
+  const { formData, updateField, completeCard } = useCardContext();
 
   useEffect(() => {
     loadFields();
@@ -26,18 +23,18 @@ export function FormCard({ card, onFieldFocus }: FormCardProps) {
       .select('*')
       .eq('card_id', card.id)
       .order('display_order');
-    
+
     setFields(data || []);
   };
 
   const validateField = (field: CardField, value: any): boolean => {
     const rules = field.validation_rules;
-    
+
     // Required field validation
     if (field.required && (!value || value.toString().trim() === '')) {
       return false;
     }
-    
+
     // Skip further validation if no value and not required
     if (!value || value.toString().trim() === '') {
       return true;
@@ -53,14 +50,22 @@ export function FormCard({ card, onFieldFocus }: FormCardProps) {
     if (field.field_type === 'number') {
       const numValue = parseFloat(value);
       if (isNaN(numValue)) return false;
-      
+
       if (rules?.min !== undefined && numValue < rules.min) return false;
       if (rules?.max !== undefined && numValue > rules.max) return false;
     }
 
     // Text length validation
-    if (rules?.minLength !== undefined && value.toString().length < rules.minLength) return false;
-    if (rules?.maxLength !== undefined && value.toString().length > rules.maxLength) return false;
+    if (
+      rules?.minLength !== undefined &&
+      value.toString().length < rules.minLength
+    )
+      return false;
+    if (
+      rules?.maxLength !== undefined &&
+      value.toString().length > rules.maxLength
+    )
+      return false;
 
     // Pattern validation
     if (rules?.pattern && !new RegExp(rules.pattern).test(value)) return false;
@@ -70,12 +75,12 @@ export function FormCard({ card, onFieldFocus }: FormCardProps) {
 
   const getFieldError = (field: CardField, value: any): string | null => {
     const rules = field.validation_rules;
-    
+
     // Required field error
     if (field.required && (!value || value.toString().trim() === '')) {
       return 'This field is required';
     }
-    
+
     // Skip further validation if no value and not required
     if (!value || value.toString().trim() === '') {
       return null;
@@ -95,7 +100,7 @@ export function FormCard({ card, onFieldFocus }: FormCardProps) {
       if (isNaN(numValue)) {
         return 'Please enter a valid number';
       }
-      
+
       if (rules?.min !== undefined && numValue < rules.min) {
         return `Value must be at least ${rules.min}`;
       }
@@ -105,10 +110,16 @@ export function FormCard({ card, onFieldFocus }: FormCardProps) {
     }
 
     // Text length validation errors
-    if (rules?.minLength !== undefined && value.toString().length < rules.minLength) {
+    if (
+      rules?.minLength !== undefined &&
+      value.toString().length < rules.minLength
+    ) {
       return `Must be at least ${rules.minLength} characters`;
     }
-    if (rules?.maxLength !== undefined && value.toString().length > rules.maxLength) {
+    if (
+      rules?.maxLength !== undefined &&
+      value.toString().length > rules.maxLength
+    ) {
       return `Must be no more than ${rules.maxLength} characters`;
     }
 
@@ -122,25 +133,28 @@ export function FormCard({ card, onFieldFocus }: FormCardProps) {
 
   const handleFieldChange = (fieldName: string, value: any) => {
     updateField(fieldName, value);
-    
+
     // Clear error when user starts typing
     if (fieldErrors[fieldName]) {
       setFieldErrors(prev => ({ ...prev, [fieldName]: '' }));
     }
-    
-    // Validate and check completion
-    setTimeout(() => checkCompletion(), 100);
+
+    // Validate and check completion immediately (no setTimeout)
+    checkCompletion();
   };
 
   const handleFieldBlur = (field: CardField) => {
     const value = formData[field.field_name];
     const error = getFieldError(field, value);
-    
+
     if (error) {
       setFieldErrors(prev => ({ ...prev, [field.field_name]: error }));
     } else {
       setFieldErrors(prev => ({ ...prev, [field.field_name]: '' }));
     }
+
+    // Also check completion on blur for immediate feedback
+    checkCompletion();
   };
 
   const handleFieldFocus = (field: CardField) => {
@@ -155,7 +169,7 @@ export function FormCard({ card, onFieldFocus }: FormCardProps) {
       const value = formData[field.field_name];
       return validateField(field, value);
     });
-    
+
     if (allValid) {
       completeCard(card.id);
     }
@@ -164,19 +178,20 @@ export function FormCard({ card, onFieldFocus }: FormCardProps) {
   const renderField = (field: CardField) => {
     const value = formData[field.field_name] || '';
     const error = fieldErrors[field.field_name];
-    
+
     // Always allow editing - completion is just for navigation tracking
     const isFieldEditable = true;
-    
+
     const inputClasses = `
       w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 transition-colors
-      ${error 
-        ? 'border-red-300 focus:ring-red-500 focus:border-red-500' 
-        : 'border-gray-300 focus:ring-blue-500 focus:border-blue-500'
+      ${
+        error
+          ? 'border-red-300 focus:ring-red-500 focus:border-red-500'
+          : 'border-gray-300 focus:ring-blue-500 focus:border-blue-500'
       }
       ${!isFieldEditable ? 'bg-gray-100 cursor-not-allowed' : ''}
     `;
-    
+
     switch (field.field_type) {
       case 'text':
       case 'email':
@@ -186,20 +201,28 @@ export function FormCard({ card, onFieldFocus }: FormCardProps) {
             <input
               type={field.field_type}
               value={value}
-              onChange={(e) => handleFieldChange(field.field_name, e.target.value)}
+              onChange={e =>
+                handleFieldChange(field.field_name, e.target.value)
+              }
               onFocus={() => handleFieldFocus(field)}
               onBlur={() => handleFieldBlur(field)}
               placeholder={field.placeholder}
               disabled={!isFieldEditable}
               className={inputClasses}
-              min={field.field_type === 'number' ? field.validation_rules?.min : undefined}
-              max={field.field_type === 'number' ? field.validation_rules?.max : undefined}
+              min={
+                field.field_type === 'number'
+                  ? field.validation_rules?.min
+                  : undefined
+              }
+              max={
+                field.field_type === 'number'
+                  ? field.validation_rules?.max
+                  : undefined
+              }
               minLength={field.validation_rules?.minLength}
               maxLength={field.validation_rules?.maxLength}
             />
-            {error && (
-              <p className="text-xs text-red-500 mt-1">{error}</p>
-            )}
+            {error && <p className="text-xs text-red-500 mt-1">{error}</p>}
             {field.help_text && !error && (
               <p className="text-xs text-gray-500 mt-1">{field.help_text}</p>
             )}
@@ -210,7 +233,9 @@ export function FormCard({ card, onFieldFocus }: FormCardProps) {
           <div>
             <select
               value={value}
-              onChange={(e) => handleFieldChange(field.field_name, e.target.value)}
+              onChange={e =>
+                handleFieldChange(field.field_name, e.target.value)
+              }
               onFocus={() => handleFieldFocus(field)}
               onBlur={() => handleFieldBlur(field)}
               disabled={!isFieldEditable}
@@ -218,12 +243,12 @@ export function FormCard({ card, onFieldFocus }: FormCardProps) {
             >
               <option value="">Select...</option>
               {field.options?.map(opt => (
-                <option key={opt.value} value={opt.value}>{opt.label}</option>
+                <option key={opt.value} value={opt.value}>
+                  {opt.label}
+                </option>
               ))}
             </select>
-            {error && (
-              <p className="text-xs text-red-500 mt-1">{error}</p>
-            )}
+            {error && <p className="text-xs text-red-500 mt-1">{error}</p>}
             {field.help_text && !error && (
               <p className="text-xs text-gray-500 mt-1">{field.help_text}</p>
             )}
@@ -242,7 +267,7 @@ export function FormCard({ card, onFieldFocus }: FormCardProps) {
           Step {card.display_order}
         </span>
       </div>
-      
+
       <div className="grid grid-cols-12 gap-4">
         {fields.map(field => (
           <div

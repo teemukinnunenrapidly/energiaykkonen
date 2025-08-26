@@ -18,6 +18,19 @@ export function CalculationCard({ card }: CalculationCardProps) {
     calculateResult();
   }, [formData, card.config]);
 
+  // Also recalculate when specific dependencies change
+  useEffect(() => {
+    if (card.config.depends_on) {
+      const hasAllDependencies = card.config.depends_on.every(field => 
+        formData[field] !== undefined && formData[field] !== null && formData[field] !== ''
+      );
+      
+      if (hasAllDependencies) {
+        calculateResult();
+      }
+    }
+  }, [formData, card.config.depends_on]);
+
   const calculateResult = () => {
     try {
       setIsCalculating(true);
