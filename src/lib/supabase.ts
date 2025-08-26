@@ -149,15 +149,36 @@ export interface RevealCondition {
 
 // Helper functions
 export async function getActiveCards() {
-  const { data, error } = await supabase
-    .from('card_templates')
-    .select(`
-      *,
-      card_fields (*)
-    `)
+  // First get the active form stream
+  const { data: streamData, error: streamError } = await supabase
+    .from('form_streams')
+    .select('*')
+    .eq('slug', 'energy-calculator')
     .eq('is_active', true)
-    .order('display_order');
+    .single();
+  
+  if (streamError) throw streamError;
+  if (!streamData) throw new Error('No active form stream found');
+
+  // Then get the cards for this stream in the correct order
+  const { data, error } = await supabase
+    .from('form_stream_cards')
+    .select(`
+      card_position,
+      card_templates (
+        *,
+        card_fields (*)
+      )
+    `)
+    .eq('stream_id', streamData.id)
+    .eq('is_visible', true)
+    .order('card_position');
   
   if (error) throw error;
-  return data;
+  
+  // Transform the data to match the expected format
+  return data?.map(item => ({
+    ...item.card_templates,
+    card_fields: item.card_templates.card_fields || []
+  })) || [];
 }
