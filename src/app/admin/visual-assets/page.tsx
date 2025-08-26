@@ -2,11 +2,10 @@
 
 import React, { useState, useCallback, useRef, useEffect } from 'react';
 import AdminNavigation from '@/components/admin/AdminNavigation';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { Separator } from '@/components/ui/separator';
 import {
   Upload,
   Search,
@@ -14,10 +13,7 @@ import {
   List,
   FolderOpen,
   Image as ImageIcon,
-  X,
   Edit3,
-  Trash2,
-  Eye,
   Download,
 } from 'lucide-react';
 
