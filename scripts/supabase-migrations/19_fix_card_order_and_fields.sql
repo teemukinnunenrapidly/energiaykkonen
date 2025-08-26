@@ -62,14 +62,14 @@ INSERT INTO card_calculations (card_id, formula, display_template, result_format
 ON CONFLICT DO NOTHING;
 
 -- Link cards to the form stream in the correct order
-INSERT INTO form_stream_cards (stream_id, card_template_id, card_position, is_visible, is_required) VALUES
-  ('00000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-000000000001', 1, true, true),  -- Property Details
-  ('00000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-000000000002', 2, true, true),  -- Energy Calculation
-  ('00000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-000000000003', 3, true, true),  -- Heating Info
-  ('00000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-000000000004', 4, true, true),  -- Savings Info
-  ('00000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-000000000005', 5, true, true),  -- Savings Calculation
-  ('00000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-000000000006', 6, true, true),  -- Contact
-  ('00000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-000000000007', 7, true, true)   -- Submit
+INSERT INTO form_stream_cards (stream_id, card_template_id, card_position, is_visible) VALUES
+  ('00000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-000000000001', 1, true),  -- Property Details
+  ('00000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-000000000002', 2, true),  -- Energy Calculation
+  ('00000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-000000000003', 3, true),  -- Heating Info
+  ('00000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-000000000004', 4, true),  -- Savings Info
+  ('00000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-000000000005', 5, true),  -- Savings Calculation
+  ('00000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-000000000006', 6, true),  -- Contact
+  ('00000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-000000000007', 7, true)   -- Submit
 ON CONFLICT DO NOTHING;
 
 -- Update form visual mappings to match the new field names
