@@ -13,7 +13,7 @@ interface CardStreamProps {
 function CardStreamContent({ onFieldFocus, onCardChange }: CardStreamProps) {
   const [cards, setCards] = useState<CardTemplate[]>([]);
   const [loading, setLoading] = useState(true);
-  const { cardStates, checkRevealConditions, activateCard } = useCardContext();
+  const { cardStates, checkRevealConditions, activateCard, setCardOrderAndInitialize } = useCardContext();
 
   useEffect(() => {
     loadCards();
@@ -24,9 +24,11 @@ function CardStreamContent({ onFieldFocus, onCardChange }: CardStreamProps) {
       const data = await getActiveCards();
       setCards(data || []);
       
-      // Initialize first card as active
       if (data && data.length > 0) {
-        activateCard(data[0].id);
+        // Initialize card order and states
+        const cardIds = data.map(card => card.id);
+        setCardOrderAndInitialize(cardIds);
+        
         // Notify parent of initial card change
         onCardChange?.(data[0].id, 'active');
       }
@@ -54,8 +56,8 @@ function CardStreamContent({ onFieldFocus, onCardChange }: CardStreamProps) {
     <div className="max-w-3xl mx-auto py-8 px-4">
       <AnimatePresence>
         {cards.map((card, index) => {
-          const state = cardStates[card.id]?.status || (index === 0 ? 'active' : 'locked');
-          const isVisible = state !== 'hidden' && state !== 'locked';
+          const state = cardStates[card.id]?.status || 'locked';
+          const isVisible = state !== 'hidden';
           
           // Check reveal conditions for this card
           const shouldShow = checkRevealConditions(card.id, card.reveal_conditions || []);
@@ -77,7 +79,7 @@ function CardStreamContent({ onFieldFocus, onCardChange }: CardStreamProps) {
                 mb-6 rounded-xl shadow-lg overflow-hidden cursor-pointer
                 ${state === 'active' ? 'ring-2 ring-green-500 ring-offset-2' : ''}
                 ${state === 'complete' ? 'border-l-4 border-green-500' : ''}
-                ${!isVisible ? 'pointer-events-none' : ''}
+                ${state === 'locked' ? 'pointer-events-none opacity-50' : ''}
               `}
               onClick={() => {
                 if (state === 'unlocked') {

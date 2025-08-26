@@ -11,6 +11,7 @@ interface CardContextValue {
   updateField: (fieldName: string, value: any) => void;
   completeCard: (cardId: string) => void;
   activateCard: (cardId: string) => void;
+  setCardOrderAndInitialize: (orderedCardIds: string[]) => void;
   checkRevealConditions: (cardId: string, conditions: any[]) => boolean;
 }
 
@@ -19,17 +20,31 @@ const CardContext = createContext<CardContextValue | null>(null);
 export function CardProvider({ children }: { children: React.ReactNode }) {
   const [formData, setFormData] = useState<Record<string, any>>({});
   const [cardStates, setCardStates] = useState<Record<string, CardState>>({});
+  const [cardOrder, setCardOrder] = useState<string[]>([]);
 
   const updateField = useCallback((fieldName: string, value: any) => {
     setFormData(prev => ({ ...prev, [fieldName]: value }));
   }, []);
 
   const completeCard = useCallback((cardId: string) => {
-    setCardStates(prev => ({ 
-      ...prev, 
-      [cardId]: { ...prev[cardId], status: 'complete' } 
-    }));
-  }, []);
+    setCardStates(prev => {
+      const newStates = { ...prev };
+      
+      // Mark current card as complete
+      newStates[cardId] = { ...newStates[cardId], status: 'complete' };
+      
+      // Find the next card in order and unlock it
+      const currentIndex = cardOrder.indexOf(cardId);
+      if (currentIndex !== -1 && currentIndex < cardOrder.length - 1) {
+        const nextCardId = cardOrder[currentIndex + 1];
+        if (newStates[nextCardId]) {
+          newStates[nextCardId] = { ...newStates[nextCardId], status: 'active' };
+        }
+      }
+      
+      return newStates;
+    }, [cardOrder]);
+  }, [cardOrder]);
 
   const activateCard = useCallback((cardId: string) => {
     setCardStates(prev => {
@@ -44,6 +59,27 @@ export function CardProvider({ children }: { children: React.ReactNode }) {
       
       // Activate selected card
       newStates[cardId] = { ...newStates[cardId], status: 'active' };
+      
+      return newStates;
+    });
+  }, []);
+
+  const setCardOrderAndInitialize = useCallback((orderedCardIds: string[]) => {
+    setCardOrder(orderedCardIds);
+    
+    // Initialize card states
+    setCardStates(prev => {
+      const newStates = { ...prev };
+      
+      orderedCardIds.forEach((cardId, index) => {
+        if (index === 0) {
+          // First card is active
+          newStates[cardId] = { status: 'active' };
+        } else {
+          // Other cards start as locked
+          newStates[cardId] = { status: 'locked' };
+        }
+      });
       
       return newStates;
     });
@@ -101,6 +137,7 @@ export function CardProvider({ children }: { children: React.ReactNode }) {
       updateField,
       completeCard,
       activateCard,
+      setCardOrderAndInitialize,
       checkRevealConditions
     }}>
       {children}

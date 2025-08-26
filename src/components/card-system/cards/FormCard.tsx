@@ -12,7 +12,9 @@ export function FormCard({ card, onFieldFocus }: FormCardProps) {
   const [fields, setFields] = useState<CardField[]>([]);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const { formData, updateField, cardStates, completeCard } = useCardContext();
-  const isActive = cardStates[card.id]?.status === 'active';
+  
+  // Remove isActive dependency - allow editing at any time
+  // const isActive = cardStates[card.id]?.status === 'active';
 
   useEffect(() => {
     loadFields();
@@ -163,8 +165,8 @@ export function FormCard({ card, onFieldFocus }: FormCardProps) {
     const value = formData[field.field_name] || '';
     const error = fieldErrors[field.field_name];
     
-    // Allow editing even after card completion - just track completion status
-    const isFieldEditable = true; // Always allow editing
+    // Always allow editing - completion is just for navigation tracking
+    const isFieldEditable = true;
     
     const inputClasses = `
       w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 transition-colors
