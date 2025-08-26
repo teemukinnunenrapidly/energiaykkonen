@@ -40,7 +40,7 @@ const LazyImage = lazy(() =>
 import { calculatorFormSchema } from '@/lib/form-system/calculator-adapter';
 
 // Import the form schema service to load actual form data
-import { FormSchema } from '@/types/form';
+import { FormSchema } from '@/lib/form-system/types';
 
 // Custom hook for loading theme settings
 const useThemeSettings = () => {
