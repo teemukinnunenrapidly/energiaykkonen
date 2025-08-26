@@ -2,6 +2,14 @@
 -- Date: 2024-12-19
 -- Description: Creates the complete visual objects system with folders, objects, images, and form mappings
 
+-- Folders for organization (create first to avoid circular dependency)
+CREATE TABLE IF NOT EXISTS visual_folders (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  name VARCHAR(255) NOT NULL,
+  parent_id UUID REFERENCES visual_folders(id) ON DELETE CASCADE,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
 -- Visual Objects table
 CREATE TABLE IF NOT EXISTS visual_objects (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
@@ -23,14 +31,6 @@ CREATE TABLE IF NOT EXISTS visual_object_images (
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
--- Folders for organization
-CREATE TABLE IF NOT EXISTS visual_folders (
-  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-  name VARCHAR(255) NOT NULL,
-  parent_id UUID REFERENCES visual_folders(id) ON DELETE CASCADE,
-  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
-);
-
 -- Form field to visual object mapping
 CREATE TABLE IF NOT EXISTS form_visual_mappings (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
@@ -49,18 +49,18 @@ CREATE TABLE IF NOT EXISTS visual_object_views (
 );
 
 -- Add comments to document the tables
+COMMENT ON TABLE visual_folders IS 'Hierarchical folder organization for visual objects';
 COMMENT ON TABLE visual_objects IS 'Main visual objects that can contain multiple images';
 COMMENT ON TABLE visual_object_images IS 'Individual images within visual objects, linked to Cloudflare';
-COMMENT ON TABLE visual_folders IS 'Hierarchical folder organization for visual objects';
 COMMENT ON TABLE form_visual_mappings IS 'Maps form elements (sections, fields, options) to visual objects';
 COMMENT ON TABLE visual_object_views IS 'Tracks when visual objects are viewed for analytics';
 
 -- Create indexes for better performance
+CREATE INDEX IF NOT EXISTS idx_visual_folders_parent_id ON visual_folders(parent_id);
 CREATE INDEX IF NOT EXISTS idx_visual_objects_folder_id ON visual_objects(folder_id);
 CREATE INDEX IF NOT EXISTS idx_visual_objects_created_at ON visual_objects(created_at);
 CREATE INDEX IF NOT EXISTS idx_visual_object_images_object_id ON visual_object_images(visual_object_id);
 CREATE INDEX IF NOT EXISTS idx_visual_object_images_display_order ON visual_object_images(display_order);
-CREATE INDEX IF NOT EXISTS idx_visual_folders_parent_id ON visual_folders(parent_id);
 CREATE INDEX IF NOT EXISTS idx_form_visual_mappings_element ON form_visual_mappings(form_element_id, element_type);
 CREATE INDEX IF NOT EXISTS idx_form_visual_mappings_object ON form_visual_mappings(visual_object_id);
 CREATE INDEX IF NOT EXISTS idx_visual_object_views_object_id ON visual_object_views(visual_object_id);
