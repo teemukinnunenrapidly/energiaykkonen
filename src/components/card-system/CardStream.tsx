@@ -57,9 +57,7 @@ function CardStreamContent({ onFieldFocus, onCardChange }: CardStreamProps) {
       <AnimatePresence>
         {cards.map((card, index) => {
           const state = cardStates[card.id]?.status || 'locked';
-          
-          // Only show the active card
-          if (state !== 'active') return null;
+          const isVisible = state !== 'hidden';
           
           // Check reveal conditions for this card
           const shouldShow = checkRevealConditions(card.id, card.reveal_conditions || []);
@@ -71,14 +69,23 @@ function CardStreamContent({ onFieldFocus, onCardChange }: CardStreamProps) {
               key={card.id}
               initial={{ opacity: 0, y: 50 }}
               animate={{
-                opacity: 1,
-                y: 0,
-                filter: 'blur(0px)',
-                scale: 1.02,
+                opacity: isVisible ? 1 : 0.3,
+                y: isVisible ? 0 : 20,
+                filter: isVisible ? 'blur(0px)' : 'blur(8px)',
+                scale: state === 'active' ? 1.02 : 1,
               }}
-              exit={{ opacity: 0, y: -50 }}
-              transition={{ duration: 0.5 }}
-              className="mb-6 rounded-xl shadow-lg overflow-hidden ring-2 ring-green-500 ring-offset-2"
+              transition={{ duration: 0.5, delay: index * 0.1 }}
+              className={`
+                mb-6 rounded-xl shadow-lg overflow-hidden cursor-pointer
+                ${state === 'active' ? 'ring-2 ring-green-500 ring-offset-2' : ''}
+                ${state === 'complete' ? 'border-l-4 border-green-500' : ''}
+                ${state === 'locked' ? 'pointer-events-none opacity-50' : ''}
+              `}
+              onClick={() => {
+                if (state === 'unlocked') {
+                  handleCardActivation(card.id);
+                }
+              }}
             >
               <CardRenderer 
                 card={card} 
@@ -89,25 +96,7 @@ function CardStreamContent({ onFieldFocus, onCardChange }: CardStreamProps) {
         })}
       </AnimatePresence>
       
-      {/* Show progress indicator */}
       <div className="text-center py-8">
-        <div className="flex justify-center items-center space-x-2 mb-4">
-          {cards.map((card, index) => {
-            const state = cardStates[card.id]?.status || 'locked';
-            return (
-              <div
-                key={card.id}
-                className={`
-                  w-3 h-3 rounded-full transition-all duration-300
-                  ${state === 'active' ? 'bg-green-500 scale-125' : ''}
-                  ${state === 'complete' ? 'bg-green-400' : ''}
-                  ${state === 'locked' ? 'bg-gray-300' : ''}
-                `}
-                title={`${card.title} - ${state}`}
-              />
-            );
-          })}
-        </div>
         <motion.div
           animate={{ y: [0, 10, 0] }}
           transition={{ repeat: Infinity, duration: 2 }}
