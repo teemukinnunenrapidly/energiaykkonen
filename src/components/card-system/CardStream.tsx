@@ -67,6 +67,7 @@ function CardStreamContent({ onFieldFocus, onCardChange }: CardStreamProps) {
         {cards.map((card, index) => {
           const state = cardStates[card.id]?.status || 'locked';
           const isVisible = state !== 'hidden';
+          const isLocked = state === 'locked';
           
           // Check reveal conditions for this card
           const shouldShow = checkRevealConditions(card.id, card.reveal_conditions || []);
@@ -78,18 +79,18 @@ function CardStreamContent({ onFieldFocus, onCardChange }: CardStreamProps) {
               key={card.id}
               initial={{ opacity: 0, y: 50 }}
               animate={{
-                opacity: isVisible ? 1 : 0.3,
-                y: isVisible ? 0 : 20,
-                filter: isVisible ? 'blur(0px)' : 'blur(8px)',
-                scale: state === 'active' ? 1.02 : 1,
+                opacity: isLocked ? 0.6 : 1,
+                y: 0,
+                filter: isLocked ? 'blur(8px)' : 'blur(0px)',
+                scale: state === 'active' ? 1.02 : (isLocked ? 0.98 : 1),
               }}
               transition={{ duration: 0.5, delay: index * 0.1 }}
               className={`
-                mb-6 rounded-xl shadow-lg overflow-hidden cursor-pointer
+                mb-6 rounded-xl shadow-lg overflow-hidden transition-all
                 ${state === 'active' ? 'ring-2 ring-green-500 ring-offset-2' : ''}
                 ${state === 'complete' ? 'border-l-4 border-green-500' : ''}
-                ${state === 'locked' ? 'pointer-events-none opacity-50' : ''}
-                ${state === 'unlocked' ? 'hover:scale-105 hover:shadow-lg transition-all duration-200' : ''}
+                ${state === 'locked' ? 'pointer-events-none' : 'cursor-pointer'}
+                ${state === 'unlocked' ? 'hover:shadow-xl' : ''}
               `}
               onClick={() => handleCardClick(card)}
             >
