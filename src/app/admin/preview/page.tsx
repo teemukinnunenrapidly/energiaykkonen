@@ -418,7 +418,6 @@ export default function AdminPreviewPage() {
                       schema={currentFormSchema}
                       onSubmit={handlePreviewSubmission}
                       onPageChange={handlePageChange}
-                      isPreviewMode={true}
                     />
                   )}
                 </Suspense>

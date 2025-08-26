@@ -7,7 +7,13 @@ import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Badge } from '@/components/ui/badge';
 import { FormSchema, FormSection, FormField } from '@/lib/form-system/types';
@@ -15,532 +21,280 @@ import { formSchemaToZod, createDefaultValues } from '@/lib/form-system';
 
 interface FormRendererProps {
   schema: FormSchema;
-  onSubmit?: (data: any) => void | Promise<void>;
-  onPageChange?: (pageIndex: number) => void;
-  onSectionComplete?: (sectionId: string, data: any) => void;
-  className?: string;
-  showNavigation?: boolean;
+  onSubmit: (formData: any) => void;
+  onPageChange: (pageIndex: number) => void;
 }
 
-interface FormRendererState {
-  currentPageIndex: number;
-  completedSections: Set<string>;
-  formData: any;
-  isSubmitting: boolean;
-}
-
-export function FormRenderer({
+export default function FormRenderer({
   schema,
   onSubmit,
   onPageChange,
-  onSectionComplete,
-  className = '',
-  showNavigation = true,
 }: FormRendererProps) {
-  const [state, setState] = React.useState<FormRendererState>({
-    currentPageIndex: 0,
-    completedSections: new Set(),
-    formData: {},
-    isSubmitting: false,
-  });
+  const [currentPageIndex, setCurrentPageIndex] = React.useState(0);
+  const [formData, setFormData] = React.useState<any>({});
 
-  // Create Zod schema and form instance
-  const zodSchema = React.useMemo(() => formSchemaToZod(schema), [schema]);
-  const defaultValues = React.useMemo(
-    () => createDefaultValues(schema),
-    [schema]
-  );
+  const currentPage = schema.pages[currentPageIndex];
+  const totalPages = schema.pages.length;
 
-  const form = useForm({
-    resolver: zodResolver(zodSchema as any),
+  // Create form validation schema and default values
+  const validationSchema = React.useMemo(() => {
+    try {
+      return formSchemaToZod(schema);
+    } catch (error) {
+      console.error('Failed to create validation schema:', error);
+      return null;
+    }
+  }, [schema]);
+
+  const defaultValues = React.useMemo(() => {
+    try {
+      return createDefaultValues(schema);
+    } catch (error) {
+      console.error('Failed to create default values:', error);
+      return {};
+    }
+  }, [schema]);
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isValid },
+    setValue,
+    watch,
+  } = useForm({
+    resolver: zodResolver(validationSchema || {}),
     defaultValues,
     mode: 'onChange',
   });
 
-  const currentPage = schema.pages[state.currentPageIndex];
-  const totalPages = schema.pages.length;
+  // Watch form data for real-time updates
+  const watchedData = watch();
+  React.useEffect(() => {
+    setFormData(watchedData);
+  }, [watchedData]);
 
-  // Handle form submission
-  const handleSubmit = async (data: any) => {
-    setState(prev => ({ ...prev, isSubmitting: true }));
+  const handleFormSubmit = (data: any) => {
+    onSubmit(data);
+  };
 
-    try {
-      if (onSubmit) {
-        await onSubmit(data);
-      }
-    } catch (error) {
-      console.error('Form submission error:', error);
-    } finally {
-      setState(prev => ({ ...prev, isSubmitting: false }));
+  const handleNextPage = () => {
+    if (currentPageIndex < totalPages - 1) {
+      const nextIndex = currentPageIndex + 1;
+      setCurrentPageIndex(nextIndex);
+      onPageChange(nextIndex);
     }
   };
 
-  // Handle page navigation
-  const goToNextPage = () => {
-    if (state.currentPageIndex < schema.pages.length - 1) {
-      const nextIndex = state.currentPageIndex + 1;
-      setState(prev => ({ ...prev, currentPageIndex: nextIndex }));
-      if (onPageChange) {
-        onPageChange(nextIndex);
-      }
+  const handlePreviousPage = () => {
+    if (currentPageIndex > 0) {
+      const prevIndex = currentPageIndex - 1;
+      setCurrentPageIndex(prevIndex);
+      onPageChange(prevIndex);
     }
   };
 
-  const goToPreviousPage = () => {
-    if (state.currentPageIndex > 0) {
-      const prevIndex = state.currentPageIndex - 1;
-      setState(prev => ({ ...prev, currentPageIndex: prevIndex }));
-      if (onPageChange) {
-        onPageChange(prevIndex);
-      }
-    }
-  };
-
-  const goToPage = (pageIndex: number) => {
-    if (pageIndex >= 0 && pageIndex < schema.pages.length) {
-      setState(prev => ({ ...prev, currentPageIndex: pageIndex }));
-      if (onPageChange) {
-        onPageChange(pageIndex);
-      }
-    }
-  };
-
-  // Handle section completion
-  const handleSectionComplete = (sectionId: string, data: any) => {
-    setState(prev => ({
-      ...prev,
-      completedSections: new Set([...prev.completedSections, sectionId]),
-      formData: { ...prev.formData, ...data },
-    }));
-
-    if (onSectionComplete) {
-      onSectionComplete(sectionId, data);
-    }
-  };
-
-  // Check if section is accessible (all previous sections completed)
-  const isSectionAccessible = (section: FormSection) => {
-    if (section.order === 0) {
-      return true;
-    }
-
-    const previousSections = currentPage.sections.filter(
-      s => s.order < section.order
-    );
-    return previousSections.every(s => state.completedSections.has(s.id));
-  };
-
-  // Get section status
-  const getSectionStatus = (section: FormSection) => {
-    if (!isSectionAccessible(section)) {
-      return 'locked';
-    }
-    if (state.completedSections.has(section.id)) {
-      return 'completed';
-    }
-    return 'pending';
-  };
-
-  // Render individual form field
   const renderField = (field: FormField) => {
-    const fieldValue = form.watch(field.name);
-    const fieldError = form.formState.errors[field.name];
-    const isRequired = field.required;
-
-    const baseFieldProps = {
-      id: field.id,
-      className: `transition-all duration-200 ${
-        field.styling?.className || ''
-      }`,
-      disabled:
-        field.disabled ||
-        getSectionStatus(
-          currentPage.sections.find(s => s.fields.includes(field))!
-        ) === 'locked',
-    };
-
-    const baseInputProps = {
-      ...baseFieldProps,
-      placeholder: field.placeholder,
-      ...form.register(field.name),
-    };
+    const fieldName = field.name;
+    const fieldError = errors[fieldName];
 
     switch (field.type) {
       case 'text':
-      case 'email':
-      case 'phone':
         return (
-          <div key={field.id} className="mb-6">
-            <Label
-              htmlFor={field.id}
-              className="block text-sm font-medium text-gray-700 mb-2 transition-colors duration-200"
-            >
+          <div key={field.id} className="space-y-2">
+            <Label htmlFor={fieldName} className="text-sm font-medium">
               {field.label}
-              {isRequired && <span className="text-red-500 ml-1">*</span>}
+              {field.required && <span className="text-red-500 ml-1">*</span>}
             </Label>
-            <div className="relative">
-              <Input
-                type={field.type}
-                {...baseInputProps}
-                className={`w-full px-4 py-3 border border-gray-300 rounded-lg bg-gray-50 focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 focus:scale-[1.02] h-[44px] placeholder-gray-400 ${
-                  fieldError ? 'border-red-500 focus:ring-red-500' : ''
-                }`}
-              />
-            </div>
-            {field.helpText && (
-              <p className="text-xs text-gray-500 mt-1">{field.helpText}</p>
-            )}
-            {fieldError && typeof fieldError.message === 'string' && (
-              <p className="text-xs text-red-500 mt-1">{fieldError.message}</p>
-            )}
-          </div>
-        );
-
-      case 'number':
-      case 'currency':
-      case 'percentage':
-        return (
-          <div key={field.id} className="mb-6">
-            <Label
-              htmlFor={field.id}
-              className="block text-sm font-medium text-gray-700 mb-2 transition-colors duration-200"
-            >
-              {field.label}
-              {isRequired && <span className="text-red-500 ml-1">*</span>}
-            </Label>
-            <div className="relative">
-              <Input
-                type="number"
-                {...baseInputProps}
-                className={`w-full px-4 py-3 border border-gray-300 rounded-lg bg-gray-50 focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 focus:scale-[1.02] h-[44px] placeholder-gray-400 ${
-                  fieldError ? 'border-red-500 focus:ring-red-500' : ''
-                }`}
-              />
-            </div>
-            {field.helpText && (
-              <p className="text-xs text-gray-500 mt-1">{field.helpText}</p>
-            )}
-            {fieldError && typeof fieldError.message === 'string' && (
-              <p className="text-xs text-red-500 mt-1">{fieldError.message}</p>
+            <Input
+              id={fieldName}
+              {...register(fieldName)}
+              placeholder={field.placeholder}
+              className={fieldError ? 'border-red-500' : ''}
+            />
+            {fieldError && (
+              <p className="text-sm text-red-500">{fieldError.message}</p>
             )}
           </div>
         );
 
       case 'textarea':
         return (
-          <div key={field.id} className="mb-6">
-            <Label
-              htmlFor={field.id}
-              className="block text-sm font-medium text-gray-700 mb-2 transition-colors duration-200"
-            >
+          <div key={field.id} className="space-y-2">
+            <Label htmlFor={fieldName} className="text-sm font-medium">
               {field.label}
-              {isRequired && <span className="text-red-500 ml-1">*</span>}
+              {field.required && <span className="text-red-500 ml-1">*</span>}
             </Label>
-            <div className="relative">
-              <Textarea
-                {...baseInputProps}
-                className={`w-full px-4 py-3 border border-gray-300 rounded-lg bg-gray-50 focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 focus:scale-[1.02] placeholder-gray-400 ${
-                  fieldError ? 'border-red-500 focus:ring-red-500' : ''
-                }`}
-              />
-            </div>
-            {field.helpText && (
-              <p className="text-xs text-gray-500 mt-1">{field.helpText}</p>
-            )}
-            {fieldError && typeof fieldError.message === 'string' && (
-              <p className="text-xs text-red-500 mt-1">{fieldError.message}</p>
+            <Textarea
+              id={fieldName}
+              {...register(fieldName)}
+              placeholder={field.placeholder}
+              rows={field.rows || 3}
+              className={fieldError ? 'border-red-500' : ''}
+            />
+            {fieldError && (
+              <p className="text-sm text-red-500">{fieldError.message}</p>
             )}
           </div>
         );
 
       case 'select':
         return (
-          <div key={field.id} className="mb-6">
-            <Label
-              htmlFor={field.id}
-              className="block text-sm font-medium text-gray-700 mb-2 transition-colors duration-200"
-            >
+          <div key={field.id} className="space-y-2">
+            <Label htmlFor={fieldName} className="text-sm font-medium">
               {field.label}
-              {isRequired && <span className="text-red-500 ml-1">*</span>}
+              {field.required && <span className="text-red-500 ml-1">*</span>}
             </Label>
-            <div className="relative">
-              <Select
-                value={fieldValue}
-                onValueChange={value => form.setValue(field.name, value)}
-              >
-                <SelectTrigger className="w-full px-4 py-3 border border-gray-300 rounded-lg bg-gray-50 focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 focus:scale-[1.02] h-[44px]">
-                  <SelectValue
-                    placeholder={field.placeholder || 'Select an option'}
-                  />
-                </SelectTrigger>
-                <SelectContent>
-                  {field.options?.map(option => (
-                    <SelectItem
-                      key={option.value}
-                      value={option.value.toString()}
-                    >
-                      {option.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            {field.helpText && (
-              <p className="text-xs text-gray-500 mt-1">{field.helpText}</p>
-            )}
-            {fieldError && typeof fieldError.message === 'string' && (
-              <p className="text-xs text-red-500 mt-1">{fieldError.message}</p>
+            <Select
+              onValueChange={(value) => setValue(fieldName, value)}
+              defaultValue={defaultValues[fieldName]}
+            >
+              <SelectTrigger className={fieldError ? 'border-red-500' : ''}>
+                <SelectValue placeholder={field.placeholder} />
+              </SelectTrigger>
+              <SelectContent>
+                {field.options?.map((option) => (
+                  <SelectItem key={option.value} value={option.value}>
+                    {option.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            {fieldError && (
+              <p className="text-sm text-red-500">{fieldError.message}</p>
             )}
           </div>
         );
 
       case 'checkbox':
         return (
-          <div key={field.id} className="mb-6">
-            <div className="flex items-start space-x-3">
-              <Checkbox
-                id={field.id}
-                checked={fieldValue}
-                onCheckedChange={checked => form.setValue(field.name, checked)}
-                disabled={baseFieldProps.disabled}
-                className="mt-1"
-              />
-              <div className="space-y-1">
-                <Label htmlFor={field.id} className="flex items-center gap-2">
-                  {field.label}
-                  {isRequired && <span className="text-red-500">*</span>}
-                </Label>
-                {field.helpText && (
-                  <p className="text-sm text-gray-600">{field.helpText}</p>
-                )}
-              </div>
-            </div>
-            {fieldError && typeof fieldError.message === 'string' && (
-              <p className="text-sm text-red-600">{fieldError.message}</p>
+          <div key={field.id} className="flex items-center space-x-2">
+            <Checkbox
+              id={fieldName}
+              {...register(fieldName)}
+              className={fieldError ? 'border-red-500' : ''}
+            />
+            <Label htmlFor={fieldName} className="text-sm font-medium">
+              {field.label}
+              {field.required && <span className="text-red-500 ml-1">*</span>}
+            </Label>
+            {fieldError && (
+              <p className="text-sm text-red-500">{fieldError.message}</p>
             )}
           </div>
         );
 
-      case 'radio':
+      case 'number':
         return (
-          <div key={field.id} className="mb-6">
-            <Label className="flex items-center gap-2">
+          <div key={field.id} className="space-y-2">
+            <Label htmlFor={fieldName} className="text-sm font-medium">
               {field.label}
-              {isRequired && <span className="text-red-500">*</span>}
+              {field.required && <span className="text-red-500 ml-1">*</span>}
             </Label>
-            <div className="space-y-2">
-              {field.options?.map(option => (
-                <div key={option.value} className="flex items-center space-x-2">
-                  <input
-                    type="radio"
-                    id={`${field.id}-${option.value}`}
-                    name={field.name}
-                    value={option.value}
-                    checked={fieldValue === option.value}
-                    onChange={e => form.setValue(field.name, e.target.value)}
-                    disabled={baseFieldProps.disabled}
-                    className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
-                  />
-                  <Label
-                    htmlFor={`${field.id}-${option.value}`}
-                    className="text-sm"
-                  >
-                    {option.label}
-                  </Label>
-                </div>
-              ))}
-            </div>
-            {field.helpText && (
-              <p className="text-sm text-gray-600">{field.helpText}</p>
-            )}
-            {fieldError && typeof fieldError.message === 'string' && (
-              <p className="text-sm text-red-600">{fieldError.message}</p>
+            <Input
+              id={fieldName}
+              type="number"
+              {...register(fieldName)}
+              placeholder={field.placeholder}
+              min={field.min}
+              max={field.max}
+              step={field.step}
+              className={fieldError ? 'border-red-500' : ''}
+            />
+            {fieldError && (
+              <p className="text-sm text-red-500">{fieldError.message}</p>
             )}
           </div>
         );
 
       default:
         return (
-          <div key={field.id} className="mb-6">
-            <Label
-              htmlFor={field.id}
-              className="block text-sm font-medium text-gray-700 mb-2 transition-colors duration-200"
-            >
-              {field.label}
-              {isRequired && <span className="text-red-500 ml-1">*</span>}
-            </Label>
-            <div className="relative">
-              <Input
-                type="text"
-                {...baseInputProps}
-                className={`w-full px-4 py-3 border border-gray-300 rounded-lg bg-gray-50 focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 focus:scale-[1.02] h-[44px] placeholder-gray-400 ${
-                  fieldError ? 'border-red-500 focus:ring-red-500' : ''
-                }`}
-              />
-            </div>
-            {field.helpText && (
-              <p className="text-xs text-gray-500 mt-1">{field.helpText}</p>
-            )}
-            {fieldError && typeof fieldError.message === 'string' && (
-              <p className="text-xs text-red-500 mt-1">{fieldError.message}</p>
-            )}
+          <div key={field.id} className="text-sm text-gray-500">
+            Unsupported field type: {field.type}
           </div>
         );
     }
   };
 
-  // Render form section
   const renderSection = (section: FormSection) => {
-    const status = getSectionStatus(section);
-    const isAccessible = status !== 'locked';
-    const isCompleted = status === 'completed';
+    if (!section.enabled) return null;
 
     return (
-      <div
-        key={section.id}
-        className={`group transition-all duration-300 ${
-          !isAccessible ? 'opacity-50 pointer-events-none' : ''
-        }`}
-      >
-        <div className="pb-6">
-          <div className="flex items-center justify-between mb-3">
-            <div className="flex items-center space-x-3">
-              <div
-                className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold transition-all duration-300 ${
-                  isCompleted
-                    ? 'bg-green-100 text-green-600'
-                    : 'bg-blue-100 text-blue-600'
-                }`}
-              >
-                {isCompleted ? '✓' : section.order + 1}
-              </div>
-              <h3 className="text-lg font-semibold text-gray-900">
-                {section.title}
-              </h3>
-            </div>
-            {isCompleted && (
-              <Badge
-                variant="secondary"
-                className="bg-green-50 text-green-600 border-green-200"
-              >
-                ✓ Valmis
-              </Badge>
+      <div key={section.id} className="space-y-4">
+        {section.title && (
+          <div className="border-b border-gray-200 pb-2">
+            <h3 className="text-lg font-semibold text-gray-900">
+              {section.title}
+            </h3>
+            {section.description && (
+              <p className="text-sm text-gray-600 mt-1">
+                {section.description}
+              </p>
             )}
           </div>
-
-          {section.description && (
-            <p className="text-sm text-gray-600 mb-6 leading-relaxed pl-11">
-              {section.description}
-            </p>
-          )}
-
-          <div className="pl-11 space-y-6 w-full">
-            <div
-              className={`grid gap-6 w-full ${
-                section.styling?.columns === 2
-                  ? 'grid-cols-1 sm:grid-cols-2'
-                  : section.styling?.columns === 3
-                    ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3'
-                    : 'grid-cols-1'
-              }`}
-            >
-              {section.fields.map(renderField)}
-            </div>
-          </div>
+        )}
+        <div className="space-y-4">
+          {section.fields.map(renderField)}
         </div>
       </div>
     );
   };
 
   if (!currentPage) {
-    return <div>Page not found</div>;
+    return (
+      <div className="text-center py-8">
+        <p className="text-gray-500">No pages found in form schema.</p>
+      </div>
+    );
   }
 
   return (
-    <div className={`w-full ${className}`}>
-      {/* Enhanced Header with Progress */}
-      <div className="border-b border-gray-100 bg-gradient-to-r from-gray-50 to-white px-6 sm:px-8 py-6">
-        <h2 className="text-xl sm:text-2xl font-bold text-center bg-gradient-to-r from-gray-800 to-gray-600 bg-clip-text text-transparent">
-          {schema.name}
+    <div className="space-y-6">
+      {/* Page Header */}
+      <div className="text-center">
+        <h2 className="text-2xl font-bold text-gray-900">
+          {currentPage.title}
         </h2>
-
-        {schema.description && (
-          <p className="text-sm text-gray-600 text-center px-2 sm:px-0 mt-2 leading-relaxed">
-            {schema.description}
-          </p>
+        {currentPage.description && (
+          <p className="text-gray-600 mt-2">{currentPage.description}</p>
         )}
+      </div>
 
-        {/* Page Progress Indicator */}
-        {/* Progress Bar */}
-        {/* Progress Bar */}
+      {/* Form Content */}
+      <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-6">
+        {currentPage.sections.map(renderSection)}
 
-        {/* Form Content */}
-        <div className="p-6 sm:p-8 h-full overflow-y-auto">
-          <form
-            onSubmit={form.handleSubmit(handleSubmit)}
-            className="space-y-8 w-full"
+        {/* Navigation Buttons */}
+        <div className="flex justify-between pt-6">
+          <Button
+            type="button"
+            variant="outline"
+            onClick={handlePreviousPage}
+            disabled={currentPageIndex === 0}
           >
-            {/* Page Title */}
-            <div className="text-center mb-8">
-              <h2 className="text-2xl font-bold text-gray-900 mb-2">
-                {currentPage.title}
-              </h2>
-              {currentPage.description && (
-                <p className="text-gray-600 max-w-2xl mx-auto">
-                  {currentPage.description}
-                </p>
-              )}
-            </div>
+            Previous
+          </Button>
 
-            {/* Render Sections */}
-            <div className="space-y-8 w-full">
-              {currentPage.sections.map(renderSection)}
-            </div>
-
-            {/* Navigation and Submit */}
-            {showNavigation && (
-              <div className="pt-8 border-t border-gray-200/50">
-                <div className="flex justify-between items-center">
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={goToPreviousPage}
-                    disabled={state.currentPageIndex === 0}
-                    className="border-2 border-gray-300 hover:border-gray-400 px-6 py-3 rounded-lg font-medium transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    Edellinen
-                  </Button>
-
-                  {state.currentPageIndex < totalPages - 1 ? (
-                    <Button
-                      type="button"
-                      onClick={goToNextPage}
-                      disabled={!form.formState.isValid}
-                      className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium shadow-lg hover:shadow-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                      Seuraava
-                    </Button>
-                  ) : (
-                    <Button
-                      type="submit"
-                      disabled={state.isSubmitting || !form.formState.isValid}
-                      className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium shadow-lg hover:shadow-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                      {state.isSubmitting ? (
-                        <div className="flex items-center space-x-2">
-                          <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                          <span>Lähetetään...</span>
-                        </div>
-                      ) : (
-                        'Lähetä'
-                      )}
-                    </Button>
-                  )}
-                </div>
-              </div>
+          <div className="flex space-x-2">
+            {currentPageIndex < totalPages - 1 ? (
+              <Button
+                type="button"
+                onClick={handleNextPage}
+                disabled={!isValid}
+              >
+                Next
+              </Button>
+            ) : (
+              <Button type="submit" disabled={!isValid}>
+                Submit
+              </Button>
             )}
-          </form>
+          </div>
         </div>
+      </form>
+
+      {/* Page Indicator */}
+      <div className="text-center text-sm text-gray-500">
+        Page {currentPageIndex + 1} of {totalPages}
       </div>
     </div>
   );
