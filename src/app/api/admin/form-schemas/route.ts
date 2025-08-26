@@ -2,6 +2,10 @@ import { NextRequest, NextResponse } from 'next/server';
 import { supabase } from '@/lib/supabase';
 import { verifySessionToken } from '@/lib/auth';
 
+// Generate a consistent UUID for admin operations
+// This ensures we have a valid UUID format for the created_by field
+const ADMIN_USER_ID = '00000000-0000-0000-0000-000000000001';
+
 export async function GET(request: NextRequest) {
   try {
     // Verify admin session
@@ -94,14 +98,14 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Insert new form schema
+    // Insert new form schema with proper admin UUID
     const { data, error } = await supabase
       .from('form_schemas')
       .insert({
         name,
         description,
         schema_data,
-        created_by: session.user.id,
+        created_by: ADMIN_USER_ID, // Use consistent admin UUID
       })
       .select()
       .single();
