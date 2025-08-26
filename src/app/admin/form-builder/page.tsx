@@ -337,11 +337,11 @@ export default function FormBuilderPage() {
   const handleSectionImageUpdate = (sectionId: string, imageUrl: string) => {
     setFormStructure(prev => {
       if (!prev) return prev; // Return early if no previous state
-
+      
       return {
         ...prev,
         pages: prev.pages.map(page =>
-          page.id === currentPage
+          page.id === 'main' // Use the actual page ID from the structure
             ? {
                 ...page,
                 sections: page.sections.map(section =>
