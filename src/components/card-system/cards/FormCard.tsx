@@ -9,6 +9,7 @@ interface FormCardProps {
 
 export function FormCard({ card }: FormCardProps) {
   const [fields, setFields] = useState<CardField[]>([]);
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const { formData, updateField, cardStates, completeCard } = useCardContext();
   const isActive = cardStates[card.id]?.status === 'active';
 
@@ -26,16 +27,143 @@ export function FormCard({ card }: FormCardProps) {
     setFields(data || []);
   };
 
+  const validateField = (field: CardField, value: any): boolean => {
+    const rules = field.validation_rules;
+    
+    // Required field validation
+    if (field.required && (!value || value.toString().trim() === '')) {
+      return false;
+    }
+    
+    // Skip further validation if no value and not required
+    if (!value || value.toString().trim() === '') {
+      return true;
+    }
+
+    // Email validation
+    if (field.field_type === 'email') {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(value)) return false;
+    }
+
+    // Number validation for numeric fields
+    if (field.field_type === 'number') {
+      const numValue = parseFloat(value);
+      if (isNaN(numValue)) return false;
+      
+      if (rules?.min !== undefined && numValue < rules.min) return false;
+      if (rules?.max !== undefined && numValue > rules.max) return false;
+    }
+
+    // Text length validation
+    if (rules?.minLength !== undefined && value.toString().length < rules.minLength) return false;
+    if (rules?.maxLength !== undefined && value.toString().length > rules.maxLength) return false;
+
+    // Pattern validation
+    if (rules?.pattern && !new RegExp(rules.pattern).test(value)) return false;
+
+    return true;
+  };
+
+  const getFieldError = (field: CardField, value: any): string | null => {
+    const rules = field.validation_rules;
+    
+    // Required field error
+    if (field.required && (!value || value.toString().trim() === '')) {
+      return 'This field is required';
+    }
+    
+    // Skip further validation if no value and not required
+    if (!value || value.toString().trim() === '') {
+      return null;
+    }
+
+    // Email validation error
+    if (field.field_type === 'email') {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(value)) {
+        return 'Please enter a valid email address';
+      }
+    }
+
+    // Number validation errors
+    if (field.field_type === 'number') {
+      const numValue = parseFloat(value);
+      if (isNaN(numValue)) {
+        return 'Please enter a valid number';
+      }
+      
+      if (rules?.min !== undefined && numValue < rules.min) {
+        return `Value must be at least ${rules.min}`;
+      }
+      if (rules?.max !== undefined && numValue > rules.max) {
+        return `Value must be no more than ${rules.max}`;
+      }
+    }
+
+    // Text length validation errors
+    if (rules?.minLength !== undefined && value.toString().length < rules.minLength) {
+      return `Must be at least ${rules.minLength} characters`;
+    }
+    if (rules?.maxLength !== undefined && value.toString().length > rules.maxLength) {
+      return `Must be no more than ${rules.maxLength} characters`;
+    }
+
+    // Pattern validation error
+    if (rules?.pattern && !new RegExp(rules.pattern).test(value)) {
+      return 'Please enter a valid value';
+    }
+
+    return null;
+  };
+
+  const handleFieldChange = (fieldName: string, value: any) => {
+    updateField(fieldName, value);
+    
+    // Clear error when user starts typing
+    if (fieldErrors[fieldName]) {
+      setFieldErrors(prev => ({ ...prev, [fieldName]: '' }));
+    }
+    
+    // Validate and check completion
+    setTimeout(() => checkCompletion(), 100);
+  };
+
+  const handleFieldBlur = (field: CardField) => {
+    const value = formData[field.field_name];
+    const error = getFieldError(field, value);
+    
+    if (error) {
+      setFieldErrors(prev => ({ ...prev, [field.field_name]: error }));
+    } else {
+      setFieldErrors(prev => ({ ...prev, [field.field_name]: '' }));
+    }
+  };
+
   const checkCompletion = () => {
     const allRequired = fields.filter(f => f.required);
-    const allFilled = allRequired.every(f => formData[f.field_name]);
-    if (allFilled) {
+    const allValid = allRequired.every(field => {
+      const value = formData[field.field_name];
+      return validateField(field, value);
+    });
+    
+    if (allValid) {
       completeCard(card.id);
     }
   };
 
   const renderField = (field: CardField) => {
     const value = formData[field.field_name] || '';
+    const error = fieldErrors[field.field_name];
+    
+    const inputClasses = `
+      w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 transition-colors
+      ${error 
+        ? 'border-red-300 focus:ring-red-500 focus:border-red-500' 
+        : 'border-gray-300 focus:ring-blue-500 focus:border-blue-500'
+      }
+      ${!isActive ? 'bg-gray-100 cursor-not-allowed' : ''}
+    `;
     
     switch (field.field_type) {
       case 'text':
@@ -45,25 +173,25 @@ export function FormCard({ card }: FormCardProps) {
           <input
             type={field.field_type}
             value={value}
-            onChange={(e) => {
-              updateField(field.field_name, e.target.value);
-              checkCompletion();
-            }}
+            onChange={(e) => handleFieldChange(field.field_name, e.target.value)}
+            onBlur={() => handleFieldBlur(field)}
             placeholder={field.placeholder}
             disabled={!isActive}
-            className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
+            className={inputClasses}
+            min={field.field_type === 'number' ? field.validation_rules?.min : undefined}
+            max={field.field_type === 'number' ? field.validation_rules?.max : undefined}
+            minLength={field.validation_rules?.minLength}
+            maxLength={field.validation_rules?.maxLength}
           />
         );
       case 'select':
         return (
           <select
             value={value}
-            onChange={(e) => {
-              updateField(field.field_name, e.target.value);
-              checkCompletion();
-            }}
+            onChange={(e) => handleFieldChange(field.field_name, e.target.value)}
+            onBlur={() => handleFieldBlur(field)}
             disabled={!isActive}
-            className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
+            className={inputClasses}
           >
             <option value="">Select...</option>
             {field.options?.map(opt => (
@@ -100,7 +228,10 @@ export function FormCard({ card }: FormCardProps) {
               {field.required && <span className="text-red-500 ml-1">*</span>}
             </label>
             {renderField(field)}
-            {field.help_text && (
+            {error && (
+              <p className="text-xs text-red-500 mt-1">{error}</p>
+            )}
+            {field.help_text && !error && (
               <p className="text-xs text-gray-500 mt-1">{field.help_text}</p>
             )}
           </div>
