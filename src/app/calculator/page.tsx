@@ -64,7 +64,7 @@ export default function CalculatorPage() {
 
   return (
     <div className="flex h-screen">
-      <div className="w-2/5 border-r">
+      <div className="w-3/4 border-r">
         <VisualSupport
           activeSection={activeSection}
           activeField={activeField}
@@ -72,7 +72,7 @@ export default function CalculatorPage() {
         />
       </div>
       
-      <div className="flex-1 overflow-y-auto">
+      <div className="w-1/4 overflow-y-auto">
         <FormRenderer
           schema={formSchema}
           onSubmit={handleSubmit}
