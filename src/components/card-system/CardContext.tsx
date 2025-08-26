@@ -26,6 +26,38 @@ export function CardProvider({ children }: { children: React.ReactNode }) {
     setFormData(prev => ({ ...prev, [fieldName]: value }));
   }, []);
 
+  const unlockCard = useCallback((cardId: string) => {
+    setCardStates(prev => ({
+      ...prev,
+      [cardId]: { ...prev[cardId], status: 'unlocked' }
+    }));
+  }, []);
+
+  const unlockNextCards = useCallback((cardId: string) => {
+    switch(cardId) {
+      case '00000000-0000-0000-0000-000000000001': // Card 1 (Property Details)
+        // Immediately unlock calculation card (calc-1)
+        unlockCard('00000000-0000-0000-0000-000000000002');
+        // After 1 second delay, unlock Card 2 (Heating Info)
+        setTimeout(() => unlockCard('00000000-0000-0000-0000-000000000003'), 1000);
+        break;
+        
+      case '00000000-0000-0000-0000-000000000003': // Card 2 (Heating Info)
+        // Immediately unlock info card
+        unlockCard('00000000-0000-0000-0000-000000000004');
+        // After 800ms, unlock calc-2 (savings calculation)
+        setTimeout(() => unlockCard('00000000-0000-0000-0000-000000000005'), 800);
+        // After 1600ms, unlock Card 3 (Contact)
+        setTimeout(() => unlockCard('00000000-0000-0000-0000-000000000006'), 1600);
+        break;
+        
+      case '00000000-0000-0000-0000-000000000006': // Card 3 (Contact)
+        // After 500ms, unlock submit card
+        setTimeout(() => unlockCard('00000000-0000-0000-0000-000000000007'), 500);
+        break;
+    }
+  };
+
   const completeCard = useCallback((cardId: string) => {
     setCardStates(prev => {
       const newStates = { ...prev };
@@ -33,57 +65,12 @@ export function CardProvider({ children }: { children: React.ReactNode }) {
       // Mark current card as complete
       newStates[cardId] = { ...newStates[cardId], status: 'complete' };
       
-      // Implement specific card completion logic based on card type
-      const currentIndex = cardOrder.indexOf(cardId);
-      
-      if (cardId === '00000000-0000-0000-0000-000000000001') {
-        // Card 1 (Property Details) completion
-        // Immediately unlock calculation card (calc-1)
-        newStates['00000000-0000-0000-0000-000000000002'] = { status: 'unlocked' };
-        
-        // After 1 second delay, unlock Card 2 (Heating Info)
-        setTimeout(() => {
-          setCardStates(prev => ({
-            ...prev,
-            '00000000-0000-0000-0000-000000000003': { status: 'unlocked' }
-          }));
-        }, 1000);
-        
-      } else if (cardId === '00000000-0000-0000-0000-000000000003') {
-        // Card 2 (Heating Info) completion
-        // Immediately unlock info card
-        newStates['00000000-0000-0000-0000-000000000004'] = { status: 'unlocked' };
-        
-        // After 800ms, unlock calc-2 (savings calculation)
-        setTimeout(() => {
-          setCardStates(prev => ({
-            ...prev,
-            '00000000-0000-0000-0000-000000000005': { status: 'unlocked' }
-          }));
-        }, 800);
-        
-        // After 1600ms, unlock Card 3 (Contact)
-        setTimeout(() => {
-          setCardStates(prev => ({
-            ...prev,
-            '00000000-0000-0000-0000-000000000006': { status: 'unlocked' }
-          }));
-        }, 1600);
-        
-      } else if (cardId === '00000000-0000-0000-0000-000000000006') {
-        // Card 3 (Contact) completion
-        // After 500ms, unlock submit card
-        setTimeout(() => {
-          setCardStates(prev => ({
-            ...prev,
-            '00000000-0000-0000-0000-000000000007': { status: 'unlocked' }
-          }));
-        }, 500);
-      }
+      // Trigger the unlock cascade
+      unlockNextCards(cardId);
       
       return newStates;
     });
-  }, [cardOrder]);
+  }, [unlockNextCards]);
 
   const activateCard = useCallback((cardId: string) => {
     setCardStates(prev => {
