@@ -356,6 +356,35 @@ export default function FormBuilderPage() {
     [selectedSection]
   );
 
+  // Handle section properties update (title, description, enabled, collapsible)
+  const handleSectionPropertiesUpdate = useCallback(
+    (sectionId: string, updates: Partial<FormSection>) => {
+      console.log('Updating section properties:', { sectionId, updates });
+
+      setFormStructure(prev => ({
+        ...prev,
+        pages: prev.pages.map(page => ({
+          ...page,
+          sections: page.sections.map(section =>
+            section.id === sectionId
+              ? { ...section, ...updates }
+              : section
+          ),
+        })),
+      }));
+
+      // Update selected section if it's the one being edited
+      if (selectedSection?.id === sectionId) {
+        setSelectedSection(prev =>
+          prev ? { ...prev, ...updates } : null
+        );
+      }
+
+      setHasUnsavedChanges(true);
+    },
+    [selectedSection]
+  );
+
   // Handle new section creation
   const handleCreateNewSection = () => {
     if (!newSectionData.title.trim()) {
@@ -1171,8 +1200,10 @@ export default function FormBuilderPage() {
                           id="section-title"
                           value={selectedSection.title || ''}
                           onChange={e => {
-                            // TODO: Implement section title update
-                            setHasUnsavedChanges(true);
+                            handleSectionPropertiesUpdate(
+                              selectedSection.id,
+                              { title: e.target.value }
+                            );
                           }}
                           placeholder="Enter section title"
                         />
