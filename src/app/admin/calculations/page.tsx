@@ -16,14 +16,15 @@ import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Separator } from '@/components/ui/separator';
 import {
-  Plus,
   Calculator,
-  Play,
-  Trash2,
-  Copy,
+  FileText,
+  Download,
+  Eye,
+  Settings,
+  Shield,
+  AlertTriangle,
   CheckCircle,
-  AlertCircle,
-  Edit,
+  XCircle,
 } from 'lucide-react';
 import {
   Formula,
@@ -246,7 +247,7 @@ export default function AdminCalculationsPage() {
             onClick={() => setShowCreateForm(true)}
             className="flex items-center gap-2"
           >
-            <Plus className="h-4 w-4" />
+            <FileText className="h-4 w-4" />
             New Formula
           </Button>
         </div>
@@ -256,7 +257,7 @@ export default function AdminCalculationsPage() {
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <AlertCircle className="h-5 w-5 text-amber-600" />
+                <Shield className="h-5 w-5 text-amber-600" />
                 <div>
                   <h3 className="font-medium text-foreground">
                     Security Status
@@ -394,13 +395,13 @@ export default function AdminCalculationsPage() {
                       <div className="mt-2">
                         {validationResult.errors.length > 0 && (
                           <div className="text-red-600 text-sm flex items-center gap-2">
-                            <AlertCircle className="h-4 w-4" />
+                            <AlertTriangle className="h-4 w-4" />
                             {validationResult.errors.join(', ')}
                           </div>
                         )}
                         {validationResult.warnings.length > 0 && (
                           <div className="text-yellow-600 text-sm flex items-center gap-2">
-                            <AlertCircle className="h-4 w-4" />
+                            <AlertTriangle className="h-4 w-4" />
                             {validationResult.warnings.join(', ')}
                           </div>
                         )}
@@ -469,7 +470,7 @@ export default function AdminCalculationsPage() {
                                 )
                               }
                             >
-                              <Copy className="h-3 w-3" />
+                              <Download className="h-3 w-3" />
                             </Button>
                           </div>
                           <p className="text-xs text-muted-foreground mt-1">
@@ -498,7 +499,7 @@ export default function AdminCalculationsPage() {
                                 )
                               }
                             >
-                              <Copy className="h-3 w-3" />
+                              <Download className="h-3 w-3" />
                             </Button>
                           </div>
                           <p className="text-xs text-muted-foreground mt-1">
@@ -527,7 +528,7 @@ export default function AdminCalculationsPage() {
                                 )
                               }
                             >
-                              <Copy className="h-3 w-3" />
+                              <Download className="h-3 w-3" />
                             </Button>
                           </div>
                           <p className="text-xs text-muted-foreground mt-1">
@@ -567,7 +568,7 @@ export default function AdminCalculationsPage() {
                           size="sm"
                           onClick={() => handleTestFormula(formula)}
                         >
-                          <Play className="h-4 w-4" />
+                          <Eye className="h-4 w-4" />
                           Test
                         </Button>
                         <Button
@@ -584,7 +585,7 @@ export default function AdminCalculationsPage() {
                             setShowCreateForm(true);
                           }}
                         >
-                          <Edit className="h-4 w-4" />
+                          <Settings className="h-4 w-4" />
                           Edit
                         </Button>
                         <Button
@@ -602,7 +603,7 @@ export default function AdminCalculationsPage() {
                           onClick={() => handleDeleteFormula(formula.id)}
                           className="text-red-600 hover:text-red-700"
                         >
-                          <Trash2 className="h-4 w-4" />
+                          <XCircle className="h-4 w-4" />
                         </Button>
                       </div>
                     </div>
@@ -618,7 +619,7 @@ export default function AdminCalculationsPage() {
                         onClick={() => copyToClipboard(formula.formula_text)}
                         className="ml-2 h-6 px-2"
                       >
-                        <Copy className="h-3 w-3" />
+                        <Download className="h-3 w-3" />
                       </Button>
                     </div>
 
@@ -647,7 +648,7 @@ export default function AdminCalculationsPage() {
                       Create your first calculation formula to get started
                     </p>
                     <Button onClick={() => setShowCreateForm(true)}>
-                      <Plus className="h-4 w-4 mr-2" />
+                      <FileText className="h-4 w-4 mr-2" />
                       Create Formula
                     </Button>
                   </CardContent>
@@ -701,7 +702,7 @@ export default function AdminCalculationsPage() {
                   </div>
 
                   <Button onClick={executeTest} className="w-full">
-                    <Play className="h-4 w-4 mr-2" />
+                    <Eye className="h-4 w-4 mr-2" />
                     Execute Test
                   </Button>
 
@@ -717,7 +718,7 @@ export default function AdminCalculationsPage() {
                         {testResult.success ? (
                           <CheckCircle className="h-5 w-5 text-green-600" />
                         ) : (
-                          <AlertCircle className="h-5 w-5 text-red-600" />
+                          <AlertTriangle className="h-5 w-5 text-red-600" />
                         )}
                         <span className="font-medium">
                           {testResult.success
@@ -775,7 +776,7 @@ export default function AdminCalculationsPage() {
                                 )
                               }
                             >
-                              <Copy className="h-3 w-3" />
+                              <Download className="h-3 w-3" />
                             </Button>
                           </div>
                           <p className="text-xs text-muted-foreground mt-1">
@@ -805,7 +806,7 @@ export default function AdminCalculationsPage() {
                                 )
                               }
                             >
-                              <Copy className="h-3 w-3" />
+                              <Download className="h-3 w-3" />
                             </Button>
                           </div>
                           <p className="text-xs text-muted-foreground mt-1">

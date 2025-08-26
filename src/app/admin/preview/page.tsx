@@ -27,7 +27,7 @@ import { ThemeConfig, DEFAULT_THEME_CONFIG } from '@/lib/types/theme';
 // Lazy load the FormRenderer for code splitting
 const FormRenderer = lazy(() =>
   import('@/components/form-system/FormRenderer').then(module => ({
-    default: module.FormRenderer,
+    default: module.default,
   }))
 );
 
