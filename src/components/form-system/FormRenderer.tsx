@@ -23,12 +23,16 @@ interface FormRendererProps {
   schema: FormSchema;
   onSubmit: (formData: any) => void;
   onPageChange: (pageIndex: number) => void;
+  onSectionChange?: (sectionId: string | null) => void;
+  onFieldFocus?: (fieldId: string | null) => void;
 }
 
 export default function FormRenderer({
   schema,
   onSubmit,
   onPageChange,
+  onSectionChange,
+  onFieldFocus,
 }: FormRendererProps) {
   const [currentPageIndex, setCurrentPageIndex] = React.useState(0);
   const [formData, setFormData] = React.useState<any>({});
@@ -101,18 +105,17 @@ export default function FormRenderer({
       case 'text':
         return (
           <div key={field.id} className="space-y-2">
-            <Label htmlFor={fieldName} className="text-sm font-medium">
-              {field.label}
-              {field.required && <span className="text-red-500 ml-1">*</span>}
-            </Label>
+            <Label htmlFor={field.id}>{field.label}</Label>
             <Input
-              id={fieldName}
-              {...register(fieldName)}
+              id={field.id}
+              type="text"
               placeholder={field.placeholder}
-              className={fieldError ? 'border-red-500' : ''}
+              {...register(field.id)}
+              onFocus={() => onFieldFocus?.(field.id)}
+              onBlur={() => onFieldFocus?.(null)}
             />
-            {fieldError && (
-              <p className="text-sm text-red-500">{fieldError.message}</p>
+            {errors[field.id] && (
+              <p className="text-sm text-red-600">{errors[field.id]?.message}</p>
             )}
           </div>
         );
