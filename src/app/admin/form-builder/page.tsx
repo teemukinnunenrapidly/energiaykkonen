@@ -43,6 +43,7 @@ import {
   AlertTriangle,
 } from 'lucide-react';
 import { ImagePicker } from '@/components/admin/ImagePicker';
+import { VisualObjectSelector } from '@/components/admin/VisualObjectSelector';
 import { FormSchema, FormSection, FormField } from '@/types/form';
 import {
   getActiveFormSchema,
@@ -142,8 +143,10 @@ export default function FormBuilderPage() {
 
   // New field creation state
   const [isNewFieldDialogOpen, setIsNewFieldDialogOpen] = useState(false);
-  const [newFieldSectionId, setNewFieldSectionId] = useState<string>('');
-  const [newFieldData, setNewFieldData] = useState({
+  const [isVisualObjectSelectorOpen, setIsVisualObjectSelectorOpen] = useState(false);
+  const [selectedVisualObjectType, setSelectedVisualObjectType] = useState<'section' | 'field' | null>(null);
+  const [selectedVisualObjectId, setSelectedVisualObjectId] = useState<string | null>(null);
+  const [newFieldData, setNewFieldData] = useState<Partial<FormField>>({
     type: 'text' as
       | 'text'
       | 'number'
@@ -328,31 +331,102 @@ export default function FormBuilderPage() {
   );
 
   // Handle section image update
-  const handleSectionImageUpdate = useCallback(
-    (sectionId: string, imageUrl: string | null) => {
-      console.log('Updating section image:', { sectionId, imageUrl });
+  const handleSectionImageUpdate = (sectionId: string, imageUrl: string) => {
+    setFormStructure(prev =>
+      prev
+        ? {
+            ...prev,
+            pages: prev.pages.map(page =>
+              page.id === currentPage
+                ? {
+                    ...page,
+                    sections: page.sections.map(section =>
+                      section.id === sectionId
+                        ? { ...section, imageUrl: imageUrl || undefined }
+                        : section
+                    ),
+                  }
+                : page
+            ),
+          }
+        : null
+    );
+    setHasUnsavedChanges(true);
+  };
 
-      setFormStructure(prev => ({
-        ...prev,
-        pages: prev.pages.map(page => ({
-          ...page,
-          sections: page.sections.map(section =>
-            section.id === sectionId
-              ? { ...section, imageUrl: imageUrl || undefined }
-              : section
-          ),
-        })),
-      }));
+  const handleVisualObjectSelection = async (objectId: string) => {
+    if (!selectedVisualObjectType) return;
 
-      // Update selected section if it's the one being edited
-      if (selectedSection?.id === sectionId) {
-        setSelectedSection(prev => (prev ? { ...prev, imageUrl: imageUrl || undefined } : null));
+    try {
+      // Update the form_visual_mappings table
+      const response = await fetch('/api/admin/form-visual-mappings', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          form_element_id: selectedVisualObjectType === 'section' 
+            ? selectedSection?.id 
+            : selectedField?.id,
+          element_type: selectedVisualObjectType,
+          visual_object_id: objectId,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to update visual object mapping');
       }
 
+      // Update local state
+      setSelectedVisualObjectId(objectId);
       setHasUnsavedChanges(true);
-    },
-    [selectedSection]
-  );
+
+      // Show success feedback
+      console.log('Visual object mapping updated successfully');
+    } catch (error) {
+      console.error('Failed to update visual object mapping:', error);
+      alert('Failed to update visual object mapping');
+    }
+  };
+
+  const handleVisualObjectRemoval = async () => {
+    if (!selectedVisualObjectType) return;
+
+    try {
+      // Remove the mapping from form_visual_mappings table
+      const response = await fetch('/api/admin/form-visual-mappings', {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          form_element_id: selectedVisualObjectType === 'section' 
+            ? selectedSection?.id 
+            : selectedField?.id,
+          element_type: selectedVisualObjectType,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to remove visual object mapping');
+      }
+
+      // Update local state
+      setSelectedVisualObjectId(null);
+      setHasUnsavedChanges(true);
+
+      // Show success feedback
+      console.log('Visual object mapping removed successfully');
+    } catch (error) {
+      console.error('Failed to remove visual object mapping:', error);
+      alert('Failed to remove visual object mapping');
+    }
+  };
+
+  const openVisualObjectSelector = (type: 'section' | 'field') => {
+    setSelectedVisualObjectType(type);
+    setIsVisualObjectSelectorOpen(true);
+  };
 
   // Handle section properties update (title, description, enabled, collapsible)
   const handleSectionPropertiesUpdate = useCallback(
@@ -1167,6 +1241,40 @@ export default function FormBuilderPage() {
                           Optional image to display with this field
                         </p>
                       </div>
+
+                      {/* Visual Object Selection */}
+                      <div className="space-y-2">
+                        <Label className="block text-sm font-medium">
+                          Visual Support Object
+                        </Label>
+                        <div className="flex items-center gap-2">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => openVisualObjectSelector('field')}
+                            className="flex-1 justify-start"
+                          >
+                            {selectedVisualObjectId ? 'Change Visual Object' : 'Select Visual Object'}
+                          </Button>
+                          {selectedVisualObjectId && (
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={handleVisualObjectRemoval}
+                            >
+                              <X className="w-4 h-4" />
+                            </Button>
+                          )}
+                        </div>
+                        {selectedVisualObjectId && (
+                          <Badge variant="secondary" className="text-xs">
+                            Visual object selected
+                          </Badge>
+                        )}
+                        <p className="text-xs text-muted-foreground">
+                          Select a visual object to provide contextual support for this field
+                        </p>
+                      </div>
                     </div>
                   ) : selectedSection ? (
                     <div className="space-y-6">
@@ -1296,6 +1404,40 @@ export default function FormBuilderPage() {
                         />
                         <p className="text-xs text-muted-foreground">
                           This image will be displayed at the top of the section
+                        </p>
+                      </div>
+
+                      {/* Visual Object Selection */}
+                      <div className="space-y-2">
+                        <Label className="block text-sm font-medium">
+                          Visual Support Object
+                        </Label>
+                        <div className="flex items-center gap-2">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => openVisualObjectSelector('section')}
+                            className="flex-1 justify-start"
+                          >
+                            {selectedVisualObjectId ? 'Change Visual Object' : 'Select Visual Object'}
+                          </Button>
+                          {selectedVisualObjectId && (
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={handleVisualObjectRemoval}
+                            >
+                              <X className="w-4 h-4" />
+                            </Button>
+                          )}
+                        </div>
+                        {selectedVisualObjectId && (
+                          <Badge variant="secondary" className="text-xs">
+                            Visual object selected
+                          </Badge>
+                        )}
+                        <p className="text-xs text-muted-foreground">
+                          Select a visual object to provide contextual support for this section
                         </p>
                       </div>
                     </div>
@@ -2037,6 +2179,15 @@ export default function FormBuilderPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Visual Object Selector Modal */}
+      <VisualObjectSelector
+        open={isVisualObjectSelectorOpen}
+        onOpenChange={setIsVisualObjectSelectorOpen}
+        currentObjectId={selectedVisualObjectId}
+        onSelect={handleVisualObjectSelection}
+        onRemove={handleVisualObjectRemoval}
+      />
     </div>
   );
 }
