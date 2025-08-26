@@ -1,305 +1,365 @@
 'use client';
 
-import React, { useState, useCallback, useRef, useEffect } from 'react';
-import AdminNavigation from '@/components/admin/AdminNavigation';
-import { Card, CardContent } from '@/components/ui/card';
+import React, { useState, useEffect } from 'react';
+import { 
+  Folder, 
+  FolderOpen, 
+  Plus, 
+  Search, 
+  Image as ImageIcon, 
+  Eye, 
+  Edit, 
+  Trash2,
+  Upload,
+  Grid3X3,
+  List
+} from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import {
-  Upload,
-  Search,
-  Grid3X3,
-  List,
-  FolderOpen,
-  Image as ImageIcon,
-  Edit3,
-  Download,
-} from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { 
+  getVisualObjects, 
+  getVisualFolders, 
+  deleteVisualObject,
+  type VisualObject,
+  type VisualFolder,
+  type VisualObjectWithDetails
+} from '@/lib/visual-assets-service';
 
-import { getVisualAssets, type VisualAsset } from '@/lib/visual-assets-service';
-
-const ASSET_CATEGORIES = [
-  { id: 'all', name: 'All Assets', count: 0 },
-  { id: 'icons', name: 'Icons', count: 0 },
-  { id: 'charts', name: 'Charts', count: 0 },
-  { id: 'forms', name: 'Forms', count: 0 },
-  { id: 'backgrounds', name: 'Backgrounds', count: 0 },
-  { id: 'logos', name: 'Logos', count: 0 },
-  { id: 'other', name: 'Other', count: 0 },
-];
+interface FolderNode extends VisualFolder {
+  children: FolderNode[];
+  isExpanded?: boolean;
+}
 
 export default function VisualAssetsPage() {
-  const [assets, setAssets] = useState<VisualAsset[]>([]);
-  const [selectedCategory, setSelectedCategory] = useState('all');
+  const [folders, setFolders] = useState<FolderNode[]>([]);
+  const [visualObjects, setVisualObjects] = useState<VisualObjectWithDetails[]>([]);
+  const [filteredObjects, setFilteredObjects] = useState<VisualObjectWithDetails[]>([]);
+  const [selectedFolder, setSelectedFolder] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
-  const [selectedAssets, setSelectedAssets] = useState<Set<string>>(new Set());
-  const [isUploading, setIsUploading] = useState(false);
-  const [uploadProgress, setUploadProgress] = useState(0);
-  const [isLoading, setIsLoading] = useState(true);
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [loading, setLoading] = useState(true);
+  const [selectedObjects, setSelectedObjects] = useState<Set<string>>(new Set());
 
-  // Filter assets based on category and search
-  const filteredAssets = assets.filter(asset => {
-    const matchesCategory =
-      selectedCategory === 'all' || asset.category === selectedCategory;
-    const matchesSearch =
-      asset.display_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      asset.tags.some(tag =>
-        tag.toLowerCase().includes(searchQuery.toLowerCase())
-      );
-    return matchesCategory && matchesSearch;
-  });
-
-  // Fetch assets from database
   useEffect(() => {
-    const fetchAssets = async () => {
-      try {
-        setIsLoading(true);
-        const fetchedAssets = await getVisualAssets();
-        setAssets(fetchedAssets);
-      } catch (error) {
-        console.error('Error fetching assets:', error);
-        // TODO: Show error message to user
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchAssets();
+    loadData();
   }, []);
 
-  // Update category counts when assets change
   useEffect(() => {
-    const updateCategoryCounts = () => {
-      const counts = ASSET_CATEGORIES.map(category => {
-        if (category.id === 'all') {
-          return { ...category, count: assets.length };
-        }
-        return {
-          ...category,
-          count: assets.filter(a => a.category === category.id).length,
-        };
-      });
-      // Update the ASSET_CATEGORIES array
-      ASSET_CATEGORIES.splice(0, ASSET_CATEGORIES.length, ...counts);
-    };
+    filterObjects();
+  }, [searchQuery, selectedFolder, visualObjects]);
 
-    updateCategoryCounts();
-  }, [assets]);
-
-  // Handle file upload
-  const handleFileUpload = useCallback(async (files: FileList) => {
-    setIsUploading(true);
-    setUploadProgress(0);
-
+  const loadData = async () => {
     try {
-      // Simulate upload progress
-      for (let i = 0; i <= 100; i += 10) {
-        setUploadProgress(i);
-        await new Promise(resolve => setTimeout(resolve, 100));
-      }
-
-      // TODO: Implement actual file upload to Supabase storage
-      // For now, we'll create mock assets that match the database structure
-      const newAssets = Array.from(files).map((file, index) => ({
-        id: `new-${Date.now()}-${index}`,
-        name: file.name,
-        display_name: file.name.replace(/\.[^/.]+$/, '').replace(/[-_]/g, ' '),
-        type: (file.type.split('/')[1] || 'unknown') as VisualAsset['type'],
-        category: 'icons' as VisualAsset['category'], // Default category
-        url: URL.createObjectURL(file),
-        thumbnail_url: URL.createObjectURL(file),
-        file_size: file.size,
-        width: null,
-        height: null,
-        tags: [],
-        used_in: [],
-        is_active: true,
-        created_by: null,
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-      }));
-
-      setAssets(prev => [...newAssets, ...prev]);
-      setSelectedCategory('all'); // Show all assets after upload
+      setLoading(true);
+      const [foldersData, objectsData] = await Promise.all([
+        getVisualFolders(),
+        getVisualObjects()
+      ]);
+      
+      // Build folder tree structure
+      const folderTree = buildFolderTree(foldersData);
+      setFolders(folderTree);
+      
+      // Load full object details
+      const objectsWithDetails = await Promise.all(
+        objectsData.map(async (obj) => {
+          try {
+            const fullObj = await getVisualObject(obj.id);
+            return fullObj;
+          } catch (error) {
+            console.error(`Failed to load details for object ${obj.id}:`, error);
+            return null;
+          }
+        })
+      );
+      
+      setVisualObjects(objectsWithDetails.filter(Boolean) as VisualObjectWithDetails[]);
     } catch (error) {
-      console.error('Upload error:', error);
-      // TODO: Show error message to user
+      console.error('Failed to load visual assets data:', error);
     } finally {
-      setIsUploading(false);
-      setUploadProgress(0);
+      setLoading(false);
     }
-  }, []);
+  };
 
-  // Handle drag and drop
-  const handleDragOver = useCallback((e: React.DragEvent) => {
-    e.preventDefault();
-  }, []);
+  const buildFolderTree = (flatFolders: VisualFolder[]): FolderNode[] => {
+    const folderMap = new Map<string, FolderNode>();
+    const rootFolders: FolderNode[] = [];
 
-  const handleDrop = useCallback(
-    (e: React.DragEvent) => {
-      e.preventDefault();
-      const files = e.dataTransfer.files;
-      if (files.length > 0) {
-        handleFileUpload(files);
-      }
-    },
-    [handleFileUpload]
-  );
-
-  // Handle asset selection
-  const toggleAssetSelection = useCallback((assetId: string) => {
-    setSelectedAssets(prev => {
-      const newSet = new Set(prev);
-      if (newSet.has(assetId)) {
-        newSet.delete(assetId);
-      } else {
-        newSet.add(assetId);
-      }
-      return newSet;
+    // Create map of all folders
+    flatFolders.forEach(folder => {
+      folderMap.set(folder.id, { ...folder, children: [], isExpanded: false });
     });
-  }, []);
 
-  // Handle bulk selection
-  const selectAllAssets = useCallback(() => {
-    if (selectedAssets.size === filteredAssets.length) {
-      setSelectedAssets(new Set());
-    } else {
-      setSelectedAssets(new Set(filteredAssets.map(a => a.id)));
+    // Build tree structure
+    flatFolders.forEach(folder => {
+      const node = folderMap.get(folder.id)!;
+      if (folder.parent_id) {
+        const parent = folderMap.get(folder.parent_id);
+        if (parent) {
+          parent.children.push(node);
+        }
+      } else {
+        rootFolders.push(node);
+      }
+    });
+
+    return rootFolders;
+  };
+
+  const filterObjects = () => {
+    let filtered = visualObjects;
+
+    // Filter by selected folder
+    if (selectedFolder) {
+      filtered = filtered.filter(obj => obj.folder_id === selectedFolder);
     }
-  }, [filteredAssets, selectedAssets.size]);
 
-  // Handle asset deletion
-  const deleteSelectedAssets = useCallback(() => {
-    if (selectedAssets.size === 0) {
-      return;
+    // Filter by search query
+    if (searchQuery) {
+      const query = searchQuery.toLowerCase();
+      filtered = filtered.filter(obj => 
+        obj.title.toLowerCase().includes(query) ||
+        obj.name.toLowerCase().includes(query) ||
+        obj.description?.toLowerCase().includes(query)
+      );
     }
 
-    if (
-      confirm(
-        `Are you sure you want to delete ${selectedAssets.size} selected asset(s)?`
+    setFilteredObjects(filtered);
+  };
+
+  const toggleFolder = (folderId: string) => {
+    setFolders(prev => 
+      prev.map(folder => 
+        folder.id === folderId 
+          ? { ...folder, isExpanded: !folder.isExpanded }
+          : folder
       )
-    ) {
-      setAssets(prev => prev.filter(asset => !selectedAssets.has(asset.id)));
-      setSelectedAssets(new Set());
-    }
-  }, [selectedAssets.size]);
-
-  // Format file size
-  const formatFileSize = (bytes: number) => {
-    if (bytes === 0) {
-      return '0 Bytes';
-    }
-    const k = 1024;
-    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+    );
   };
 
-  // Get asset usage count
-  const getAssetUsageCount = (asset: VisualAsset) => {
-    return asset.used_in.length;
+  const handleDeleteObject = async (objectId: string) => {
+    if (!confirm('Are you sure you want to delete this visual object?')) return;
+    
+    try {
+      await deleteVisualObject(objectId);
+      setVisualObjects(prev => prev.filter(obj => obj.id !== objectId));
+    } catch (error) {
+      console.error('Failed to delete visual object:', error);
+      alert('Failed to delete visual object');
+    }
   };
+
+  const handleBulkDelete = async () => {
+    if (selectedObjects.size === 0) return;
+    if (!confirm(`Are you sure you want to delete ${selectedObjects.size} visual objects?`)) return;
+    
+    try {
+      await Promise.all(
+        Array.from(selectedObjects).map(id => deleteVisualObject(id))
+      );
+      setVisualObjects(prev => prev.filter(obj => !selectedObjects.has(obj.id)));
+      setSelectedObjects(new Set());
+    } catch (error) {
+      console.error('Failed to delete visual objects:', error);
+      alert('Failed to delete some visual objects');
+    }
+  };
+
+  const renderFolderTree = (folderNodes: FolderNode[], level = 0) => {
+    return folderNodes.map(folder => (
+      <div key={folder.id}>
+        <div 
+          className={`flex items-center p-2 hover:bg-gray-100 rounded cursor-pointer ${
+            selectedFolder === folder.id ? 'bg-blue-100' : ''
+          }`}
+          onClick={() => setSelectedFolder(folder.id)}
+        >
+          <div className="w-4 h-4 mr-2">
+            {folder.children.length > 0 && (
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  toggleFolder(folder.id);
+                }}
+                className="w-4 h-4 flex items-center justify-center"
+              >
+                {folder.isExpanded ? <FolderOpen className="w-3 h-3" /> : <Folder className="w-3 h-3" />}
+              </button>
+            )}
+          </div>
+          <span className="text-sm truncate">{folder.name}</span>
+        </div>
+        {folder.isExpanded && folder.children.length > 0 && (
+          <div className="ml-4">
+            {renderFolderTree(folder.children, level + 1)}
+          </div>
+        )}
+      </div>
+    ));
+  };
+
+  const renderVisualObjectCard = (obj: VisualObjectWithDetails) => {
+    const isSelected = selectedObjects.has(obj.id);
+    const firstImage = obj.images[0];
+    const imageUrl = firstImage 
+      ? `https://imagedelivery.net/${process.env.NEXT_PUBLIC_CLOUDFLARE_ACCOUNT_HASH}/${firstImage.cloudflare_image_id}/public`
+      : null;
+
+    return (
+      <Card 
+        key={obj.id} 
+        className={`cursor-pointer transition-all hover:shadow-lg ${
+          isSelected ? 'ring-2 ring-blue-500' : ''
+        }`}
+        onClick={() => {
+          const newSelected = new Set(selectedObjects);
+          if (isSelected) {
+            newSelected.delete(obj.id);
+          } else {
+            newSelected.add(obj.id);
+          }
+          setSelectedObjects(newSelected);
+        }}
+      >
+        <CardHeader className="p-4 pb-2">
+          <div className="flex items-center justify-between">
+            <Badge variant="secondary" className="text-xs">
+              {obj.images.length} {obj.images.length === 1 ? 'image' : 'images'}
+            </Badge>
+            <div className="flex items-center gap-1 text-gray-500">
+              <Eye className="w-3 h-3" />
+              <span className="text-xs">{obj.view_count}</span>
+            </div>
+          </div>
+        </CardHeader>
+        <CardContent className="p-4 pt-0">
+          <div className="aspect-square bg-gray-100 rounded-lg mb-3 overflow-hidden">
+            {imageUrl ? (
+              <img 
+                src={imageUrl} 
+                alt={obj.title}
+                className="w-full h-full object-cover"
+              />
+            ) : (
+              <div className="w-full h-full flex items-center justify-center">
+                <ImageIcon className="w-8 h-8 text-gray-400" />
+              </div>
+            )}
+          </div>
+          
+          <h3 className="font-semibold text-sm mb-1 truncate">{obj.title}</h3>
+          {obj.description && (
+            <p className="text-xs text-gray-600 line-clamp-2">{obj.description}</p>
+          )}
+          
+          <div className="flex items-center justify-between mt-3">
+            {obj.folder && (
+              <Badge variant="outline" className="text-xs">
+                📁 {obj.folder.name}
+              </Badge>
+            )}
+            <div className="flex gap-1">
+              <Button
+                size="sm"
+                variant="ghost"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  // TODO: Implement edit functionality
+                }}
+              >
+                <Edit className="w-3 h-3" />
+              </Button>
+              <Button
+                size="sm"
+                variant="ghost"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleDeleteObject(obj.id);
+                }}
+              >
+                <Trash2 className="w-3 h-3" />
+              </Button>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+      </div>
+    );
+  }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <AdminNavigation />
+    <div className="flex h-full">
+      {/* Folder Tree Sidebar */}
+      <div className="w-64 border-r bg-gray-50 p-4">
+        <div className="mb-4">
+          <h2 className="text-lg font-semibold mb-2">Folders</h2>
+          <Button size="sm" className="w-full">
+            <Plus className="w-4 h-4 mr-2" />
+            New Folder
+          </Button>
+        </div>
+        
+        <div className="space-y-1">
+          <div 
+            className={`flex items-center p-2 hover:bg-gray-100 rounded cursor-pointer ${
+              selectedFolder === null ? 'bg-blue-100' : ''
+            }`}
+            onClick={() => setSelectedFolder(null)}
+          >
+            <span className="text-sm font-medium">All Visual Objects</span>
+          </div>
+          {renderFolderTree(folders)}
+        </div>
+      </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+      {/* Main Content */}
+      <div className="flex-1 p-6">
         {/* Header */}
-        <div className="mb-6">
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">
-            Visual Assets
-          </h1>
-          <p className="text-gray-600">
-            Manage images, icons, and visual content for your forms and
-            applications.
-          </p>
+        <div className="flex items-center justify-between mb-6">
+          <div>
+            <h1 className="text-2xl font-bold">Visual Assets</h1>
+            <p className="text-gray-600">
+              {filteredObjects.length} visual object{filteredObjects.length !== 1 ? 's' : ''}
+              {selectedFolder && ` in selected folder`}
+            </p>
+          </div>
+          
+          <div className="flex items-center gap-3">
+            <Button>
+              <Upload className="w-4 h-4 mr-2" />
+              Upload Assets
+            </Button>
+            <Button>
+              <Plus className="w-4 h-4 mr-2" />
+              Create Object
+            </Button>
+          </div>
         </div>
 
-        {/* Upload Area */}
-        <Card className="mb-6">
-          <CardContent className="p-6">
-            <div
-              className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors ${
-                isUploading
-                  ? 'border-blue-300 bg-blue-50'
-                  : 'border-gray-300 hover:border-gray-400 hover:bg-gray-50'
-              }`}
-              onDragOver={handleDragOver}
-              onDrop={handleDrop}
-            >
-              {isUploading ? (
-                <div className="space-y-4">
-                  <div className="w-16 h-16 mx-auto border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin" />
-                  <div>
-                    <p className="text-lg font-medium text-blue-900">
-                      Uploading...
-                    </p>
-                    <div className="w-full bg-blue-200 rounded-full h-2 mt-2">
-                      <div
-                        className="bg-blue-600 h-2 rounded-full transition-all duration-300"
-                        style={{ width: `${uploadProgress}%` }}
-                      />
-                    </div>
-                    <p className="text-sm text-blue-700 mt-1">
-                      {uploadProgress}%
-                    </p>
-                  </div>
-                </div>
-              ) : (
-                <div className="space-y-4">
-                  <Upload className="w-12 h-12 mx-auto text-gray-400" />
-                  <div>
-                    <p className="text-lg font-medium text-gray-900">
-                      Drop files here or click to upload
-                    </p>
-                    <p className="text-sm text-gray-500 mt-1">
-                      SVG, PNG, JPG up to 10MB
-                    </p>
-                  </div>
-                  <Button
-                    onClick={() => fileInputRef.current?.click()}
-                    className="bg-blue-600 hover:bg-blue-700"
-                  >
-                    <Upload className="w-4 h-4 mr-2" />
-                    Choose Files
-                  </Button>
-                  <input
-                    ref={fileInputRef}
-                    type="file"
-                    multiple
-                    accept=".svg,.png,.jpg,.jpeg,.gif"
-                    onChange={e =>
-                      e.target.files && handleFileUpload(e.target.files)
-                    }
-                    className="hidden"
-                  />
-                </div>
-              )}
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Controls */}
-        <div className="flex flex-col sm:flex-row gap-4 mb-6">
-          {/* Search */}
-          <div className="flex-1">
-            <div className="relative">
+        {/* Search and Controls */}
+        <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center gap-3 flex-1">
+            <div className="relative flex-1 max-w-md">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
               <Input
-                placeholder="Search assets by name or tags..."
+                placeholder="Search visual objects..."
                 value={searchQuery}
-                onChange={e => setSearchQuery(e.target.value)}
+                onChange={(e) => setSearchQuery(e.target.value)}
                 className="pl-10"
               />
             </div>
           </div>
-
-          {/* View Mode Toggle */}
-          <div className="flex items-center space-x-2">
+          
+          <div className="flex items-center gap-2">
             <Button
               variant={viewMode === 'grid' ? 'default' : 'outline'}
               size="sm"
@@ -315,240 +375,45 @@ export default function VisualAssetsPage() {
               <List className="w-4 h-4" />
             </Button>
           </div>
-
-          {/* Bulk Actions */}
-          {selectedAssets.size > 0 && (
-            <div className="flex items-center space-x-2">
-              <Badge variant="secondary" className="bg-blue-100 text-blue-800">
-                {selectedAssets.size} selected
-              </Badge>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={deleteSelectedAssets}
-                className="text-red-600 border-red-300 hover:bg-red-50"
-              >
-                <Trash2 className="w-4 h-4 mr-1" />
-                Delete
-              </Button>
-            </div>
-          )}
         </div>
 
-        {/* Categories */}
-        <div className="flex flex-wrap gap-2 mb-6">
-          {ASSET_CATEGORIES.map(category => (
-            <Button
-              key={category.id}
-              variant={selectedCategory === category.id ? 'default' : 'outline'}
-              size="sm"
-              onClick={() => setSelectedCategory(category.id)}
-              className="text-sm"
-            >
-              <FolderOpen className="w-4 h-4 mr-2" />
-              {category.name}
-              <Badge
-                variant="secondary"
-                className="ml-2 bg-gray-100 text-gray-700"
-              >
-                {category.count}
-              </Badge>
+        {/* Bulk Actions */}
+        {selectedObjects.size > 0 && (
+          <div className="flex items-center gap-3 mb-4 p-3 bg-blue-50 rounded-lg">
+            <span className="text-sm text-blue-700">
+              {selectedObjects.size} object{selectedObjects.size !== 1 ? 's' : ''} selected
+            </span>
+            <Button size="sm" variant="destructive" onClick={handleBulkDelete}>
+              <Trash2 className="w-4 h-4 mr-2" />
+              Delete Selected
             </Button>
-          ))}
+          </div>
+        )}
+
+        {/* Visual Objects Grid */}
+        <div className={viewMode === 'grid' 
+          ? 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6'
+          : 'space-y-4'
+        }>
+          {filteredObjects.map(renderVisualObjectCard)}
         </div>
 
-        {/* Assets Grid/List */}
-        <div className="space-y-4">
-          {/* Select All */}
-          {filteredAssets.length > 0 && (
-            <div className="flex items-center space-x-2">
-              <input
-                type="checkbox"
-                checked={selectedAssets.size === filteredAssets.length}
-                onChange={selectAllAssets}
-                className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-              />
-              <span className="text-sm text-gray-700">
-                Select all ({filteredAssets.length} assets)
-              </span>
-            </div>
-          )}
-
-          {/* Loading State */}
-          {isLoading ? (
-            <div className="flex items-center justify-center py-12">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-              <span className="ml-3 text-gray-600">Loading assets...</span>
-            </div>
-          ) : filteredAssets.length === 0 ? (
-            <div className="text-center py-12">
-              <ImageIcon className="w-16 h-16 mx-auto text-gray-400 mb-4" />
-              <h3 className="text-lg font-medium text-gray-900 mb-2">
-                No assets found
-              </h3>
-              <p className="text-gray-500">
-                Upload some assets to get started.
-              </p>
-            </div>
-          ) : (
-            <>
-              {/* Assets Display */}
-              {viewMode === 'grid' ? (
-                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
-                  {filteredAssets.map(asset => (
-                    <Card
-                      key={asset.id}
-                      className={`cursor-pointer transition-all duration-200 hover:shadow-md ${
-                        selectedAssets.has(asset.id)
-                          ? 'ring-2 ring-blue-500 bg-blue-50'
-                          : ''
-                      }`}
-                      onClick={() => toggleAssetSelection(asset.id)}
-                    >
-                      <CardContent className="p-3">
-                        <div className="relative">
-                          <div className="aspect-square bg-gray-100 rounded-lg flex items-center justify-center mb-2">
-                            {asset.type === 'svg' ? (
-                              <img
-                                src={asset.thumbnail_url || asset.url}
-                                alt={asset.display_name}
-                                className="w-12 h-12 object-contain"
-                              />
-                            ) : (
-                              <ImageIcon className="w-12 h-12 text-gray-400" />
-                            )}
-                          </div>
-
-                          {/* Selection Checkbox */}
-                          <input
-                            type="checkbox"
-                            checked={selectedAssets.has(asset.id)}
-                            onChange={e => {
-                              e.stopPropagation();
-                              toggleAssetSelection(asset.id);
-                            }}
-                            className="absolute top-2 right-2 h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-                          />
-                        </div>
-
-                        <div className="text-center">
-                          <p
-                            className="text-sm font-medium text-gray-900 truncate"
-                            title={asset.display_name}
-                          >
-                            {asset.display_name}
-                          </p>
-                          <p className="text-xs text-gray-500">
-                            {asset.type.toUpperCase()}
-                          </p>
-                          <p className="text-xs text-gray-500">
-                            {formatFileSize(asset.file_size)}
-                          </p>
-                          {getAssetUsageCount(asset) > 0 && (
-                            <Badge variant="secondary" className="mt-1 text-xs">
-                              Used in {getAssetUsageCount(asset)} place
-                              {getAssetUsageCount(asset) !== 1 ? 's' : ''}
-                            </Badge>
-                          )}
-                        </div>
-                      </CardContent>
-                    </Card>
-                  ))}
-                </div>
-              ) : (
-                <div className="space-y-2">
-                  {filteredAssets.map(asset => (
-                    <Card
-                      key={asset.id}
-                      className={`cursor-pointer transition-all duration-200 hover:bg-gray-50 ${
-                        selectedAssets.has(asset.id)
-                          ? 'ring-2 ring-blue-500 bg-blue-50'
-                          : ''
-                      }`}
-                      onClick={() => toggleAssetSelection(asset.id)}
-                    >
-                      <CardContent className="p-4">
-                        <div className="flex items-center space-x-4">
-                          <input
-                            type="checkbox"
-                            checked={selectedAssets.has(asset.id)}
-                            onChange={e => {
-                              e.stopPropagation();
-                              toggleAssetSelection(asset.id);
-                            }}
-                            className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-                          />
-
-                          <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                            {asset.type === 'svg' ? (
-                              <img
-                                src={asset.thumbnail_url || asset.url}
-                                alt={asset.display_name}
-                                className="w-8 h-8 object-contain"
-                              />
-                            ) : (
-                              <ImageIcon className="w-8 h-8 text-gray-400" />
-                            )}
-                          </div>
-
-                          <div className="flex-1 min-w-0">
-                            <p className="text-sm font-medium text-gray-900">
-                              {asset.display_name}
-                            </p>
-                            <p className="text-sm text-gray-500">
-                              {asset.type.toUpperCase()} •{' '}
-                              {formatFileSize(asset.file_size)}
-                            </p>
-                            <div className="flex flex-wrap gap-1 mt-1">
-                              {asset.tags.slice(0, 3).map(tag => (
-                                <Badge
-                                  key={tag}
-                                  variant="secondary"
-                                  className="text-xs"
-                                >
-                                  {tag}
-                                </Badge>
-                              ))}
-                              {asset.tags.length > 3 && (
-                                <Badge variant="secondary" className="text-xs">
-                                  +{asset.tags.length - 3}
-                                </Badge>
-                              )}
-                            </div>
-                          </div>
-
-                          <div className="flex items-center space-x-2 text-sm text-gray-500">
-                            <span>
-                              {new Date(asset.created_at).toLocaleDateString()}
-                            </span>
-                            {getAssetUsageCount(asset) > 0 && (
-                              <Badge variant="secondary" className="text-xs">
-                                Used in {getAssetUsageCount(asset)} place
-                                {getAssetUsageCount(asset) !== 1 ? 's' : ''}
-                              </Badge>
-                            )}
-                          </div>
-
-                          <div className="flex items-center space-x-1">
-                            <Button variant="ghost" size="sm" className="p-2">
-                              <Eye className="w-4 h-4" />
-                            </Button>
-                            <Button variant="ghost" size="sm" className="p-2">
-                              <Edit3 className="w-4 h-4" />
-                            </Button>
-                            <Button variant="ghost" size="sm" className="p-2">
-                              <Download className="w-4 h-4" />
-                            </Button>
-                          </div>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  ))}
-                </div>
-              )}
-            </>
-          )}
-        </div>
+        {filteredObjects.length === 0 && (
+          <div className="text-center py-12">
+            <ImageIcon className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+            <h3 className="text-lg font-medium text-gray-900 mb-2">No visual objects found</h3>
+            <p className="text-gray-600 mb-4">
+              {searchQuery || selectedFolder 
+                ? 'Try adjusting your search or folder selection'
+                : 'Get started by creating your first visual object'
+              }
+            </p>
+            <Button>
+              <Plus className="w-4 h-4 mr-2" />
+              Create Visual Object
+            </Button>
+          </div>
+        )}
       </div>
     </div>
   );
