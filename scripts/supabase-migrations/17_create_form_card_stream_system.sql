@@ -18,6 +18,34 @@ CREATE TABLE card_templates (
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
+-- Card fields for form-type cards
+CREATE TABLE card_fields (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  card_id UUID REFERENCES card_templates(id) ON DELETE CASCADE,
+  field_name VARCHAR(255) NOT NULL,
+  field_type VARCHAR(50) NOT NULL CHECK (field_type IN ('text', 'number', 'email', 'select', 'radio', 'checkbox', 'textarea')),
+  label VARCHAR(255) NOT NULL,
+  placeholder VARCHAR(255),
+  help_text TEXT,
+  validation_rules JSONB DEFAULT '{}',
+  width VARCHAR(20) DEFAULT 'full' CHECK (width IN ('full', 'half', 'third')),
+  display_order INTEGER DEFAULT 0,
+  options JSONB, -- For select/radio fields
+  required BOOLEAN DEFAULT false,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Calculations for calculation-type cards
+CREATE TABLE card_calculations (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  card_id UUID REFERENCES card_templates(id) ON DELETE CASCADE,
+  formula TEXT NOT NULL,
+  display_template TEXT,
+  result_format VARCHAR(50) DEFAULT 'number', -- 'currency', 'percentage', 'number'
+  depends_on JSONB, -- Field dependencies
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
 -- Form Streams table (for organizing form flows)
 CREATE TABLE form_streams (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
@@ -74,6 +102,8 @@ CREATE TABLE form_calculations (
 
 -- Add comments to document the tables
 COMMENT ON TABLE card_templates IS 'Templates for different types of form cards (form, calculation, info, visual, submit)';
+COMMENT ON TABLE card_fields IS 'Form fields for form-type cards with validation and styling';
+COMMENT ON TABLE card_calculations IS 'Calculation formulas and dependencies for calculation-type cards';
 COMMENT ON TABLE form_streams IS 'Named form flows that organize card sequences';
 COMMENT ON TABLE form_stream_cards IS 'Many-to-many relationship between streams and cards with positioning';
 COMMENT ON TABLE form_sessions IS 'User sessions for tracking form progress and completion';
@@ -85,6 +115,11 @@ CREATE INDEX IF NOT EXISTS idx_card_templates_type ON card_templates(type);
 CREATE INDEX IF NOT EXISTS idx_card_templates_active ON card_templates(is_active);
 CREATE INDEX IF NOT EXISTS idx_card_templates_display_order ON card_templates(display_order);
 CREATE INDEX IF NOT EXISTS idx_card_templates_visual_object ON card_templates(visual_object_id);
+
+CREATE INDEX IF NOT EXISTS idx_card_fields_order ON card_fields(card_id, display_order);
+CREATE INDEX IF NOT EXISTS idx_card_fields_type ON card_fields(field_type);
+
+CREATE INDEX IF NOT EXISTS idx_card_calculations_card ON card_calculations(card_id);
 
 CREATE INDEX IF NOT EXISTS idx_form_streams_slug ON form_streams(slug);
 CREATE INDEX IF NOT EXISTS idx_form_streams_active ON form_streams(is_active);
@@ -113,11 +148,39 @@ ON CONFLICT DO NOTHING;
 
 -- Insert sample card templates
 INSERT INTO card_templates (id, name, display_order, type, title, config) VALUES
-  ('00000000-0000-0000-0000-000000000001', 'Property Information', 1, 'form', 'Property Details', '{"fields": ["property_type", "square_meters", "year_built"], "validation": {"required": true}}'),
-  ('00000000-0000-0000-0000-000000000002', 'Energy Usage', 2, 'form', 'Current Energy Consumption', '{"fields": ["heating_type", "electricity_usage", "heating_usage"], "validation": {"required": true}}'),
-  ('00000000-0000-0000-0000-000000000003', 'Energy Calculation', 3, 'calculation', 'Energy Savings Estimate', '{"formula": "energy_savings_calculation", "inputs": ["property_type", "square_meters", "heating_type", "electricity_usage"]}'),
-  ('00000000-0000-0000-0000-000000000004', 'Results Display', 4, 'info', 'Your Energy Savings', '{"display_type": "results_summary", "show_charts": true, "show_recommendations": true}'),
-  ('00000000-0000-0000-0000-000000000005', 'Submit Form', 5, 'submit', 'Complete Calculation', '{"submit_text": "Get Full Report", "redirect_url": "/results"}')
+  ('00000000-0000-0000-0000-000000000001', 'property_details', 1, 'form', 'Property Details', '{"description": "Tell us about your property"}'),
+  ('00000000-0000-0000-0000-000000000002', 'energy_calculation', 2, 'calculation', 'Energy Volume', '{"formula": "floor_area * ceiling_height"}'),
+  ('00000000-0000-0000-0000-000000000003', 'heating_info', 3, 'form', 'Current Heating', '{"description": "Your current heating system"}'),
+  ('00000000-0000-0000-0000-000000000004', 'savings_info', 4, 'info', 'Heat Pump Benefits', '{"content": "Save up to 70% on heating costs"}'),
+  ('00000000-0000-0000-0000-000000000005', 'savings_calc', 5, 'calculation', 'Your Savings', '{"formula": "heating_cost * 0.5"}'),
+  ('00000000-0000-0000-0000-000000000006', 'contact', 6, 'form', 'Get Your Quote', '{"description": "Contact information"}'),
+  ('00000000-0000-0000-0000-000000000007', 'submit', 7, 'submit', 'Send Quote', '{"buttonText": "Get My Personal Quote"}')
+ON CONFLICT DO NOTHING;
+
+-- Insert sample card fields for property_details card
+INSERT INTO card_fields (card_id, field_name, field_type, label, placeholder, help_text, width, display_order, required) VALUES
+  ('00000000-0000-0000-0000-000000000001', 'property_type', 'select', 'Property Type', '', 'Select your property type', 'full', 1, true),
+  ('00000000-0000-0000-0000-000000000001', 'floor_area', 'number', 'Floor Area (m²)', 'Enter floor area', 'Total floor area in square meters', 'half', 2, true),
+  ('00000000-0000-0000-0000-000000000001', 'ceiling_height', 'number', 'Ceiling Height (m)', 'Enter ceiling height', 'Average ceiling height in meters', 'half', 3, true)
+ON CONFLICT DO NOTHING;
+
+-- Insert sample card fields for heating_info card
+INSERT INTO card_fields (card_id, field_name, field_type, label, placeholder, help_text, width, display_order, required) VALUES
+  ('00000000-0000-0000-0000-000000000003', 'heating_type', 'select', 'Heating System', '', 'Your current heating system', 'full', 1, true),
+  ('00000000-0000-0000-0000-000000000003', 'heating_cost', 'number', 'Annual Heating Cost (€)', 'Enter annual cost', 'Your yearly heating expenses', 'full', 2, true)
+ON CONFLICT DO NOTHING;
+
+-- Insert sample card fields for contact card
+INSERT INTO card_fields (card_id, field_name, field_type, label, placeholder, help_text, width, display_order, required) VALUES
+  ('00000000-0000-0000-0000-000000000006', 'name', 'text', 'Full Name', 'Enter your full name', 'Your complete name', 'full', 1, true),
+  ('00000000-0000-0000-0000-000000000006', 'email', 'email', 'Email Address', 'Enter your email', 'We will send your quote here', 'full', 2, true),
+  ('00000000-0000-0000-0000-000000000006', 'phone', 'text', 'Phone Number', 'Enter your phone number', 'Optional: for urgent matters', 'full', 3, false)
+ON CONFLICT DO NOTHING;
+
+-- Insert sample card calculations
+INSERT INTO card_calculations (card_id, formula, display_template, result_format, depends_on) VALUES
+  ('00000000-0000-0000-0000-000000000002', 'floor_area * ceiling_height', 'Energy volume: {result} m³', 'number', '["floor_area", "ceiling_height"]'),
+  ('00000000-0000-0000-0000-000000000005', 'heating_cost * 0.5', 'Annual savings: €{result}', 'currency', '["heating_cost"]')
 ON CONFLICT DO NOTHING;
 
 -- Insert sample form stream cards
@@ -126,7 +189,9 @@ INSERT INTO form_stream_cards (stream_id, card_template_id, position) VALUES
   ('00000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-000000000002', 2),
   ('00000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-000000000003', 3),
   ('00000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-000000000004', 4),
-  ('00000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-000000000005', 5)
+  ('00000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-000000000005', 5),
+  ('00000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-000000000006', 6),
+  ('00000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-000000000007', 7)
 ON CONFLICT DO NOTHING;
 
 -- Create a function to update the updated_at timestamp
