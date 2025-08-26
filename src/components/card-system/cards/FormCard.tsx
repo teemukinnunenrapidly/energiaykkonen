@@ -163,13 +163,16 @@ export function FormCard({ card, onFieldFocus }: FormCardProps) {
     const value = formData[field.field_name] || '';
     const error = fieldErrors[field.field_name];
     
+    // Allow editing even after card completion - just track completion status
+    const isFieldEditable = true; // Always allow editing
+    
     const inputClasses = `
       w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 transition-colors
       ${error 
         ? 'border-red-300 focus:ring-red-500 focus:border-red-500' 
         : 'border-gray-300 focus:ring-blue-500 focus:border-blue-500'
       }
-      ${!isActive ? 'bg-gray-100 cursor-not-allowed' : ''}
+      ${!isFieldEditable ? 'bg-gray-100 cursor-not-allowed' : ''}
     `;
     
     switch (field.field_type) {
@@ -185,7 +188,7 @@ export function FormCard({ card, onFieldFocus }: FormCardProps) {
               onFocus={() => handleFieldFocus(field)}
               onBlur={() => handleFieldBlur(field)}
               placeholder={field.placeholder}
-              disabled={!isActive}
+              disabled={!isFieldEditable}
               className={inputClasses}
               min={field.field_type === 'number' ? field.validation_rules?.min : undefined}
               max={field.field_type === 'number' ? field.validation_rules?.max : undefined}
@@ -208,7 +211,7 @@ export function FormCard({ card, onFieldFocus }: FormCardProps) {
               onChange={(e) => handleFieldChange(field.field_name, e.target.value)}
               onFocus={() => handleFieldFocus(field)}
               onBlur={() => handleFieldBlur(field)}
-              disabled={!isActive}
+              disabled={!isFieldEditable}
               className={inputClasses}
             >
               <option value="">Select...</option>
