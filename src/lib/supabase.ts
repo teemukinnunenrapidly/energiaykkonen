@@ -92,3 +92,72 @@ export async function getLeads() {
 
   return data;
 }
+
+// Card system types
+export interface CardTemplate {
+  id: string;
+  name: string;
+  display_order: number;
+  type: 'form' | 'calculation' | 'info' | 'visual' | 'submit';
+  title: string;
+  config: {
+    description?: string;
+    buttonText?: string;
+    infoContent?: string;
+    [key: string]: any;
+  };
+  reveal_conditions: RevealCondition[];
+  styling: {
+    backgroundColor?: string;
+    borderColor?: string;
+    textColor?: string;
+    gradient?: boolean;
+  };
+  visual_object_id?: string;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface CardField {
+  id: string;
+  card_id: string;
+  field_name: string;
+  field_type: 'text' | 'number' | 'email' | 'select' | 'radio' | 'checkbox' | 'textarea';
+  label: string;
+  placeholder?: string;
+  help_text?: string;
+  validation_rules: {
+    min?: number;
+    max?: number;
+    pattern?: string;
+    minLength?: number;
+    maxLength?: number;
+  };
+  width: 'full' | 'half' | 'third';
+  display_order: number;
+  options?: { value: string; label: string; }[];
+  required: boolean;
+}
+
+export interface RevealCondition {
+  type: 'fields_complete' | 'card_complete' | 'value_check' | 'always';
+  target?: string[]; // Card IDs or field names
+  operator?: '=' | '>' | '<' | 'exists' | 'not_empty';
+  value?: any;
+}
+
+// Helper functions
+export async function getActiveCards() {
+  const { data, error } = await supabase
+    .from('card_templates')
+    .select(`
+      *,
+      card_fields (*)
+    `)
+    .eq('is_active', true)
+    .order('display_order');
+  
+  if (error) throw error;
+  return data;
+}
