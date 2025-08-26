@@ -44,7 +44,6 @@ import {
   generateFormulaShortcodeWithVariables,
   generateFormulaShortcodeWithDefaults,
   logSecurityEvent,
-  getSecurityStats,
 } from '@/lib/formula-service';
 import AdminNavigation from '@/components/admin/AdminNavigation';
 
