@@ -1,31 +1,17 @@
 'use client';
 
 import React from 'react';
-import { useForm, UseFormReturn, FieldValues } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
-import {
-  FormSchema,
-  FormPage,
-  FormSection,
-  FormField,
-} from '@/lib/form-system/types';
-import { formSchemaToZod, createDefaultValues } from '@/lib/form-system';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Progress } from '@/components/ui/progress';
-import { Badge } from '@/components/ui/badge';
-import { Separator } from '@/components/ui/separator';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { FormSchema, FormSection, FormField } from './types';
+import { formSchemaToZod, createDefaultValues } from './index';
 
 interface FormRendererProps {
   schema: FormSchema;
@@ -33,10 +19,7 @@ interface FormRendererProps {
   onPageChange?: (pageIndex: number) => void;
   onSectionComplete?: (sectionId: string, data: any) => void;
   className?: string;
-  showProgress?: boolean;
   showNavigation?: boolean;
-  submitButtonText?: string;
-  loadingButtonText?: string;
 }
 
 interface FormRendererState {
@@ -52,10 +35,7 @@ export function FormRenderer({
   onPageChange,
   onSectionComplete,
   className = '',
-  showProgress = true,
   showNavigation = true,
-  submitButtonText = 'Submit',
-  loadingButtonText = 'Submitting...',
 }: FormRendererProps) {
   const [state, setState] = React.useState<FormRendererState>({
     currentPageIndex: 0,
@@ -79,7 +59,6 @@ export function FormRenderer({
 
   const currentPage = schema.pages[state.currentPageIndex];
   const totalPages = schema.pages.length;
-  const progressPercentage = ((state.currentPageIndex + 1) / totalPages) * 100;
 
   // Handle form submission
   const handleSubmit = async (data: any) => {
@@ -492,139 +471,76 @@ export function FormRenderer({
         )}
 
         {/* Page Progress Indicator */}
-        {showProgress && totalPages > 1 && (
-          <div className="flex justify-center mt-6">
-            <div className="flex space-x-4">
-              {schema.pages.map((page, index) => (
-                <div key={page.id} className="flex flex-col items-center group">
-                  <div
-                    className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-semibold transition-all duration-300 transform group-hover:scale-110 cursor-pointer ${
-                      index === state.currentPageIndex
-                        ? 'bg-gradient-to-r from-blue-500 to-indigo-500 text-white shadow-lg shadow-blue-200 ring-2 ring-blue-200'
-                        : index < state.currentPageIndex
-                          ? 'bg-gradient-to-r from-green-500 to-emerald-500 text-white shadow-lg shadow-green-200'
-                          : 'bg-gray-200 text-gray-500 group-hover:bg-gray-300'
-                    }`}
-                    onClick={() => goToPage(index)}
-                  >
-                    {index < state.currentPageIndex ? (
-                      <span className="text-lg">✓</span>
-                    ) : (
-                      index + 1
-                    )}
-                  </div>
-                  <span
-                    className={`text-xs text-center mt-2 max-w-[70px] leading-tight font-medium transition-all duration-300 ${
-                      index === state.currentPageIndex
-                        ? 'text-blue-600'
-                        : index < state.currentPageIndex
-                          ? 'text-green-600'
-                          : 'text-gray-500'
-                    }`}
-                  >
-                    {page.title}
-                  </span>
-                  {/* Connection line between pages */}
-                  {index < schema.pages.length - 1 && (
-                    <div
-                      className={`w-8 h-0.5 mt-2 transition-all duration-500 ${
-                        index < state.currentPageIndex
-                          ? 'bg-gradient-to-r from-green-400 to-emerald-400'
-                          : 'bg-gray-200'
-                      }`}
-                    />
-                  )}
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
         {/* Progress Bar */}
-        {showProgress && (
-          <div className="mt-6">
-            <div className="flex justify-between items-center mb-2">
-              <span className="text-sm font-medium text-gray-700">
-                Page {state.currentPageIndex + 1} of {totalPages}
-              </span>
-              <span className="text-sm font-semibold text-blue-600">
-                {Math.round(progressPercentage)}%
-              </span>
+        {/* Progress Bar */}
+
+        {/* Form Content */}
+        <div className="p-6 sm:p-8 h-full overflow-y-auto">
+          <form
+            onSubmit={form.handleSubmit(handleSubmit)}
+            className="space-y-8 w-full"
+          >
+            {/* Page Title */}
+            <div className="text-center mb-8">
+              <h2 className="text-2xl font-bold text-gray-900 mb-2">
+                {currentPage.title}
+              </h2>
+              {currentPage.description && (
+                <p className="text-gray-600 max-w-2xl mx-auto">
+                  {currentPage.description}
+                </p>
+              )}
             </div>
-            <Progress
-              value={progressPercentage}
-              className="h-2 transition-all duration-500"
-            />
-          </div>
-        )}
-      </div>
 
-      {/* Form Content */}
-      <div className="p-6 sm:p-8 h-full overflow-y-auto">
-        <form
-          onSubmit={form.handleSubmit(handleSubmit)}
-          className="space-y-8 w-full"
-        >
-          {/* Page Title */}
-          <div className="text-center mb-8">
-            <h2 className="text-2xl font-bold text-gray-900 mb-2">
-              {currentPage.title}
-            </h2>
-            {currentPage.description && (
-              <p className="text-gray-600 max-w-2xl mx-auto">
-                {currentPage.description}
-              </p>
-            )}
-          </div>
+            {/* Render Sections */}
+            <div className="space-y-8 w-full">
+              {currentPage.sections.map(renderSection)}
+            </div>
 
-          {/* Render Sections */}
-          <div className="space-y-8 w-full">
-            {currentPage.sections.map(renderSection)}
-          </div>
-
-          {/* Navigation and Submit */}
-          {showNavigation && (
-            <div className="pt-8 border-t border-gray-200/50">
-              <div className="flex justify-between items-center">
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={goToPreviousPage}
-                  disabled={state.currentPageIndex === 0}
-                  className="border-2 border-gray-300 hover:border-gray-400 px-6 py-3 rounded-lg font-medium transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  Edellinen
-                </Button>
-
-                {state.currentPageIndex < totalPages - 1 ? (
+            {/* Navigation and Submit */}
+            {showNavigation && (
+              <div className="pt-8 border-t border-gray-200/50">
+                <div className="flex justify-between items-center">
                   <Button
                     type="button"
-                    onClick={goToNextPage}
-                    disabled={!form.formState.isValid}
-                    className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium shadow-lg hover:shadow-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                    variant="outline"
+                    onClick={goToPreviousPage}
+                    disabled={state.currentPageIndex === 0}
+                    className="border-2 border-gray-300 hover:border-gray-400 px-6 py-3 rounded-lg font-medium transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    Seuraava
+                    Edellinen
                   </Button>
-                ) : (
-                  <Button
-                    type="submit"
-                    disabled={state.isSubmitting || !form.formState.isValid}
-                    className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium shadow-lg hover:shadow-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    {state.isSubmitting ? (
-                      <div className="flex items-center space-x-2">
-                        <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                        <span>Lähetetään...</span>
-                      </div>
-                    ) : (
-                      'Lähetä'
-                    )}
-                  </Button>
-                )}
+
+                  {state.currentPageIndex < totalPages - 1 ? (
+                    <Button
+                      type="button"
+                      onClick={goToNextPage}
+                      disabled={!form.formState.isValid}
+                      className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium shadow-lg hover:shadow-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      Seuraava
+                    </Button>
+                  ) : (
+                    <Button
+                      type="submit"
+                      disabled={state.isSubmitting || !form.formState.isValid}
+                      className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium shadow-lg hover:shadow-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      {state.isSubmitting ? (
+                        <div className="flex items-center space-x-2">
+                          <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                          <span>Lähetetään...</span>
+                        </div>
+                      ) : (
+                        'Lähetä'
+                      )}
+                    </Button>
+                  )}
+                </div>
               </div>
-            </div>
-          )}
-        </form>
+            )}
+          </form>
+        </div>
       </div>
     </div>
   );
