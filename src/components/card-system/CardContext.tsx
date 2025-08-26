@@ -55,8 +55,12 @@ export function CardProvider({ children }: { children: React.ReactNode }) {
         // After 500ms, unlock submit card
         setTimeout(() => unlockCard('00000000-0000-0000-0000-000000000007'), 500);
         break;
+        
+      default:
+        // No specific unlock logic for this card
+        break;
     }
-  };
+  }, [unlockCard]);
 
   const completeCard = useCallback((cardId: string) => {
     setCardStates(prev => {

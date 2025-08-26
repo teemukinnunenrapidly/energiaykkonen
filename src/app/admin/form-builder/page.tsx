@@ -143,9 +143,14 @@ export default function FormBuilderPage() {
 
   // New field creation state
   const [isNewFieldDialogOpen, setIsNewFieldDialogOpen] = useState(false);
-  const [isVisualObjectSelectorOpen, setIsVisualObjectSelectorOpen] = useState(false);
-  const [selectedVisualObjectType, setSelectedVisualObjectType] = useState<'section' | 'field' | null>(null);
-  const [selectedVisualObjectId, setSelectedVisualObjectId] = useState<string | null>(null);
+  const [isVisualObjectSelectorOpen, setIsVisualObjectSelectorOpen] =
+    useState(false);
+  const [selectedVisualObjectType, setSelectedVisualObjectType] = useState<
+    'section' | 'field' | null
+  >(null);
+  const [selectedVisualObjectId, setSelectedVisualObjectId] = useState<
+    string | null
+  >(null);
   const [newFieldData, setNewFieldData] = useState<Partial<FormField>>({
     type: 'text' as
       | 'text'
@@ -271,8 +276,6 @@ export default function FormBuilderPage() {
     }
   };
 
-
-
   // Handle field selection
   const handleFieldSelect = useCallback((field: FormField) => {
     setSelectedField(field);
@@ -332,25 +335,25 @@ export default function FormBuilderPage() {
 
   // Handle section image update
   const handleSectionImageUpdate = (sectionId: string, imageUrl: string) => {
-    setFormStructure(prev =>
-      prev
-        ? {
-            ...prev,
-            pages: prev.pages.map(page =>
-              page.id === currentPage
-                ? {
-                    ...page,
-                    sections: page.sections.map(section =>
-                      section.id === sectionId
-                        ? { ...section, imageUrl: imageUrl || undefined }
-                        : section
-                    ),
-                  }
-                : page
-            ),
-          }
-        : null
-    );
+    setFormStructure(prev => {
+      if (!prev) return prev; // Return early if no previous state
+
+      return {
+        ...prev,
+        pages: prev.pages.map(page =>
+          page.id === currentPage
+            ? {
+                ...page,
+                sections: page.sections.map(section =>
+                  section.id === sectionId
+                    ? { ...section, imageUrl: imageUrl || undefined }
+                    : section
+                ),
+              }
+            : page
+        ),
+      };
+    });
     setHasUnsavedChanges(true);
   };
 
@@ -365,9 +368,10 @@ export default function FormBuilderPage() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          form_element_id: selectedVisualObjectType === 'section' 
-            ? selectedSection?.id 
-            : selectedField?.id,
+          form_element_id:
+            selectedVisualObjectType === 'section'
+              ? selectedSection?.id
+              : selectedField?.id,
           element_type: selectedVisualObjectType,
           visual_object_id: objectId,
         }),
@@ -400,9 +404,10 @@ export default function FormBuilderPage() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          form_element_id: selectedVisualObjectType === 'section' 
-            ? selectedSection?.id 
-            : selectedField?.id,
+          form_element_id:
+            selectedVisualObjectType === 'section'
+              ? selectedSection?.id
+              : selectedField?.id,
           element_type: selectedVisualObjectType,
         }),
       });
@@ -441,9 +446,7 @@ export default function FormBuilderPage() {
         })),
       }));
       if (selectedSection?.id === sectionId) {
-        setSelectedSection(prev =>
-          prev ? { ...prev, ...updates } : null
-        );
+        setSelectedSection(prev => (prev ? { ...prev, ...updates } : null));
       }
       setHasUnsavedChanges(true);
     },
@@ -936,7 +939,8 @@ export default function FormBuilderPage() {
                                         {section.title || 'Untitled Section'}
                                       </h3>
                                       <p className="text-xs text-muted-foreground">
-                                        {section.description || 'No description'}
+                                        {section.description ||
+                                          'No description'}
                                       </p>
                                     </div>
                                   </div>
@@ -1254,7 +1258,9 @@ export default function FormBuilderPage() {
                             onClick={() => openVisualObjectSelector('field')}
                             className="flex-1 justify-start"
                           >
-                            {selectedVisualObjectId ? 'Change Visual Object' : 'Select Visual Object'}
+                            {selectedVisualObjectId
+                              ? 'Change Visual Object'
+                              : 'Select Visual Object'}
                           </Button>
                           {selectedVisualObjectId && (
                             <Button
@@ -1272,7 +1278,8 @@ export default function FormBuilderPage() {
                           </Badge>
                         )}
                         <p className="text-xs text-muted-foreground">
-                          Select a visual object to provide contextual support for this field
+                          Select a visual object to provide contextual support
+                          for this field
                         </p>
                       </div>
                     </div>
@@ -1294,10 +1301,9 @@ export default function FormBuilderPage() {
                           id="section-title"
                           value={selectedSection.title || ''}
                           onChange={e => {
-                            handleSectionPropertiesUpdate(
-                              selectedSection.id,
-                              { title: e.target.value }
-                            );
+                            handleSectionPropertiesUpdate(selectedSection.id, {
+                              title: e.target.value,
+                            });
                           }}
                           placeholder="Enter section title"
                         />
@@ -1318,10 +1324,9 @@ export default function FormBuilderPage() {
                           id="section-description"
                           value={selectedSection.description || ''}
                           onChange={e => {
-                            handleSectionPropertiesUpdate(
-                              selectedSection.id,
-                              { description: e.target.value }
-                            );
+                            handleSectionPropertiesUpdate(selectedSection.id, {
+                              description: e.target.value,
+                            });
                           }}
                           placeholder="Enter section description"
                           rows={3}
@@ -1419,7 +1424,9 @@ export default function FormBuilderPage() {
                             onClick={() => openVisualObjectSelector('section')}
                             className="flex-1 justify-start"
                           >
-                            {selectedVisualObjectId ? 'Change Visual Object' : 'Select Visual Object'}
+                            {selectedVisualObjectId
+                              ? 'Change Visual Object'
+                              : 'Select Visual Object'}
                           </Button>
                           {selectedVisualObjectId && (
                             <Button
@@ -1437,7 +1444,8 @@ export default function FormBuilderPage() {
                           </Badge>
                         )}
                         <p className="text-xs text-muted-foreground">
-                          Select a visual object to provide contextual support for this section
+                          Select a visual object to provide contextual support
+                          for this section
                         </p>
                       </div>
                     </div>
@@ -1516,7 +1524,10 @@ export default function FormBuilderPage() {
                   id="field-label"
                   value={newFieldData.label}
                   onChange={e =>
-                    setNewFieldData(prev => ({ ...prev, label: e.target.value }))
+                    setNewFieldData(prev => ({
+                      ...prev,
+                      label: e.target.value,
+                    }))
                   }
                   placeholder="Enter field label"
                 />
@@ -1581,7 +1592,10 @@ export default function FormBuilderPage() {
                       setNewFieldData(prev => ({ ...prev, required: checked }))
                     }
                   />
-                  <Label htmlFor="field-required" className="text-sm font-medium">
+                  <Label
+                    htmlFor="field-required"
+                    className="text-sm font-medium"
+                  >
                     Required Field
                   </Label>
                 </div>
@@ -1594,7 +1608,10 @@ export default function FormBuilderPage() {
                       setNewFieldData(prev => ({ ...prev, enabled: checked }))
                     }
                   />
-                  <Label htmlFor="field-enabled" className="text-sm font-medium">
+                  <Label
+                    htmlFor="field-enabled"
+                    className="text-sm font-medium"
+                  >
                     Field Visible
                   </Label>
                 </div>
@@ -1705,7 +1722,9 @@ export default function FormBuilderPage() {
                   {/* Real-time Preview Section */}
                   {newFieldData.displayContent && (
                     <div className="space-y-2">
-                      <Label className="text-sm font-medium">Live Preview</Label>
+                      <Label className="text-sm font-medium">
+                        Live Preview
+                      </Label>
                       <div className="bg-white p-3 rounded-md border border-dashed border-gray-300">
                         <div className="text-xs text-gray-500 mb-2">
                           Preview with sample data:
@@ -1755,7 +1774,9 @@ export default function FormBuilderPage() {
                   )}
 
                   <div className="space-y-2">
-                    <Label className="text-sm font-medium">Display Styling</Label>
+                    <Label className="text-sm font-medium">
+                      Display Styling
+                    </Label>
                     <div className="grid grid-cols-2 gap-2">
                       <div className="space-y-1">
                         <Label
@@ -1877,7 +1898,9 @@ export default function FormBuilderPage() {
                       <div key={index} className="flex items-center space-x-2">
                         <Input
                           value={option}
-                          onChange={e => updateFieldOption(index, e.target.value)}
+                          onChange={e =>
+                            updateFieldOption(index, e.target.value)
+                          }
                           onBlur={() => updateFieldOption(index, option)}
                           placeholder={`Option ${index + 1}`}
                         />
@@ -1930,7 +1953,7 @@ export default function FormBuilderPage() {
                       Required
                     </Label>
                   </div>
-                  
+
                   {newFieldData.type === 'number' && (
                     <div className="grid grid-cols-2 gap-2">
                       <div className="space-y-1">
@@ -2017,7 +2040,7 @@ export default function FormBuilderPage() {
                       </div>
                     </div>
                   )}
-                  
+
                   {newFieldData.type === 'text' && (
                     <div className="grid grid-cols-2 gap-2">
                       <div className="space-y-1">
@@ -2108,7 +2131,7 @@ export default function FormBuilderPage() {
                       </div>
                     </div>
                   )}
-                  
+
                   {newFieldData.type === 'text' && (
                     <div className="space-y-1">
                       <div className="flex items-center space-x-2">
