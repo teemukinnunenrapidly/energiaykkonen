@@ -62,10 +62,10 @@ CREATE TABLE form_stream_cards (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
   stream_id UUID REFERENCES form_streams(id) ON DELETE CASCADE,
   card_template_id UUID REFERENCES card_templates(id) ON DELETE CASCADE,
-  position INTEGER NOT NULL,
+  card_position INTEGER NOT NULL,
   is_visible BOOLEAN DEFAULT true,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-  UNIQUE(stream_id, position)
+  UNIQUE(stream_id, card_position)
 );
 
 -- Form Sessions table (for tracking user form progress)
@@ -124,7 +124,7 @@ CREATE INDEX IF NOT EXISTS idx_card_calculations_card ON card_calculations(card_
 CREATE INDEX IF NOT EXISTS idx_form_streams_slug ON form_streams(slug);
 CREATE INDEX IF NOT EXISTS idx_form_streams_active ON form_streams(is_active);
 
-CREATE INDEX IF NOT EXISTS idx_form_stream_cards_stream_position ON form_stream_cards(stream_id, position);
+CREATE INDEX IF NOT EXISTS idx_form_stream_cards_stream_position ON form_stream_cards(stream_id, card_position);
 CREATE INDEX IF NOT EXISTS idx_form_stream_cards_template ON form_stream_cards(card_template_id);
 CREATE INDEX IF NOT EXISTS idx_form_stream_cards_visible ON form_stream_cards(is_visible);
 
@@ -184,7 +184,7 @@ INSERT INTO card_calculations (card_id, formula, display_template, result_format
 ON CONFLICT DO NOTHING;
 
 -- Insert sample form stream cards
-INSERT INTO form_stream_cards (stream_id, card_template_id, position) VALUES
+INSERT INTO form_stream_cards (stream_id, card_template_id, card_position) VALUES
   ('00000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-000000000001', 1),
   ('00000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-000000000002', 2),
   ('00000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-000000000003', 3),
@@ -224,7 +224,7 @@ RETURNS TABLE (
     reveal_conditions JSONB,
     styling JSONB,
     visual_object_id UUID,
-    position INTEGER,
+    card_position INTEGER,
     is_visible BOOLEAN
 ) AS $$
 BEGIN
@@ -239,7 +239,7 @@ BEGIN
         ct.reveal_conditions,
         ct.styling,
         ct.visual_object_id,
-        fsc.position,
+        fsc.card_position,
         fsc.is_visible
     FROM form_stream_cards fsc
     JOIN form_streams fs ON fsc.stream_id = fs.id
@@ -248,7 +248,7 @@ BEGIN
         AND fs.is_active = true 
         AND ct.is_active = true
         AND fsc.is_visible = true
-    ORDER BY fsc.position ASC;
+    ORDER BY fsc.card_position ASC;
 END;
 $$ LANGUAGE plpgsql;
 
