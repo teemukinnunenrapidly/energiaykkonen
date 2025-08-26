@@ -116,9 +116,11 @@ export default function AdminPreviewPage() {
     }
   }, []);
 
+  // Load theme settings and form structure on mount
   useEffect(() => {
+    loadThemeSettings();
     loadFormStructure();
-  }, [loadFormStructure]);
+  }, [loadThemeSettings, loadFormStructure]);
 
   // Get form data from the actual schema (or fallback to default)
   const currentFormSchema = formSchema || calculatorFormSchema;
