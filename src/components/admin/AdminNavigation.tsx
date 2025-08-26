@@ -3,7 +3,6 @@
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { Separator } from '@/components/ui/separator';
 import {
   Palette,
   Settings,
@@ -164,7 +163,7 @@ export default function AdminNavigation() {
                 align="end"
                 className="w-56 bg-gradient-to-b from-blue-900/95 to-indigo-900/95 border border-blue-400/30 backdrop-blur-md shadow-2xl"
               >
-                {secondaryNavigation.map((item, index) => {
+                {secondaryNavigation.map((item) => {
                   const active = isActive(item.href);
                   return (
                     <DropdownMenuItem key={item.name} asChild>
