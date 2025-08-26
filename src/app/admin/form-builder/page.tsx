@@ -868,16 +868,11 @@ export default function FormBuilderPage() {
                                     </div>
                                     <div className="flex-1">
                                       <h3 className="text-sm font-semibold text-foreground capitalize">
-                                        {section.id.replace('-', ' ')}
+                                        {section.title || 'Untitled Section'}
                                       </h3>
                                       <p className="text-xs text-muted-foreground">
-                                        {section.title || 'Untitled Section'}
+                                        {section.description || 'No description'}
                                       </p>
-                                      {section.description && (
-                                        <p className="text-xs text-muted-foreground/70 mt-1 line-clamp-2">
-                                          {section.description}
-                                        </p>
-                                      )}
                                     </div>
                                   </div>
 
