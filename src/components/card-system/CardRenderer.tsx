@@ -7,18 +7,19 @@ import type { CardTemplate } from '@/lib/supabase';
 
 interface CardRendererProps {
   card: CardTemplate;
+  onFieldFocus?: (cardId: string, fieldId: string, value: any) => void;
 }
 
-export function CardRenderer({ card }: CardRendererProps) {
+export function CardRenderer({ card, onFieldFocus }: CardRendererProps) {
   switch (card.type) {
     case 'form':
-      return <FormCard card={card} />;
+      return <FormCard card={card} onFieldFocus={onFieldFocus} />;
     case 'calculation':
-      return <CalculationCard card={card} />;
+      return <CalculationCard card={card} onFieldFocus={onFieldFocus} />;
     case 'info':
-      return <InfoCard card={card} />;
+      return <InfoCard card={card} onFieldFocus={onFieldFocus} />;
     case 'submit':
-      return <SubmitCard card={card} />;
+      return <SubmitCard card={card} onFieldFocus={onFieldFocus} />;
     default:
       return null;
   }

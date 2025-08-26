@@ -5,7 +5,12 @@ import { CardRenderer } from './CardRenderer';
 import { getActiveCards, type CardTemplate } from '@/lib/supabase';
 import { ChevronDown } from 'lucide-react';
 
-function CardStreamContent() {
+interface CardStreamProps {
+  onFieldFocus?: (cardId: string, fieldId: string, value: any) => void;
+  onCardChange?: (cardId: string, status: string) => void;
+}
+
+function CardStreamContent({ onFieldFocus, onCardChange }: CardStreamProps) {
   const [cards, setCards] = useState<CardTemplate[]>([]);
   const [loading, setLoading] = useState(true);
   const { cardStates, checkRevealConditions, activateCard } = useCardContext();
@@ -18,15 +23,23 @@ function CardStreamContent() {
     try {
       const data = await getActiveCards();
       setCards(data || []);
+      
       // Initialize first card as active
       if (data && data.length > 0) {
         activateCard(data[0].id);
+        // Notify parent of initial card change
+        onCardChange?.(data[0].id, 'active');
       }
     } catch (error) {
       console.error('Failed to load cards:', error);
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleCardActivation = (cardId: string) => {
+    activateCard(cardId);
+    onCardChange?.(cardId, 'active');
   };
 
   if (loading) {
@@ -44,6 +57,11 @@ function CardStreamContent() {
           const state = cardStates[card.id]?.status || (index === 0 ? 'active' : 'locked');
           const isVisible = state !== 'hidden' && state !== 'locked';
           
+          // Check reveal conditions for this card
+          const shouldShow = checkRevealConditions(card.id, card.reveal_conditions || []);
+          
+          if (!shouldShow) return null;
+
           return (
             <motion.div
               key={card.id}
@@ -63,11 +81,14 @@ function CardStreamContent() {
               `}
               onClick={() => {
                 if (state === 'unlocked') {
-                  activateCard(card.id);
+                  handleCardActivation(card.id);
                 }
               }}
             >
-              <CardRenderer card={card} />
+              <CardRenderer 
+                card={card} 
+                onFieldFocus={onFieldFocus}
+              />
             </motion.div>
           );
         })}
@@ -86,10 +107,13 @@ function CardStreamContent() {
   );
 }
 
-export function CardStream() {
+export function CardStream({ onFieldFocus, onCardChange }: CardStreamProps) {
   return (
     <CardProvider>
-      <CardStreamContent />
+      <CardStreamContent 
+        onFieldFocus={onFieldFocus}
+        onCardChange={onCardChange}
+      />
     </CardProvider>
   );
 }

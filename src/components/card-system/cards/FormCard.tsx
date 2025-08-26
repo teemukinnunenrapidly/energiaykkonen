@@ -5,9 +5,10 @@ import { supabase } from '@/lib/supabase';
 
 interface FormCardProps {
   card: CardTemplate;
+  onFieldFocus?: (cardId: string, fieldId: string, value: any) => void;
 }
 
-export function FormCard({ card }: FormCardProps) {
+export function FormCard({ card, onFieldFocus }: FormCardProps) {
   const [fields, setFields] = useState<CardField[]>([]);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const { formData, updateField, cardStates, completeCard } = useCardContext();
@@ -140,6 +141,12 @@ export function FormCard({ card }: FormCardProps) {
     }
   };
 
+  const handleFieldFocus = (field: CardField) => {
+    if (onFieldFocus) {
+      onFieldFocus(card.id, field.field_name, formData[field.field_name]);
+    }
+  };
+
   const checkCompletion = () => {
     const allRequired = fields.filter(f => f.required);
     const allValid = allRequired.every(field => {
@@ -174,6 +181,7 @@ export function FormCard({ card }: FormCardProps) {
             type={field.field_type}
             value={value}
             onChange={(e) => handleFieldChange(field.field_name, e.target.value)}
+            onFocus={() => handleFieldFocus(field)}
             onBlur={() => handleFieldBlur(field)}
             placeholder={field.placeholder}
             disabled={!isActive}
@@ -189,6 +197,7 @@ export function FormCard({ card }: FormCardProps) {
           <select
             value={value}
             onChange={(e) => handleFieldChange(field.field_name, e.target.value)}
+            onFocus={() => handleFieldFocus(field)}
             onBlur={() => handleFieldBlur(field)}
             disabled={!isActive}
             className={inputClasses}
