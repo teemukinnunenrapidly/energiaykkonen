@@ -177,36 +177,52 @@ export function FormCard({ card, onFieldFocus }: FormCardProps) {
       case 'email':
       case 'number':
         return (
-          <input
-            type={field.field_type}
-            value={value}
-            onChange={(e) => handleFieldChange(field.field_name, e.target.value)}
-            onFocus={() => handleFieldFocus(field)}
-            onBlur={() => handleFieldBlur(field)}
-            placeholder={field.placeholder}
-            disabled={!isActive}
-            className={inputClasses}
-            min={field.field_type === 'number' ? field.validation_rules?.min : undefined}
-            max={field.field_type === 'number' ? field.validation_rules?.max : undefined}
-            minLength={field.validation_rules?.minLength}
-            maxLength={field.validation_rules?.maxLength}
-          />
+          <div>
+            <input
+              type={field.field_type}
+              value={value}
+              onChange={(e) => handleFieldChange(field.field_name, e.target.value)}
+              onFocus={() => handleFieldFocus(field)}
+              onBlur={() => handleFieldBlur(field)}
+              placeholder={field.placeholder}
+              disabled={!isActive}
+              className={inputClasses}
+              min={field.field_type === 'number' ? field.validation_rules?.min : undefined}
+              max={field.field_type === 'number' ? field.validation_rules?.max : undefined}
+              minLength={field.validation_rules?.minLength}
+              maxLength={field.validation_rules?.maxLength}
+            />
+            {error && (
+              <p className="text-xs text-red-500 mt-1">{error}</p>
+            )}
+            {field.help_text && !error && (
+              <p className="text-xs text-gray-500 mt-1">{field.help_text}</p>
+            )}
+          </div>
         );
       case 'select':
         return (
-          <select
-            value={value}
-            onChange={(e) => handleFieldChange(field.field_name, e.target.value)}
-            onFocus={() => handleFieldFocus(field)}
-            onBlur={() => handleFieldBlur(field)}
-            disabled={!isActive}
-            className={inputClasses}
-          >
-            <option value="">Select...</option>
-            {field.options?.map(opt => (
-              <option key={opt.value} value={opt.value}>{opt.label}</option>
-            ))}
-          </select>
+          <div>
+            <select
+              value={value}
+              onChange={(e) => handleFieldChange(field.field_name, e.target.value)}
+              onFocus={() => handleFieldFocus(field)}
+              onBlur={() => handleFieldBlur(field)}
+              disabled={!isActive}
+              className={inputClasses}
+            >
+              <option value="">Select...</option>
+              {field.options?.map(opt => (
+                <option key={opt.value} value={opt.value}>{opt.label}</option>
+              ))}
+            </select>
+            {error && (
+              <p className="text-xs text-red-500 mt-1">{error}</p>
+            )}
+            {field.help_text && !error && (
+              <p className="text-xs text-gray-500 mt-1">{field.help_text}</p>
+            )}
+          </div>
         );
       default:
         return null;
@@ -237,12 +253,6 @@ export function FormCard({ card, onFieldFocus }: FormCardProps) {
               {field.required && <span className="text-red-500 ml-1">*</span>}
             </label>
             {renderField(field)}
-            {error && (
-              <p className="text-xs text-red-500 mt-1">{error}</p>
-            )}
-            {field.help_text && !error && (
-              <p className="text-xs text-gray-500 mt-1">{field.help_text}</p>
-            )}
           </div>
         ))}
       </div>
