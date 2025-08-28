@@ -1,128 +1,296 @@
-import React, { useEffect, useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { CardProvider, useCardContext } from './CardContext';
+// /src/components/card-system/CardStream.tsx
+import React, { useEffect, useRef, useState, useMemo } from 'react';
+import { useCardContext } from './CardContext';
 import { CardRenderer } from './CardRenderer';
-import { getActiveCards, type CardTemplate } from '@/lib/supabase';
-import { ChevronDown } from 'lucide-react';
+import { VisualSupport } from './VisualSupport';
 
 interface CardStreamProps {
-  onFieldFocus?: (cardId: string, fieldId: string, value: any) => void;
-  onCardChange?: (cardId: string, status: string) => void;
+  onFieldFocus?: (cardId: string, fieldId: string, value?: string) => void;
+  showInlineVisual?: boolean;
+  activeCardId?: string;
+  forceShowInline?: boolean; // For preview mode mobile
 }
 
-function CardStreamContent({ onFieldFocus, onCardChange }: CardStreamProps) {
-  const [cards, setCards] = useState<CardTemplate[]>([]);
-  const [loading, setLoading] = useState(true);
-  const { cardStates, checkRevealConditions, activateCard, setCardOrderAndInitialize } = useCardContext();
+export function CardStream({
+  onFieldFocus,
+  showInlineVisual,
+  activeCardId,
+  forceShowInline,
+}: CardStreamProps) {
+  const { cards, shouldBeRevealed, cardStates } = useCardContext();
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const [scrollIndicators, setScrollIndicators] = useState({
+    showTop: false,
+    showBottom: false,
+  });
 
-  useEffect(() => {
-    loadCards();
-  }, []);
+  // Track previous reveal states to detect transitions
+  const [previousRevealStates, setPreviousRevealStates] = useState<
+    Record<string, boolean>
+  >({});
 
-  const loadCards = async () => {
-    try {
-      const data = await getActiveCards();
-      setCards(data || []);
-      
-      if (data && data.length > 0) {
-        // Initialize card order and states
-        const cardIds = data.map(card => card.id);
-        setCardOrderAndInitialize(cardIds);
-        
-        // Notify parent of initial card change
-        onCardChange?.(data[0].id, 'active');
+  // Track if user is manually scrolling to disable auto-scroll
+  const [isUserScrolling, setIsUserScrolling] = useState(false);
+  const [userScrollTimeout, setUserScrollTimeout] =
+    useState<NodeJS.Timeout | null>(null);
+  const [lastScrollTop, setLastScrollTop] = useState(0);
+  const [userScrolledUp, setUserScrolledUp] = useState(false);
+
+  // Update scroll indicators and detect manual scrolling
+  const updateScrollIndicators = () => {
+    const container = scrollContainerRef.current;
+    if (!container) {
+      return;
+    }
+
+    const { scrollTop, scrollHeight, clientHeight } = container;
+    const hasScrollableContent = scrollHeight > clientHeight;
+
+    setScrollIndicators({
+      showTop: hasScrollableContent && scrollTop > 10,
+      showBottom:
+        hasScrollableContent && scrollTop < scrollHeight - clientHeight - 10,
+    });
+
+    // Detect if user scrolled up (deliberately)
+    const scrollDelta = scrollTop - lastScrollTop;
+    if (Math.abs(scrollDelta) > 5) {
+      // Only consider significant scroll movements
+      if (scrollDelta < 0) {
+        // User scrolled up
+        setUserScrolledUp(true);
+      } else if (scrollDelta > 50) {
+        // User scrolled down significantly - might be intentional navigation
+        // Reset the "scrolled up" flag if they scroll down a lot
+        if (scrollTop > lastScrollTop + 100) {
+          setUserScrolledUp(false);
+        }
       }
-    } catch (error) {
-      console.error('Failed to load cards:', error);
-    } finally {
-      setLoading(false);
     }
-  };
 
-  const handleCardActivation = (cardId: string) => {
-    activateCard(cardId);
-    onCardChange?.(cardId, 'active');
-  };
-
-  const handleCardClick = (card: CardTemplate) => {
-    const state = cardStates[card.id]?.status || 'locked';
-    
-    if (state === 'unlocked') {
-      // User clicked on an unlocked card - activate it
-      handleCardActivation(card.id);
+    // Re-enable auto-scroll if user reaches near the bottom
+    const isNearBottom = scrollTop >= scrollHeight - clientHeight - 50;
+    if (isNearBottom && userScrolledUp) {
+      setUserScrolledUp(false);
     }
+
+    setLastScrollTop(scrollTop);
+
+    // Detect manual scrolling
+    setIsUserScrolling(true);
+
+    // Clear existing timeout
+    if (userScrollTimeout) {
+      clearTimeout(userScrollTimeout);
+    }
+
+    // Set a new timeout to reset user scrolling flag
+    const newTimeout = setTimeout(() => {
+      setIsUserScrolling(false);
+    }, 2000); // Wait 2 seconds after user stops scrolling
+
+    setUserScrollTimeout(newTimeout);
   };
 
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center h-full">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600" />
-      </div>
-    );
-  }
+  // Update indicators on mount and when cards change
+  useEffect(() => {
+    const timer = setTimeout(updateScrollIndicators, 100);
+    return () => clearTimeout(timer);
+  }, [cards]);
+
+  // Cleanup timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (userScrollTimeout) {
+        clearTimeout(userScrollTimeout);
+      }
+    };
+  }, [userScrollTimeout]);
+
+  // Memoize current reveal states to prevent infinite loops
+  const currentRevealStates = useMemo(() => {
+    const states: Record<string, boolean> = {};
+    cards.forEach((card, index) => {
+      // Use the new reveal permission system
+      states[card.id] = shouldBeRevealed(card, new Set());
+    });
+    return states;
+  }, [cards, cardStates]); // Remove shouldBeRevealed from deps as it may change frequently
+
+  // Auto-scroll to newly revealed cards
+  useEffect(() => {
+    const container = scrollContainerRef.current;
+    if (!container) {
+      return;
+    }
+
+    // Check if we're in preview mode
+    const isPreviewMode = window.location.pathname.includes('/admin/preview');
+
+    if (isPreviewMode) {
+      // Find cards that just transitioned from blurred to revealed
+      const newlyRevealedCards = cards.filter(card => {
+        const wasRevealed = previousRevealStates[card.id] || false;
+        const isNowRevealed = currentRevealStates[card.id];
+        return !wasRevealed && isNowRevealed;
+      });
+
+      // Also check for cards that might have become visible due to form completion
+      // This handles cases where cards with 'immediately' reveal become visible
+      const visibleCards = cards.filter((card, index) => {
+        if (index === 0) {
+          return false;
+        } // Skip first card
+        return currentRevealStates[card.id];
+      });
+
+      // If we have newly revealed cards, scroll to them
+      // If not, but we have visible cards that weren't visible before, scroll to the last one
+      const cardsToScrollTo =
+        newlyRevealedCards.length > 0
+          ? newlyRevealedCards
+          : visibleCards.length > 0
+            ? [visibleCards[visibleCards.length - 1]]
+            : [];
+
+      // Update previous states for next comparison
+      setPreviousRevealStates(currentRevealStates);
+
+      // Auto-scroll to newly revealed cards or visible cards (only if user isn't manually scrolling and hasn't scrolled up)
+      if (cardsToScrollTo.length > 0 && !isUserScrolling && !userScrolledUp) {
+        const cardToScrollTo = cardsToScrollTo[cardsToScrollTo.length - 1];
+        const cardElement = document.getElementById(
+          `card-${cardToScrollTo.id}`
+        );
+
+        if (cardElement) {
+          // Wait a bit for the transition to complete, then scroll
+          setTimeout(() => {
+            // Double-check that user still isn't scrolling and hasn't scrolled up
+            if (isUserScrolling || userScrolledUp) {
+              return;
+            }
+
+            // Calculate the scroll position to center the card
+            const containerRect = container.getBoundingClientRect();
+            const cardRect = cardElement.getBoundingClientRect();
+            const scrollTop = container.scrollTop;
+
+            const targetScrollTop =
+              scrollTop +
+              cardRect.top -
+              containerRect.top -
+              containerRect.height / 2 +
+              cardRect.height / 2;
+
+            // Smooth scroll to center the card
+            container.scrollTo({
+              top: Math.max(0, targetScrollTop),
+              behavior: 'smooth',
+            });
+
+          }, 300); // Wait for blur-to-reveal transition
+        }
+      }
+    }
+  }, [
+    cards,
+    currentRevealStates,
+    isUserScrolling,
+    userScrolledUp,
+  ]); // Remove objects from dependencies to prevent constant re-runs
 
   return (
-    <div className="max-w-3xl mx-auto py-8 px-4">
-      <AnimatePresence>
-        {cards.map((card, index) => {
-          const state = cardStates[card.id]?.status || 'locked';
-          const isVisible = state !== 'hidden';
-          const isLocked = state === 'locked';
-          
-          // Check reveal conditions for this card
-          const shouldShow = checkRevealConditions(card.id, card.reveal_conditions || []);
-          
-          if (!shouldShow) return null;
+    <div className="relative h-full w-full">
+      {/* Top shadow overlay */}
+      <div
+        className={`absolute top-0 left-0 right-0 h-20 pointer-events-none z-10 transition-opacity duration-500 ${
+          scrollIndicators.showTop ? 'opacity-100' : 'opacity-0'
+        }`}
+        style={{
+          background: `linear-gradient(180deg, 
+            rgba(0,0,0,0.06) 0%, 
+            rgba(0,0,0,0.03) 40%, 
+            rgba(0,0,0,0.01) 70%, 
+            transparent 100%)`,
+        }}
+      />
 
-          return (
-            <motion.div
-              key={card.id}
-              initial={{ opacity: 0, y: 50 }}
-              animate={{
-                opacity: isLocked ? 0.6 : 1,
-                y: 0,
-                filter: isLocked ? 'blur(8px)' : 'blur(0px)',
-                scale: state === 'active' ? 1.02 : (isLocked ? 0.98 : 1),
-              }}
-              transition={{ duration: 0.5, delay: index * 0.1 }}
-              className={`
-                mb-6 rounded-xl shadow-lg overflow-hidden transition-all
-                ${state === 'active' ? 'ring-2 ring-green-500 ring-offset-2' : ''}
-                ${state === 'complete' ? 'border-l-4 border-green-500' : ''}
-                ${state === 'locked' ? 'pointer-events-none' : 'cursor-pointer'}
-                ${state === 'unlocked' ? 'hover:shadow-xl' : ''}
-              `}
-              onClick={() => handleCardClick(card)}
-            >
-              <CardRenderer 
-                card={card} 
-                onFieldFocus={onFieldFocus}
-              />
-            </motion.div>
-          );
-        })}
-      </AnimatePresence>
-      
-      <div className="text-center py-8">
-        <motion.div
-          animate={{ y: [0, 10, 0] }}
-          transition={{ repeat: Infinity, duration: 2 }}
-        >
-          <ChevronDown className="w-8 h-8 text-gray-400 mx-auto" />
-        </motion.div>
-        <p className="text-gray-500 mt-2">Fill the form to reveal more</p>
+      {/* Scrollable container */}
+      <div
+        ref={scrollContainerRef}
+        onScroll={updateScrollIndicators}
+        className="h-full overflow-y-auto scroll-smooth custom-scrollbar"
+        style={{ height: '100%' }}
+      >
+        <div className="px-6 py-8 space-y-8">
+          {/* Inline Visual Support for Mobile */}
+          {showInlineVisual && activeCardId && (
+            <div className={`mb-6 ${forceShowInline ? '' : 'lg:hidden'}`}>
+              <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+                <div className="h-48">
+                  <VisualSupport objectId={activeCardId} compact={true} />
+                </div>
+              </div>
+            </div>
+          )}
+
+          {cards.map((card, index) => {
+            // In preview mode, show all cards but with different states
+            const isRevealed = currentRevealStates[card.id];
+            const isPreviewMode =
+              window.location.pathname.includes('/admin/preview');
+
+            // If in preview mode, show all cards but style them based on reveal status
+            const shouldShow = isPreviewMode ? true : isRevealed;
+            const isBlurred = isPreviewMode && !isRevealed;
+
+            // Check if card is completed
+            const cardState = cardStates[card.id];
+            const isCompleted = cardState?.status === 'complete';
+
+            if (!shouldShow) {
+              return null;
+            }
+
+            return (
+              <div
+                key={card.id}
+                id={`card-${card.id}`}
+                className={`
+                  transition-all duration-500 ease-out
+                  ${
+                    isBlurred
+                      ? 'opacity-60 translate-y-0 blur-sm pointer-events-none'
+                      : 'opacity-100 translate-y-0'
+                  }
+                `}
+                style={{
+                  transitionDelay: isBlurred ? '0ms' : `${index * 100}ms`,
+                }}
+              >
+                <div
+                  className={`
+                  bg-white rounded-lg shadow-lg border overflow-hidden hover:shadow-xl transition-all duration-200
+                  ${
+                    isBlurred
+                      ? 'border-gray-300 bg-gray-50'
+                      : isCompleted
+                        ? 'border-green-300 shadow-green-100 hover:border-green-400'
+                        : 'border-gray-200'
+                  }
+                `}
+                >
+                  <CardRenderer card={card} onFieldFocus={onFieldFocus} />
+                </div>
+              </div>
+            );
+          })}
+
+          {/* Bottom spacer */}
+          <div className="h-24" />
+        </div>
       </div>
     </div>
-  );
-}
-
-export function CardStream({ onFieldFocus, onCardChange }: CardStreamProps) {
-  return (
-    <CardProvider>
-      <CardStreamContent 
-        onFieldFocus={onFieldFocus}
-        onCardChange={onCardChange}
-      />
-    </CardProvider>
   );
 }

@@ -21,6 +21,17 @@ const ALLOWED_FORMULA_TYPES = ['energy_calculation', 'custom', 'template'];
 const MAX_FORMULA_LENGTH = 1000;
 const MAX_VARIABLES_PER_FORMULA = 20;
 
+// Formula cache to reduce database calls
+interface FormulaCacheEntry {
+  formulas: Formula[];
+  timestamp: number;
+  ttl: number; // Time to live in milliseconds
+}
+
+const formulaCache = new Map<string, FormulaCacheEntry>();
+const FORMULA_CACHE_TTL = 5 * 60 * 1000; // 5 minutes
+const FORMULA_CACHE_KEY = 'all_formulas';
+
 function checkRateLimit(userId: string): boolean {
   const now = Date.now();
   const userLimit = executionRateLimit.get(userId);
@@ -82,9 +93,18 @@ function validateAccessControl(
 /**
  * Formula Management Functions
  */
-export async function getFormulas(): Promise<Formula[]> {
+export async function getFormulas(forceRefresh: boolean = false): Promise<Formula[]> {
   try {
-    console.log('Attempting to fetch formulas from database...');
+    // Check cache first (unless force refresh is requested)
+    if (!forceRefresh) {
+      const cached = formulaCache.get(FORMULA_CACHE_KEY);
+      if (cached && Date.now() < cached.timestamp + cached.ttl) {
+        console.log('🚀 Using cached formulas (cache hit)');
+        return cached.formulas;
+      }
+    }
+
+    console.log('📡 Fetching formulas from database...');
 
     const { data, error } = await supabase
       .from('formulas')
@@ -99,8 +119,17 @@ export async function getFormulas(): Promise<Formula[]> {
       );
     }
 
-    console.log('Successfully fetched formulas:', data);
-    return data || [];
+    const formulas = data || [];
+    
+    // Cache the results
+    formulaCache.set(FORMULA_CACHE_KEY, {
+      formulas,
+      timestamp: Date.now(),
+      ttl: FORMULA_CACHE_TTL
+    });
+    
+    console.log(`✅ Successfully fetched and cached ${formulas.length} formulas`);
+    return formulas;
   } catch (error) {
     console.error('Exception in getFormulas:', error);
     throw error;
@@ -153,6 +182,10 @@ export async function createFormula(
       );
     }
 
+    // Invalidate cache after creating new formula
+    formulaCache.delete(FORMULA_CACHE_KEY);
+    console.log('🗑️ Invalidated formula cache after creation');
+
     console.log('Successfully created formula:', data);
     return data;
   } catch (error) {
@@ -195,6 +228,10 @@ export async function updateFormula(
       );
     }
 
+    // Invalidate cache after updating formula
+    formulaCache.delete(FORMULA_CACHE_KEY);
+    console.log('🗑️ Invalidated formula cache after update');
+
     console.log('Successfully updated formula:', data);
     return data;
   } catch (error) {
@@ -210,6 +247,10 @@ export async function deleteFormula(id: string): Promise<void> {
     console.error('Error deleting formula:', error);
     throw new Error('Failed to delete formula');
   }
+
+  // Invalidate cache after deleting formula
+  formulaCache.delete(FORMULA_CACHE_KEY);
+  console.log('🗑️ Invalidated formula cache after deletion');
 }
 
 export async function toggleFormulaStatus(
@@ -227,6 +268,10 @@ export async function toggleFormulaStatus(
     console.error('Error updating formula status:', error);
     throw new Error('Failed to update formula status');
   }
+
+  // Invalidate cache after toggling status
+  formulaCache.delete(FORMULA_CACHE_KEY);
+  console.log('🗑️ Invalidated formula cache after status toggle');
 
   return data;
 }
@@ -250,21 +295,29 @@ export function validateFormula(formulaText: string): FormulaValidationResult {
   }
 
   // Check for supported mathematical functions
-  const supportedFunctions = [
-    'Math.abs',
-    'Math.round',
-    'Math.floor',
-    'Math.ceil',
-    'Math.pow',
-    'Math.sqrt',
-    'Math.min',
-    'Math.max',
-  ];
   const hasUnsupportedFunctions =
     /Math\.(?!abs|round|floor|ceil|pow|sqrt|min|max)\w+/.test(formulaText);
   if (hasUnsupportedFunctions) {
     warnings.push(
       'Formula contains unsupported mathematical functions. Supported: abs, round, floor, ceil, pow, sqrt, min, max'
+    );
+  }
+
+  // Check for field and formula references
+  const fieldReferences = (formulaText.match(/\[field:([^\]]+)\]/g) || [])
+    .length;
+  const formulaReferences = (formulaText.match(/\[formula:([^\]]+)\]/g) || [])
+    .length;
+
+  if (fieldReferences > 0) {
+    warnings.push(
+      `Formula contains ${fieldReferences} field reference(s): use [field:fieldname] format`
+    );
+  }
+
+  if (formulaReferences > 0) {
+    warnings.push(
+      `Formula contains ${formulaReferences} formula reference(s): use [formula:formulaname] format`
     );
   }
 
@@ -364,6 +417,230 @@ export function validateFormula(formulaText: string): FormulaValidationResult {
 }
 
 /**
+ * Formula Dependency Resolution Functions
+ */
+export async function detectCircularDependencies(
+  formulaName: string,
+  visited: Set<string> = new Set(),
+  path: string[] = []
+): Promise<{ hasCircular: boolean; circularPath?: string[] }> {
+  if (visited.has(formulaName)) {
+    // Found a circular dependency
+    const circularStart = path.indexOf(formulaName);
+    const circularPath = path.slice(circularStart).concat([formulaName]);
+    return { hasCircular: true, circularPath };
+  }
+
+  visited.add(formulaName);
+  path.push(formulaName);
+
+  try {
+    // Get the formula
+    const formulas = await getFormulas();
+    const formula = formulas.find(f => f.name === formulaName && f.is_active);
+
+    if (!formula) {
+      return { hasCircular: false };
+    }
+
+    // Extract formula references from this formula
+    const formulaReferences =
+      formula.formula_text.match(/\[formula:([^\]]+)\]/g) || [];
+
+    for (const formulaRef of formulaReferences) {
+      const refMatch = formulaRef.match(/\[formula:([^\]]+)\]/);
+      if (refMatch) {
+        const referencedName = refMatch[1];
+        const result = await detectCircularDependencies(
+          referencedName,
+          new Set(visited),
+          [...path]
+        );
+        if (result.hasCircular) {
+          return result;
+        }
+      }
+    }
+
+    return { hasCircular: false };
+  } catch (error) {
+    console.error('Error checking circular dependencies:', error);
+    return { hasCircular: false };
+  }
+}
+
+export async function resolveFormulaDependencies(
+  formulaText: string,
+  formData: Record<string, any>,
+  processedFormulas: Map<string, number> = new Map(),
+  currentDepth: number = 0,
+  currentFormulaName?: string
+): Promise<{ resolvedFormula: string; error?: string }> {
+  // Prevent infinite recursion
+  if (currentDepth > 10) {
+    return {
+      resolvedFormula: formulaText,
+      error: 'Maximum formula dependency depth exceeded (10 levels)',
+    };
+  }
+
+  // Check for circular dependencies if we have a current formula name
+  if (currentFormulaName && currentDepth === 0) {
+    const circularCheck = await detectCircularDependencies(currentFormulaName);
+    if (circularCheck.hasCircular) {
+      return {
+        resolvedFormula: formulaText,
+        error: `Circular dependency detected: ${circularCheck.circularPath?.join(' → ')}`,
+      };
+    }
+  }
+
+  // Extract all [formula:xxx] references
+  const formulaReferences = formulaText.match(/\[formula:([^\]]+)\]/g) || [];
+
+  if (formulaReferences.length === 0) {
+    return { resolvedFormula: formulaText };
+  }
+
+  let resolvedFormula = formulaText;
+
+  // Process each formula reference
+  for (const formulaRef of formulaReferences) {
+    const formulaNameMatch = formulaRef.match(/\[formula:([^\]]+)\]/);
+    if (!formulaNameMatch) {
+      continue;
+    }
+
+    const referencedFormulaName = formulaNameMatch[1];
+
+    // Check if we've already calculated this formula in this execution context
+    if (processedFormulas.has(referencedFormulaName)) {
+      const cachedResult = processedFormulas.get(referencedFormulaName)!;
+      resolvedFormula = resolvedFormula.replace(
+        formulaRef,
+        cachedResult.toString()
+      );
+      continue;
+    }
+
+    // Fetch the referenced formula
+    const formulas = await getFormulas();
+    const referencedFormula = formulas.find(
+      f => f.name === referencedFormulaName && f.is_active
+    );
+
+    if (!referencedFormula) {
+      return {
+        resolvedFormula: formulaText,
+        error: `Referenced formula '${referencedFormulaName}' not found or not active`,
+      };
+    }
+
+    // Recursively resolve dependencies in the referenced formula
+    const dependencyResult = await resolveFormulaDependencies(
+      referencedFormula.formula_text,
+      formData,
+      processedFormulas,
+      currentDepth + 1,
+      referencedFormulaName
+    );
+
+    if (dependencyResult.error) {
+      return {
+        resolvedFormula: formulaText,
+        error: `Error in referenced formula '${referencedFormulaName}': ${dependencyResult.error}`,
+      };
+    }
+
+    // Execute the referenced formula
+    const executionResult = await executeFormulaWithFieldResolution(
+      dependencyResult.resolvedFormula,
+      formData,
+      processedFormulas
+    );
+
+    if (!executionResult.success || executionResult.result === undefined) {
+      return {
+        resolvedFormula: formulaText,
+        error: `Failed to execute referenced formula '${referencedFormulaName}': ${executionResult.error}`,
+      };
+    }
+
+    // Cache the result and replace the reference
+    processedFormulas.set(referencedFormulaName, executionResult.result);
+    resolvedFormula = resolvedFormula.replace(
+      formulaRef,
+      executionResult.result.toString()
+    );
+  }
+
+  return { resolvedFormula };
+}
+
+export async function executeFormulaWithFieldResolution(
+  formulaText: string,
+  formData: Record<string, any>,
+  processedFormulas: Map<string, number> = new Map()
+): Promise<FormulaExecutionResult> {
+  // Process [field:xxx] syntax in the formula
+  let processedFormula = formulaText;
+
+  // Extract all [field:xxx] references from the formula
+  const fieldReferences = formulaText.match(/\[field:([^\]]+)\]/g) || [];
+
+  // Replace each [field:xxx] with the actual value from formData
+  for (const fieldRef of fieldReferences) {
+    const fieldNameMatch = fieldRef.match(/\[field:([^\]]+)\]/);
+    if (fieldNameMatch) {
+      const fieldName = fieldNameMatch[1];
+      const fieldValue = formData[fieldName];
+
+      if (
+        fieldValue !== undefined &&
+        fieldValue !== null &&
+        fieldValue !== ''
+      ) {
+        // Convert to appropriate type for calculation
+        const numericValue = Number(fieldValue);
+        if (isNaN(numericValue)) {
+          return {
+            success: false,
+            error: `Field '${fieldName}' contains non-numeric value: '${fieldValue}'`,
+            executionTime: 0,
+          };
+        }
+
+        // Replace the [field:xxx] with the numeric value
+        processedFormula = processedFormula.replace(
+          fieldRef,
+          numericValue.toString()
+        );
+      } else {
+        // If field value is empty or missing, show error
+        return {
+          success: false,
+          error: `Field '${fieldName}' is required for this calculation but has no value`,
+          executionTime: 0,
+        };
+      }
+    }
+  }
+
+  // Check if all [field:xxx] references were replaced
+  const remainingFieldRefs = processedFormula.match(/\[field:([^\]]+)\]/g);
+  if (remainingFieldRefs) {
+    return {
+      success: false,
+      error: `Some field references were not replaced: ${remainingFieldRefs.join(', ')}`,
+      executionTime: 0,
+    };
+  }
+
+  // Execute the formula with no variables (since we've already replaced everything)
+  return await executeFormula(processedFormula, {});
+}
+
+/**
  * Formula Execution Functions
  */
 export async function executeFormula(
@@ -395,8 +672,23 @@ export async function executeFormula(
     }
 
     // Enhanced security: Variable type validation
+    // Only validate variables that are actually used in the formula
     const validatedVariables: Record<string, number> = {};
+    
+    // Extract variable names from the formula (match data.variableName patterns)
+    const variablePattern = /data\.(\w+)/g;
+    const usedVariables = new Set<string>();
+    let match;
+    while ((match = variablePattern.exec(formulaText)) !== null) {
+      usedVariables.add(match[1]);
+    }
+    
     for (const [key, value] of Object.entries(variables)) {
+      // Skip validation for variables not used in the formula
+      if (!usedVariables.has(key)) {
+        continue;
+      }
+      
       const numValue = Number(value);
       if (isNaN(numValue)) {
         return {
@@ -615,6 +907,24 @@ export const ENERGY_CALCULATION_TEMPLATES: FormulaTemplate[] = [
     category: 'Environmental',
     tags: ['co2', 'emissions', 'environmental'],
   },
+  {
+    id: 'total-savings-with-formula-ref',
+    name: 'Total Savings (Formula Reference Example)',
+    description:
+      'Calculate total savings using formula references - demonstrates [formula:name] syntax',
+    formula_text: '[formula:Annual Energy Savings] - investment_cost',
+    variables: [
+      {
+        name: 'investment_cost',
+        type: 'number',
+        description: 'Initial investment cost',
+        required: true,
+        unit: '€',
+      },
+    ],
+    category: 'Financial',
+    tags: ['savings', 'reference', 'dependency'],
+  },
 ];
 
 export function getFormulaTemplateById(
@@ -742,5 +1052,35 @@ export function getSecurityStats(): {
     activeRateLimits,
     totalExecutions,
     blockedExecutions,
+  };
+}
+
+/**
+ * Cache Management Functions
+ */
+export function clearFormulaCache(): void {
+  formulaCache.delete(FORMULA_CACHE_KEY);
+  console.log('🗑️ Formula cache cleared manually');
+}
+
+export function getFormulaCacheStats(): {
+  isCached: boolean;
+  cacheAge?: number;
+  timeUntilExpiry?: number;
+} {
+  const cached = formulaCache.get(FORMULA_CACHE_KEY);
+  
+  if (!cached) {
+    return { isCached: false };
+  }
+  
+  const now = Date.now();
+  const cacheAge = now - cached.timestamp;
+  const timeUntilExpiry = (cached.timestamp + cached.ttl) - now;
+  
+  return {
+    isCached: true,
+    cacheAge,
+    timeUntilExpiry: Math.max(0, timeUntilExpiry)
   };
 }

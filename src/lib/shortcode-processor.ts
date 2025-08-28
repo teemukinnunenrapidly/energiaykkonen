@@ -1,5 +1,10 @@
-import { executeFormula, getFormulas } from './formula-service';
-import { Formula } from './types/formula';
+import { executeFormula, getFormulas, executeFormulaWithFieldResolution } from './formula-service';
+import {
+  evaluateExpression,
+  storeCalculationResult,
+  getCalculationContext,
+} from './calculation-engine';
+import { processLookupShortcode } from './conditional-lookup';
 
 export interface ShortcodeResult {
   success: boolean;
@@ -13,6 +18,7 @@ export interface ProcessedDisplayContent {
     original: string;
     formulaId: string;
     variables: Record<string, any>;
+    type?: 'calc' | 'lookup';
   }>;
 }
 
@@ -28,20 +34,22 @@ export interface ProcessedDisplayContent {
  * Parse display content and extract shortcodes
  */
 export function parseDisplayContent(content: string): ProcessedDisplayContent {
-  const shortcodeRegex = /\[calc:([^\]]+)\]/g;
+  const shortcodeRegex = /\[(calc|lookup):([^\]]+)\]/g;
   const shortcodes: Array<{
     original: string;
     formulaId: string;
     variables: Record<string, any>;
+    type?: 'calc' | 'lookup';
   }> = [];
 
   let match;
   while ((match = shortcodeRegex.exec(content)) !== null) {
-    const [fullMatch, formulaName] = match;
+    const [fullMatch, type, formulaName] = match;
     shortcodes.push({
       original: fullMatch,
       formulaId: formulaName.trim(),
       variables: {},
+      type: type as 'calc' | 'lookup',
     });
   }
 
@@ -52,11 +60,60 @@ export function parseDisplayContent(content: string): ProcessedDisplayContent {
 }
 
 /**
+ * Process shortcodes with session-based calculation engine
+ * Supports simple math expressions like ([calc:energy] * 0.1)
+ */
+export async function processDisplayContentWithSession(
+  content: string,
+  sessionId: string,
+  formVariables: Record<string, any> = {}
+): Promise<ShortcodeResult> {
+  try {
+    // Check if content looks like a simple expression with calc or lookup shortcodes
+    // e.g., "([calc:something] / 10)" or "[lookup:something] * 2 + 100"
+    const hasExpression =
+      /[\+\-\*\/\(\)]/.test(content) && /\[(calc|lookup):/.test(content);
+
+    if (hasExpression) {
+      // Use the calculation engine for expression evaluation
+      const result = await evaluateExpression(
+        content,
+        sessionId,
+        formVariables
+      );
+
+      if (result.success && result.result !== undefined) {
+        return {
+          success: true,
+          result: formatCalculationResult(result.result, 'energy_calculation'),
+        };
+      } else {
+        return {
+          success: false,
+          error: result.error || 'Expression evaluation failed',
+        };
+      }
+    }
+
+    // For simple shortcodes without expressions, use the original processing
+    return processDisplayContent(content, formVariables, sessionId);
+  } catch (error) {
+    console.error('Error processing display content with session:', error);
+    return {
+      success: false,
+      error: `Failed to process content: ${error instanceof Error ? error.message : 'Unknown error'}`,
+    };
+  }
+}
+
+/**
  * Process shortcodes in display content and replace with calculation results
+ * Now supports optional sessionId for caching results
  */
 export async function processDisplayContent(
   content: string,
-  formVariables: Record<string, any> = {}
+  formVariables: Record<string, any> = {},
+  sessionId?: string
 ): Promise<ShortcodeResult> {
   try {
     const parsed = parseDisplayContent(content);
@@ -76,7 +133,67 @@ export async function processDisplayContent(
 
     // Process each shortcode
     for (const shortcode of parsed.shortcodes) {
-      // Find the formula by name (assuming formula names are unique)
+      if (shortcode.type === 'lookup') {
+        // Handle lookup shortcodes
+        if (!sessionId) {
+          processedContent = processedContent.replace(
+            shortcode.original,
+            `[Error: Lookup shortcodes require session context]`
+          );
+          continue;
+        }
+
+        try {
+          const lookupResult = await processLookupShortcode(
+            shortcode.formulaId,
+            sessionId,
+            formVariables
+          );
+
+          if (lookupResult.success && lookupResult.shortcode) {
+            // Recursively process the returned shortcode
+            console.log(`🔄 [SHORTCODE] About to recursively process lookup result: "${lookupResult.shortcode}"`);
+            
+            const recursiveResult = await processDisplayContent(
+              lookupResult.shortcode,
+              formVariables,
+              sessionId
+            );
+            
+            console.log(`🔄 [SHORTCODE] Recursive processing result:`, {
+              success: recursiveResult.success,
+              result: recursiveResult.result,
+              error: recursiveResult.error
+            });
+            
+            if (recursiveResult.success) {
+              processedContent = processedContent.replace(
+                shortcode.original,
+                recursiveResult.result || lookupResult.shortcode
+              );
+            } else {
+              processedContent = processedContent.replace(
+                shortcode.original,
+                `[Error: ${recursiveResult.error}]`
+              );
+            }
+          } else {
+            processedContent = processedContent.replace(
+              shortcode.original,
+              `[Error: ${lookupResult.error || 'Lookup failed'}]`
+            );
+          }
+        } catch (error) {
+          console.error(`Error processing lookup ${shortcode.formulaId}:`, error);
+          processedContent = processedContent.replace(
+            shortcode.original,
+            `[Error: Lookup processing failed]`
+          );
+        }
+        continue;
+      }
+
+      // Handle calc shortcodes (existing logic)
       const formula = formulas.find(
         f =>
           f.name.toLowerCase() === shortcode.formulaId.toLowerCase() ||
@@ -95,19 +212,73 @@ export async function processDisplayContent(
       }
 
       try {
-        // Execute the formula with form variables
-        const executionResult = await executeFormula(
-          formula.formula_text,
-          formVariables,
-          'system' // Use system user for display field processing
-        );
+        // Use session-based formula processing if sessionId is available
+        // This handles [field:xxx], [calc:xxx], and [lookup:xxx] references
+        let executionResult;
+        
+        if (sessionId) {
+          console.log(`🔄 [SHORTCODE] Processing formula with session: "${formula.formula_text}"`);
+          // Use session-aware processing
+          const { processFormulaWithSession, evaluateProcessedFormula } = await import('./session-data-table');
+          
+          const processed = await processFormulaWithSession(formula.formula_text, sessionId);
+          if (processed.success) {
+            const evaluated = evaluateProcessedFormula(processed.processedFormula!);
+            executionResult = {
+              success: evaluated.success,
+              result: evaluated.result,
+              error: evaluated.error,
+              executionTime: 0
+            };
+          } else {
+            executionResult = {
+              success: false,
+              error: processed.error,
+              executionTime: 0
+            };
+          }
+        } else {
+          console.log(`🔄 [SHORTCODE] Processing formula without session: "${formula.formula_text}"`);
+          // Fallback to field-only resolution
+          executionResult = await executeFormulaWithFieldResolution(
+            formula.formula_text,
+            formVariables
+          );
+        }
 
         if (executionResult.success && executionResult.result !== undefined) {
-          // Format the result (you can customize this based on formula type)
-          const formattedResult = formatCalculationResult(
-            executionResult.result,
-            formula.formula_type || 'energy_calculation'
-          );
+          // Store result in session cache if sessionId is provided
+          if (sessionId) {
+            storeCalculationResult(
+              sessionId,
+              formula.name,
+              executionResult.result
+            );
+          }
+
+          // Format the result with proper unit and Finnish locale
+          // Get unit from formula database or use fallback based on formula name
+          let unit = formula.unit || '';
+          
+          // Fallback unit mapping based on formula names (temporary until database has unit field)
+          if (!unit) {
+            const nameLower = formula.name.toLowerCase();
+            if (nameLower.includes('energiantarve') && nameLower.includes('kwh')) {
+              unit = 'kW';
+            } else if (nameLower.includes('öljyn menekki')) {
+              unit = 'L/vuosi';
+            } else if (nameLower.includes('kaasun menekki')) {
+              unit = 'MWh/vuosi'; 
+            } else if (nameLower.includes('puun menekki')) {
+              unit = 'motti/vuosi';
+            }
+          }
+          
+          const formattedResult = unit 
+            ? `${executionResult.result.toLocaleString('fi-FI')} ${unit}`
+            : executionResult.result.toLocaleString('fi-FI');
+            
+          console.log(`🎯 [FORMAT] Formatted formula result: ${executionResult.result} → ${formattedResult} (unit: "${unit}", formula: "${formula.name}")`);
 
           // Replace the shortcode with the result
           processedContent = processedContent.replace(
@@ -207,12 +378,12 @@ export function validateShortcodeSyntax(content: string): {
   const suggestions: string[] = [];
 
   // Check for proper shortcode syntax
-  const shortcodeRegex = /\[calc:([^\]]+)\]/g;
+  const shortcodeRegex = /\[(calc|lookup):([^\]]+)\]/g;
   const matches = content.match(shortcodeRegex);
 
   if (matches) {
     for (const match of matches) {
-      const formulaName = match.replace(/\[calc:([^\]]+)\]/, '$1');
+      const formulaName = match.replace(/\[(calc|lookup):([^\]]+)\]/, '$2');
 
       // Check if formula name contains invalid characters
       if (!/^[a-zA-Z0-9\-\s]+$/.test(formulaName)) {

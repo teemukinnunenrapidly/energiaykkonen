@@ -43,7 +43,7 @@ export async function POST(request: NextRequest) {
 
     // Insert into Supabase analytics table
     const { error: insertError } = await supabase
-      .from('analytics_events')
+      .from('analytics')
       .insert([analyticsRecord]);
 
     if (insertError) {
@@ -76,7 +76,7 @@ export async function GET(request: NextRequest) {
     const limit = parseInt(searchParams.get('limit') || '100');
 
     let query = supabase
-      .from('analytics_events')
+      .from('analytics')
       .select('*')
       .order('timestamp', { ascending: false })
       .limit(limit);

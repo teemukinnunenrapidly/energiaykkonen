@@ -17,9 +17,9 @@ export function CardRenderer({ card, onFieldFocus }: CardRendererProps) {
     case 'calculation':
       return <CalculationCard card={card} onFieldFocus={onFieldFocus} />;
     case 'info':
-      return <InfoCard card={card} onFieldFocus={onFieldFocus} />;
+      return <InfoCard card={card} />;
     case 'submit':
-      return <SubmitCard card={card} onFieldFocus={onFieldFocus} />;
+      return <SubmitCard card={card} />;
     default:
       return null;
   }

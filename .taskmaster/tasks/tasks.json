@@ -24,9 +24,7 @@
             "id": 2,
             "title": "Initialize Next.js 14 Project with TypeScript",
             "description": "Set up a new Next.js 14 project using TypeScript via the official CLI.",
-            "dependencies": [
-              "1.1"
-            ],
+            "dependencies": ["1.1"],
             "details": "Run `npx create-next-app@latest --typescript` in the repository directory. Confirm TypeScript configuration is present.",
             "status": "done",
             "testStrategy": ""
@@ -35,9 +33,7 @@
             "id": 3,
             "title": "Configure App Router Structure",
             "description": "Set up the App Router structure using the `/app` directory as per Next.js 14 conventions.",
-            "dependencies": [
-              "1.2"
-            ],
+            "dependencies": ["1.2"],
             "details": "Ensure the `/app` directory exists. Create initial layout and page files. Verify routing works with server and client components.",
             "status": "done",
             "testStrategy": ""
@@ -46,9 +42,7 @@
             "id": 4,
             "title": "Set Up Vercel Project for Deployment",
             "description": "Configure Vercel for hosting and deployment of the Next.js project on the free tier.",
-            "dependencies": [
-              "1.3"
-            ],
+            "dependencies": ["1.3"],
             "details": "Connect the Git repository to Vercel. Set up deployment pipeline and verify successful build and deployment.",
             "status": "done",
             "testStrategy": ""
@@ -57,9 +51,7 @@
             "id": 5,
             "title": "Add Environment Variable Support",
             "description": "Create and configure a `.env.local` file for managing environment variables securely.",
-            "dependencies": [
-              "1.4"
-            ],
+            "dependencies": ["1.4"],
             "details": "Add `.env.local` to the project root. Ensure sensitive values are not committed to version control.",
             "status": "done",
             "testStrategy": ""
@@ -68,9 +60,7 @@
             "id": 6,
             "title": "Install and Configure Code Quality Tooling",
             "description": "Install Prettier, ESLint, and Husky for code formatting, linting, and pre-commit hooks.",
-            "dependencies": [
-              "1.5"
-            ],
+            "dependencies": ["1.5"],
             "details": "Add and configure Prettier and ESLint. Set up Husky for enforcing code quality on commits.",
             "status": "done",
             "testStrategy": ""
@@ -79,9 +69,7 @@
             "id": 7,
             "title": "Integrate Inter Font",
             "description": "Add the Inter font to the project using npm or Google Fonts CDN as specified in the design requirements.",
-            "dependencies": [
-              "1.6"
-            ],
+            "dependencies": ["1.6"],
             "details": "Install Inter via npm or link via CDN. Update global styles or layout to use Inter as the default font.",
             "status": "done",
             "testStrategy": ""
@@ -95,9 +83,7 @@
         "details": "- Install Tailwind CSS (`^3.4.1`), shadcn/ui, React Hook Form (`^7.50.0`), Zod (`^3.22.4`), Recharts (`^2.7.2`) or Chart.js (`^4.4.1`), Supabase JS (`^2.39.7`), Resend (`^2.0.0`), and Vercel Analytics.\n- Configure Tailwind with custom color palette and breakpoints as per PRD.\n- Set up shadcn/ui components using CLI.\n- Configure React Hook Form with Zod resolver for schema validation.\n- Add Supabase client in `/lib/supabase.ts`.\n- Add Resend client in `/lib/resend.ts`.",
         "testStrategy": "Check that all libraries are installed and imported without errors. Render a test component from each library. Confirm Tailwind and shadcn/ui styles apply.",
         "priority": "high",
-        "dependencies": [
-          1
-        ],
+        "dependencies": [1],
         "status": "done",
         "subtasks": [
           {
@@ -113,9 +99,7 @@
             "id": 2,
             "title": "Install and Set Up shadcn/ui Components",
             "description": "Install shadcn/ui and initialize it using the CLI, ensuring integration with Tailwind CSS and project structure.",
-            "dependencies": [
-              "2.1"
-            ],
+            "dependencies": ["2.1"],
             "details": "Run 'npx shadcn-ui init' after Tailwind is set up. Configure path aliases and styles as per documentation. Add initial shadcn/ui components using the CLI.",
             "status": "done",
             "testStrategy": ""
@@ -124,10 +108,7 @@
             "id": 3,
             "title": "Set Up Form and Validation Libraries",
             "description": "Install React Hook Form (^7.50.0) and Zod (^3.22.4), and configure them for schema-based form validation.",
-            "dependencies": [
-              "2.1",
-              "2.2"
-            ],
+            "dependencies": ["2.1", "2.2"],
             "details": "Install both libraries. Set up React Hook Form with Zod resolver. Create a sample form to verify integration and validation.",
             "status": "done",
             "testStrategy": ""
@@ -136,9 +117,7 @@
             "id": 4,
             "title": "Install and Configure Charting Library",
             "description": "Install Recharts (^2.7.2) or Chart.js (^4.4.1) and render a test chart component to verify setup.",
-            "dependencies": [
-              "2.1"
-            ],
+            "dependencies": ["2.1"],
             "details": "Choose and install either Recharts or Chart.js. Import and render a basic chart in a test component to confirm correct installation.",
             "status": "done",
             "testStrategy": ""
@@ -147,9 +126,7 @@
             "id": 5,
             "title": "Set Up Supabase Database Client",
             "description": "Install Supabase JS (^2.39.7) and add the Supabase client initialization in /lib/supabase.ts.",
-            "dependencies": [
-              "2.1"
-            ],
+            "dependencies": ["2.1"],
             "details": "Install the Supabase JS library. Create /lib/supabase.ts and initialize the client with environment variables.",
             "status": "done",
             "testStrategy": ""
@@ -158,9 +135,7 @@
             "id": 6,
             "title": "Set Up Resend Email Client and Integrate Analytics",
             "description": "Install Resend (^2.0.0) and Vercel Analytics, and add the Resend client initialization in /lib/resend.ts.",
-            "dependencies": [
-              "2.1"
-            ],
+            "dependencies": ["2.1"],
             "details": "Install Resend and Vercel Analytics. Create /lib/resend.ts and initialize the Resend client. Integrate Vercel Analytics as per documentation.",
             "status": "done",
             "testStrategy": ""
@@ -174,9 +149,7 @@
         "details": "- Build four steps: House Info, Current Heating, Household, Contact Info.\n- Use shadcn/ui components (Input, Select, Radio, ProgressBar, Button).\n- Group related fields, use clear labels, and add placeholder/help text.\n- Implement progress bar and back/next navigation.\n- Ensure touch targets (min 44px), single-column mobile layout, and responsive breakpoints (640px, 768px, 1024px).\n- Add accessibility attributes (aria-labels, focus states).\n- Use Inter font and color palette from PRD.",
         "testStrategy": "Test on Chrome, Firefox, Safari, Edge, iOS Safari, and Android Chrome. Validate accessibility with screen readers and keyboard navigation. Check responsiveness at all breakpoints.",
         "priority": "high",
-        "dependencies": [
-          2
-        ],
+        "dependencies": [2],
         "status": "done",
         "subtasks": [
           {
@@ -192,9 +165,7 @@
             "id": 2,
             "title": "Implement Step Components Using shadcn/ui and React Hook Form",
             "description": "Develop individual React components for each form step using shadcn/ui components (Input, Select, Radio, ProgressBar, Button) and integrate with React Hook Form.",
-            "dependencies": [
-              "3.1"
-            ],
+            "dependencies": ["3.1"],
             "details": "For each step, use shadcn/ui components to build the UI, connect fields to React Hook Form, and ensure clear labels, placeholders, and help text are present. Integrate the progress bar and navigation controls.",
             "status": "done",
             "testStrategy": ""
@@ -203,9 +174,7 @@
             "id": 3,
             "title": "Enhance Accessibility for All Form Steps",
             "description": "Add accessibility features such as aria-labels, focus states, and ensure all interactive elements meet accessibility standards.",
-            "dependencies": [
-              "3.2"
-            ],
+            "dependencies": ["3.2"],
             "details": "Review each component to add appropriate aria attributes, ensure keyboard navigation works, and verify that focus indicators are visible. Confirm that all touch targets are at least 44px.",
             "status": "done",
             "testStrategy": ""
@@ -214,9 +183,7 @@
             "id": 4,
             "title": "Design and Implement Responsive Layout",
             "description": "Apply Tailwind CSS to achieve a mobile-first, single-column layout with responsive breakpoints at 640px, 768px, and 1024px.",
-            "dependencies": [
-              "3.2"
-            ],
+            "dependencies": ["3.2"],
             "details": "Ensure the form adapts to different screen sizes, maintains usability on mobile devices, and follows the specified breakpoints. Test layout on various devices and browsers.",
             "status": "done",
             "testStrategy": ""
@@ -225,9 +192,7 @@
             "id": 5,
             "title": "Integrate PRD-Specified Styles (Font and Color Palette)",
             "description": "Apply the Inter font and the color palette defined in the PRD across all form steps and components.",
-            "dependencies": [
-              "3.2"
-            ],
+            "dependencies": ["3.2"],
             "details": "Update Tailwind configuration and component styles to use the Inter font and PRD color palette. Verify visual consistency and adherence to design requirements.",
             "status": "done",
             "testStrategy": ""
@@ -241,9 +206,7 @@
         "details": "- Define Zod schemas for each step.\n- Validate email, phone (Finnish regex), required fields, and number ranges (e.g., 10-1000m²).\n- Add input masking for phone and currency fields.\n- Show inline error messages and disable next button until valid.\n- Ensure GDPR consent if required.",
         "testStrategy": "Attempt invalid inputs for each field and verify correct error messages. Test edge cases (min/max values, invalid emails/phones). Confirm form cannot proceed with invalid data.",
         "priority": "high",
-        "dependencies": [
-          3
-        ],
+        "dependencies": [3],
         "status": "done",
         "subtasks": [
           {
@@ -259,9 +222,7 @@
             "id": 2,
             "title": "Implement Validation Logic with React Hook Form",
             "description": "Integrate the defined Zod schemas with React Hook Form using the zodResolver to enforce validation on form inputs.",
-            "dependencies": [
-              "4.1"
-            ],
+            "dependencies": ["4.1"],
             "details": "Configure React Hook Form to use the Zod schemas for validation, ensuring all required fields and formats are checked before submission.",
             "status": "done",
             "testStrategy": ""
@@ -270,9 +231,7 @@
             "id": 3,
             "title": "Set Up Input Masking for Phone and Currency Fields",
             "description": "Add input masking to the phone and currency fields to guide user input and enforce correct formatting.",
-            "dependencies": [
-              "4.2"
-            ],
+            "dependencies": ["4.2"],
             "details": "Use a masking library or custom logic to ensure Finnish phone numbers and currency values are entered in the correct format.",
             "status": "done",
             "testStrategy": ""
@@ -281,9 +240,7 @@
             "id": 4,
             "title": "Handle Inline Error Messages and Button State",
             "description": "Display inline error messages for invalid inputs and disable the next button until all fields are valid.",
-            "dependencies": [
-              "4.2"
-            ],
+            "dependencies": ["4.2"],
             "details": "Map Zod validation errors to user-friendly messages and update the UI to reflect validation state, including disabling navigation until valid.",
             "status": "done",
             "testStrategy": ""
@@ -292,10 +249,7 @@
             "id": 5,
             "title": "Integrate GDPR Consent Validation",
             "description": "Ensure GDPR consent is required and validated as part of the form submission process.",
-            "dependencies": [
-              "4.1",
-              "4.2"
-            ],
+            "dependencies": ["4.1", "4.2"],
             "details": "Add a checkbox for GDPR consent, validate its state using Zod, and prevent form submission if not accepted.",
             "status": "done",
             "testStrategy": ""
@@ -309,9 +263,7 @@
         "details": "- Create `/lib/calculations.ts` with exported functions for each calculation (energy need, savings, payback, CO2, etc.).\n- Accept form data as input and return all calculated outputs.\n- Write unit tests for calculation accuracy (Jest or Vitest).\n- Ensure calculations handle missing/optional fields gracefully.",
         "testStrategy": "Run unit tests with sample inputs and verify outputs match PRD formulas. Cross-check with manual calculations for accuracy.",
         "priority": "high",
-        "dependencies": [
-          4
-        ],
+        "dependencies": [4],
         "status": "done",
         "subtasks": []
       },
@@ -322,9 +274,7 @@
         "details": "- Design results summary with large, readable numbers for savings and payback.\n- Implement bar chart comparing current vs. heat pump costs.\n- Add timeline visualization for payback period.\n- Show CO2 reduction with iconography.\n- Add prominent CTA button ('Get Personal Quote').\n- Ensure responsive and accessible design.",
         "testStrategy": "Verify all results display correctly for a range of inputs. Test chart rendering on all devices. Confirm CTA is visible and actionable.",
         "priority": "high",
-        "dependencies": [
-          5
-        ],
+        "dependencies": [5],
         "status": "done",
         "subtasks": [
           {
@@ -340,9 +290,7 @@
             "id": 2,
             "title": "Implement Bar Chart Visualization",
             "description": "Develop a bar chart comparing current vs. heat pump costs using Recharts or Chart.js integrated with shadcn/ui.",
-            "dependencies": [
-              "6.1"
-            ],
+            "dependencies": ["6.1"],
             "details": "Configure chart data and axes. Style chart to match summary UI. Validate chart responsiveness and accessibility.",
             "status": "done",
             "testStrategy": ""
@@ -351,9 +299,7 @@
             "id": 3,
             "title": "Add Timeline Visualization for Payback Period",
             "description": "Create a timeline or progress bar showing the payback period, leveraging shadcn/ui and a suitable chart library.",
-            "dependencies": [
-              "6.1"
-            ],
+            "dependencies": ["6.1"],
             "details": "Design a clear visual representation of the payback timeline. Ensure it integrates seamlessly with the summary UI and is accessible.",
             "status": "done",
             "testStrategy": ""
@@ -362,9 +308,7 @@
             "id": 4,
             "title": "Display CO2 Reduction and Environmental Impact",
             "description": "Show CO2 reduction using iconography and concise text, ensuring the display is visually integrated and accessible.",
-            "dependencies": [
-              "6.1"
-            ],
+            "dependencies": ["6.1"],
             "details": "Select appropriate icons and colors. Present environmental impact data clearly. Confirm accessibility for screen readers.",
             "status": "done",
             "testStrategy": ""
@@ -373,12 +317,7 @@
             "id": 5,
             "title": "Integrate CTA Button and Ensure Responsiveness/Accessibility",
             "description": "Add a prominent 'Get Personal Quote' CTA button and validate that the entire results page is responsive and accessible.",
-            "dependencies": [
-              "6.1",
-              "6.2",
-              "6.3",
-              "6.4"
-            ],
+            "dependencies": ["6.1", "6.2", "6.3", "6.4"],
             "details": "Use shadcn/ui for button styling. Test layout on multiple devices. Perform accessibility checks for all interactive elements.",
             "status": "done",
             "testStrategy": ""
@@ -392,9 +331,7 @@
         "details": "- Create Supabase project and configure PostgreSQL.\n- Create `leads` table with all fields from PRD (including metadata).\n- Add row-level security (RLS) and enable SSL.\n- Store IP address and user agent from request headers.\n- Implement `/api/submit-lead` route to insert validated form and calculation data.\n- Store source page for analytics.",
         "testStrategy": "Submit test leads and verify data is stored correctly in Supabase. Check RLS and SSL are enforced. Validate all fields are populated.",
         "priority": "high",
-        "dependencies": [
-          5
-        ],
+        "dependencies": [5],
         "status": "done",
         "subtasks": [
           {
@@ -410,9 +347,7 @@
             "id": 2,
             "title": "Create Leads Table per PRD Schema",
             "description": "Define and create the 'leads' table in Supabase with all required fields, including metadata, as specified in the PRD.",
-            "dependencies": [
-              "7.1"
-            ],
+            "dependencies": ["7.1"],
             "details": "Use the Supabase dashboard or SQL editor to create the 'leads' table, ensuring all fields (including metadata such as timestamps, IP, user agent, and source page) are included according to the PRD.",
             "status": "done",
             "testStrategy": ""
@@ -421,9 +356,7 @@
             "id": 3,
             "title": "Configure Row-Level Security (RLS) and Enable SSL",
             "description": "Set up RLS policies for the leads table and ensure SSL is enforced for all database connections.",
-            "dependencies": [
-              "7.2"
-            ],
+            "dependencies": ["7.2"],
             "details": "Enable RLS in the Supabase dashboard, write policies to restrict access as needed, and verify SSL is enabled for secure data transmission.",
             "status": "done",
             "testStrategy": ""
@@ -432,10 +365,7 @@
             "id": 4,
             "title": "Connect Next.js App to Supabase Using Supabase JS Client",
             "description": "Integrate the Supabase JS client into the Next.js application and configure it to connect to the Supabase project.",
-            "dependencies": [
-              "7.1",
-              "7.3"
-            ],
+            "dependencies": ["7.1", "7.3"],
             "details": "Install the Supabase JS client, set up the client instance with environment variables, and test the connection from the Next.js backend.",
             "status": "done",
             "testStrategy": ""
@@ -444,10 +374,7 @@
             "id": 5,
             "title": "Implement /api/submit-lead Route with Metadata Capture",
             "description": "Develop the Next.js API route to accept, validate, and insert lead data, capturing IP address, user agent, and calculation results.",
-            "dependencies": [
-              "7.2",
-              "7.4"
-            ],
+            "dependencies": ["7.2", "7.4"],
             "details": "Create the /api/submit-lead endpoint, validate incoming data, extract IP and user agent from request headers, and insert all relevant fields into the leads table.",
             "status": "done",
             "testStrategy": ""
@@ -456,9 +383,7 @@
             "id": 6,
             "title": "Store Source Page for Analytics",
             "description": "Ensure the source page information is captured and stored with each lead submission for analytics purposes.",
-            "dependencies": [
-              "7.5"
-            ],
+            "dependencies": ["7.5"],
             "details": "Modify the API route and database schema as needed to include the source page field, and verify it is populated on each lead insert.",
             "status": "done",
             "testStrategy": ""
@@ -472,9 +397,7 @@
         "details": "- Create email templates for customer and sales (per PRD specs).\n- Use Resend API to send emails from `/api/submit-lead` after successful DB insert.\n- Personalize subject, greeting, and calculation summary.\n- Include all required data and CTA.\n- Handle email delivery errors gracefully.",
         "testStrategy": "Submit test leads and confirm emails are received by both customer and sales. Check spam/junk folders. Validate personalization and formatting.",
         "priority": "high",
-        "dependencies": [
-          7
-        ],
+        "dependencies": [7],
         "status": "done",
         "subtasks": [
           {
@@ -490,9 +413,7 @@
             "id": 2,
             "title": "Integrate Resend API for Email Delivery",
             "description": "Implement logic in the `/api/submit-lead` endpoint to send personalized emails using the Resend API after a successful database insert, handling both customer and sales notification flows.",
-            "dependencies": [
-              "8.1"
-            ],
+            "dependencies": ["8.1"],
             "details": "Use the Resend SDK to send emails with the correct template, recipient, and dynamic data. Store and secure the API key as an environment variable. Ensure error handling for failed deliveries and log errors appropriately.",
             "status": "done",
             "testStrategy": ""
@@ -501,9 +422,7 @@
             "id": 3,
             "title": "Test and Validate Email Delivery and Error Handling",
             "description": "Thoroughly test the email delivery process by submitting test leads, verifying receipt and formatting of emails for both customer and sales, and confirming error handling works as intended.",
-            "dependencies": [
-              "8.2"
-            ],
+            "dependencies": ["8.2"],
             "details": "Check inbox and spam folders for both recipient types. Validate that all personalization and required data are present. Simulate delivery failures to ensure graceful error handling and logging.",
             "status": "done",
             "testStrategy": ""
@@ -517,9 +436,7 @@
         "details": "- Implement `/admin/page.tsx` route.\n- Add login form (password from env variable, no user accounts).\n- Display searchable/filterable leads table (fetch from Supabase).\n- Add CSV export button (client-side CSV generation).\n- Show basic stats: leads per day/week/month.\n- Protect all admin routes with server-side auth middleware.",
         "testStrategy": "Attempt access without password (should fail). Log in and verify all features work. Export CSV and check file integrity. Test stats accuracy.",
         "priority": "medium",
-        "dependencies": [
-          7
-        ],
+        "dependencies": [7],
         "status": "done",
         "subtasks": [
           {
@@ -535,9 +452,7 @@
             "id": 2,
             "title": "Implement Leads Table with Supabase Integration",
             "description": "Display a table of leads fetched from Supabase, showing all relevant lead data in a structured format.",
-            "dependencies": [
-              "9.1"
-            ],
+            "dependencies": ["9.1"],
             "details": "Connect to Supabase, fetch leads data, and render it in a table within the admin panel. Ensure the table is responsive and supports large datasets efficiently.\n<info added on 2025-08-24T18:15:20.114Z>\n**Data Structure Analysis Complete:**\n- Full Lead interface with 25+ fields available in `src/lib/supabase.ts`\n- Comprehensive database schema in `scripts/supabase-migrations/01_create_leads_table.sql`\n- Existing `getLeads()` helper function ready to use\n\n**Implementation Plan:**\n1. Create LeadsTable component with smart column selection (key fields visible)\n2. Add server-side data fetching with proper authentication\n3. Implement responsive design with mobile-friendly layout\n4. Add basic pagination for performance with large datasets\n5. Display key lead info: name, email, savings, status, created date\n6. Include expandable rows for full lead details\n\n**Key Fields to Display:**\n- Primary: Name, Email, City, Annual Savings, Status, Created Date\n- Secondary (expandable): Property details, heating info, calculations, contact preferences\n</info added on 2025-08-24T18:15:20.114Z>\n<info added on 2025-08-24T18:17:56.798Z>\n**✅ LEADS TABLE IMPLEMENTATION COMPLETED SUCCESSFULLY**\n\nThe leads table with Supabase integration has been fully implemented with all requested features:\n\n**🔧 Files Created/Modified:**\n- ✅ `src/components/admin/LeadsTable.tsx` - Comprehensive leads table component\n- ✅ `src/components/ui/badge.tsx` - Status badge component\n- ✅ `src/lib/admin-data.ts` - Server-side data fetching utilities\n- ✅ `src/app/admin/page.tsx` - Updated admin page with leads table integration\n\n**🎯 Features Implemented:**\n- **Full Lead Data Display** - Shows all key lead information in organized format\n- **Responsive Design** - Desktop table view + mobile card layout\n- **Pagination** - Handles large datasets with 10 leads per page\n- **Expandable Rows** - Click to see detailed lead information\n- **Statistics Dashboard** - Shows total leads, today, this week, average savings\n- **Professional UI** - Consistent with existing design patterns\n\n**📊 Table Columns (Desktop):**\n- Name (with expand/collapse)\n- Email (clickable mailto links)\n- City\n- Annual Savings (with property details)\n- Status (color-coded badges)\n- Created Date (formatted)\n\n**📱 Mobile Experience:**\n- Card-based layout for smaller screens\n- Essential info always visible\n- Expandable details on demand\n- Touch-friendly interactions\n\n**🔍 Detailed Lead View:**\n- Property details (size, ceiling, construction year, floors, residents)\n- Current heating info (type, cost, consumption, hot water usage)\n- Heat pump calculations (energy need, consumption, costs, savings, payback, CO₂)\n- Complete contact information with clickable links\n- Notes and metadata (creation time, IP, source page)\n\n**⚡ Performance Features:**\n- Server-side pagination\n- Efficient Supabase queries\n- Loading states with spinners\n- Error handling with user-friendly messages\n\n**🎨 User Experience:**\n- Intuitive expand/collapse with chevron icons\n- Color-coded status badges\n- Finnish currency formatting\n- Responsive breakpoints\n- Clean, professional design\n</info added on 2025-08-24T18:17:56.798Z>",
             "status": "done",
             "testStrategy": ""
@@ -546,9 +461,7 @@
             "id": 3,
             "title": "Add Search and Filter Functionality to Leads Table",
             "description": "Enable searching and filtering of leads within the table to allow admins to quickly find specific records.",
-            "dependencies": [
-              "9.2"
-            ],
+            "dependencies": ["9.2"],
             "details": "Implement client-side search input and filter controls. Ensure the table updates in real time as search terms or filters are applied.\n<info added on 2025-08-24T18:20:20.549Z>\n# Search and Filter Implementation Plan\n\n**Goal:** Enable admins to quickly find specific leads through:\n1. **Text Search** - Search by name, email, or city\n2. **Status Filter** - Filter by lead status (new, contacted, qualified, converted)\n3. **Date Range Filter** - Filter leads by creation date\n4. **Savings Range** - Filter by annual savings amount\n5. **Real-time Updates** - Debounced search for smooth UX\n\n**Implementation Plan:**\n1. Create SearchFilters component with input controls\n2. Add state management for search/filter parameters\n3. Update server-side data fetching to support search/filters\n4. Implement debounced search for performance\n5. Add URL state persistence for bookmarkable filters\n6. Integrate with existing LeadsTable and pagination\n\n**Technical Approach:**\n- Client-side filtering for immediate response (up to 1000 leads)\n- Server-side filtering for larger datasets\n- Debounced search input (300ms delay)\n- URL search params for filter persistence\n- Efficient Supabase query building\n</info added on 2025-08-24T18:20:20.549Z>\n<info added on 2025-08-24T18:22:59.658Z>\n# Implementation Completed\n\nThe search and filter functionality has been successfully implemented with all requested features:\n\n## Files Created/Modified\n- `src/components/admin/SearchFilters.tsx` - Complete search and filter UI component\n- `src/hooks/useDebounce.ts` - Custom hook for debounced search performance\n- `src/lib/admin-data.ts` - Enhanced server-side filtering and search capabilities\n- `src/app/admin/page.tsx` - Integrated search filters with admin panel\n\n## Features Implemented\n\n### Text Search (Debounced)\n- Searches across: first name, last name, email, city\n- 300ms debounce for optimal performance\n- Case-insensitive partial matching\n- Real-time results with visual feedback\n\n### Status Filter\n- Dropdown with all lead statuses (new, contacted, qualified, converted)\n- \"All Statuses\" option to clear filter\n- Instant filtering on selection\n\n### Date Range Filter\n- From Date and To Date inputs\n- Includes full day ranges (23:59:59 for end dates)\n- Flexible range selection (can use just from or just to)\n\n### Savings Range Filter\n- Min and Max annual savings amount inputs\n- Numeric validation with proper euro formatting\n- Range filtering for lead qualification\n\n### Advanced UI Features\n- Collapsible Filters with \"More Filters\" button\n- Active Filter Tags with individual clear buttons\n- Clear All Button for one-click filter removal\n- URL State Persistence for bookmarkable filter states\n- Mobile Responsive design\n\n## Technical Implementation\n\n### Server-Side Filtering\n- Efficient Supabase queries with proper indexing\n- Combined filters using AND logic\n- Optimized count queries for pagination\n\n### Client-Side Experience\n- Debounced search input for smooth typing\n- URL state management for bookmarkable results\n- Loading states during filter applications\n- Error handling for filter edge cases\n\n### Performance Optimizations\n- Utilizes existing database indexes\n- Minimizes server requests with smart debouncing\n- Efficient pagination with filtered counts\n- Optimized query building\n\nAll search and filter capabilities now work seamlessly together, providing admins with powerful lead discovery and management tools.\n</info added on 2025-08-24T18:22:59.658Z>",
             "status": "done",
             "testStrategy": ""
@@ -557,9 +470,7 @@
             "id": 4,
             "title": "Implement CSV Export Feature",
             "description": "Add a button to export the currently displayed leads (with applied filters) as a CSV file, generated client-side.",
-            "dependencies": [
-              "9.3"
-            ],
+            "dependencies": ["9.3"],
             "details": "Use a client-side CSV generation library or custom logic to convert the leads data to CSV format and trigger a download when the export button is clicked.\n<info added on 2025-08-24T18:24:16.720Z>\n# Starting Implementation of CSV Export Feature\n\n**Goal:** Enable admins to export the currently displayed/filtered leads as a CSV file\n\n**Implementation Plan:**\n1. **CSV Generation Approach**: Use client-side generation for simplicity and privacy\n2. **Data Scope**: Export currently filtered/displayed leads (respecting active filters)\n3. **File Content**: Include all relevant lead fields with proper formatting\n4. **User Experience**: One-click download with progress feedback\n5. **Error Handling**: Graceful handling of export failures\n\n**Technical Strategy:**\n- **Client-side CSV generation** - No server-side processing needed\n- **Custom CSV utility** - No external library dependency\n- **Filtered data export** - Respect current search and filter states\n- **Filename generation** - Include timestamp and filter info\n- **Progress feedback** - Loading state during export\n\n**CSV Fields to Include:**\n- Contact info: Name, Email, Phone, City, Address\n- Property details: Size, Construction year, Heating type\n- Calculations: Savings, Payback, CO₂ reduction\n- Lead management: Status, Notes, Created date\n- Metadata: Source page, Contact preference\n</info added on 2025-08-24T18:24:16.720Z>\n<info added on 2025-08-24T18:27:55.169Z>\n# CSV Export Feature Implementation Complete\n\nThe CSV export feature has been successfully implemented with comprehensive functionality:\n\n## Files Created/Modified\n- `src/lib/csv-export.ts` - CSV generation utility with proper formatting\n- `src/components/admin/ExportButton.tsx` - Export button with loading states\n- `src/app/api/admin/export/route.ts` - API endpoint for filtered lead exports\n- `src/app/admin/page.tsx` - Export button integration\n- `src/components/admin/LeadsTable.tsx` - Header optimization\n\n## Implemented Features\n\n### Data Export Capabilities\n- Complete lead data export (35 columns) including contact info, property details, heating data, calculations, and metadata\n- Finnish-localized formatting for dates (DD.MM.YYYY) and currency (€)\n- Excel-compatible UTF-8 with BOM encoding\n- Special character escaping and proper CSV formatting\n\n### Export Functionality\n- Filter-aware exports (respects current search/filter criteria)\n- Two export modes: all filtered results or current page only\n- Intelligent filenames with timestamp and filter information\n- Progress indicators during export process\n- Comprehensive error handling\n\n### Technical Implementation\n- Client-side CSV generation for privacy and performance\n- API endpoint for fetching complete filtered datasets\n- Authentication protection for secure data access\n- Memory-efficient handling of large datasets\n- Cross-browser compatibility\n\nThe export system now provides administrators with powerful data export capabilities that support both quick exports and comprehensive filtered data analysis.\n</info added on 2025-08-24T18:27:55.169Z>",
             "status": "done",
             "testStrategy": ""
@@ -568,9 +479,7 @@
             "id": 5,
             "title": "Display Basic Lead Statistics",
             "description": "Show basic statistics such as leads per day, week, and month within the admin panel.",
-            "dependencies": [
-              "9.2"
-            ],
+            "dependencies": ["9.2"],
             "details": "Calculate and display summary statistics using the leads data, updating dynamically as new leads are added or filters are applied.\n<info added on 2025-08-24T18:30:23.598Z>\n# Starting Enhancement of Lead Statistics Dashboard\n\n**Current State Analysis:**\n- Basic statistics cards already exist showing: Total, Today, This Week, Average Savings\n- Statistics are calculated in `getLeadStats()` function in `src/lib/admin-data.ts`\n- Cards are displayed above the search filters in the admin panel\n\n**Enhancement Goals:**\n1. Expand Statistics Scope: Add more comprehensive metrics beyond the current 4 cards\n2. Advanced Time Periods: Show daily, weekly, monthly, and yearly trends\n3. Business Metrics: Revenue projections, conversion rates, lead quality scores\n4. Visual Charts: Add simple charts/graphs for trend visualization  \n5. Filter Integration: Make statistics respect current search/filter state\n6. Performance Tracking: Lead source analysis, conversion funnel metrics\n\n**Implementation Plan:**\n1. Enhance `getLeadStats()` with comprehensive metrics\n2. Create new StatisticsDashboard component with charts\n3. Add filter-aware statistics calculations\n4. Implement trend analysis and comparisons\n5. Add business intelligence metrics\n6. Create visual chart components\n\n**New Statistics to Add:**\n- Conversion rates by status\n- Lead sources breakdown  \n- Average response time\n- Regional distribution\n- Heating type preferences\n- Savings distribution analysis\n- Monthly growth trends\n</info added on 2025-08-24T18:30:23.598Z>\n<info added on 2025-08-24T18:33:07.526Z>\n# COMPREHENSIVE STATISTICS DASHBOARD COMPLETED SUCCESSFULLY\n\nThe lead statistics system has been completely enhanced with comprehensive business intelligence features:\n\n**🔧 Files Created/Modified:**\n- `src/lib/admin-data.ts` - Massively enhanced `getLeadStats()` with 20+ metrics\n- `src/components/admin/StatisticsDashboard.tsx` - Complete statistics dashboard with visual components\n- `src/app/admin/page.tsx` - Integrated comprehensive dashboard replacing basic cards\n\n**📊 Comprehensive Statistics Implementation:**\n\n**1. Enhanced Data Collection:**\n- **20+ Metrics**: Expanded from 4 basic metrics to comprehensive business intelligence\n- **Multiple Time Periods**: Today, yesterday, this week, last week, this month, last month\n- **Financial Analysis**: Total/average/median savings, 5-year projections, payback periods\n- **Quality Metrics**: High-value leads, quick payback leads, conversion rates\n- **Geographic Analysis**: Top 10 cities distribution with percentages\n- **Market Analysis**: Heating type preferences, contact preferences, property sizes\n\n**2. Business Intelligence Dashboard:**\n- **Overview Section**: Total leads, daily/weekly trends, average savings\n- **Performance Metrics**: Conversion rates, qualification rates, total savings potential\n- **Lead Quality Analysis**: High-value leads, quick payback identification, property metrics\n- **Status Distribution**: Visual pipeline status with percentages and badges\n- **Market Analysis**: Geographic distribution, heating type preferences, contact preferences\n\n**3. Advanced Visualizations:**\n- **Trend Indicators**: Growth arrows showing daily/weekly/monthly changes\n- **Progress Bars**: Visual representation of distribution percentages\n- **Color-Coded Cards**: Intuitive color schemes for different metric categories\n- **Percentage Badges**: Clear status distribution visualization\n- **Statistical Comparisons**: Period-over-period growth tracking\n\n**4. Professional UI Components:**\n- **StatCard Component**: Reusable metric cards with icons, trends, and colors\n- **DistributionCard Component**: Bar chart-style distribution visualization\n- **Responsive Grid Layout**: Adapts to screen sizes (1-4 columns)\n- **Icon Integration**: Lucide React icons for visual clarity\n- **Finnish Localization**: Currency and number formatting\n\n**📈 Key Business Metrics Implemented:**\n\n**Time-Based Analysis:**\n- Total leads with monthly growth trends\n- Daily leads with day-over-day comparison\n- Weekly leads with week-over-week trends\n- Period-over-period growth tracking\n\n**Conversion Funnel:**\n- Lead status distribution (new → contacted → qualified → converted)\n- Conversion rate calculation (converted/total)\n- Qualification rate tracking (qualified+converted/total)\n- Pipeline health visualization\n\n**Financial Intelligence:**\n- Total annual savings potential across all leads\n- Average and median savings per lead\n- 5-year savings projections\n- Average payback period analysis\n\n**Lead Quality Scoring:**\n- High-value leads (above average savings)\n- Quick payback leads (≤5 years)\n- Average property size analysis\n- Quality distribution metrics\n\n**Market Intelligence:**\n- Geographic distribution (top 10 cities)\n- Heating type preferences breakdown\n- Contact preference analysis\n- Lead source tracking capabilities\n\n**🎯 User Experience Features:**\n- **Clean Visual Hierarchy**: Organized sections with clear headers\n- **Intuitive Color Coding**: Blue, green, purple, orange for different categories\n- **Trend Visualization**: Up/down arrows with growth indicators\n- **Responsive Design**: Mobile-friendly grid layouts\n- **Professional Aesthetics**: Consistent with existing admin panel design\n\n**⚡ Performance & Architecture:**\n- **Efficient Database Queries**: Single query fetches all required data\n- **Client-Side Calculations**: Complex metrics computed from raw data\n- **Memory Efficient**: Optimized data processing and rendering\n- **Type Safety**: Full TypeScript integration with proper interfaces\n\nThe statistics dashboard now provides administrators with comprehensive business intelligence capabilities, supporting data-driven decision making for lead management and business growth!\n</info added on 2025-08-24T18:33:07.526Z>",
             "status": "done",
             "testStrategy": ""
@@ -584,9 +493,7 @@
         "details": "- Add Vercel Analytics SDK and configure for subdomain.\n- Track key events: form start, step completion, form submit, drop-off, device type.\n- Store analytics events in Supabase or Vercel Analytics as appropriate.\n- Visualize most common configurations and drop-off points in admin panel (basic).",
         "testStrategy": "Check analytics dashboard for event data. Simulate user flows and verify events are tracked. Confirm device usage and drop-off points are recorded.",
         "priority": "medium",
-        "dependencies": [
-          9
-        ],
+        "dependencies": [9],
         "status": "done",
         "subtasks": [
           {
@@ -602,9 +509,7 @@
             "id": 2,
             "title": "Implement Custom Event Tracking",
             "description": "Develop logic to track key events such as form start, step completion, form submit, drop-off, and device type throughout the multi-step form flow.",
-            "dependencies": [
-              "10.1"
-            ],
+            "dependencies": ["10.1"],
             "details": "Instrument the form with event triggers for each key interaction. Ensure device type is detected and included in event payloads. Use appropriate hooks or middleware to capture drop-off events.",
             "status": "done",
             "testStrategy": ""
@@ -613,9 +518,7 @@
             "id": 3,
             "title": "Configure Analytics Event Storage",
             "description": "Set up storage for analytics events, routing them to Supabase or Vercel Analytics as appropriate based on event type and usage requirements.",
-            "dependencies": [
-              "10.2"
-            ],
+            "dependencies": ["10.2"],
             "details": "Define which events are stored in Supabase versus Vercel Analytics. Implement API routes or direct SDK calls to persist event data. Ensure data integrity and security for stored analytics.",
             "status": "done",
             "testStrategy": ""
@@ -624,9 +527,7 @@
             "id": 4,
             "title": "Visualize Analytics in Admin Panel",
             "description": "Create basic visualizations in the admin panel to display the most common form configurations and drop-off points using the stored analytics data.",
-            "dependencies": [
-              "10.3"
-            ],
+            "dependencies": ["10.3"],
             "details": "Query analytics data from Supabase and/or Vercel Analytics. Build charts or tables to show configuration frequency and drop-off analysis. Integrate these visualizations into the admin panel UI.\n<info added on 2025-08-24T18:56:50.341Z>\n# Analytics Dashboard Implementation\n\nThe analytics visualization has been successfully implemented with the following components:\n\n## Analytics Dashboard Component\n- Created comprehensive AnalyticsDashboard.tsx with real-time data fetching\n- Implemented summary metrics cards showing total events, unique sessions, form completions, and conversion rate\n- Added device performance breakdown (mobile/tablet/desktop with conversion rates)\n- Developed form conversion funnel visualization with completion rates by step\n- Integrated recent activity feed showing event details and device information\n- Added performance insights including average time on site and abandonment rate\n- Implemented loading states, error handling, and refresh functionality\n\n## Analytics Dashboard API\n- Created /api/analytics-dashboard endpoint that aggregates data from Supabase\n- Implemented device breakdown calculations and form funnel metrics\n- Added recent activity logs with filtering capabilities\n- Optimized for performance and robust error handling\n\n## Admin Panel Integration\n- Enhanced src/app/admin/page.tsx to include the AnalyticsDashboard component\n- Maintained consistent styling and responsive design\n- Integrated seamlessly with existing lead management interface\n\n## Form Analytics Integration\n- Enhanced MultiStepForm.tsx with comprehensive tracking\n- Fixed TypeScript issues with form type definitions\n- Added real-time event tracking throughout the user journey\n- Implemented abandonment detection and completion metrics\n- Added device type detection and session correlation\n\nThe analytics system is now production-ready, providing actionable insights for optimizing form completion rates and understanding user behavior across different devices and form steps.\n</info added on 2025-08-24T18:56:50.341Z>",
             "status": "done",
             "testStrategy": ""
@@ -638,9 +539,7 @@
         "title": "Implement WordPress iFrame Embed and Public Subdomain",
         "description": "Deploy calculator to Vercel subdomain and provide iFrame embed code for WordPress integration.",
         "status": "in-progress",
-        "dependencies": [
-          6
-        ],
+        "dependencies": [6],
         "priority": "medium",
         "details": "- Configure Vercel for `laskuri.energiaykkonen.fi` subdomain.\n- Generate and document iFrame embed code with correct sizing.\n- Add `/public/embed.js` for optional dynamic resizing.\n- Test embed on WordPress staging site for compatibility and responsiveness.",
         "testStrategy": "Embed calculator on WordPress test page. Verify full functionality, responsiveness, and no cross-origin issues. Confirm iFrame resizes as needed.",
@@ -726,9 +625,7 @@
         "details": "- Ensure SSL via Vercel (automatic).\n- Sanitize all user inputs server-side before DB insert.\n- Add privacy notice and consent checkbox to form.\n- Implement rate limiting middleware on API routes (e.g., Upstash Redis or Supabase RLS).\n- Exclude sensitive data from storage.\n- Set up regular Supabase backups.",
         "testStrategy": "Attempt XSS and injection attacks (should fail). Submit >10 leads from same IP/hour (should be blocked). Check privacy notice and consent flow.",
         "priority": "high",
-        "dependencies": [
-          7
-        ],
+        "dependencies": [7],
         "status": "done",
         "subtasks": [
           {
@@ -767,9 +664,7 @@
         "details": "- Test on Chrome, Firefox, Safari, Edge, iOS Safari, Android Chrome.\n- Validate all form and calculation logic.\n- Test email delivery and formatting.\n- Use tools like k6 or Artillery for load testing (100 concurrent users).\n- Document all test cases and results.",
         "testStrategy": "Execute all test cases and log results. Fix any bugs found. Confirm system stability under load and all features work as intended.",
         "priority": "high",
-        "dependencies": [
-          12
-        ],
+        "dependencies": [12],
         "status": "done",
         "subtasks": [
           {
@@ -808,9 +703,7 @@
         "details": "- Write README with setup, deployment, and environment variable instructions.\n- Document admin panel usage and CSV export.\n- Describe update/change process (per PRD).\n- Include troubleshooting and support contact info.",
         "testStrategy": "Review documentation for completeness and clarity. Have a non-developer follow setup steps. Confirm client can use admin panel and export data.",
         "priority": "medium",
-        "dependencies": [
-          13
-        ],
+        "dependencies": [13],
         "status": "done",
         "subtasks": [
           {
@@ -826,9 +719,7 @@
             "id": 2,
             "title": "Document Update Process and Troubleshooting",
             "description": "Describe the update/change process as specified in the PRD, and provide troubleshooting steps and support contact information for common issues.",
-            "dependencies": [
-              "14.1"
-            ],
+            "dependencies": ["14.1"],
             "details": "Outline how updates should be made, including version control practices, deployment steps, and approval workflows. Add a troubleshooting section with solutions to frequent problems and clear instructions for contacting support.\n<info added on 2025-08-25T05:33:21.010Z>\nI've completed the UPDATE_PROCESS_AND_TROUBLESHOOTING.md document that provides comprehensive guidance on system updates and troubleshooting. The document includes detailed sections covering the update workflow, version control practices with Git, deployment procedures, and approval processes. It also features an extensive troubleshooting section addressing common issues across all system components including the calculator, admin panel, and email system.\n\nThe documentation provides systematic troubleshooting procedures with step-by-step instructions, clearly defined support levels with escalation paths, and scheduled maintenance procedures. Emergency procedures and recovery protocols are also included to handle critical situations.\n\nKey features include detailed update procedures, comprehensive troubleshooting guides, support contact information, maintenance schedules, and quick reference commands for common operations. All documentation has been structured for easy navigation and reference by both technical and non-technical users.\n</info added on 2025-08-25T05:33:21.010Z>",
             "status": "done",
             "testStrategy": ""
@@ -837,10 +728,7 @@
             "id": 3,
             "title": "Review, Revise, and Prepare Handover Package",
             "description": "Review all documentation for completeness and clarity, revise based on feedback, and compile the final handover package for the client and future maintainers.",
-            "dependencies": [
-              "14.1",
-              "14.2"
-            ],
+            "dependencies": ["14.1", "14.2"],
             "details": "Have a non-developer follow the setup and admin instructions to validate usability. Incorporate feedback, ensure consistency and accuracy, and organize all materials into a single accessible package for delivery.\n<info added on 2025-08-25T05:35:37.085Z>\n## Handover Package Complete - Final Documentation Delivered\n\n**Completed Deliverables:**\n\n1. **HANDOVER_PACKAGE.md** - Comprehensive handover package covering:\n   - Complete system overview and architecture\n   - Quick start guide for immediate use\n   - Complete documentation index and navigation\n   - System setup and configuration procedures\n   - User roles and access management\n   - System monitoring and analytics\n   - Update and maintenance procedures\n   - Troubleshooting and support information\n   - Security and compliance details\n   - Future enhancement planning\n   - Handover checklist and confirmation\n   - Next steps and ongoing responsibilities\n\n2. **DOCUMENTATION_INDEX.md** - Complete documentation navigation system:\n   - Organized by category and purpose\n   - Audience-specific usage guides\n   - File organization and structure\n   - Search and navigation assistance\n   - Documentation maintenance procedures\n\n**Documentation Quality Features:**\n- Professional formatting with clear navigation\n- Comprehensive coverage of all system aspects\n- User-friendly language for non-technical users\n- Technical depth for developers and maintainers\n- Clear handover procedures and confirmation\n- Complete support and escalation information\n\n**Handover Package Status:**\n✅ **COMPLETE AND READY FOR DELIVERY**\n\nThe comprehensive handover package is now complete and ready for client delivery. All documentation has been created, organized, and verified for completeness and usability.\n</info added on 2025-08-25T05:35:37.085Z>",
             "status": "done",
             "testStrategy": ""
@@ -852,12 +740,7 @@
         "title": "Final Deployment and Client Feedback",
         "description": "Deploy production build, perform final checks, and implement any last-minute client feedback before go-live.",
         "status": "pending",
-        "dependencies": [
-          14,
-          24,
-          17,
-          21
-        ],
+        "dependencies": [14, 24, 17, 21],
         "priority": "high",
         "details": "- Deploy latest build to Vercel production.\n- Run smoke tests on live environment.\n- Share with client for review and collect feedback.\n- Implement minor adjustments as needed.\n- Confirm all success metrics are trackable.\n- Ensure all foundational systems are in place before proceeding with deployment.",
         "testStrategy": "Verify live site matches requirements. Confirm all features work in production. Ensure client sign-off before public launch.",
@@ -914,10 +797,7 @@
         "title": "Update Form Layout to Scrollable Design with Finnish Language Support",
         "description": "Convert the multi-step form to a scrollable design with Finnish language labels, showing all four sections simultaneously while maintaining sequential completion requirements.",
         "status": "done",
-        "dependencies": [
-          3,
-          6
-        ],
+        "dependencies": [3, 6],
         "priority": "medium",
         "details": "- Refactor the existing form layout to display all sections in a single scrollable container\n- Implement Finnish language labels for all form sections and fields:\n  * Property questions (Kiinteistön tiedot)\n  * Current heating (Nykyinen lämmitys)\n  * Current heating costs (Lämmityskustannukset)\n  * Check how much you'd save (Katso paljonko säästäisit)\n- Restructure the page layout to show 3D visualization on the left side and the scrollable form on the right sidebar\n- Maintain the sequential completion logic so users must complete each section in order to proceed\n- Add visual indicators to show which sections are completed, active, or locked\n- Ensure the form maintains responsive behavior on all screen sizes\n- Update form validation to work with the new scrollable layout\n- Implement smooth scrolling between sections when users complete a section\n- Add accessibility features for the new layout (keyboard navigation, focus management)\n- Update any related components that depend on the multi-step form structure\n- Add Finnish completion status indicators (\"✓ Valmis\") for completed sections\n- Implement submit button validation to ensure all sections are completed before submission",
         "testStrategy": "1. Verify all form sections display correctly in the scrollable container with proper Finnish translations\n2. Test the sequential completion logic by attempting to interact with locked sections\n3. Confirm smooth scrolling behavior when advancing between sections\n4. Test responsive behavior across mobile, tablet, and desktop viewports\n5. Verify the 3D visualization and form sidebar layout works correctly on all screen sizes\n6. Conduct accessibility testing with screen readers and keyboard navigation\n7. Test form validation in the new layout with both valid and invalid inputs\n8. Verify that all form data is still correctly collected and processed\n9. Test with Finnish language users to ensure translations are accurate and natural\n10. Perform cross-browser testing (Chrome, Firefox, Safari, Edge) to ensure consistent behavior\n11. Verify section status tracking (completed, active, locked) works correctly with appropriate visual feedback\n12. Test progress indicators at the top of the form to ensure they accurately reflect completion status\n13. Confirm Finnish completion status indicators (\"✓ Valmis\") display correctly for completed sections\n14. Verify submit button remains disabled until all sections are completed",
@@ -983,11 +863,7 @@
         "title": "Implement Modern Tesla-Style UI with Split-Screen Layout",
         "description": "Implement a clean, modern UI with a simple, responsive layout focusing on usability, performance, and good user experience while leveraging the shared schema and i18n setup provided by the foundational system.",
         "status": "done",
-        "dependencies": [
-          3,
-          16,
-          25
-        ],
+        "dependencies": [3, 16, 25],
         "priority": "high",
         "details": "- Create a simple, responsive layout that adapts to different screen sizes\n- Develop clear visual separation between form sections\n- Implement basic progress indicators and completion states\n- Add simple CSS transitions for form interactions\n- Focus on mobile-first responsive design principles\n- Leverage existing shadcn/ui components for UI consistency\n- Create clean, modern UI elements with good typography and spacing\n- Optimize for mobile devices with touch-friendly interaction areas\n- Implement responsive breakpoints at 640px, 768px, 1024px, and 1280px\n- Add subtle visual feedback for form interactions\n- Ensure all UI elements follow the established design system using shadcn/ui and Tailwind\n- Implement basic loading states for form sections\n- Integrate with the Unified Form System (Task 25) to consume form schema and i18n\n- Focus on implementing a practical, usable interface rather than fancy effects\n- Prioritize readability and user experience over complex animations",
         "testStrategy": "1. Verify the responsive layout renders correctly on desktop browsers (Chrome, Firefox, Safari, Edge)\n2. Test responsive behavior across all breakpoints, ensuring proper adaptation on mobile\n3. Validate that UI elements correctly display based on the i18n setup from the foundational system\n4. Test the progress indicators by completing sections and verifying visual feedback\n5. Verify smooth transitions when interacting with form elements\n6. Test basic transitions for smoothness and performance\n7. Perform accessibility testing to ensure the UI is navigable via keyboard and screen readers\n8. Validate that the UI correctly integrates with the form system provided by Task 25\n9. Test on low-end devices to ensure good performance\n10. Test touch interactions on mobile devices to ensure proper responsiveness\n11. Validate that the UI maintains visual consistency with the design system",
@@ -1044,10 +920,7 @@
         "title": "Build Brand Customization System for Calculator in Admin Panel",
         "description": "Develop a simple theme customization section in the admin panel that allows administrators to customize the calculator's visual appearance to match their brand identity without requiring code changes.",
         "status": "pending",
-        "dependencies": [
-          9,
-          17
-        ],
+        "dependencies": [9, 17],
         "priority": "medium",
         "details": "- Create a new section in the admin panel dedicated to brand customization\n- Implement 3 core features:\n  * Basic color customization (primary brand color only)\n  * Simple logo upload functionality\n  * Basic theme preview\n- For color customization:\n  * Add a color picker for selecting primary brand color\n  * Apply this color to key UI elements in the calculator\n- For logo upload:\n  * Create a simple file upload component for logo images\n  * Support common image formats (PNG, JPG, SVG)\n  * Include basic image size/format validation\n- For theme preview:\n  * Create a simple preview that shows how the calculator will look\n  * Update preview in real-time as changes are made\n- Ensure all customizations persist in the database\n- Apply customizations to the calculator without requiring code changes or redeployment\n- Note: This task has been simplified from complexity score 7 to approximately 3-4, focusing on just the 3 core features listed above",
         "testStrategy": "1. Verify the brand customization section appears correctly in the admin panel\n2. Test primary color customization:\n   - Select different colors using the color picker\n   - Verify the selected color appears correctly in the preview\n   - Confirm the color applies to the actual calculator\n3. Test logo upload functionality:\n   - Upload logos in different formats (PNG, JPG, SVG)\n   - Verify uploaded logo appears correctly in the preview\n   - Confirm logo appears correctly in the calculator\n   - Test validation for improper file types or sizes\n4. Validate the preview system:\n   - Confirm preview updates in real-time when changes are made\n   - Verify preview accurately represents how the calculator will look\n5. Test persistence:\n   - Make customization changes and save\n   - Log out and log back in\n   - Verify customizations are still applied\n6. Perform cross-browser testing (Chrome, Firefox, Safari, Edge)\n7. Verify customizations apply to the calculator without requiring code changes",
@@ -1060,11 +933,7 @@
         "details": "- Create a new route `/admin/preview/page.tsx` accessible from the main admin navigation\n- Implement a navigation link in the admin sidebar menu labeled \"Calculator Preview\"\n- Render the full calculator component within the admin panel context, ensuring it:\n  * Uses the same Tesla-style split-screen layout (70/30) as the public version\n  * Shows the visualization panel on the left and scrollable form on the right\n  * Loads the current brand customization settings from the database\n  * Functions exactly like the public calculator with all form interactions\n  * Displays a prominent \"Preview Mode\" indicator to distinguish from the live site\n- Ensure the preview calculator uses the same calculation engine as the public version\n- Add a refresh button to reload the preview with the latest customization settings\n- Implement a toggle to switch between desktop and mobile viewport sizes for testing responsive behavior\n- Add a \"View Public Version\" button that opens the live calculator in a new tab for comparison\n- Ensure the preview doesn't submit actual leads to the database when testing form submission\n- Add tooltips or help text explaining that this is a safe environment for testing changes\n- Maintain all form validation and UI interactions identical to the public version",
         "testStrategy": "1. Verify the preview page is accessible only to authenticated admin users\n2. Confirm the calculator renders correctly within the admin panel with the same layout and styling as the public version\n3. Test that all form interactions work properly:\n   - Fill out each section of the form and verify validation works\n   - Test calculations with various inputs and confirm results match expected outputs\n   - Verify visualization updates correctly based on form inputs\n4. Test the responsive toggle functionality:\n   - Switch between desktop and mobile views\n   - Verify the layout adapts appropriately for each viewport size\n5. Confirm the \"Preview Mode\" indicator is clearly visible\n6. Test that form submissions in preview mode don't create actual leads in the database\n7. Verify that changes made in the brand customization section are reflected in the preview after refresh\n8. Test the \"View Public Version\" button opens the correct URL in a new tab\n9. Verify performance is acceptable within the admin panel context",
         "status": "done",
-        "dependencies": [
-          9,
-          17,
-          18
-        ],
+        "dependencies": [9, 17, 18],
         "priority": "medium",
         "subtasks": [
           {
@@ -1080,9 +949,7 @@
             "id": 2,
             "title": "Render Calculator Component with Admin Context",
             "description": "Render the full calculator component inside the admin panel using the Tesla-style 70/30 split-screen layout, loading current brand customization settings from the database.",
-            "dependencies": [
-              "19.1"
-            ],
+            "dependencies": ["19.1"],
             "details": "Ensure the calculator appears exactly as on the public site, with the visualization panel on the left and the scrollable form on the right, and loads the latest brand settings.\n<info added on 2025-08-25T13:03:33.035Z>\nAll progress bars and step indicators have been removed from the preview page. The form now displays all sections together in a single scrollable container, eliminating step-by-step navigation elements and providing a cleaner, streamlined user experience that matches the scrollable design philosophy.\n</info added on 2025-08-25T13:03:33.035Z>",
             "status": "done",
             "testStrategy": "Confirm the layout, styling, and brand settings match the public version and that all UI elements render correctly."
@@ -1091,9 +958,7 @@
             "id": 3,
             "title": "Implement Preview Mode Functionality and Safety",
             "description": "Add a prominent 'Preview Mode' indicator, ensure no actual leads are submitted, and provide tooltips or help text explaining the safe testing environment.",
-            "dependencies": [
-              "19.2"
-            ],
+            "dependencies": ["19.2"],
             "details": "Display a clear 'Preview Mode' banner, block real lead submissions, and add contextual help to reassure admins about safe testing.",
             "status": "done",
             "testStrategy": "Attempt form submissions and verify no data is sent to the live database. Check for visible indicators and help text."
@@ -1102,9 +967,7 @@
             "id": 4,
             "title": "Add Interactive Preview Controls",
             "description": "Implement a refresh button to reload the latest customization settings, a toggle for desktop/mobile viewport simulation, and a 'View Public Version' button opening the live calculator in a new tab.",
-            "dependencies": [
-              "19.2"
-            ],
+            "dependencies": ["19.2"],
             "details": "Provide controls for refreshing the preview, switching viewport sizes, and comparing with the live site.",
             "status": "done",
             "testStrategy": "Test each control to ensure they function as intended: refresh updates settings, viewport toggle changes layout, and 'View Public Version' opens the correct page."
@@ -1113,9 +976,7 @@
             "id": 5,
             "title": "Ensure Full Calculator Functionality and Validation",
             "description": "Maintain all form validation, UI interactions, and calculation logic identical to the public version within the preview, using the same calculation engine.",
-            "dependencies": [
-              "19.2"
-            ],
+            "dependencies": ["19.2"],
             "details": "Integrate the public calculator logic and validation, ensuring all interactions and calculations behave identically in preview mode.",
             "status": "done",
             "testStrategy": "Fill out and interact with all form sections, verifying validation, calculations, and UI responses match the public calculator."
@@ -1127,11 +988,7 @@
         "title": "Implement Comprehensive Calculations Page in Admin Panel",
         "description": "Create a dedicated Calculations Page in the admin panel that allows administrators to manage and create calculation formulas used throughout the energy calculator application without requiring coding knowledge.",
         "status": "done",
-        "dependencies": [
-          5,
-          9,
-          19
-        ],
+        "dependencies": [5, 9, 19],
         "priority": "high",
         "details": "- Create a new route `/admin/calculations/page.tsx` accessible from the admin sidebar\n- Add a \"Calculations\" tab in the admin navigation menu\n- Implement a simplified calculation management system:\n  * Basic mathematical operations (addition, subtraction, multiplication, division)\n  * Simple formula validation and testing\n  * Leverage existing calculation libraries instead of building a custom engine\n- Implement a simple text-based editor for formula editing\n- Create a basic shortcode generator for common energy calculations\n- Implement essential security measures:\n  * Basic input validation and sanitization\n  * Simple access control based on admin permissions\n- Create a database schema in Supabase to store:\n  * Formula definitions\n  * Basic formula metadata (name, description, author, creation date)\n- Focus on practical calculation management needs:\n  * Essential energy calculation formulas\n  * Simple formula testing capabilities\n  * Basic error handling\n- Ensure the UI is intuitive with:\n  * Clear section organization\n  * Basic help documentation\n  * Simple error messages",
         "testStrategy": "1. Verify the Calculations page is accessible only to authenticated admin users\n2. Test the formula creation workflow:\n   - Create a new formula using the text-based editor\n   - Verify the formula is saved correctly to the database\n   - Confirm basic formula validation catches syntax errors\n3. Test the shortcode generation:\n   - Generate a shortcode for a simple formula\n   - Embed it in a calculator form\n   - Verify the formula executes correctly when the form is used\n4. Test basic security measures:\n   - Attempt to input invalid formulas\n   - Verify access restrictions based on admin permissions\n5. Test formula functionality:\n   - Create formulas for common energy calculations\n   - Verify results match expected outputs\n6. Perform cross-browser testing (Chrome, Firefox, Safari, Edge)\n7. Test responsive behavior on different screen sizes\n8. Verify integration with the main calculator by creating a formula and confirming it works in the live calculator\n9. Confirm formulas can be tested in the Preview page (Task 19) after creation",
@@ -1150,9 +1007,7 @@
             "title": "Implement Basic Formula Management System",
             "description": "Develop a simplified formula management system supporting basic mathematical operations using existing calculation libraries instead of building a custom engine.",
             "status": "done",
-            "dependencies": [
-              1
-            ],
+            "dependencies": [1],
             "details": "Create a formula management system that can process basic calculations including arithmetic operations and simple mathematical functions. Leverage existing calculation libraries to reduce development complexity.\n<info added on 2025-08-25T11:07:03.538Z>\nEnhanced the Basic Formula Management System with additional mathematical capabilities:\n\n**Mathematical Functions Support:**\n- Added support for safe Math functions: abs, round, floor, ceil, pow, sqrt, min, max\n- Enhanced validation to detect unsupported Math functions\n- Secure execution using isolated Math object scope\n\n**Enhanced User Experience:**\n- Added comprehensive formula examples section in the creation form\n- Examples cover: Basic operations, Math functions, Energy calculations, Complex formulas\n- Improved validation feedback with warnings for unsupported functions\n\n**Core Functionality Confirmed:**\n- Basic mathematical operations (addition, subtraction, multiplication, division, parentheses)\n- Formula validation with comprehensive error detection\n- Formula testing interface with variable input and result validation\n- Leverage existing JavaScript libraries safely (Function constructor with scope isolation)\n- Basic error handling with detailed error messages and validation feedback\n- Support for complex mathematical expressions with proper security measures\n\nThe system now provides a robust foundation for energy calculation formulas with enhanced mathematical capabilities while maintaining security and user-friendliness.\n</info added on 2025-08-25T11:07:03.538Z>",
             "testStrategy": "Test formula execution for basic operations with various inputs, including common energy calculation scenarios."
           },
@@ -1161,9 +1016,7 @@
             "title": "Develop Simple Shortcode Generation System",
             "description": "Create a basic shortcode generator that allows common energy calculation formulas to be embedded and used in calculator forms.",
             "status": "done",
-            "dependencies": [
-              2
-            ],
+            "dependencies": [2],
             "details": "Enable administrators to generate shortcodes for essential energy calculation formulas that can be embedded in calculator forms, ensuring proper execution when the form is used.\n<info added on 2025-08-25T10:33:15.856Z>\nSuccessfully implemented the shortcode generation system for the Calculations page with the following components:\n\n**Shortcode Generation Functions**:\n- `generateFormulaShortcode()`: Creates basic shortcode with formula ID and name\n- `generateFormulaShortcodeWithVariables()`: Shows available variables for the formula\n- `generateFormulaShortcodeWithDefaults()`: Includes default values for variables\n- `parseFormulaShortcode()`: Parses shortcodes back to extract ID and variables\n\n**UI Integration**:\n- Added shortcode display to each formula card with copy-to-clipboard functionality\n- Integrated shortcode usage section in the Testing tab\n- Shows both basic and variable-aware shortcodes\n- Provides clear explanations of how to use each shortcode type\n\n**Shortcode Format Examples**:\n- Basic: `[formula id=\"123\" name=\"Annual Savings\"]`\n- With Variables: `[formula id=\"123\" name=\"Annual Savings\" variables=\"{current_cost}, {new_cost}\"]`\n- With Defaults: `[formula id=\"123\" name=\"Annual Savings\" current_cost=\"1000\" new_cost=\"800\"]`\n\nThe system now allows administrators to easily generate embeddable shortcodes for formulas that can be used in calculator forms, content management systems, or other applications that support shortcode processing.\n</info added on 2025-08-25T10:33:15.856Z>",
             "testStrategy": "Generate shortcodes for common energy calculations, embed them in calculator forms, and verify they execute correctly when the forms are used."
           },
@@ -1172,9 +1025,7 @@
             "title": "Implement Basic Security Measures for Formula Execution",
             "description": "Apply essential security measures including basic input validation and access control to ensure safe formula execution.",
             "status": "done",
-            "dependencies": [
-              2
-            ],
+            "dependencies": [2],
             "details": "Ensure formulas are executed securely by implementing basic input validation and access control based on admin permissions.\n<info added on 2025-08-25T10:46:53.575Z>\nSuccessfully implemented comprehensive security measures for formula execution:\n\n**Enhanced Input Validation:**\n- Extended dangerous pattern detection to include 20+ security threats (eval, Function, import, require, process, window, document, console, localStorage, fetch, XMLHttpRequest, WebSocket, Worker, etc.)\n- Added balanced parentheses, brackets, and braces validation\n- Implemented suspicious pattern detection (multiple semicolons, template literals, comments, script tags, event handlers)\n- Added formula length limits (max 1000 characters)\n- Added operator count and nesting depth warnings\n\n**Enhanced Execution Security:**\n- Pre-execution validation with comprehensive checks\n- Variable type validation (must be numbers)\n- Variable name validation (must be valid identifiers)\n- Extreme value protection (prevents values > 1e15)\n- Execution timeout protection (5 second limit)\n- Result validation (ensures finite numbers)\n- Execution time monitoring (prevents abuse)\n\n**Access Control:**\n- Formula type validation (only allowed types: energy_calculation, custom, template)\n- Variable count limits (max 20 variables per formula)\n- Enhanced CRUD operation security\n\n**Rate Limiting:**\n- 30 executions per minute per user\n- Automatic rate limit reset after 1 minute window\n- Rate limit tracking and enforcement\n\n**Security Monitoring:**\n- Security event logging for all formula operations\n- Execution attempt/success/failure tracking\n- Security statistics monitoring\n- Rate limit status tracking\n\n**UI Security Indicators:**\n- Security status card showing active protections\n- Rate limit and timeout information display\n- Visual security status indicators\n</info added on 2025-08-25T10:46:53.575Z>",
             "testStrategy": "Test security features by submitting invalid formulas and confirm access restrictions based on admin permissions."
           },
@@ -1183,10 +1034,7 @@
             "title": "Create Supabase Database Schema for Formulas",
             "description": "Design and implement a Supabase database schema to store formula definitions and basic metadata.",
             "status": "done",
-            "dependencies": [
-              2,
-              4
-            ],
+            "dependencies": [2, 4],
             "details": "Create a simple database structure to store formula definitions, names, descriptions, authors, and creation dates.\n<info added on 2025-08-25T11:07:24.317Z>\n**Completed Database Setup:**\n✅ Created `formulas` table with comprehensive structure:\n- Primary key (UUID), name, description, formula_text, formula_type\n- Variables (JSONB), is_active, created_by, timestamps, version, tags\n- Proper data types and constraints\n\n✅ Database Performance & Maintenance:\n- Indexes on name, type, active status, and created_by\n- Automatic timestamp updates via triggers\n- Function for updating updated_at field\n\n✅ Permission & Security:\n- Initially implemented RLS policies for admin-only access\n- Resolved permission issues by temporarily disabling RLS\n- Table accessible for CRUD operations\n\n**Current Status:**\nThe database schema is functional and formulas can be created, read, updated, and deleted successfully. The table structure supports all required metadata including names, descriptions, formula text, variables, and creation dates.\n\n**Remaining Considerations:**\n- RLS policies may need refinement for production use\n- Consider adding additional indexes based on query patterns\n- Monitor table performance as formula count grows\n\nThe core database schema requirements have been met and the system is operational.\n</info added on 2025-08-25T11:07:24.317Z>",
             "testStrategy": "Verify database operations for saving and retrieving formulas, ensuring all required metadata is properly stored and retrieved."
           },
@@ -1195,11 +1043,7 @@
             "title": "Design and Implement Simple UI for Formula Management",
             "description": "Create a clean, intuitive interface for formula creation and management with clear organization and basic error handling.",
             "status": "done",
-            "dependencies": [
-              1,
-              2,
-              3
-            ],
+            "dependencies": [1, 2, 3],
             "details": "Develop a user-friendly interface that makes formula creation and management straightforward, with basic help documentation and simple error messages.\n<info added on 2025-08-25T11:07:45.532Z>\nUI implementation completed for formula management interface:\n\n**Interface Design & Organization:**\n✅ Clean, professional design using shadcn/ui components\n✅ Logical tab organization: Formulas (management) and Testing (validation)\n✅ Responsive layout with proper spacing and typography\n✅ Consistent styling with the rest of the admin panel\n\n**Formula Creation & Management:**\n✅ Intuitive form layout with clear labels and placeholders\n✅ Real-time validation with immediate feedback\n✅ Error handling with detailed error messages and warnings\n✅ Status management (active/inactive) with toggle functionality\n✅ Edit/delete operations with confirmation dialogs\n\n**User Experience Enhancements:**\n✅ Comprehensive formula examples section covering:\n  - Basic mathematical operations\n  - Supported Math functions (abs, round, floor, ceil, pow, sqrt, min, max)\n  - Energy calculation examples\n  - Complex formula patterns\n✅ Copy-to-clipboard functionality for shortcodes\n✅ Loading states and empty state handling\n✅ Professional security status indicators\n\n**Error Handling & Validation:**\n✅ Real-time formula validation with syntax checking\n✅ Clear error messages for invalid inputs\n✅ Warning system for potential issues\n✅ Success feedback for valid formulas\n✅ Comprehensive validation covering security, syntax, and mathematical correctness\n</info added on 2025-08-25T11:07:45.532Z>",
             "testStrategy": "Evaluate the UI for usability, test error handling with invalid inputs, and verify that help documentation is accessible and useful."
           },
@@ -1208,10 +1052,7 @@
             "title": "Implement Simple Text-Based Formula Editor",
             "description": "Create a basic text-based editor for formula editing with simple validation.",
             "status": "done",
-            "dependencies": [
-              2,
-              6
-            ],
+            "dependencies": [2, 6],
             "details": "Implement a simple text editor interface that allows administrators to edit formula code with basic validation to catch syntax errors.\n<info added on 2025-08-25T11:08:07.241Z>\nText-based formula editor implementation completed:\n\n**Editor Interface:**\n✅ Clean textarea input with monospace font for optimal formula readability\n✅ Proper sizing (3 rows) with placeholder text for guidance\n✅ Real-time input handling with immediate validation feedback\n✅ Consistent styling using shadcn/ui components\n\n**Validation System:**\n✅ Comprehensive syntax validation covering:\n  - Basic mathematical operations (+, -, *, /, parentheses)\n  - Balanced parentheses, brackets, and braces checking\n  - Dangerous pattern detection (eval, Function, import, etc.)\n  - Suspicious pattern detection (multiple semicolons, comments, etc.)\n  - Formula length and complexity limits\n  - Supported Math function validation\n\n**User Experience:**\n✅ Real-time validation with immediate feedback\n✅ Clear error messages for syntax issues\n✅ Warning system for potential problems\n✅ Success confirmation for valid formulas\n✅ Helpful examples section showing supported syntax patterns\n\n**Security Features:**\n✅ Input sanitization and validation\n✅ Dangerous code pattern detection\n✅ Execution timeout protection\n✅ Variable injection protection\n✅ Scope isolation for safe execution\n\nThe text editor provides a robust, secure, and user-friendly interface for formula creation and editing with comprehensive validation coverage.\n</info added on 2025-08-25T11:08:07.241Z>",
             "testStrategy": "Test the text editor with various formula inputs and confirm validation catches basic syntax errors."
           },
@@ -1220,10 +1061,7 @@
             "title": "Implement Integration with Preview Page",
             "description": "Add functionality to test created formulas directly in the Calculator Preview page (Task 19).",
             "status": "done",
-            "dependencies": [
-              2,
-              3
-            ],
+            "dependencies": [2, 3],
             "details": "Create a simple workflow that allows administrators to create a formula and test it in the Preview page to verify its functionality without affecting the live calculator.\n<info added on 2025-08-25T11:08:31.177Z>\n## Formula Integration with Preview Page Status\n\n**Current Implementation Status:**\n✅ Formula management system is fully functional and ready for integration\n✅ Shortcode generation system provides embeddable formula references\n✅ Security measures ensure safe formula execution\n✅ Database schema supports all required formula metadata\n\n**Integration Requirements Analysis:**\n- Task 19 (Preview Page) must be completed first as it's a dependency\n- Preview page needs to be able to load and execute formulas\n- Formulas need to be accessible via API endpoints for the preview page\n- Shortcode parsing system needs to be integrated with the calculator\n\n**Prepared Components:**\n✅ Formula execution engine with security measures\n✅ Shortcode generation and parsing functions\n✅ Database access layer for formula retrieval\n✅ Validation and error handling systems\n\n**Next Steps (after Task 19 completion):**\n1. Create API endpoint for formula retrieval by ID\n2. Integrate shortcode parsing in the calculator\n3. Add formula execution capability to the preview calculator\n4. Test formula integration end-to-end\n\n**Current Status:** Ready for integration but blocked by Task 19 completion.\nThe formula system is fully prepared and will integrate seamlessly once the preview page infrastructure is in place.\n</info added on 2025-08-25T11:08:31.177Z>\n<info added on 2025-08-25T13:10:23.561Z>\n## Task 20.8 Implementation Progress\n\n**Completed Components:**\n\n1. **API Endpoints Created:**\n   - `/api/formulas/[id]/route.ts` - GET endpoint for retrieving formulas by ID\n   - `/api/formulas/route.ts` - GET endpoint for listing all available formulas\n   - `/api/formulas/execute/route.ts` - POST endpoint for executing formulas safely\n\n2. **Custom Hooks Implemented:**\n   - `useFormulas` - Manages formula fetching, loading states, and error handling\n   - `useFormulaExecution` - Handles formula execution with proper error handling and state management\n\n3. **Formula Testing Component:**\n   - `FormulaTester` component created with comprehensive testing interface\n   - Features: formula selection, variable input, custom JSON variables, execution results display\n   - Integrated with the preview page for seamless testing workflow\n\n4. **Preview Page Integration:**\n   - Added FormulaTester component to `/admin/preview` page\n   - Positioned below the main calculator preview for logical workflow\n   - Lazy-loaded for performance optimization\n\n**Current Status:**\n- Core integration components are implemented and functional\n- API endpoints are ready for formula testing\n- FormulaTester component provides comprehensive testing interface\n- Preview page integration is complete\n\n**Technical Implementation:**\n- Uses existing formula service functions (validateFormula, executeFormula)\n- Implements proper error handling and loading states\n- Follows shadcn/ui design patterns for consistency\n- Includes security measures from the formula execution system\n\n**Next Steps:**\n- Test the complete integration workflow\n- Verify formula execution in preview environment\n- Ensure proper error handling and user feedback\n\nThe integration between the formula system and preview page is now complete, allowing administrators to test created formulas directly in the Calculator Preview page as required by Task 20.8.\n</info added on 2025-08-25T13:10:23.561Z>",
             "testStrategy": "Create a test formula, navigate to the Preview page, and confirm the formula works correctly in the test environment."
           }
@@ -1234,12 +1072,7 @@
         "title": "Implement Form Builder Page with Visual Content System in Admin Panel",
         "description": "Develop a streamlined admin panel feature enabling administrators to create and customize energy calculator forms with essential fields, properties, and section management. The system supports both editing existing forms and building new forms from scratch, with integrated visual content management for enhanced form appearance.",
         "status": "pending",
-        "dependencies": [
-          17,
-          18,
-          19,
-          25
-        ],
+        "dependencies": [17, 18, 19, 25],
         "priority": "high",
         "details": "1. Create a React-based form builder page in the admin panel, with a straightforward interface for field and section management, including creation, editing, and property configuration.\n2. Implement basic field management with enable/disable toggles, reordering controls, and required/optional toggles.\n3. Build a field properties panel for editing labels, placeholder text, help text, and basic validation settings.\n4. Support creation and editing of sections, including section title, description, visibility, collapsible toggle, and image selection via the Visual Content System.\n5. Implement save functionality with save changes button, reset to defaults button, and unsaved changes warning.\n6. Create functionality to add new sections and fields to forms with appropriate property configuration interfaces.\n7. Integrate with the Visual Content System to allow image selection for both fields and sections, enhancing form appearance.\n8. Implement section and field reordering, enable/disable toggles, and required/optional toggles with immediate feedback.\n9. Implement a new \"Display Field\" or \"Text Box\" field type that allows administrators to insert calculated results and shortcodes into forms. This field type should display dynamic content (like savings calculations) without requiring user input. It should support shortcode insertion for real-time calculation results and be configurable with labels, help text, and styling options. This is essential for communicating calculated results like savings, costs, and efficiency metrics to users within the form flow.\n\nNote: This task has been significantly simplified from complexity score 9 to approximately 3-4. The scope has been reduced from 15 complex subtasks to just 8 core subtasks focusing on what's already implemented and working. All complex pending features like shortcode management, dynamic field content preview, and advanced validation rules have been removed. The task now focuses on delivering a fully functional form builder with immediate value rather than building an overly complex system.",
         "testStrategy": "1. Verify section and field creation functionality: create new sections and fields, configure all properties, and confirm they appear in the correct position in the form.\n2. Test field management: enable/disable fields, reorder fields, mark fields as required/optional, and confirm immediate feedback.\n3. Validate editing capabilities: edit labels, placeholder text, help text, and images for both fields and sections.\n4. Test section management: create, edit, reorder, show/hide, and collapse/expand sections, including image assignment.\n5. Test save functionality: verify save changes button, reset to defaults button, and unsaved changes warning work correctly.\n6. Test integration with the Visual Content System: verify that the admin builder correctly interfaces with the shared schema and visual infrastructure.\n7. Test new section and field creation: verify the interface allows creating new sections and fields with all supported types and properties.\n8. Test section/field creation UI: verify modal or inline forms function correctly for creating new content.\n9. Test Display Field functionality: verify that the new field type correctly displays calculated results and supports shortcode insertion for dynamic content.",
@@ -1388,11 +1221,7 @@
         "details": "1. Extend the existing admin preview page (`/admin/preview/page.tsx`) to include a \"Test Email\" toggle in the header bar\n2. Create a dedicated API endpoint (`/api/admin/test-email`) that handles test form submissions:\n   - Accept the same payload as the regular form submission endpoint\n   - Add a \"TEST\" flag to the submission data\n   - Store the test submission in the database with a \"TEST\" marker\n   - Set up an automatic cleanup job to delete test submissions after 24 hours\n3. Modify the email delivery logic to:\n   - Detect test submissions based on the \"TEST\" flag\n   - Override the recipient email address with the admin's email (from their profile or session)\n   - Add clear \"TEST MODE\" indicators in the email subject and body\n   - Use the same email templates as production but with test indicators\n4. Implement the UI components:\n   - Add a toggle switch in the preview header labeled \"Send Test Email\"\n   - Add a notification system to show success/failure of test email delivery\n   - Display a banner in the preview mode indicating when test mode is active\n5. Ensure all test submissions are clearly marked in the database:\n   - Add a \"test\" boolean column to the leads table if not already present\n   - Set up database triggers or scheduled functions to auto-delete test records after 24 hours\n6. Add clear visual indicators throughout the preview experience:\n   - \"TEST MODE\" watermark on the preview calculator\n   - Red border or other visual indicator when test mode is active\n   - Confirmation dialogs before test submission to prevent accidental sends",
         "testStrategy": "1. Verify the \"Test Email\" toggle appears correctly in the preview page header\n2. Test the complete flow:\n   - Enable the test email toggle\n   - Fill out the calculator form completely\n   - Submit the form and verify a success message appears\n   - Check the admin's email inbox for the test email\n   - Verify the email contains clear \"TEST MODE\" indicators\n   - Confirm the test submission appears in the database with the \"TEST\" flag\n3. Verify test data cleanup:\n   - Create a test submission\n   - Wait 24 hours (or manually trigger the cleanup job for testing)\n   - Confirm the test submission has been removed from the database\n4. Test edge cases:\n   - Submit with the toggle off and verify no test email is sent\n   - Submit with invalid form data and verify appropriate error handling\n   - Test with missing admin email configuration and verify fallback behavior\n5. Verify security:\n   - Confirm only authenticated administrators can access the test email functionality\n   - Verify test submissions cannot be viewed by non-admin users\n   - Ensure test emails are only sent to the admin's verified email address",
         "status": "pending",
-        "dependencies": [
-          8,
-          12,
-          19
-        ],
+        "dependencies": [8, 12, 19],
         "priority": "medium",
         "subtasks": [
           {
@@ -1408,9 +1237,7 @@
             "id": 2,
             "title": "Implement Dedicated Test Email API Endpoint",
             "description": "Create a new API endpoint `/api/admin/test-email` to handle test form submissions, accepting the same payload as the production endpoint but marking submissions as test.",
-            "dependencies": [
-              "22.1"
-            ],
+            "dependencies": ["22.1"],
             "details": "Develop the endpoint to accept form data, add a 'TEST' flag to the payload, store the submission in the database with a 'test' marker, and trigger email delivery logic for test mode.",
             "status": "pending",
             "testStrategy": "Submit a test form via the toggle and confirm the API receives the correct payload, including the 'TEST' flag, and stores the submission as a test record."
@@ -1419,9 +1246,7 @@
             "id": 3,
             "title": "Modify Email Delivery Logic for Test Mode",
             "description": "Update email delivery logic to detect test submissions, override recipient with admin's email, and add 'TEST MODE' indicators to the email subject and body.",
-            "dependencies": [
-              "22.2"
-            ],
+            "dependencies": ["22.2"],
             "details": "Ensure that when the 'TEST' flag is present, the recipient is set to the admin's email (from profile/session), and the email uses the same templates as production but with clear 'TEST MODE' indicators in both subject and body.",
             "status": "pending",
             "testStrategy": "Send a test submission and verify the email is delivered to the admin's address with correct test indicators and template rendering."
@@ -1430,9 +1255,7 @@
             "id": 4,
             "title": "Implement Test Submission Database Handling and Cleanup",
             "description": "Ensure test submissions are clearly marked in the database and set up an automatic cleanup job to delete them after 24 hours.",
-            "dependencies": [
-              "22.2"
-            ],
+            "dependencies": ["22.2"],
             "details": "Add a 'test' boolean column to the leads table if not present. Implement database triggers or scheduled functions to automatically delete test records after 24 hours.",
             "status": "pending",
             "testStrategy": "Confirm test submissions are stored with the 'test' flag and are automatically deleted after 24 hours."
@@ -1441,10 +1264,7 @@
             "id": 5,
             "title": "Add UI Feedback for Test Email Actions",
             "description": "Implement notification and feedback components to inform the admin of test email delivery success or failure, and display active test mode status.",
-            "dependencies": [
-              "22.1",
-              "22.3"
-            ],
+            "dependencies": ["22.1", "22.3"],
             "details": "Add a notification system to show the result of test email delivery attempts and display a persistent banner or indicator when test mode is active.",
             "status": "pending",
             "testStrategy": "Trigger test email actions and verify that success/failure notifications and test mode banners are displayed appropriately."
@@ -1456,10 +1276,7 @@
         "title": "Implement Email Template Editor in Admin Panel",
         "description": "Create a dedicated Email Page in the admin panel that allows administrators to customize customer email templates with shortcodes, company branding, and basic formatting options.",
         "status": "done",
-        "dependencies": [
-          8,
-          9
-        ],
+        "dependencies": [8, 9],
         "priority": "high",
         "details": "- Create a new route `/admin/email/page.tsx` accessible from the admin sidebar\n- Add an \"Email Templates\" tab in the admin navigation menu\n- Implement a simple text-based template editor with the following features:\n  * Basic text formatting (bold, italic, underline)\n  * Simple logo placement\n  * Shortcode insertion tool for dynamic content (customer name, calculation results, etc.)\n  * Basic color selection for text and background\n- Create a basic shortcode system that supports:\n  * Customer information: {{customer.name}}, {{customer.email}}, etc.\n  * Calculation results: {{results.savings}}, {{results.payback}}, etc.\n  * Company information: {{company.name}}, {{company.phone}}, etc.\n- Implement template saving functionality:\n  * Save templates to Supabase database\n  * Basic version tracking (latest version and previous version)\n  * Simple template categories (results, sales notifications)\n- Add simple email preview functionality:\n  * Basic preview panel showing rendered email\n  * Test email sending to administrator address\n- Focus on essential email templates:\n  * Customer results email\n  * Sales notification email\n- Implement basic branding options:\n  * Logo upload and placement\n  * Company colors selection\n- Add simple template import/export functionality\n- Integrate with existing email sending functionality (Resend API)",
         "testStrategy": "1. Verify the Email Templates page is accessible only to authenticated admin users\n2. Test the template editor functionality:\n   - Create a new email template with basic formatting options\n   - Insert shortcodes and verify they appear correctly in the preview\n   - Upload and insert a logo, ensuring it displays correctly\n   - Save the template and verify it's stored in the database\n3. Test the shortcode system:\n   - Insert essential shortcodes into a template\n   - Preview the template with sample data to ensure shortcodes are replaced correctly\n4. Test the email preview and testing functionality:\n   - Send a test email to the administrator\n   - Verify the email appears correctly in a standard email client (Gmail)\n5. Test integration with the existing system:\n   - Ensure templates can be selected when sending actual customer emails\n   - Verify essential dynamic content is correctly populated in sent emails\n6. Test the import/export functionality:\n   - Export a template and verify the file format is correct\n   - Import a template and confirm it loads properly\n7. Perform basic cross-browser testing of the admin interface in Chrome and Firefox",
@@ -1579,11 +1396,7 @@
         "title": "Implement Unified Form System Foundation",
         "description": "Create a simple, lightweight form schema that provides basic validation and structure for the calculator, focusing on essential functionality rather than building a complex unified system.",
         "status": "done",
-        "dependencies": [
-          7,
-          9,
-          18
-        ],
+        "dependencies": [7, 9, 18],
         "priority": "critical",
         "details": "1. Leverage existing TypeScript-based form schema architecture:\n   - Use the already implemented Zod schema system for basic form field types and validation rules\n   - Keep the existing TypeScript interfaces for form fields, sections, and pages\n   - Focus on essential metadata support for basic styling\n   - Utilize existing utility functions for schema validation and serialization/deserialization\n\n2. Simplify visual content approach:\n   - Use basic styling components rather than a complex unified asset management system\n   - Implement simple responsive containers for consistent layout across device sizes\n   - Apply minimal styling that meets the calculator's needs\n   - Focus on functional components rather than complex visual infrastructure\n\n3. Minimize animation requirements:\n   - Implement only essential UI feedback animations\n   - Use simple CSS transitions for basic interactions\n   - Skip complex animation framework implementation\n   - Ensure basic usability without elaborate transitions\n\n4. Simplify internationalization approach:\n   - Use existing Finnish translations without implementing a complex i18n system\n   - Structure content in a way that can be easily translated later if needed\n   - Focus on getting the calculator working in Finnish first\n\n5. Create lightweight integration layer:\n   - Implement basic adapters to connect the form schema with React Hook Form\n   - Create simple hooks for form state management\n   - Focus on essential event handling for calculator functionality\n   - Keep the implementation straightforward and focused on immediate needs",
         "testStrategy": "1. Unit testing:\n   - Test the schema validation system with essential field types and validation rules\n   - Verify basic form functionality works correctly\n   - Focus on testing critical user paths and validation logic\n\n2. Integration testing:\n   - Test the integration between form schema and React Hook Form\n   - Verify data flow between components works correctly\n   - Ensure form submission and validation function as expected\n\n3. Visual testing:\n   - Manually verify that forms render correctly across different devices\n   - Test basic responsive behavior on mobile, tablet, and desktop\n   - Ensure the calculator is visually functional and usable\n\n4. Performance testing:\n   - Verify the calculator loads and operates efficiently\n   - Ensure form validation doesn't cause performance issues\n\n5. Documentation:\n   - Create basic documentation for the form schema implementation\n   - Include examples of how to use the form system in the calculator\n   - Document any known limitations or future enhancement opportunities",
@@ -1593,9 +1406,7 @@
             "title": "Create Basic Utility Functions for Schema Operations",
             "description": "Implement essential utility functions for schema validation, transformation, and serialization/deserialization focused on calculator needs.",
             "status": "done",
-            "dependencies": [
-              1
-            ],
+            "dependencies": [1],
             "details": "Build focused utilities for validating and serializing schemas, leveraging the existing Zod implementation. Keep the scope limited to what's needed for the calculator functionality.",
             "testStrategy": "Test utility functions with various schema inputs relevant to the calculator. Validate basic transformation and serialization capabilities."
           },
@@ -1613,9 +1424,7 @@
             "title": "Add Basic CSS Transitions for UI Feedback",
             "description": "Implement simple CSS transitions for essential UI feedback in the calculator interface.",
             "status": "done",
-            "dependencies": [
-              3
-            ],
+            "dependencies": [3],
             "details": "Add minimal CSS transitions for form interactions like button clicks, form submission, and validation feedback. Keep animations simple and functional.",
             "testStrategy": "Manually test transitions across different browsers. Verify that basic UI feedback works consistently."
           },
@@ -1633,10 +1442,7 @@
             "title": "Create Basic Integration with React Hook Form",
             "description": "Implement a simple adapter to connect the form schema with React Hook Form for state management.",
             "status": "done",
-            "dependencies": [
-              1,
-              2
-            ],
+            "dependencies": [1, 2],
             "details": "Develop a lightweight integration between the Zod schemas and React Hook Form. Create basic hooks for form state management focused on calculator needs.",
             "testStrategy": "Test integration with React Hook Form using calculator form configurations. Validate form state management and submission handling."
           },
@@ -1645,11 +1451,7 @@
             "title": "Document Basic Form System Usage",
             "description": "Create essential documentation for how to use the simplified form system in the calculator implementation.",
             "status": "done",
-            "dependencies": [
-              1,
-              2,
-              6
-            ],
+            "dependencies": [1, 2, 6],
             "details": "Write concise documentation covering how to define form schemas, integrate with React Hook Form, and implement form validation. Include practical examples specific to the calculator.\n<info added on 2025-08-25T09:59:44.034Z>\n## Documentation Implementation Complete\n\nThe documentation for the unified form system has been successfully completed with comprehensive coverage of all essential aspects. The documentation includes:\n\n- A complete usage guide (USAGE_GUIDE.md) with quick start instructions, core concepts, schema definition examples, and React Hook Form integration details\n- Extensive coverage of Finnish language support, styling options, validation rules, and advanced features\n- Well-organized sections including quick start, core concepts, integration guides, and troubleshooting\n- Practical code examples with proper TypeScript syntax for all major features and use cases\n- Best practices for performance optimization, accessibility compliance, and error handling\n- Complete working examples specific to the calculator implementation\n- Detailed integration patterns for React Hook Form\n- Guidelines for form styling, theming, and responsive design\n- Comprehensive troubleshooting section addressing common implementation issues\n\nThe documentation provides developers with everything needed to successfully implement and use the unified form system in the calculator project.\n</info added on 2025-08-25T09:59:44.034Z>",
             "testStrategy": "Review documentation for clarity and completeness. Verify that examples accurately reflect the implemented system."
           },
@@ -1658,9 +1460,7 @@
             "title": "Adapt Existing Schema Implementation for Simplified Approach",
             "description": "Modify the implementation approach to focus on essential calculator functionality while leveraging the existing schema work.",
             "status": "done",
-            "dependencies": [
-              1
-            ],
+            "dependencies": [1],
             "details": "Review the completed schema implementation and identify which parts are essential for the calculator. Create a simplified usage pattern that focuses on immediate needs while leveraging the existing work.\n<info added on 2025-08-25T10:02:06.999Z>\n## Calculator Schema Adapter Implementation Complete\n\nThe calculator-specific form schema adapter has been successfully implemented, providing a simplified interface for the energy calculator while leveraging the power of the unified form system.\n\nKey components implemented:\n- Calculator-specific form schema with 3 pages and 7 fields, including property details, heating information, and contact information\n- Simplified calculator hook (useCalculatorForm) with streamlined API for navigation, form state management, and submission\n- Renderer functions for fields, sections, and pages with automatic styling and error display\n- Type-safe implementation with proper TypeScript interfaces and validation\n\nThe adapter approach provides significant benefits:\n- Simplified usage through pre-configured validation, styling, and Finnish localization\n- Type safety with full TypeScript support\n- Responsive design with automatic layouts\n- Comprehensive error handling and validation\n\nThe implementation includes Finnish language integration for all field labels, help text, error messages, and navigation elements, making it ready for immediate use in the energy calculator.\n</info added on 2025-08-25T10:02:06.999Z>",
             "testStrategy": "Verify that the simplified approach works correctly with the calculator requirements. Test that essential validation and form structure functionality is preserved."
           },
@@ -1680,11 +1480,7 @@
         "title": "Implement Visual Content System for Form UI",
         "description": "Create a simple image management system that provides basic visual support for the calculator forms, enhancing the Tesla-style UI across both the customer-facing calculator and admin interfaces.",
         "status": "pending",
-        "dependencies": [
-          24,
-          17,
-          18
-        ],
+        "dependencies": [24, 17, 18],
         "priority": "medium",
         "details": "1. Create a core visual content architecture:\n   - Develop a simple TypeScript-based system for managing visual assets\n   - Implement a basic store for SVG illustrations and static images\n   - Design minimal interfaces for basic visual content types\n   - Build essential utility functions for loading and rendering visual content\n\n2. Implement basic transitions:\n   - Create simple CSS transition components\n   - Implement basic enter/exit transitions for form sections\n   - Ensure transitions respect reduced motion preferences for accessibility\n   - Focus on practical, lightweight animations that enhance usability\n\n3. Develop basic visualization components:\n   - Leverage the existing SVG icon library for form steps (already implemented)\n   - Create a small library of essential energy-related SVG illustrations (house, heating systems)\n   - Build simple responsive image components that adapt to different screen sizes\n   - Design basic progress indicators with minimal visual feedback\n\n4. Integrate with form system:\n   - Connect visual content to form state changes\n   - Implement basic visual feedback for form interactions (success, error states)\n   - Create simple transitions between form sections with CSS\n   - Ensure visual content enhances rather than distracts from form completion\n\n5. Implement basic i18n support:\n   - Add simple localization support for text elements within visualizations\n   - Ensure visual elements work with text of varying lengths\n   - Support basic right-to-left layout adjustments",
         "testStrategy": "1. Unit testing:\n   - Test basic visual content loading and rendering\n   - Verify that transitions respect reduced motion preferences\n   - Test simple localization of visual elements\n\n2. Integration testing:\n   - Verify visual content system integrates properly with the form system\n   - Test that visual elements update correctly based on form state changes\n   - Ensure visualizations display properly across different form sections\n\n3. Basic performance checks:\n   - Verify images load efficiently\n   - Ensure the application remains responsive during transitions\n\n4. Accessibility testing:\n   - Verify transitions can be disabled via reduced motion settings\n   - Test that visual content includes appropriate alt text\n   - Ensure color contrast in essential visual elements\n\n5. Cross-browser testing:\n   - Test visualizations in Chrome, Firefox, Safari, and Edge\n   - Verify basic mobile compatibility on iOS and Android devices",
@@ -1703,9 +1499,7 @@
             "title": "Implement Basic CSS Transitions",
             "description": "Build a simple transition system using CSS that provides consistent visual feedback across the application with support for accessibility preferences.",
             "status": "pending",
-            "dependencies": [
-              1
-            ],
+            "dependencies": [1],
             "details": "1. Create a small set of standard CSS transition presets (fade, slide)\n2. Build simple React components that apply these transitions to content\n3. Add support for reduced motion preferences using the prefers-reduced-motion media query\n4. Create a few utility classes for common transition patterns\n5. Focus on lightweight, performance-friendly transitions\n6. Document usage patterns for the transition system",
             "testStrategy": "Test transition components with React Testing Library. Verify transitions respect reduced motion preferences. Test basic rendering with transitions enabled and disabled."
           },
@@ -1714,10 +1508,7 @@
             "title": "Develop Essential Energy-Related Visualization Components",
             "description": "Create a small library of energy-related SVG illustrations and simple visualization components for the form UI.",
             "status": "pending",
-            "dependencies": [
-              1,
-              2
-            ],
+            "dependencies": [1, 2],
             "details": "1. Leverage the existing SVG icon library for form steps\n2. Design and implement a few essential SVG illustrations (house, heating systems)\n3. Create simple React components that wrap these SVGs\n4. Build basic progress indicators\n5. Ensure visualizations are responsive across device sizes\n6. Focus on a small set of high-quality visuals rather than quantity",
             "testStrategy": "Test rendering of visualization components at different screen sizes. Verify basic responsiveness. Test that SVGs display correctly across browsers."
           },
@@ -1726,11 +1517,7 @@
             "title": "Integrate Visual Content with Form System",
             "description": "Connect the visual content system with the form infrastructure to provide basic visual feedback based on form state.",
             "status": "pending",
-            "dependencies": [
-              1,
-              2,
-              3
-            ],
+            "dependencies": [1, 2, 3],
             "details": "1. Create a simple bridge between form state and visual content using React hooks\n2. Implement basic visual feedback components for form states (success, error)\n3. Build simple transition components for moving between form sections\n4. Create a basic mapping between form sections and relevant visualizations\n5. Ensure all form-related visuals enhance rather than hinder form completion",
             "testStrategy": "Test form state transitions and corresponding visual feedback. Verify visual elements display correctly based on form state. Test basic user experience with form completion."
           },
@@ -1739,10 +1526,7 @@
             "title": "Implement Basic Internationalization for Visual Content",
             "description": "Add simple support for internationalization in the visual content system, ensuring visual elements work with different languages.",
             "status": "pending",
-            "dependencies": [
-              1,
-              3
-            ],
+            "dependencies": [1, 3],
             "details": "1. Extend the visual content system to support basic text elements within visualizations\n2. Integrate with the application's i18n system\n3. Create a simple mechanism for handling text of varying lengths\n4. Implement basic RTL (right-to-left) support where necessary\n5. Test visualizations with Finnish and English content",
             "testStrategy": "Test visualizations with both Finnish and English text. Verify basic RTL support functions correctly. Check that visual elements work with text of different lengths."
           },
@@ -1751,9 +1535,7 @@
             "title": "Create Responsive Image Components",
             "description": "Build simple responsive image components that adapt to different screen sizes and device types.",
             "status": "pending",
-            "dependencies": [
-              1
-            ],
+            "dependencies": [1],
             "details": "1. Create a basic responsive image component\n2. Implement simple image loading with appropriate sizing\n3. Add support for basic image optimization\n4. Ensure images display correctly across device sizes\n5. Focus on practical implementation rather than complex features",
             "testStrategy": "Test image components across different screen sizes. Verify images load correctly and display at appropriate sizes. Test basic responsiveness on mobile and desktop."
           },
@@ -1762,14 +1544,7 @@
             "title": "Document Visual Content System",
             "description": "Create documentation for the visual content system to ensure developers can effectively use and maintain it.",
             "status": "pending",
-            "dependencies": [
-              1,
-              2,
-              3,
-              4,
-              5,
-              6
-            ],
+            "dependencies": [1, 2, 3, 4, 5, 6],
             "details": "1. Document the core visual content architecture\n2. Create usage examples for the transition system\n3. Document available visualization components\n4. Add integration examples with the form system\n5. Include best practices for adding new visual content\n6. Create a simple style guide for visual consistency",
             "testStrategy": "Review documentation for clarity and completeness. Verify examples work as described. Test that new developers can understand and use the system based on documentation."
           }
@@ -1780,11 +1555,7 @@
         "title": "Implement Role-Based Access Control (RBAC) System for Admin Panel",
         "description": "Develop a comprehensive RBAC system for the admin panel that supports multiple user roles with granular permissions, user management interface, and secure API endpoints with role-based authorization.",
         "status": "pending",
-        "dependencies": [
-          9,
-          20,
-          23
-        ],
+        "dependencies": [9, 20, 23],
         "priority": "high",
         "details": "1. Database Schema Updates:\n   - Create new tables in Supabase: `users`, `roles`, `permissions`, `user_roles`\n   - Design schema with proper relationships (many-to-many between users and roles)\n   - Add necessary indexes for performance optimization\n\n2. Authentication System Enhancement:\n   - Upgrade from simple password protection to JWT-based authentication\n   - Implement refresh token mechanism for extended sessions\n   - Create secure login/logout flows with proper session management\n   - Add password reset functionality and secure storage (bcrypt)\n\n3. User Management Interface:\n   - Develop `/admin/users/page.tsx` for user administration\n   - Create forms for adding/editing users with role assignment using shadcn/ui Form components\n   - Implement user listing with filtering and pagination using shadcn/ui Table component\n   - Add status indicators (active/inactive) with Badge components and last login tracking\n   - Follow card-based layout pattern with proper Card, CardHeader, CardContent structure\n   - Ensure consistent spacing with Tailwind's spacing scale (p-4, p-6, p-8)\n   - Use typography hierarchy: text-2xl for main headings, text-lg for section headers, text-sm for labels\n\n4. Role & Permission Management:\n   - Create predefined roles (Admin, Editor, Viewer)\n   - Implement role hierarchy with permission inheritance\n   - Develop interface for custom role creation using shadcn/ui Form components\n   - Create granular permission definitions for all admin functions\n   - Implement permission matrix using Checkbox components in organized grid layout\n   - Use Card containers for organizing permission groups\n\n5. Secure API Layer:\n   - Implement middleware for role-based API authorization\n   - Create protected route handlers that verify permissions\n   - Add proper error responses for unauthorized access attempts\n   - Implement API versioning for backward compatibility\n\n6. Frontend Integration:\n   - Update admin UI to show/hide features based on permissions\n   - Add role indicators in the user interface using Badge components\n   - Implement conditional rendering of admin components\n   - Create user profile and settings pages using card-based layouts\n   - Ensure responsive design with mobile-first approach and proper breakpoints (640px, 768px, 1024px)\n   - Use Sheet component for mobile navigation menus\n   - Implement ScrollArea for horizontal scrolling on mobile tables\n\n7. Security Enhancements:\n   - Add CSRF protection for all form submissions\n   - Implement rate limiting for authentication attempts\n   - Add proper input validation and sanitization\n   - Create secure HTTP headers configuration\n   - Use Alert components for security notifications with appropriate icons and colors\n\n8. Testing & Documentation:\n   - Document all roles, permissions, and access rules\n   - Create comprehensive test cases for each permission level\n   - Document API authentication requirements\n\n9. UI/UX Implementation:\n   - Follow established shadcn/ui component library consistently throughout all RBAC features\n   - Maintain visual consistency with existing admin panels (spacing, typography, color schemes)\n   - Ensure WCAG 2.1 AA compliance with proper contrast ratios, focus states, and screen reader support\n   - Implement mobile-first responsive design with appropriate breakpoints\n   - Use appropriate loading states with Skeleton components during async operations\n   - Implement proper hover states on interactive elements\n   - Add smooth CSS transitions for state changes\n   - Create beautiful empty state illustrations with Card layouts\n\n10. Implementation Structure:\n    - Follow the recommended page structure pattern:\n    ```tsx\n    export default function RBACFeaturePage() {\n      return (\n        <div className=\"min-h-screen bg-background\">\n          <AdminNavigation />\n          \n          <div className=\"py-8\">\n            <div className=\"max-w-7xl mx-auto px-4 sm:px-6 lg:px-8\">\n              {/* Header Section */}\n              <Card className=\"mb-8\">\n                <CardHeader>\n                  <CardTitle className=\"text-3xl font-bold\">Feature Title</CardTitle>\n                  <CardDescription>Feature description</CardDescription>\n                </CardHeader>\n              </Card>\n\n              {/* Main Content */}\n              <div className=\"grid grid-cols-1 lg:grid-cols-3 gap-8\">\n                {/* Content Area */}\n                <Card className=\"lg:col-span-2\">\n                  <CardHeader>\n                    <CardTitle>Content Title</CardTitle>\n                  </CardHeader>\n                  <CardContent>\n                    {/* Content goes here */}\n                  </CardContent>\n                </Card>\n\n                {/* Sidebar */}\n                <Card>\n                  <CardHeader>\n                    <CardTitle>Sidebar</CardTitle>\n                  </CardHeader>\n                  <CardContent>\n                    {/* Sidebar content */}\n                  </CardContent>\n                </Card>\n              </div>\n            </div>\n          </div>\n        </div>\n      );\n    }\n    ```",
         "testStrategy": "1. Unit Testing:\n   - Test all authentication functions (login, logout, token refresh)\n   - Verify permission checking logic works correctly\n   - Test role hierarchy and inheritance mechanisms\n   - Validate all database operations for user/role management\n\n2. Integration Testing:\n   - Test complete user flows (create user, assign role, test permissions)\n   - Verify API endpoints correctly enforce permissions\n   - Test UI conditional rendering based on user roles\n   - Validate form submissions with different permission levels\n\n3. Security Testing:\n   - Attempt to access restricted areas with insufficient permissions\n   - Test session timeout and automatic logout functionality\n   - Verify JWT validation and refresh token mechanisms\n   - Test against common security vulnerabilities (CSRF, XSS)\n\n4. User Acceptance Testing:\n   - Create test accounts with different role levels\n   - Verify each role can only access appropriate features\n   - Test user management workflows end-to-end\n   - Validate that permission changes take effect immediately\n\n5. Performance Testing:\n   - Measure impact of permission checking on API response times\n   - Test system with multiple concurrent users of different roles\n   - Verify database query performance with role-based filtering\n\n6. UI/UX Testing:\n   - Verify all RBAC interfaces follow the established design system\n   - Test responsive behavior across all breakpoints (640px, 768px, 1024px)\n   - Validate accessibility compliance with screen readers and keyboard navigation\n   - Test all interactive elements for proper functionality and loading states\n   - Verify cross-browser compatibility (Chrome, Firefox, Safari, Edge)\n   - Ensure minimum 44px touch targets for all interactive elements on mobile\n   - Test hover states and transitions on interactive elements\n   - Verify loading states with Skeleton components work correctly\n   - Test error states with Alert components display properly\n\n7. Component Testing:\n   - Test all shadcn/ui components used in the RBAC system\n   - Verify Card, Table, Form, and other core components render correctly\n   - Test mobile navigation using Sheet component\n   - Validate ScrollArea for horizontal table scrolling on mobile\n   - Test Badge components for role indicators\n   - Verify Dialog components for confirmations",
@@ -1888,11 +1659,7 @@
         "details": "1. Set up Cloudflare Images account and obtain API credentials:\n   - Create a Cloudflare account or use existing one\n   - Enable Cloudflare Images service\n   - Generate API tokens with appropriate permissions\n   - Store credentials securely in environment variables\n\n2. Create image upload endpoint `/api/admin/upload-image`:\n   - Implement a Next.js API route that accepts multipart/form-data\n   - Add middleware to verify admin authentication\n   - Extract image file from request\n   - Forward image to Cloudflare Images API using their SDK or REST API\n   - Return JSON response with Cloudflare image ID and delivery URLs\n\n3. Implement automatic variant generation:\n   - Configure Cloudflare to generate the following variants:\n     * Thumbnail (150x150, cropped)\n     * Mobile (768px width, proportional height)\n     * Desktop (1920px width, proportional height)\n     * Original (preserved as uploaded)\n   - Create TypeScript interfaces for image variants\n   - Implement helper functions to generate variant URLs based on Cloudflare's URL pattern\n\n4. Update Supabase database schema:\n   - Create or modify `images` table with columns for:\n     * `id` (primary key)\n     * `cloudflare_id` (string, Cloudflare's image identifier)\n     * `filename` (original filename)\n     * `uploaded_by` (admin user ID)\n     * `created_at` (timestamp)\n     * `alt_text` (optional description)\n     * `tags` (optional array for categorization)\n   - Do not store actual image binary data in Supabase\n\n5. Create utility functions in `/lib/cloudflare-images.ts`:\n   - `uploadImage(file: File): Promise<CloudflareImageResponse>`\n   - `getVariantUrl(imageId: string, variant: 'thumbnail' | 'mobile' | 'desktop' | 'original'): string`\n   - `deleteImage(imageId: string): Promise<boolean>`\n   - `listImages(page?: number, limit?: number): Promise<CloudflareImageList>`\n\n6. Update existing image references:\n   - Identify all components using local images\n   - Refactor to use Cloudflare URLs with appropriate variants\n   - Update any image-related types or interfaces\n\n7. Add image management UI in admin panel:\n   - Create `/admin/images/page.tsx` with:\n     * Upload button supporting drag-and-drop\n     * Image gallery grid showing all uploaded assets\n     * Pagination for large collections\n     * Delete functionality with confirmation\n     * Copy URL buttons for each variant\n     * Basic filtering by filename or tags\n   - Implement responsive design for the image management UI\n   - Add loading states and error handling\n\n8. Implement client-side image upload component:\n   - Create reusable `ImageUploader` component\n   - Add progress indicator during upload\n   - Show preview of uploaded image\n   - Handle upload errors gracefully\n   - Support multiple image uploads\n<info added on 2025-08-25T13:38:02.161Z>\n9. Implement Next.js custom image loader for Cloudflare:\n   - Create `/lib/cloudflare-image-loader.ts` with:\n     * Custom loader function that generates Cloudflare variant URLs\n     * Support for width, quality, and format parameters\n     * Proper URL construction using Cloudflare account hash\n   - Configure in `next.config.js`:\n     * Set `images.loader` to 'custom'\n     * Set `images.loaderFile` to './lib/cloudflare-image-loader.js'\n     * Add 'imagedelivery.net' to `images.domains`\n\n10. Implement error handling and retry logic:\n    - Add exponential backoff for failed uploads\n    - Implement client-side retry mechanism for network failures\n    - Create error boundary components for image display failures\n    - Log detailed error information for debugging\n\n11. Optimize image delivery performance:\n    - Configure appropriate Cache-Control headers\n    - Implement lazy loading for image galleries\n    - Use responsive image techniques with srcset attributes\n    - Monitor and analyze image loading performance metrics\n\n12. Document Cloudflare Images integration:\n    - Create developer documentation for the image system\n    - Document variant naming conventions and use cases\n    - Provide examples of proper image component usage\n    - Include troubleshooting guide for common issues\n</info added on 2025-08-25T13:38:02.161Z>",
         "testStrategy": "1. Unit Testing:\n   - Test utility functions in isolation with mock Cloudflare API responses\n   - Verify URL generation for different variants\n   - Test error handling for failed uploads or deletions\n\n2. Integration Testing:\n   - Test the complete upload flow from admin UI to Cloudflare and back\n   - Verify image IDs are correctly stored in Supabase\n   - Test deletion removes images from both Cloudflare and database\n   - Confirm all variants are generated correctly\n\n3. Performance Testing:\n   - Upload various image formats (JPG, PNG, WebP, GIF) and verify compression\n   - Test with different image sizes to ensure proper handling of large files\n   - Measure CDN delivery speed from different geographic locations\n   - Compare load times before and after Cloudflare implementation\n\n4. UI Testing:\n   - Verify the image management UI renders correctly across devices\n   - Test drag-and-drop functionality in different browsers\n   - Confirm copy URL buttons work as expected\n   - Test pagination and filtering of the image gallery\n\n5. Security Testing:\n   - Verify only authenticated admins can upload/delete images\n   - Test for common vulnerabilities (XSS, CSRF) in the upload endpoint\n   - Ensure API keys are properly secured and not exposed to clients\n\n6. End-to-End Testing:\n   - Upload an image through the admin panel\n   - Use the image in the calculator UI\n   - Verify the image loads correctly in the calculator preview\n   - Delete the image and confirm it's removed from all locations",
         "status": "pending",
-        "dependencies": [
-          7,
-          9,
-          25
-        ],
+        "dependencies": [7, 9, 25],
         "priority": "high",
         "subtasks": [
           {
@@ -1908,9 +1675,7 @@
             "id": 2,
             "title": "Implement Image Upload API Endpoint and Integration",
             "description": "Develop a secure Next.js API route for image uploads, handling multipart/form-data, authenticating admin users, and forwarding images to Cloudflare Images via REST API or SDK.",
-            "dependencies": [
-              "27.1"
-            ],
+            "dependencies": ["27.1"],
             "details": "Create `/api/admin/upload-image` with middleware for admin authentication. Parse incoming requests, extract image files, and forward them to Cloudflare Images using the stored API token. Return structured JSON responses with Cloudflare image IDs and delivery URLs.\n<info added on 2025-08-25T13:39:54.117Z>\nThis subtask depends on subtask 27.1 (Cloudflare account setup) being completed first. Implementation requires the API credentials and account configuration established in 27.1 to properly authenticate requests to the Cloudflare Images service.\n</info added on 2025-08-25T13:39:54.117Z>",
             "status": "pending",
             "testStrategy": "Write unit and integration tests for the endpoint, including authentication checks, file parsing, Cloudflare API error handling, and response validation. Use mock Cloudflare API responses for isolated testing."
@@ -1919,9 +1684,7 @@
             "id": 3,
             "title": "Configure Image Variants and Next.js Custom Loader",
             "description": "Define and register image variants (thumbnail, mobile, desktop, original) in Cloudflare, and implement a custom Next.js image loader to generate variant URLs and optimize delivery.",
-            "dependencies": [
-              "27.2"
-            ],
+            "dependencies": ["27.2"],
             "details": "In the Cloudflare dashboard, create named variants with required dimensions and settings. Develop `/lib/cloudflare-image-loader.ts` to construct variant URLs based on Cloudflare's URL schema, supporting width, quality, and format parameters. Update `next.config.js` to use the custom loader and allow Cloudflare's image domain.\n<info added on 2025-08-25T13:40:02.519Z>\nThis subtask requires completion of subtask 27.2 (Implement Image Upload API Endpoint and Integration) before it can be started, as the custom loader implementation depends on having the API endpoints properly configured and functional.\n</info added on 2025-08-25T13:40:02.519Z>",
             "status": "pending",
             "testStrategy": "Test variant URL generation for all defined variants. Validate that the Next.js image component renders images correctly for each variant and device type. Check that images are delivered from Cloudflare's CDN."
@@ -1930,9 +1693,7 @@
             "id": 4,
             "title": "Update Admin Panel UI and Database Schema for Cloudflare Integration",
             "description": "Refactor the admin panel's image management UI to use Cloudflare-hosted images and variants, and update the Supabase schema to store Cloudflare image metadata without local binaries.",
-            "dependencies": [
-              "27.3"
-            ],
+            "dependencies": ["27.3"],
             "details": "Modify the `/admin/images/page.tsx` to display images using Cloudflare URLs, support variant selection, and provide upload, delete, and copy URL features. Update the Supabase `images` table to store Cloudflare IDs, filenames, uploader info, and metadata. Remove any logic or storage related to local image binaries.\n<info added on 2025-08-25T13:40:09.604Z>\nThis subtask depends on subtask 27.3 (Configure Image Variants and Next.js Custom Loader) being completed first. Implementation should only begin after the variant configuration and custom loader functionality are in place.\n</info added on 2025-08-25T13:40:09.604Z>",
             "status": "pending",
             "testStrategy": "Perform end-to-end tests: upload images via the UI, verify database records, display all variants, and test deletion. Confirm that no local image files are stored and all references use Cloudflare URLs."
@@ -1941,9 +1702,7 @@
             "id": 5,
             "title": "Comprehensive Testing and Performance Optimization",
             "description": "Implement unit, integration, and UI tests for all image management flows, add error handling and retry logic, and optimize image delivery with caching, lazy loading, and responsive techniques.",
-            "dependencies": [
-              "27.4"
-            ],
+            "dependencies": ["27.4"],
             "details": "Write tests for utility functions, API endpoints, and UI components. Add exponential backoff for failed uploads, error boundaries for image display, and detailed logging. Configure Cache-Control headers, enable lazy loading, and use srcset for responsive images. Monitor and analyze image loading performance.\n<info added on 2025-08-25T13:40:15.763Z>\nThis subtask is dependent on subtask 27.4 (Update Admin Panel UI and Database Schema for Cloudflare Integration) and requires it to be completed first before implementation can begin. The testing and performance optimization work relies on the UI components and database structures that will be established in subtask 27.4.\n</info added on 2025-08-25T13:40:15.763Z>",
             "status": "pending",
             "testStrategy": "Run automated test suites for backend and frontend. Simulate network failures and verify retry logic. Use browser dev tools and analytics to measure image load times and cache effectiveness."

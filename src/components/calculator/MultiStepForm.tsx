@@ -77,7 +77,7 @@ interface MultiStepFormProps {
 }
 
 export function MultiStepForm({
-  currentStep,
+  currentStep: _currentStep,
   onStepChange,
   onSubmit,
   onComplete,
@@ -170,12 +170,13 @@ export function MultiStepForm({
   }, []);
 
   // Memoized section completion check
-  const isSectionComplete = useCallback(
-    (sectionIndex: number) => {
-      return completedSections.has(sectionIndex);
-    },
-    [completedSections]
-  );
+  // Commented out as it's not currently used
+  // const isSectionComplete = useCallback(
+  //   (sectionIndex: number) => {
+  //     return completedSections.has(sectionIndex);
+  //   },
+  //   [completedSections]
+  // );
 
   // Memoized section accessibility check
   const isSectionAccessible = useCallback(
@@ -205,15 +206,16 @@ export function MultiStepForm({
   );
 
   // Memoized scroll function
-  const scrollToSection = useCallback((sectionIndex: number) => {
-    const targetSection = sectionRefs.current[sectionIndex];
-    if (targetSection) {
-      targetSection.scrollIntoView({
-        behavior: 'smooth',
-        block: 'start',
-      });
-    }
-  }, []);
+  // Commented out as scrollToSectionEnhanced is used instead
+  // const scrollToSection = useCallback((sectionIndex: number) => {
+  //   const targetSection = sectionRefs.current[sectionIndex];
+  //   if (targetSection) {
+  //     targetSection.scrollIntoView({
+  //       behavior: 'smooth',
+  //       block: 'start',
+  //     });
+  //   }
+  // }, []);
 
   // Enhanced smooth scroll to section with better configuration
   const scrollToSectionEnhanced = useCallback(
@@ -522,9 +524,10 @@ export function MultiStepForm({
   );
 
   // Memoized section completion handler
-  const handleSectionComplete = useCallback((sectionIndex: number) => {
-    setCompletedSections(prev => new Set([...prev, sectionIndex]));
-  }, []);
+  // Commented out as it's not currently used
+  // const handleSectionComplete = useCallback((sectionIndex: number) => {
+  //   setCompletedSections(prev => new Set([...prev, sectionIndex]));
+  // }, []);
 
   // Notify parent component of step changes
   useEffect(() => {

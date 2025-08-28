@@ -184,7 +184,7 @@ export function ImagePicker({
             className="mt-3 w-full"
           >
             <ImageIcon className="w-4 h-4 mr-2" />
-            {selectedAsset ? 'Change Image' : 'Select Image'}
+            {selectedAsset ? 'Change Image' : placeholder}
           </Button>
         </DialogTrigger>
         <DialogContent className="max-w-4xl max-h-[80vh] overflow-hidden">

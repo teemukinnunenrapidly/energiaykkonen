@@ -1,0 +1,449 @@
+import React, { useState, useEffect } from 'react';
+import { X } from 'lucide-react';
+import type { CardField } from '@/lib/supabase';
+import { IconPicker } from './IconPicker';
+import { generateUniqueFieldName } from '@/lib/id-utils';
+
+interface FieldModalProps {
+  field: CardField | null;
+  existingFields: CardField[]; // All existing fields to check for uniqueness
+  onSave: (field: Partial<CardField>) => void;
+  onClose: () => void;
+}
+
+export function FieldModal({
+  field,
+  existingFields,
+  onSave,
+  onClose,
+}: FieldModalProps) {
+  const [formData, setFormData] = useState<Partial<CardField>>({
+    field_name: '',
+    field_type: 'text',
+    label: '',
+    placeholder: '',
+    help_text: '',
+    icon: '',
+    required: false,
+    width: 'full',
+    options: [],
+    validation_rules: {},
+  });
+
+  const [advancedOptions, setAdvancedOptions] = useState(false);
+  const [showIconPicker, setShowIconPicker] = useState(false);
+
+  useEffect(() => {
+    if (field) {
+      setFormData(field);
+      // Check if we should start in advanced mode (if any option has different value/label)
+      const hasAdvancedOptions = field.options?.some(
+        opt => opt.value !== opt.label
+      );
+      setAdvancedOptions(!!hasAdvancedOptions);
+    } else {
+      // Set default icon based on field type for new fields
+      setFormData(prev => ({
+        ...prev,
+        icon: getDefaultIconForFieldType(prev.field_type || 'text'),
+      }));
+    }
+  }, [field]);
+
+  // Handler to update label and auto-generate field name
+  const handleLabelChange = (label: string) => {
+    // Generate unique field name from label
+    const existingFieldNames = existingFields
+      .filter(f => (field ? f.id !== field.id : true)) // Exclude current field if editing
+      .map(f => f.field_name);
+    const generatedName = generateUniqueFieldName(label, existingFieldNames);
+
+    setFormData(prev => ({
+      ...prev,
+      label,
+      field_name: generatedName,
+    }));
+  };
+
+  // Helper function to get default icons for field types
+  const getDefaultIconForFieldType = (fieldType: string): string => {
+    switch (fieldType) {
+      case 'text':
+        return 'text_fields';
+      case 'email':
+        return 'email';
+      case 'number':
+        return 'calculate';
+      case 'select':
+        return 'list';
+      case 'radio':
+        return 'radio_button_checked';
+      case 'buttons':
+        return 'smart_button';
+      case 'checkbox':
+        return 'check_box';
+      case 'textarea':
+        return 'subject';
+      default:
+        return 'input';
+    }
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    onSave(formData);
+  };
+
+  const handleAddOption = () => {
+    setFormData({
+      ...formData,
+      options: [...(formData.options || []), { value: '', label: '' }],
+    });
+  };
+
+  const handleAddSimpleOption = () => {
+    setFormData({
+      ...formData,
+      options: [...(formData.options || []), { value: '', label: '' }],
+    });
+  };
+
+  const updateOption = (
+    index: number,
+    key: 'value' | 'label',
+    value: string
+  ) => {
+    const newOptions = [...(formData.options || [])];
+    newOptions[index] = { ...newOptions[index], [key]: value };
+    setFormData({ ...formData, options: newOptions });
+  };
+
+  const updateSimpleOption = (index: number, value: string) => {
+    const newOptions = [...(formData.options || [])];
+    // Set both value and label to the same text
+    newOptions[index] = { value: value, label: value };
+    setFormData({ ...formData, options: newOptions });
+  };
+
+  const removeOption = (index: number) => {
+    const newOptions = [...(formData.options || [])];
+    newOptions.splice(index, 1);
+    setFormData({ ...formData, options: newOptions });
+  };
+
+  return (
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+      <div className="bg-white rounded-lg w-full max-w-lg max-h-[90vh] overflow-y-auto">
+        <div className="flex items-center justify-between p-4 border-b">
+          <h2 className="text-lg font-semibold">
+            {field ? 'Edit Field' : 'Add Field'}
+          </h2>
+          <button onClick={onClose} className="p-1 hover:bg-gray-100 rounded">
+            <X className="w-5 h-5" />
+          </button>
+        </div>
+
+        <form onSubmit={handleSubmit} className="p-4 space-y-4">
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium mb-1">Label*</label>
+              <input
+                type="text"
+                value={formData.label}
+                onChange={e => handleLabelChange(e.target.value)}
+                className="w-full p-2 border rounded"
+                placeholder="Field Label (e.g., Square Meters)"
+                required
+              />
+              <p className="text-xs text-gray-500 mt-1">
+                Field name:{' '}
+                <span className="font-mono text-blue-600">
+                  {formData.field_name}
+                </span>
+              </p>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium mb-1">
+                Field Type*
+              </label>
+              <select
+                value={formData.field_type}
+                onChange={e => {
+                  const newFieldType = e.target.value as any;
+                  setFormData({
+                    ...formData,
+                    field_type: newFieldType,
+                    icon: getDefaultIconForFieldType(newFieldType),
+                  });
+                }}
+                className="w-full p-2 border rounded"
+              >
+                <option value="text">Text</option>
+                <option value="number">Number</option>
+                <option value="email">Email</option>
+                <option value="select">Select</option>
+                <option value="radio">Radio</option>
+                <option value="buttons">Buttons</option>
+                <option value="checkbox">Checkbox</option>
+                <option value="textarea">Textarea</option>
+              </select>
+            </div>
+          </div>
+
+          {/* Icon Selection */}
+          <div>
+            <label className="block text-sm font-medium mb-1">Icon</label>
+            <div className="flex items-center gap-2">
+              {formData.icon && (
+                <span className="material-icons text-gray-600 text-xl">
+                  {formData.icon}
+                </span>
+              )}
+              <button
+                type="button"
+                onClick={() => setShowIconPicker(true)}
+                className="flex-1 p-2 border rounded text-left text-gray-600 hover:bg-gray-50"
+              >
+                {formData.icon ? formData.icon : 'Select an icon (optional)'}
+              </button>
+              {formData.icon && (
+                <button
+                  type="button"
+                  onClick={() => setFormData({ ...formData, icon: '' })}
+                  className="p-2 text-red-600 hover:bg-red-50 rounded"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              )}
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium mb-1">
+                Placeholder
+              </label>
+              <input
+                type="text"
+                value={formData.placeholder}
+                onChange={e =>
+                  setFormData({ ...formData, placeholder: e.target.value })
+                }
+                className="w-full p-2 border rounded"
+                placeholder="e.g., Enter your name"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium mb-1">Width</label>
+              <select
+                value={formData.width}
+                onChange={e =>
+                  setFormData({ ...formData, width: e.target.value as any })
+                }
+                className="w-full p-2 border rounded"
+              >
+                <option value="full">Full</option>
+                <option value="half">Half</option>
+                <option value="third">Third</option>
+              </select>
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium mb-1">Help Text</label>
+            <input
+              type="text"
+              value={formData.help_text}
+              onChange={e =>
+                setFormData({ ...formData, help_text: e.target.value })
+              }
+              className="w-full p-2 border rounded"
+              placeholder="Additional help for users"
+            />
+          </div>
+
+          <div className="flex items-center gap-2">
+            <input
+              type="checkbox"
+              id="required"
+              checked={formData.required}
+              onChange={e =>
+                setFormData({ ...formData, required: e.target.checked })
+              }
+            />
+            <label htmlFor="required" className="text-sm">
+              Required field
+            </label>
+          </div>
+
+          {(formData.field_type === 'select' ||
+            formData.field_type === 'radio' ||
+            formData.field_type === 'buttons') && (
+            <div>
+              <div className="flex items-center justify-between mb-2">
+                <label className="block text-sm font-medium">Options</label>
+                <div className="flex items-center gap-2">
+                  <input
+                    type="checkbox"
+                    id="advanced-options"
+                    checked={advancedOptions}
+                    onChange={e => setAdvancedOptions(e.target.checked)}
+                    className="w-4 h-4"
+                  />
+                  <label
+                    htmlFor="advanced-options"
+                    className="text-sm text-gray-600"
+                  >
+                    Advanced: Separate values
+                  </label>
+                </div>
+              </div>
+
+              {!advancedOptions ? (
+                // Simple mode: one field per option
+                <div className="space-y-2 mb-2">
+                  {formData.options?.map((option, index) => (
+                    <div key={index} className="flex gap-2">
+                      <input
+                        type="text"
+                        value={option.label || option.value}
+                        onChange={e =>
+                          updateSimpleOption(index, e.target.value)
+                        }
+                        className="flex-1 p-2 border rounded text-sm"
+                        placeholder="Option text (e.g., Apartment)"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => removeOption(index)}
+                        className="px-3 py-2 text-red-600 hover:bg-red-50 rounded text-sm"
+                      >
+                        ×
+                      </button>
+                    </div>
+                  ))}
+                  <button
+                    type="button"
+                    onClick={handleAddSimpleOption}
+                    className="text-sm text-blue-600 hover:text-blue-700"
+                  >
+                    + Add Option
+                  </button>
+                </div>
+              ) : (
+                // Advanced mode: separate value and label fields
+                <div className="space-y-2 mb-2">
+                  <div className="grid grid-cols-2 gap-2 text-xs text-gray-500 mb-1">
+                    <span>Value (stored in database)</span>
+                    <span>Label (shown to users)</span>
+                  </div>
+                  {formData.options?.map((option, index) => (
+                    <div key={index} className="flex gap-2">
+                      <input
+                        type="text"
+                        value={option.value}
+                        onChange={e =>
+                          updateOption(index, 'value', e.target.value)
+                        }
+                        className="flex-1 p-2 border rounded text-sm"
+                        placeholder="apartment"
+                      />
+                      <input
+                        type="text"
+                        value={option.label}
+                        onChange={e =>
+                          updateOption(index, 'label', e.target.value)
+                        }
+                        className="flex-1 p-2 border rounded text-sm"
+                        placeholder="Apartment"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => removeOption(index)}
+                        className="px-3 py-2 text-red-600 hover:bg-red-50 rounded text-sm"
+                      >
+                        ×
+                      </button>
+                    </div>
+                  ))}
+                  <button
+                    type="button"
+                    onClick={handleAddOption}
+                    className="text-sm text-blue-600 hover:text-blue-700"
+                  >
+                    + Add Option
+                  </button>
+                </div>
+              )}
+
+              {/* Select only one rule for buttons */}
+              {formData.field_type === 'buttons' && (
+                <div className="mt-3 p-3 bg-gray-50 rounded border">
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="checkbox"
+                      id="select-only-one"
+                      checked={
+                        formData.validation_rules?.selectOnlyOne || false
+                      }
+                      onChange={e =>
+                        setFormData({
+                          ...formData,
+                          validation_rules: {
+                            ...formData.validation_rules,
+                            selectOnlyOne: e.target.checked,
+                          },
+                        })
+                      }
+                      className="w-4 h-4"
+                    />
+                    <label
+                      htmlFor="select-only-one"
+                      className="text-sm font-medium text-gray-700"
+                    >
+                      Select only one
+                    </label>
+                  </div>
+                  <p className="text-xs text-gray-500 mt-1">
+                    When enabled, only one button can be selected at a time
+                    (like radio buttons)
+                  </p>
+                </div>
+              )}
+            </div>
+          )}
+
+          <div className="flex justify-end gap-2 pt-4">
+            <button
+              type="button"
+              onClick={onClose}
+              className="px-4 py-2 border rounded hover:bg-gray-50"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+            >
+              Save Field
+            </button>
+          </div>
+        </form>
+      </div>
+
+      {/* Icon Picker Modal */}
+      {showIconPicker && (
+        <IconPicker
+          selectedIcon={formData.icon}
+          onIconSelect={iconName => {
+            setFormData({ ...formData, icon: iconName });
+            setShowIconPicker(false);
+          }}
+          onClose={() => setShowIconPicker(false)}
+        />
+      )}
+    </div>
+  );
+}

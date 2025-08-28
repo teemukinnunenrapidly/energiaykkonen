@@ -1,7 +1,9 @@
 # Visual Support Component Implementation Plan
 
 ## Overview
+
 Implement a three-tier visual support system that displays contextual images based on:
+
 1. **Section** - Default image for form sections
 2. **Field** - Image when field is focused
 3. **Option** - Specific image when an option is selected
@@ -11,6 +13,7 @@ Images are managed through the Form Builder and served via Cloudflare Images CDN
 ## System Architecture
 
 ### Image Hierarchy
+
 ```
 Section (e.g., "heating")
   ├── Default section image
@@ -25,40 +28,42 @@ Priority: Option image > Field image > Section image
 ## Implementation Steps
 
 ### Step 1: Database Schema
+
 **Location:** Supabase SQL Editor
 
 ```sql
 CREATE TABLE visual_assets (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
   cloudflare_image_id VARCHAR(255) NOT NULL,
-  
+
   -- Hierarchical identifiers
   section_id VARCHAR(255),      -- Form section identifier
   field_id VARCHAR(255),        -- Form field identifier
   option_value VARCHAR(255),    -- Option value (for select/radio)
-  
+
   -- Asset metadata
   asset_type VARCHAR(50) NOT NULL, -- 'section'/'field'/'option'
   title VARCHAR(255) NOT NULL,
   help_text TEXT,
   display_order INTEGER DEFAULT 0,
-  
+
   -- Timestamps
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-  
+
   -- Ensure unique combinations
   UNIQUE(section_id, field_id, option_value)
 );
 
 -- Indexes for performance
-CREATE INDEX idx_visual_assets_hierarchy 
+CREATE INDEX idx_visual_assets_hierarchy
   ON visual_assets(section_id, field_id, option_value);
-CREATE INDEX idx_visual_assets_type 
+CREATE INDEX idx_visual_assets_type
   ON visual_assets(asset_type);
 ```
 
 ### Step 2: Environment Variables
+
 **Location:** `.env.local`
 
 ```env
@@ -68,6 +73,7 @@ NEXT_PUBLIC_CLOUDFLARE_ACCOUNT_HASH=your_account_hash
 ```
 
 ### Step 3: Supabase Types and Helpers
+
 **Location:** `src/lib/supabase.ts` (add to existing)
 
 ```typescript
@@ -135,12 +141,13 @@ export async function getVisualAssetsForField(fieldId: string) {
     .select('*')
     .eq('field_id', fieldId)
     .order('display_order');
-  
+
   return data || [];
 }
 ```
 
 ### Step 4: Cloudflare Client
+
 **Location:** `src/lib/cloudflare.ts` (new file)
 
 ```typescript
@@ -160,7 +167,7 @@ export class CloudflareImages {
       `https://api.cloudflare.com/client/v4/accounts/${this.accountId}/images/v1`,
       {
         method: 'POST',
-        headers: { 'Authorization': `Bearer ${this.apiToken}` },
+        headers: { Authorization: `Bearer ${this.apiToken}` },
         body: formData,
       }
     );
@@ -179,7 +186,7 @@ export class CloudflareImages {
       `https://api.cloudflare.com/client/v4/accounts/${this.accountId}/images/v1/${imageId}`,
       {
         method: 'DELETE',
-        headers: { 'Authorization': `Bearer ${this.apiToken}` },
+        headers: { Authorization: `Bearer ${this.apiToken}` },
       }
     );
   }
@@ -187,6 +194,7 @@ export class CloudflareImages {
 ```
 
 ### Step 5: Upload API Endpoint
+
 **Location:** `src/app/api/admin/visual-assets/upload/route.ts`
 
 ```typescript
@@ -237,14 +245,15 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 
-  return NextResponse.json({ 
+  return NextResponse.json({
     asset: data,
-    url: cloudflare.getUrl(cloudflareId)
+    url: cloudflare.getUrl(cloudflareId),
   });
 }
 ```
 
 ### Step 6: VisualSupport Component
+
 **Location:** `src/components/form-system/VisualSupport.tsx`
 
 ```typescript
@@ -323,7 +332,7 @@ export const VisualSupport: React.FC<VisualSupportProps> = ({
           <h3 className="text-white text-xl font-bold">{asset.title}</h3>
         </div>
       </div>
-      
+
       {asset.help_text && (
         <div className="p-4 bg-blue-50 border-l-4 border-blue-500">
           <p className="text-sm text-gray-700">{asset.help_text}</p>
@@ -335,6 +344,7 @@ export const VisualSupport: React.FC<VisualSupportProps> = ({
 ```
 
 ### Step 7: FormRenderer Integration
+
 **Location:** `src/components/form-system/FormRenderer.tsx`
 
 Add these props and handlers:
@@ -350,11 +360,11 @@ interface FormRendererProps {
 }
 
 // Example field implementation:
-<div onFocus={() => onContextChange?.({ 
+<div onFocus={() => onContextChange?.({
   sectionId: 'heating',
   fieldId: 'lämmitysmuoto'
 })}>
-  <select 
+  <select
     onChange={(e) => onContextChange?.({
       sectionId: 'heating',
       fieldId: 'lämmitysmuoto',
@@ -368,6 +378,7 @@ interface FormRendererProps {
 ```
 
 ### Step 8: Calculator Page Integration
+
 **Location:** `src/app/calculator/page.tsx`
 
 ```typescript
@@ -394,7 +405,7 @@ export default function CalculatorPage() {
           className="h-full"
         />
       </div>
-      
+
       <div className="flex-1 overflow-y-auto">
         <FormRenderer
           onContextChange={setContext}
@@ -406,33 +417,34 @@ export default function CalculatorPage() {
 ```
 
 ### Step 9: Form Builder Integration
+
 **Location:** Admin panel form builder
 
 Add image upload controls at three levels:
 
 ```typescript
 // Section level
-<ImageUpload 
+<ImageUpload
   label="Section Default Image"
-  onUpload={(file) => uploadAsset(file, { 
-    sectionId: currentSection.id 
+  onUpload={(file) => uploadAsset(file, {
+    sectionId: currentSection.id
   })}
 />
 
 // Field level
-<ImageUpload 
+<ImageUpload
   label="Field Help Image"
-  onUpload={(file) => uploadAsset(file, { 
+  onUpload={(file) => uploadAsset(file, {
     sectionId: currentSection.id,
-    fieldId: currentField.id 
+    fieldId: currentField.id
   })}
 />
 
 // Option level (for select/radio fields)
 {field.options.map(option => (
-  <ImageUpload 
+  <ImageUpload
     label={`Image for ${option.label}`}
-    onUpload={(file) => uploadAsset(file, { 
+    onUpload={(file) => uploadAsset(file, {
       sectionId: currentSection.id,
       fieldId: currentField.id,
       optionValue: option.value

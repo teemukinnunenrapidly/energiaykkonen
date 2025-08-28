@@ -14,6 +14,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import {
   Calculator,
   FileText,
@@ -24,6 +25,7 @@ import {
   AlertTriangle,
   CheckCircle,
   XCircle,
+  Copy,
 } from 'lucide-react';
 import {
   Formula,
@@ -44,7 +46,18 @@ import {
   generateFormulaShortcodeWithDefaults,
   logSecurityEvent,
 } from '@/lib/formula-service';
+import {
+  FormulaLookup,
+  CreateFormulaLookupRequest,
+  getFormulaLookups,
+  createFormulaLookup,
+  updateFormulaLookup,
+  deleteFormulaLookup,
+  toggleFormulaLookupStatus,
+  generateLookupShortcode,
+} from '@/lib/formula-lookup-service';
 import AdminNavigation from '@/components/admin/AdminNavigation';
+import { supabase, type CardField } from '@/lib/supabase';
 
 export default function AdminCalculationsPage() {
   const [formulas, setFormulas] = useState<Formula[]>([]);
@@ -57,14 +70,9 @@ export default function AdminCalculationsPage() {
     description: '',
     formula_text: '',
     formula_type: 'energy_calculation',
+    unit: '',
   });
 
-  // Formula testing state
-  const [testVariables, setTestVariables] = useState<Record<string, any>>({});
-  const [testResult, setTestResult] = useState<FormulaExecutionResult | null>(
-    null
-  );
-  const [selectedFormula, setSelectedFormula] = useState<Formula | null>(null);
 
   // UI state
   const [showCreateForm, setShowCreateForm] = useState(false);
@@ -72,8 +80,37 @@ export default function AdminCalculationsPage() {
   const [validationResult, setValidationResult] =
     useState<FormulaValidationResult | null>(null);
 
+  // Available fields from Card Builder
+  const [availableFields, setAvailableFields] = useState<CardField[]>([]);
+  const [fieldsLoading, setFieldsLoading] = useState(false);
+
+  // Formula Lookup state
+  const [lookups, setLookups] = useState<FormulaLookup[]>([]);
+  const [showCreateLookupForm, setShowCreateLookupForm] = useState(false);
+  const [editingLookup, setEditingLookup] = useState<FormulaLookup | null>(null);
+  const [lookupForm, setLookupForm] = useState<CreateFormulaLookupRequest>({
+    name: '',
+    description: '',
+    conditions: [{ condition_rule: '', target_shortcode: '', description: '' }]
+  });
+
+  // Visual condition builder state
+  interface VisualCondition {
+    field: string;
+    operator: string;
+    value: string;
+    formula: string;
+    description: string;
+  }
+
+  const [visualConditions, setVisualConditions] = useState<VisualCondition[]>([
+    { field: '', operator: '==', value: '', formula: '', description: '' }
+  ]);
+
   useEffect(() => {
     loadFormulas();
+    loadAvailableFields();
+    loadLookups();
   }, []);
 
   const loadFormulas = async () => {
@@ -86,6 +123,248 @@ export default function AdminCalculationsPage() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const loadAvailableFields = async () => {
+    try {
+      setFieldsLoading(true);
+      const { data, error } = await supabase
+        .from('card_fields')
+        .select(`
+          *,
+          card_templates!card_fields_card_id_fkey (
+            id,
+            name,
+            title
+          )
+        `)
+        .order('display_order');
+
+      if (error) {
+        console.error('Error loading available fields:', error);
+        return;
+      }
+
+      if (data) {
+        setAvailableFields(data);
+        console.log(`Loaded ${data.length} available fields from Card Builder`);
+        console.log('Sample field with card info:', data[0]); // Debug log
+      }
+    } catch (error) {
+      console.error('Failed to load available fields:', error);
+    } finally {
+      setFieldsLoading(false);
+    }
+  };
+
+  const loadLookups = async () => {
+    try {
+      setLoading(true);
+      const data = await getFormulaLookups();
+      setLookups(data);
+      console.log(`Loaded ${data.length} formula lookups`);
+    } catch (error) {
+      console.error('Failed to load formula lookups:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleCreateLookup = async () => {
+    try {
+      if (editingLookup) {
+        // Update existing lookup
+        const updatedLookup = await updateFormulaLookup(editingLookup.id, lookupForm);
+        setLookups(lookups.map(l => l.id === editingLookup.id ? updatedLookup : l));
+        setEditingLookup(null);
+      } else {
+        // Create new lookup
+        const newLookup = await createFormulaLookup(lookupForm);
+        setLookups([newLookup, ...lookups]);
+      }
+      
+      setLookupForm({
+        name: '',
+        description: '',
+        conditions: [{ condition_rule: '', target_shortcode: '', description: '' }]
+      });
+      setVisualConditions([
+        { field: '', operator: '==', value: '', formula: '', description: '' }
+      ]);
+      setShowCreateLookupForm(false);
+    } catch (error) {
+      console.error('Error saving formula lookup:', error);
+    }
+  };
+
+  const handleDeleteLookup = async (id: string) => {
+    try {
+      await deleteFormulaLookup(id);
+      setLookups(lookups.filter(lookup => lookup.id !== id));
+    } catch (error) {
+      console.error('Error deleting lookup:', error);
+    }
+  };
+
+  const handleEditLookup = (lookup: FormulaLookup) => {
+    setEditingLookup(lookup);
+    setLookupForm({
+      name: lookup.name,
+      description: lookup.description || '',
+      conditions: lookup.conditions?.map(c => ({
+        condition_rule: c.condition_rule,
+        target_shortcode: c.target_shortcode,
+        description: c.description || ''
+      })) || [{ condition_rule: '', target_shortcode: '', description: '' }]
+    });
+
+    // Parse existing conditions back to visual conditions format
+    const parsedVisualConditions = lookup.conditions?.map(condition => {
+      // Try to parse the condition_rule back to visual format
+      // Example: "[field:valitse] == \"Öljylämmitys\"" -> field="valitse", operator="==", value="Öljylämmitys"
+      const match = condition.condition_rule.match(/\[field:([^\]]+)\]\s*(==|!=|<=|>=|<|>)\s*['"]?([^'"]*)['"]?/);
+      const formulaMatch = condition.target_shortcode.match(/\[calc:([^\]]+)\]/);
+      
+      console.log(`🔍 [EDIT DEBUG] Parsing condition:`, {
+        condition_rule: condition.condition_rule,
+        target_shortcode: condition.target_shortcode,
+        match: match,
+        formulaMatch: formulaMatch
+      });
+      
+      if (match && formulaMatch) {
+        const parsed = {
+          field: match[1].trim(),
+          operator: match[2].trim(),
+          value: match[3].trim(),
+          formula: formulaMatch[1].trim(),
+          description: condition.description || ''
+        };
+        console.log(`✅ [EDIT DEBUG] Successfully parsed:`, parsed);
+        return parsed;
+      } else {
+        console.error(`❌ [EDIT DEBUG] Failed to parse condition, using fallback:`, {
+          condition_rule: condition.condition_rule,
+          target_shortcode: condition.target_shortcode
+        });
+        // Fallback to empty condition if parsing fails
+        return {
+          field: '',
+          operator: '==',
+          value: '',
+          formula: '',
+          description: condition.description || ''
+        };
+      }
+    }) || [{ field: '', operator: '==', value: '', formula: '', description: '' }];
+
+    setVisualConditions(parsedVisualConditions);
+    setShowCreateLookupForm(true);
+  };
+
+  const handleDuplicateLookup = (lookup: FormulaLookup) => {
+    const duplicatedName = `${lookup.name} (Copy)`;
+    setEditingLookup(null); // Make sure we're in create mode
+    setLookupForm({
+      name: duplicatedName,
+      description: lookup.description || '',
+      conditions: lookup.conditions?.map(c => ({
+        condition_rule: c.condition_rule,
+        target_shortcode: c.target_shortcode,
+        description: c.description || ''
+      })) || [{ condition_rule: '', target_shortcode: '', description: '' }]
+    });
+
+    // Parse existing conditions back to visual conditions format for duplicate
+    const parsedVisualConditions = lookup.conditions?.map(condition => {
+      // Try to parse the condition_rule back to visual format
+      const match = condition.condition_rule.match(/\[field:([^\]]+)\]\s*(==|!=|<=|>=|<|>)\s*['"]?([^'"]*)['"]?/);
+      const formulaMatch = condition.target_shortcode.match(/\[calc:([^\]]+)\]/);
+      
+      if (match && formulaMatch) {
+        return {
+          field: match[1].trim(),
+          operator: match[2].trim(),
+          value: match[3].trim(),
+          formula: formulaMatch[1].trim(),
+          description: condition.description || ''
+        };
+      } else {
+        return {
+          field: '',
+          operator: '==',
+          value: '',
+          formula: '',
+          description: condition.description || ''
+        };
+      }
+    }) || [{ field: '', operator: '==', value: '', formula: '', description: '' }];
+
+    setVisualConditions(parsedVisualConditions);
+    setShowCreateLookupForm(true);
+  };
+
+  // Convert visual conditions to syntax
+  const convertVisualConditionsToSyntax = () => {
+    const syntaxConditions = visualConditions.map((vc, index) => ({
+      condition_rule: vc.field && vc.value ? `[field:${vc.field}] ${vc.operator} "${vc.value}"` : '',
+      target_shortcode: vc.formula ? `[calc:${vc.formula}]` : '',
+      description: vc.description || ''
+    }));
+
+    setLookupForm({
+      ...lookupForm,
+      conditions: syntaxConditions
+    });
+  };
+
+  const addVisualCondition = () => {
+    setVisualConditions([
+      ...visualConditions,
+      { field: '', operator: '==', value: '', formula: '', description: '' }
+    ]);
+  };
+
+  const removeVisualCondition = (index: number) => {
+    setVisualConditions(visualConditions.filter((_, i) => i !== index));
+  };
+
+  const updateVisualCondition = (index: number, updates: Partial<VisualCondition>) => {
+    const newConditions = [...visualConditions];
+    newConditions[index] = { ...newConditions[index], ...updates };
+    setVisualConditions(newConditions);
+  };
+
+  // Update syntax whenever visual conditions change
+  useEffect(() => {
+    convertVisualConditionsToSyntax();
+  }, [visualConditions]);
+
+  const addLookupCondition = () => {
+    setLookupForm({
+      ...lookupForm,
+      conditions: [...lookupForm.conditions, { condition_rule: '', target_shortcode: '', description: '' }]
+    });
+  };
+
+  const removeLookupCondition = (index: number) => {
+    setLookupForm({
+      ...lookupForm,
+      conditions: lookupForm.conditions.filter((_, i) => i !== index)
+    });
+  };
+
+  const handleDuplicateFormula = (formula: Formula) => {
+    const duplicatedName = `${formula.name} (Copy)`;
+    setFormulaForm({
+      name: duplicatedName,
+      description: formula.description || '',
+      formula_text: formula.formula_text,
+      formula_type: formula.formula_type,
+      unit: formula.unit || '',
+    });
+    setEditingFormula(null); // Make sure we're in create mode, not edit mode
+    setShowCreateForm(true);
   };
 
   const handleCreateFormula = async () => {
@@ -104,6 +383,7 @@ export default function AdminCalculationsPage() {
         description: '',
         formula_text: '',
         formula_type: 'energy_calculation',
+        unit: '',
       });
       setShowCreateForm(false);
       setValidationResult(null);
@@ -139,6 +419,7 @@ export default function AdminCalculationsPage() {
         description: '',
         formula_text: '',
         formula_type: 'energy_calculation',
+        unit: '',
       });
       setValidationResult(null);
     } catch (error) {
@@ -157,61 +438,18 @@ export default function AdminCalculationsPage() {
     }
   };
 
-  const handleToggleStatus = async (id: string, currentStatus: boolean) => {
-    try {
-      await toggleFormulaStatus(id, !currentStatus);
-      setFormulas(
-        formulas.map(f =>
-          f.id === id ? { ...f, is_active: !currentStatus } : f
-        )
-      );
-    } catch (error) {
-      console.error('Error toggling formula status:', error);
-    }
-  };
 
-  const handleTestFormula = (formula: Formula) => {
-    setSelectedFormula(formula);
-    setTestVariables({});
-    setTestResult(null);
-    setActiveTab('testing');
-  };
-
-  const executeTest = async () => {
-    if (!selectedFormula) {
-      return;
-    }
-
-    // Enhanced security: Log formula execution attempt
-    logSecurityEvent('formula_execution_attempt', {
-      formulaId: selectedFormula.id,
-      formulaName: selectedFormula.name,
-      variables: testVariables,
-    });
-
-    const result = await executeFormula(
-      selectedFormula.formula_text,
-      testVariables
-    );
-
-    // Enhanced security: Log execution result
-    if (result.success) {
-      logSecurityEvent('formula_execution_success', {
-        formulaId: selectedFormula.id,
-        executionTime: result.executionTime,
-      });
-    } else {
-      logSecurityEvent('formula_execution_failure', {
-        formulaId: selectedFormula.id,
-        error: result.error,
-      });
-    }
-
-    setTestResult(result);
-  };
 
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text);
+  };
+
+  const insertFieldReference = (fieldName: string) => {
+    const fieldRef = `[field:${fieldName}]`;
+    setFormulaForm(prev => ({
+      ...prev,
+      formula_text: prev.formula_text + fieldRef,
+    }));
   };
 
   if (loading) {
@@ -282,7 +520,7 @@ export default function AdminCalculationsPage() {
         >
           <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="formulas">Formulas</TabsTrigger>
-            <TabsTrigger value="testing">Testing</TabsTrigger>
+            <TabsTrigger value="lookups">Formula Lookups</TabsTrigger>
           </TabsList>
 
           {/* Formulas Tab */}
@@ -343,7 +581,28 @@ export default function AdminCalculationsPage() {
                       rows={3}
                       className="font-mono"
                     />
+                  </div>
 
+                  <div>
+                    <Label htmlFor="unit">Result Unit</Label>
+                    <Input
+                      id="unit"
+                      value={formulaForm.unit || ''}
+                      onChange={e =>
+                        setFormulaForm({
+                          ...formulaForm,
+                          unit: e.target.value,
+                        })
+                      }
+                      placeholder="e.g., kWh, €, %, km, m², kg, l"
+                    />
+                    <p className="text-xs text-muted-foreground mt-1">
+                      The unit that will be displayed with the calculation
+                      result (optional)
+                    </p>
+                  </div>
+
+                  <div>
                     {/* Helpful Examples Section */}
                     <div className="mt-2 p-3 bg-muted rounded-md">
                       <p className="text-sm font-medium mb-2">
@@ -387,6 +646,52 @@ export default function AdminCalculationsPage() {
                           </div>
                         </div>
                       </div>
+                    </div>
+
+                    {/* Available Fields from Card Builder */}
+                    <div className="mt-2 p-3 bg-blue-50 border border-blue-200 rounded-md">
+                      <p className="text-sm font-medium mb-2 text-blue-800">
+                        Available Form Fields:
+                      </p>
+                      <p className="text-xs text-blue-600 mb-3">
+                        Click any field to insert its reference into your
+                        formula
+                      </p>
+
+                      {fieldsLoading ? (
+                        <div className="text-xs text-blue-600">
+                          Loading fields...
+                        </div>
+                      ) : availableFields.length > 0 ? (
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                          {availableFields.map(field => (
+                            <button
+                              key={field.id}
+                              type="button"
+                              onClick={() =>
+                                insertFieldReference(field.field_name)
+                              }
+                              className="text-left p-2 bg-white border border-blue-200 rounded hover:bg-blue-50 hover:border-blue-300 transition-colors text-xs"
+                            >
+                              <div className="font-medium text-blue-800">
+                                {field.label}
+                              </div>
+                              <div className="text-blue-600 font-mono">
+                                [field:{field.field_name}]
+                              </div>
+                              <div className="text-blue-500 text-xs">
+                                {field.field_type} •{' '}
+                                {field.required ? 'Required' : 'Optional'}
+                              </div>
+                            </button>
+                          ))}
+                        </div>
+                      ) : (
+                        <div className="text-xs text-blue-600">
+                          No form fields found. Create fields in Card Builder
+                          first.
+                        </div>
+                      )}
                     </div>
 
                     {validationResult && (
@@ -554,21 +859,8 @@ export default function AdminCalculationsPage() {
                             {formula.description || 'No description provided'}
                           </CardDescription>
                         </div>
-                        <Badge
-                          variant={formula.is_active ? 'default' : 'secondary'}
-                        >
-                          {formula.is_active ? 'Active' : 'Inactive'}
-                        </Badge>
                       </div>
                       <div className="flex items-center gap-2">
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => handleTestFormula(formula)}
-                        >
-                          <Eye className="h-4 w-4" />
-                          Test
-                        </Button>
                         <Button
                           variant="outline"
                           size="sm"
@@ -579,6 +871,7 @@ export default function AdminCalculationsPage() {
                               description: formula.description || '',
                               formula_text: formula.formula_text,
                               formula_type: formula.formula_type,
+                              unit: formula.unit || '',
                             });
                             setShowCreateForm(true);
                           }}
@@ -589,11 +882,11 @@ export default function AdminCalculationsPage() {
                         <Button
                           variant="outline"
                           size="sm"
-                          onClick={() =>
-                            handleToggleStatus(formula.id, formula.is_active)
-                          }
+                          onClick={() => handleDuplicateFormula(formula)}
+                          title="Duplicate this formula"
                         >
-                          {formula.is_active ? 'Deactivate' : 'Activate'}
+                          <Copy className="h-4 w-4" />
+                          Duplicate
                         </Button>
                         <Button
                           variant="outline"
@@ -655,182 +948,417 @@ export default function AdminCalculationsPage() {
             </div>
           </TabsContent>
 
-          {/* Testing Tab */}
-          <TabsContent value="testing" className="space-y-4">
-            {selectedFormula ? (
+          {/* Formula Lookups Tab */}
+          <TabsContent value="lookups" className="space-y-4">
+            {showCreateLookupForm && (
               <Card>
                 <CardHeader>
-                  <CardTitle>Test Formula: {selectedFormula.name}</CardTitle>
+                  <CardTitle>
+                    {editingLookup ? 'Edit Formula Lookup' : 'Create New Formula Lookup'}
+                  </CardTitle>
                   <CardDescription>
-                    Test the formula with sample values to verify it works
-                    correctly
+                    Create conditional lookup tables that return different formulas based on field values
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  <div className="bg-muted p-3 rounded-md">
-                    <code className="text-sm font-mono">
-                      {selectedFormula.formula_text}
-                    </code>
+                  <div>
+                    <Label htmlFor="lookup-name">Lookup Name</Label>
+                    <Input
+                      id="lookup-name"
+                      value={lookupForm.name}
+                      onChange={e =>
+                        setLookupForm({ ...lookupForm, name: e.target.value })
+                      }
+                      placeholder="e.g., heating-calculation"
+                    />
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Use kebab-case for consistency (no spaces, use hyphens)
+                    </p>
                   </div>
 
                   <div>
-                    <Label>Test Variables</Label>
-                    <div className="grid gap-2 mt-2">
-                      {Object.keys(selectedFormula.variables || {}).map(key => (
-                        <div key={key} className="flex items-center gap-2">
-                          <Label htmlFor={key} className="w-24 text-sm">
-                            {key}:
-                          </Label>
-                          <Input
-                            id={key}
-                            type="number"
-                            value={testVariables[key] || ''}
-                            onChange={e =>
-                              setTestVariables({
-                                ...testVariables,
-                                [key]: parseFloat(e.target.value) || 0,
-                              })
-                            }
-                            placeholder="Enter value"
-                            className="flex-1"
-                          />
-                        </div>
-                      ))}
-                    </div>
+                    <Label htmlFor="lookup-description">Description</Label>
+                    <Textarea
+                      id="lookup-description"
+                      value={lookupForm.description}
+                      onChange={e =>
+                        setLookupForm({
+                          ...lookupForm,
+                          description: e.target.value,
+                        })
+                      }
+                      placeholder="Describe what this lookup table does..."
+                      rows={2}
+                    />
                   </div>
 
-                  <Button onClick={executeTest} className="w-full">
-                    <Eye className="h-4 w-4 mr-2" />
-                    Execute Test
-                  </Button>
-
-                  {testResult && (
-                    <div
-                      className={`p-4 rounded-md ${
-                        testResult.success
-                          ? 'bg-green-50 border border-green-200'
-                          : 'bg-red-50 border border-red-200'
-                      }`}
-                    >
+                  <div>
+                    <Label>Conditions & Actions</Label>
+                    <p className="text-xs text-muted-foreground mb-3">
+                      Define conditions and which formulas to use. Conditions are evaluated in order - first match wins.
+                    </p>
+                    
+                    {/* Available Fields Reference */}
+                    <div className="mb-4 p-3 bg-blue-50 rounded-lg border border-blue-200">
                       <div className="flex items-center gap-2 mb-2">
-                        {testResult.success ? (
-                          <CheckCircle className="h-5 w-5 text-green-600" />
+                        <FileText className="h-4 w-4 text-blue-600" />
+                        <Label className="text-sm font-medium text-blue-800">Available Fields</Label>
+                        {fieldsLoading && <div className="animate-spin rounded-full h-3 w-3 border-b border-blue-600"></div>}
+                      </div>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                        {availableFields.length > 0 ? (
+                          availableFields.map(field => (
+                            <div key={field.id} className="text-xs">
+                              <Badge variant="outline" className="font-mono text-xs">
+                                [field:{field.field_name}]
+                              </Badge>
+                              <div className="text-muted-foreground text-xs mt-1">
+                                <div className="font-medium">{field.label}</div>
+                                {field.card_templates && (
+                                  <div className="italic text-muted-foreground/70">
+                                    from: {field.card_templates.title}
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                          ))
                         ) : (
-                          <AlertTriangle className="h-5 w-5 text-red-600" />
+                          <p className="text-xs text-muted-foreground col-span-full">
+                            {fieldsLoading ? 'Loading fields...' : 'No fields found. Create cards in Card Builder first.'}
+                          </p>
                         )}
-                        <span className="font-medium">
-                          {testResult.success
-                            ? 'Test Successful'
-                            : 'Test Failed'}
-                        </span>
-                      </div>
-
-                      {testResult.success ? (
-                        <div>
-                          <p className="text-green-800">
-                            Result:{' '}
-                            <span className="font-mono font-bold">
-                              {testResult.result}
-                            </span>
-                          </p>
-                          <p className="text-green-600 text-sm mt-1">
-                            Execution time:{' '}
-                            {testResult.executionTime?.toFixed(2)}ms
-                          </p>
-                        </div>
-                      ) : (
-                        <div>
-                          <p className="text-red-800">
-                            Error: {testResult.error}
-                          </p>
-                          <p className="text-red-600 text-sm mt-1">
-                            Execution time:{' '}
-                            {testResult.executionTime?.toFixed(2)}ms
-                          </p>
-                        </div>
-                      )}
-                    </div>
-                  )}
-
-                  {/* Shortcode Usage Section */}
-                  {selectedFormula && (
-                    <div className="mt-6 p-4 bg-muted rounded-md">
-                      <h4 className="font-medium mb-3">Shortcode Usage</h4>
-                      <div className="space-y-3">
-                        <div>
-                          <Label className="text-sm text-muted-foreground">
-                            Basic Shortcode
-                          </Label>
-                          <div className="flex items-center gap-2 mt-1">
-                            <code className="text-sm font-mono bg-background px-3 py-2 rounded border flex-1">
-                              {generateFormulaShortcode(selectedFormula)}
-                            </code>
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={() =>
-                                copyToClipboard(
-                                  generateFormulaShortcode(selectedFormula)
-                                )
-                              }
-                            >
-                              <Download className="h-3 w-3" />
-                            </Button>
-                          </div>
-                          <p className="text-xs text-muted-foreground mt-1">
-                            Use this shortcode to embed the formula in forms or
-                            content
-                          </p>
-                        </div>
-
-                        <div>
-                          <Label className="text-sm text-muted-foreground">
-                            Shortcode with Variables
-                          </Label>
-                          <div className="flex items-center gap-2 mt-1">
-                            <code className="text-sm font-mono bg-background px-3 py-2 rounded border flex-1">
-                              {generateFormulaShortcodeWithVariables(
-                                selectedFormula
-                              )}
-                            </code>
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={() =>
-                                copyToClipboard(
-                                  generateFormulaShortcodeWithVariables(
-                                    selectedFormula
-                                  )
-                                )
-                              }
-                            >
-                              <Download className="h-3 w-3" />
-                            </Button>
-                          </div>
-                          <p className="text-xs text-muted-foreground mt-1">
-                            Shows available variables for the formula
-                          </p>
-                        </div>
                       </div>
                     </div>
-                  )}
-                </CardContent>
-              </Card>
-            ) : (
-              <Card>
-                <CardContent className="text-center py-8">
-                  <Calculator className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
-                  <h3 className="text-lg font-semibold mb-2">
-                    Select a formula to test
-                  </h3>
-                  <p className="text-muted-foreground">
-                    Go to the Formulas tab and click &quot;Test&quot; on any formula to
-                    start testing
-                  </p>
+                    
+                    {/* Available Formulas Reference */}
+                    <div className="mb-4 p-3 bg-green-50 rounded-lg border border-green-200">
+                      <div className="flex items-center gap-2 mb-2">
+                        <Calculator className="h-4 w-4 text-green-600" />
+                        <Label className="text-sm font-medium text-green-800">Available Formulas</Label>
+                      </div>
+                      <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+                        {formulas.length > 0 ? (
+                          formulas.filter(f => f.is_active).map(formula => (
+                            <div key={formula.id} className="text-xs">
+                              <Badge variant="outline" className="font-mono text-xs">
+                                [calc:{formula.name}]
+                              </Badge>
+                              <div className="text-muted-foreground text-xs mt-1">
+                                {formula.description || formula.name}
+                              </div>
+                            </div>
+                          ))
+                        ) : (
+                          <p className="text-xs text-muted-foreground col-span-full">
+                            No formulas found. Create formulas in the Formulas tab first.
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                    
+                    {visualConditions.map((condition, index) => (
+                      <Card key={index} className="p-4 mb-3">
+                        <div className="space-y-4">
+                          <div className="flex justify-between items-center">
+                            <Label>Condition #{index + 1}</Label>
+                            {visualConditions.length > 1 && (
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => removeVisualCondition(index)}
+                              >
+                                Remove
+                              </Button>
+                            )}
+                          </div>
+                          
+                          <div className="grid grid-cols-1 md:grid-cols-4 gap-3 items-end">
+                            {/* Field Selection */}
+                            <div>
+                              <Label htmlFor={`condition-field-${index}`}>Field</Label>
+                              <Select 
+                                value={condition.field} 
+                                onValueChange={(value) => updateVisualCondition(index, { field: value, value: '' })}
+                              >
+                                <SelectTrigger>
+                                  <SelectValue placeholder="Select field" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  {availableFields
+                                    .sort((a, b) => {
+                                      // Sort by card title first, then by field label
+                                      const cardA = a.card_templates?.title || '';
+                                      const cardB = b.card_templates?.title || '';
+                                      if (cardA !== cardB) return cardA.localeCompare(cardB);
+                                      return a.label.localeCompare(b.label);
+                                    })
+                                    .map(field => (
+                                    <SelectItem key={field.id} value={field.field_name}>
+                                      <div className="flex flex-col">
+                                        <span className="font-medium">{field.label}</span>
+                                        <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                                          <span>({field.field_name})</span>
+                                          {field.card_templates ? (
+                                            <>
+                                              <span>•</span>
+                                              <span className="italic">{field.card_templates.title}</span>
+                                            </>
+                                          ) : (
+                                            <>
+                                              <span>•</span>
+                                              <span className="italic text-red-400">Card info missing</span>
+                                            </>
+                                          )}
+                                        </div>
+                                      </div>
+                                    </SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                            </div>
+
+                            {/* Operator Selection */}
+                            <div>
+                              <Label htmlFor={`condition-operator-${index}`}>Is</Label>
+                              <Select 
+                                value={condition.operator} 
+                                onValueChange={(value) => updateVisualCondition(index, { operator: value })}
+                              >
+                                <SelectTrigger>
+                                  <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="==">Equal to</SelectItem>
+                                  <SelectItem value="!=">Not equal to</SelectItem>
+                                  <SelectItem value=">">Greater than</SelectItem>
+                                  <SelectItem value="<">Less than</SelectItem>
+                                  <SelectItem value=">=">Greater or equal</SelectItem>
+                                  <SelectItem value="<=">Less or equal</SelectItem>
+                                </SelectContent>
+                              </Select>
+                            </div>
+
+                            {/* Value Input */}
+                            <div>
+                              <Label htmlFor={`condition-value-${index}`}>Value</Label>
+                              {(() => {
+                                const selectedField = availableFields.find(f => f.field_name === condition.field);
+                                const isButtonField = selectedField?.field_type === 'buttons';
+                                const fieldOptions = selectedField?.options || [];
+                                
+                                if (isButtonField && fieldOptions.length > 0) {
+                                  return (
+                                    <Select
+                                      value={condition.value}
+                                      onValueChange={(value) => updateVisualCondition(index, { value })}
+                                    >
+                                      <SelectTrigger>
+                                        <SelectValue placeholder="Select option">
+                                          {condition.value ? (
+                                            <div className="flex items-center gap-2">
+                                              <span>{fieldOptions.find(opt => opt.value === condition.value)?.label || condition.value}</span>
+                                              <span className="text-xs text-muted-foreground">({condition.value})</span>
+                                            </div>
+                                          ) : (
+                                            "Select option"
+                                          )}
+                                        </SelectValue>
+                                      </SelectTrigger>
+                                      <SelectContent>
+                                        {fieldOptions.map(option => (
+                                          <SelectItem key={option.value} value={option.value}>
+                                            <div className="flex flex-col">
+                                              <span className="font-medium">{option.label}</span>
+                                              <span className="text-xs text-muted-foreground">value: {option.value}</span>
+                                            </div>
+                                          </SelectItem>
+                                        ))}
+                                      </SelectContent>
+                                    </Select>
+                                  );
+                                } else {
+                                  return (
+                                    <Input
+                                      id={`condition-value-${index}`}
+                                      value={condition.value}
+                                      onChange={e => updateVisualCondition(index, { value: e.target.value })}
+                                      placeholder="e.g., oil"
+                                    />
+                                  );
+                                }
+                              })()}
+                            </div>
+
+                            {/* Formula Selection */}
+                            <div>
+                              <Label htmlFor={`condition-formula-${index}`}>Then use formula</Label>
+                              <Select 
+                                value={condition.formula} 
+                                onValueChange={(value) => updateVisualCondition(index, { formula: value })}
+                              >
+                                <SelectTrigger>
+                                  <SelectValue placeholder="Select formula" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  {formulas.filter(f => f.is_active).map(formula => (
+                                    <SelectItem key={formula.id} value={formula.name}>
+                                      {formula.name}
+                                    </SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                            </div>
+                          </div>
+
+                          {/* Description */}
+                          <div>
+                            <Label htmlFor={`condition-desc-${index}`}>Description (Optional)</Label>
+                            <Input
+                              id={`condition-desc-${index}`}
+                              value={condition.description}
+                              onChange={e => updateVisualCondition(index, { description: e.target.value })}
+                              placeholder="e.g., Oil heating calculation"
+                            />
+                          </div>
+
+                          {/* Preview of generated rule */}
+                          {condition.field && condition.value && condition.formula && (
+                            <div className="p-2 bg-gray-50 rounded text-xs font-mono text-gray-600">
+                              Preview: [field:{condition.field}] {condition.operator} "{condition.value}" → [calc:{condition.formula}]
+                            </div>
+                          )}
+                        </div>
+                      </Card>
+                    ))}
+                    
+                    <Button variant="outline" onClick={addVisualCondition}>
+                      Add Condition
+                    </Button>
+                  </div>
+
+                  <div className="flex gap-2 pt-4">
+                    <Button onClick={handleCreateLookup}>
+                      {editingLookup ? 'Update' : 'Create'} Lookup
+                    </Button>
+                    <Button
+                      variant="outline"
+                      onClick={() => {
+                        setShowCreateLookupForm(false);
+                        setEditingLookup(null);
+                        setLookupForm({
+                          name: '',
+                          description: '',
+                          conditions: [{ condition_rule: '', target_shortcode: '', description: '' }]
+                        });
+                        setVisualConditions([
+                          { field: '', operator: '==', value: '', formula: '', description: '' }
+                        ]);
+                      }}
+                    >
+                      Cancel
+                    </Button>
+                  </div>
                 </CardContent>
               </Card>
             )}
+
+            <div className="flex justify-between items-center">
+              <h2 className="text-xl font-semibold">Formula Lookup Tables</h2>
+              <Button onClick={() => setShowCreateLookupForm(true)}>
+                Create Formula Lookup
+              </Button>
+            </div>
+
+            <div className="grid gap-4">
+              {lookups.map(lookup => (
+                <Card key={lookup.id}>
+                  <CardHeader>
+                    <div className="flex justify-between items-start">
+                      <div>
+                        <CardTitle className="text-lg">{lookup.name}</CardTitle>
+                        {lookup.description && (
+                          <CardDescription>{lookup.description}</CardDescription>
+                        )}
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleEditLookup(lookup)}
+                        >
+                          <Settings className="h-4 w-4" />
+                          Edit
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleDuplicateLookup(lookup)}
+                          title="Duplicate this lookup"
+                        >
+                          <Copy className="h-4 w-4" />
+                          Duplicate
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleDeleteLookup(lookup.id)}
+                          className="text-red-600 hover:text-red-700"
+                        >
+                          <XCircle className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </div>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-2">
+                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                        <Badge variant="outline" className="font-mono">
+                          {generateLookupShortcode(lookup.name || 'unnamed')}
+                        </Badge>
+                        <span>← Use this shortcode in calculation cards</span>
+                      </div>
+                      
+                      <div>
+                        <Label className="text-sm font-medium">Conditions:</Label>
+                        <div className="mt-1 space-y-1">
+                          {lookup.conditions?.map((condition, index) => (
+                            <div key={condition.id} className="text-sm bg-muted p-2 rounded">
+                              <span className="font-mono text-xs">
+                                {index + 1}. {condition.condition_rule} → {condition.target_shortcode}
+                              </span>
+                              {condition.description && (
+                                <div className="text-muted-foreground text-xs mt-1">
+                                  {condition.description}
+                                </div>
+                              )}
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+
+              {lookups.length === 0 && !loading && (
+                <Card>
+                  <CardContent className="text-center py-8">
+                    <Settings className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
+                    <h3 className="text-lg font-semibold mb-2">
+                      No Formula Lookups Yet
+                    </h3>
+                    <p className="text-muted-foreground mb-4">
+                      Create conditional lookup tables to make calculation cards smarter
+                    </p>
+                    <Button onClick={() => setShowCreateLookupForm(true)}>
+                      Create Your First Lookup
+                    </Button>
+                  </CardContent>
+                </Card>
+              )}
+            </div>
           </TabsContent>
+
         </Tabs>
       </div>
     </div>

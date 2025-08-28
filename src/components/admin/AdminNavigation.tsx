@@ -4,15 +4,13 @@ import { usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import {
-  Palette,
   Settings,
   Home,
-  Wrench,
   Mail,
   Calculator,
   Eye,
   FileText,
-  Image,
+  Image as ImageIcon,
   ChevronDown,
   MoreHorizontal,
 } from 'lucide-react';
@@ -33,10 +31,10 @@ const primaryNavigation = [
     description: 'Leads Management',
   },
   {
-    name: 'Form Builder',
-    href: '/admin/form-builder',
-    icon: Wrench,
-    description: 'Form Structure',
+    name: 'Card Builder',
+    href: '/admin/card-builder',
+    icon: FileText,
+    description: 'Card Templates',
   },
   {
     name: 'Calculations',
@@ -49,15 +47,9 @@ const primaryNavigation = [
 // Secondary navigation items (in dropdown)
 const secondaryNavigation = [
   {
-    name: 'Appearance',
-    href: '/admin/appearance',
-    icon: Palette,
-    description: 'Brand Customization',
-  },
-  {
     name: 'Visual Assets',
     href: '/admin/visual-assets',
-    icon: Image,
+    icon: ImageIcon,
     description: 'Manage Images and Assets',
   },
   {
@@ -163,7 +155,7 @@ export default function AdminNavigation() {
                 align="end"
                 className="w-56 bg-gradient-to-b from-blue-900/95 to-indigo-900/95 border border-blue-400/30 backdrop-blur-md shadow-2xl"
               >
-                {secondaryNavigation.map((item) => {
+                {secondaryNavigation.map(item => {
                   const active = isActive(item.href);
                   return (
                     <DropdownMenuItem key={item.name} asChild>

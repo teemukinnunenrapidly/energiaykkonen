@@ -20,7 +20,6 @@ import {
   Bold,
   Italic,
   Underline,
-  Palette,
   Download,
   Upload,
   Send,

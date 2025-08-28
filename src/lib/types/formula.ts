@@ -5,6 +5,7 @@ export interface Formula {
   formula_text: string;
   formula_type: 'energy_calculation' | 'custom' | 'template';
   variables: Record<string, any>;
+  unit?: string; // The unit for the calculation result (e.g., "kWh", "€", "%", "km", etc.)
   is_active: boolean;
   created_by?: string;
   created_at: string;
@@ -19,6 +20,7 @@ export interface CreateFormulaRequest {
   formula_text: string;
   formula_type?: 'energy_calculation' | 'custom' | 'template';
   variables?: Record<string, any>;
+  unit?: string; // The unit for the calculation result
   tags?: string[];
 }
 

@@ -1,7 +1,22 @@
-import React, { useEffect, useState } from 'react';
-import { useCardContext } from '../CardContext';
-import { evaluate } from 'mathjs';
+import React, { useEffect, useState, useRef } from 'react';
 import type { CardTemplate } from '@/lib/supabase';
+import {
+  getFormulas,
+  resolveFormulaDependencies,
+  executeFormulaWithFieldResolution,
+} from '@/lib/formula-service';
+import { useCardContext } from '../CardContext';
+import { processDisplayContentWithSession } from '@/lib/shortcode-processor';
+import { storeCalculationResult, evaluateExpression } from '@/lib/calculation-engine';
+import { 
+  storeSessionCalculation,
+  processFormulaWithSession,
+  evaluateProcessedFormula,
+  needsRecalculation,
+  markCalculationCurrent,
+  discoverDependenciesFromFormula,
+  discoverDependenciesFromLookup
+} from '@/lib/session-data-table';
 
 interface CalculationCardProps {
   card: CardTemplate;
@@ -9,187 +24,294 @@ interface CalculationCardProps {
 }
 
 export function CalculationCard({ card }: CalculationCardProps) {
-  const { formData } = useCardContext();
-  const [result, setResult] = useState<number | null>(null);
-  const [error, setError] = useState<string | null>(null);
+  const { formData, completeCard, uncompleteCard, cardStates, sessionId } =
+    useCardContext();
+  const [calculatedResult, setCalculatedResult] = useState<string | null>(null);
   const [isCalculating, setIsCalculating] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const hasProcessedCalculationRef = useRef<boolean>(false);
 
-  useEffect(() => {
-    calculateResult();
-  }, [formData, card.config]);
+  // Parse shortcode to extract formula name and type (supports both calc and lookup)
+  const parseShortcode = (shortcode: string): { name: string; type: 'calc' | 'lookup' } | null => {
+    const match = shortcode.match(/\[(calc|lookup):([^\]]+)\]/);
+    return match ? { type: match[1] as 'calc' | 'lookup', name: match[2] } : null;
+  };
 
-  // Also recalculate when specific dependencies change
+  // Process shortcode and calculate result
   useEffect(() => {
-    if (card.config.depends_on) {
-      const hasAllDependencies = card.config.depends_on.every(field => 
-        formData[field] !== undefined && formData[field] !== null && formData[field] !== ''
-      );
-      
-      if (hasAllDependencies) {
-        calculateResult();
+    const processShortcode = async () => {
+      // Add small delay to ensure session data is fully stored
+      await new Promise(resolve => setTimeout(resolve, 100));
+      // Only process calculation if this card is revealed (not blurred)
+      const cardState = cardStates[card.id];
+      const isThisCardRevealed = cardState?.isRevealed === true;
+      const isAlreadyComplete = cardState?.status === 'complete';
+
+      if (!isThisCardRevealed) {
+        console.log(
+          `🔴 CalculationCard "${card.name}" is NOT revealed yet, NOT processing calculation`
+        );
+        hasProcessedCalculationRef.current = false; // Reset when card becomes blurred
+        return;
       }
-    }
-  }, [formData, card.config.depends_on]);
 
-  const calculateResult = () => {
-    try {
+      // Check if we need to recalculate based on dependencies
+      // For lookup cards, use the lookup name; for regular cards, use card name
+      const shortcodeInfo = parseShortcode(card.config.main_result);
+      const calculationName = shortcodeInfo && shortcodeInfo.type === 'lookup' 
+        ? shortcodeInfo.name 
+        : card.name;
+      const needsRecalc = needsRecalculation(sessionId, calculationName);
+      
+      if (isAlreadyComplete && !needsRecalc) {
+        console.log(
+          `⏭️ CalculationCard "${card.name}" is already complete and dependencies haven't changed, skipping calculation`
+        );
+        return;
+      }
+      
+      if (needsRecalc) {
+        console.log(
+          `🔄 CalculationCard "${card.name}" needs recalculation due to dependency changes`
+        );
+        hasProcessedCalculationRef.current = false; // Force recalculation
+        setCalculatedResult(null); // Clear old result
+        uncompleteCard(card.id); // Mark as incomplete
+      }
+
+      // Prevent processing calculation multiple times
+      if (hasProcessedCalculationRef.current) {
+        console.log(
+          `⏭️ CalculationCard "${card.name}" has already processed calculation, skipping`
+        );
+        return;
+      }
+
+      if (!card.config?.main_result) {
+        console.log(
+          `🔴 CalculationCard "${card.name}" has no main_result configured`
+        );
+        return;
+      }
+
+      console.log(
+        `🔄 CalculationCard "${card.name}" IS revealed and not complete yet, processing calculation`
+      );
+      hasProcessedCalculationRef.current = true;
+      
+      // Set calculating state early to prevent flashing
       setIsCalculating(true);
       setError(null);
 
-      const { formula, depends_on } = card.config;
-      
-      if (!formula) {
-        setError('No calculation formula provided');
-        return;
-      }
+      // Use unified session-based approach for all calculations
+      console.log(
+        `🧮 Using session-based calculation for: ${card.config.main_result}`
+      );
 
-      if (!depends_on || !Array.isArray(depends_on) || depends_on.length === 0) {
-        setError('No dependencies specified for calculation');
-        return;
-      }
-
-      // Check if all required dependencies are available
-      const missingDependencies = depends_on.filter(field => {
-        const value = formData[field];
-        return value === undefined || value === null || value === '';
-      });
-
-      if (missingDependencies.length > 0) {
-        // Don't show error, just don't calculate yet
-        setResult(null);
-        return;
-      }
-
-      // Create restricted scope with only the specified dependencies
-      const scope: Record<string, number> = {};
-      depends_on.forEach(field => {
-        const value = formData[field];
-        if (value !== undefined && value !== null && value !== '') {
-          // Convert to number and validate
-          const numValue = parseFloat(value.toString());
-          if (!isNaN(numValue)) {
-            scope[field] = numValue;
+      if (shortcodeInfo && shortcodeInfo.type === 'lookup') {
+        // Handle lookup shortcodes directly using the shortcode processor
+        console.log(`🔍 Processing lookup shortcode: ${card.config.main_result}`);
+        
+        // Auto-discover dependencies for lookup shortcodes
+        // This ensures that lookup calculations are invalidated when dependent fields change
+        const lookupName = shortcodeInfo.name;
+        await discoverDependenciesFromLookup(lookupName);
+        
+        const result = await processDisplayContentWithSession(
+          card.config.main_result,
+          sessionId,
+          formData
+        );
+        
+        if (!result.success) {
+          setError(result.error || 'Lookup processing failed');
+          console.log(`❌ CalculationCard "${card.name}" lookup failed: ${result.error}`);
+          uncompleteCard(card.id);
+          hasProcessedCalculationRef.current = false; // Allow retry
+          setIsCalculating(false);
+          return;
+        }
+        
+        // Parse and format the lookup result properly
+        let formattedResult = result.result || card.config.main_result;
+        
+        // Try to extract numeric value and format it with units
+        if (result.result && typeof result.result === 'string') {
+          // Check if the result looks like a numeric value (possibly with units)
+          const numericMatch = result.result.match(/^([\d\s,]+(?:\.\d+)?)\s*(.*)$/);
+          
+          if (numericMatch) {
+            const numericPart = numericMatch[1].replace(/[\s,]/g, ''); // Remove spaces and commas
+            const unitPart = numericMatch[2].trim();
+            
+            const numericValue = parseFloat(numericPart);
+            
+            if (!isNaN(numericValue)) {
+              // Format with Finnish locale and include units
+              const formattedNumber = numericValue.toLocaleString('fi-FI');
+              formattedResult = unitPart ? `${formattedNumber} ${unitPart}` : formattedNumber;
+              
+              console.log(`🎯 [FORMAT] Lookup result formatted: ${result.result} → ${formattedResult}`);
+            }
           }
         }
-      });
+        
+        setCalculatedResult(formattedResult);
+        
+        // Store the lookup result in session table for dependency tracking
+        if (result.result && typeof result.result === 'string') {
+          const numericMatch = result.result.match(/^([\\d\\s,]+(?:\\.\\d+)?)/);
+          if (numericMatch) {
+            const numericValue = parseFloat(numericMatch[1].replace(/[\\s,]/g, ''));
+            if (!isNaN(numericValue)) {
+              storeSessionCalculation(sessionId, lookupName, numericValue, '');
+              // Mark this calculation as current (remove from invalidation queue)
+              markCalculationCurrent(sessionId, lookupName);
+            }
+          }
+        }
+        
+        console.log(`✅ CalculationCard "${card.name}" lookup result: ${formattedResult}`);
+        completeCard(card.id);
+        setIsCalculating(false);
+        return;
+      }
+      
+      // Handle calc shortcodes and direct formula references
+      let currentFormula: any = null;
+      
+      if (shortcodeInfo && shortcodeInfo.type === 'calc') {
+        const formulas = await getFormulas();
+        currentFormula = formulas.find(f => f.name === shortcodeInfo.name);
+      }
+      
+      // If no formula found by shortcode, look for a formula with the card name
+      if (!currentFormula) {
+        const formulas = await getFormulas();
+        currentFormula = formulas.find(f => f.name === card.name);
+      }
+      
+      // Auto-discover dependencies from the formula
+      if (currentFormula) {
+        discoverDependenciesFromFormula(currentFormula.name, currentFormula.formula_text);
+      }
 
-      // Verify we have all required values
-      if (Object.keys(scope).length !== depends_on.length) {
-        setError('Some required values are not valid numbers');
+      if (!currentFormula) {
+        setError(`No formula configuration found for this calculation`);
+        uncompleteCard(card.id);
+        hasProcessedCalculationRef.current = false; // Allow retry
+        setIsCalculating(false);
         return;
       }
 
-      // Use mathjs evaluate for safe mathematical expression parsing
-      const calculatedResult = evaluate(formula, scope);
+      // Step 1: Process formula with session data (handles [field:], [calc:], and [lookup:] references)
+      const processed = await processFormulaWithSession(currentFormula.formula_text, sessionId);
       
-      // Ensure result is a valid number
-      if (typeof calculatedResult === 'number' && !isNaN(calculatedResult) && isFinite(calculatedResult)) {
-        setResult(calculatedResult);
-      } else {
-        setError('Calculation result is not a valid number');
+      if (!processed.success) {
+        setError(processed.error || 'Failed to process formula with session data');
+        console.log(`❌ CalculationCard "${card.name}" processing failed: ${processed.error}`);
+        uncompleteCard(card.id);
+        hasProcessedCalculationRef.current = false; // Allow retry
+        setIsCalculating(false);
+        return;
       }
-    } catch (err) {
-      console.error('Calculation error:', err);
-      setError(`Calculation failed: ${err instanceof Error ? err.message : 'Unknown error'}`);
-    } finally {
+
+      // Step 2: Evaluate the processed formula
+      const result = evaluateProcessedFormula(processed.processedFormula!);
+      
+      if (!result.success) {
+        setError(result.error || 'Formula evaluation failed');
+        console.log(`❌ CalculationCard "${card.name}" evaluation failed: ${result.error}`);
+        uncompleteCard(card.id);
+        hasProcessedCalculationRef.current = false; // Allow retry
+        setIsCalculating(false);
+        return;
+      }
+
+      // Step 3: Format and display result
+      // Get unit from formula database or use fallback based on formula name
+      let unit = currentFormula.unit || '';
+      
+      // Fallback unit mapping based on formula names (temporary until database has unit field)
+      if (!unit) {
+        const nameLower = currentFormula.name.toLowerCase();
+        if (nameLower.includes('energiantarve') && nameLower.includes('kwh')) {
+          unit = 'kW';
+        } else if (nameLower.includes('öljyn menekki')) {
+          unit = 'L/vuosi';
+        } else if (nameLower.includes('kaasun menekki')) {
+          unit = 'MWh/vuosi'; 
+        } else if (nameLower.includes('puun menekki')) {
+          unit = 'motti/vuosi';
+        }
+      }
+      
+      const formattedResult = unit 
+        ? `${result.result!.toLocaleString('fi-FI')} ${unit}`
+        : result.result!.toLocaleString('fi-FI');
+      setCalculatedResult(formattedResult);
+      
+      // Step 4: Store in session table for future calculations
+      storeSessionCalculation(sessionId, currentFormula.name, result.result!, unit);
+      
+      // Step 5: Mark this calculation as current (remove from invalidation queue)
+      markCalculationCurrent(sessionId, currentFormula.name);
+      
+      console.log(`✅ CalculationCard "${card.name}" calculated: ${result.result} ${unit}`);
+      completeCard(card.id);
       setIsCalculating(false);
-    }
-  };
+    };
 
-  const formatResult = (value: number) => {
-    const { result_format } = card.config;
-    
-    switch (result_format) {
-      case 'currency':
-        return `€${value.toLocaleString('fi-FI', { minimumFractionDigits: 0, maximumFractionDigits: 2 })}`;
-      case 'percentage':
-        return `${value.toLocaleString('fi-FI', { minimumFractionDigits: 1, maximumFractionDigits: 2 })}%`;
-      case 'number':
-      default:
-        return value.toLocaleString('fi-FI', { minimumFractionDigits: 0, maximumFractionDigits: 2 });
-    }
-  };
+    processShortcode();
+  }, [card.config?.main_result, formData, sessionId, cardStates[card.id]?.isRevealed ?? false]);
 
-  // Show loading state while calculating
-  if (isCalculating) {
-    return (
-      <div className="bg-gradient-to-r from-blue-50 to-green-50 p-6 border-l-4 border-blue-500">
-        <div className="flex justify-between items-center mb-2">
-          <h3 className="text-lg font-semibold">{card.title}</h3>
-          <span className="text-xs text-blue-600 bg-blue-100 px-2 py-1 rounded">Calculation</span>
-        </div>
-        <div className="flex items-center justify-center py-8">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-          <span className="ml-3 text-gray-600">Calculating...</span>
-        </div>
-      </div>
-    );
-  }
-
-  // Show error state
-  if (error) {
-    return (
-      <div className="bg-gradient-to-r from-red-50 to-pink-50 p-6 border-l-4 border-red-500">
-        <div className="flex justify-between items-center mb-2">
-          <h3 className="text-lg font-semibold">{card.title}</h3>
-          <span className="text-xs text-red-600 bg-red-100 px-2 py-1 rounded">Error</span>
-        </div>
-        <div className="text-red-600 mt-4">
-          <p className="font-medium">Calculation Error:</p>
-          <p className="text-sm mt-1">{error}</p>
-        </div>
-      </div>
-    );
-  }
-
-  // Show waiting state when dependencies are not met
-  if (result === null) {
-    const { depends_on } = card.config;
-    const missingFields = depends_on?.filter(field => !formData[field]) || [];
-    
+  // Check if we have a main result shortcode configured
+  if (!card.config?.main_result) {
     return (
       <div className="bg-gradient-to-r from-yellow-50 to-orange-50 p-6 border-l-4 border-yellow-500">
-        <div className="flex justify-between items-center mb-2">
+        <div className="mb-2">
           <h3 className="text-lg font-semibold">{card.title}</h3>
-          <span className="text-xs text-yellow-600 bg-yellow-100 px-2 py-1 rounded">Waiting</span>
         </div>
         <div className="text-yellow-700 mt-4">
-          <p className="font-medium">Complete these fields to see your calculation:</p>
-          <ul className="text-sm mt-2 space-y-1">
-            {missingFields.map(field => (
-              <li key={field} className="flex items-center">
-                <span className="w-2 h-2 bg-yellow-400 rounded-full mr-2"></span>
-                {field.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}
-              </li>
-            ))}
-          </ul>
+          <p className="font-medium">No calculation shortcode configured</p>
+          <p className="text-sm mt-2">
+            Please configure a calculation result shortcode (e.g.,
+            [calc:energy-kwh]) in the Card Builder.
+          </p>
         </div>
       </div>
     );
   }
 
-  // Show successful calculation result
+  // Render the calculation card with display template and main result
   return (
     <div className="bg-gradient-to-r from-blue-50 to-green-50 p-6 border-l-4 border-green-500">
-      <div className="flex justify-between items-center mb-2">
+      <div className="mb-2">
         <h3 className="text-lg font-semibold">{card.title}</h3>
-        <span className="text-xs text-blue-600 bg-blue-100 px-2 py-1 rounded">Calculation</span>
       </div>
-      <div className="text-3xl font-bold text-green-600 mt-4">
-        {formatResult(result)}
+
+      {/* Main Result Field */}
+      <div className="mt-4">
+        {isCalculating ? (
+          <div className="text-4xl font-bold text-blue-600 flex items-center gap-3">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+            Lasketaan...
+          </div>
+        ) : error ? (
+          <div className="text-lg font-medium text-red-600">{error}</div>
+        ) : calculatedResult ? (
+          <div className="text-4xl font-bold text-green-600">
+            {calculatedResult}
+          </div>
+        ) : (
+          <div className="text-2xl font-medium text-gray-500">
+            {card.config?.main_result}
+          </div>
+        )}
       </div>
+
       {card.config.description && (
-        <p className="text-sm text-gray-600 mt-2">{card.config.description}</p>
-      )}
-      
-      {/* Development debug panel - remove in production */}
-      {process.env.NODE_ENV === 'development' && (
-        <div className="mt-4 p-3 bg-gray-100 rounded text-xs">
-          <p className="font-medium text-gray-700">Debug Info:</p>
-          <p>Formula: {card.config.formula}</p>
-          <p>Dependencies: {JSON.stringify(card.config.depends_on)}</p>
-          <p>Form Data: {JSON.stringify(formData)}</p>
-        </div>
+        <p className="text-sm text-gray-600 mt-4">{card.config.description}</p>
       )}
     </div>
   );

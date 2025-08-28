@@ -3,6 +3,7 @@
 ## Phase 1: Database Setup
 
 ### 1.1 Database Migration
+
 Run this in Supabase SQL editor:
 
 ```sql
@@ -57,6 +58,7 @@ CREATE INDEX idx_card_templates_type ON card_templates(type);
 ```
 
 ### 1.2 Supabase Type Definitions
+
 Add to `src/lib/supabase.ts`:
 
 ```typescript
@@ -90,7 +92,14 @@ export interface CardField {
   id: string;
   card_id: string;
   field_name: string;
-  field_type: 'text' | 'number' | 'email' | 'select' | 'radio' | 'checkbox' | 'textarea';
+  field_type:
+    | 'text'
+    | 'number'
+    | 'email'
+    | 'select'
+    | 'radio'
+    | 'checkbox'
+    | 'textarea';
   label: string;
   placeholder?: string;
   help_text?: string;
@@ -103,7 +112,7 @@ export interface CardField {
   };
   width: 'full' | 'half' | 'third';
   display_order: number;
-  options?: { value: string; label: string; }[];
+  options?: { value: string; label: string }[];
   required: boolean;
 }
 
@@ -118,13 +127,15 @@ export interface RevealCondition {
 export async function getActiveCards() {
   const { data, error } = await supabase
     .from('card_templates')
-    .select(`
+    .select(
+      `
       *,
       card_fields (*)
-    `)
+    `
+    )
     .eq('is_active', true)
     .order('display_order');
-  
+
   if (error) throw error;
   return data;
 }
@@ -133,10 +144,17 @@ export async function getActiveCards() {
 ## Phase 2: Core Components
 
 ### 2.1 CardContext Provider
+
 Create `src/components/card-system/CardContext.tsx`:
 
 ```tsx
-import React, { createContext, useContext, useState, useCallback, useEffect } from 'react';
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useCallback,
+  useEffect,
+} from 'react';
 
 interface CardState {
   status: 'hidden' | 'locked' | 'unlocked' | 'active' | 'complete';
@@ -165,7 +183,7 @@ export function CardProvider({ children }: { children: React.ReactNode }) {
   const completeCard = useCallback((cardId: string) => {
     setCardStates(prev => ({
       ...prev,
-      [cardId]: { ...prev[cardId], status: 'complete' }
+      [cardId]: { ...prev[cardId], status: 'complete' },
     }));
   }, []);
 
@@ -184,20 +202,25 @@ export function CardProvider({ children }: { children: React.ReactNode }) {
     });
   }, []);
 
-  const checkRevealConditions = useCallback((cardId: string) => {
-    // Implement reveal logic based on conditions
-    return true; // Placeholder
-  }, [formData, cardStates]);
+  const checkRevealConditions = useCallback(
+    (cardId: string) => {
+      // Implement reveal logic based on conditions
+      return true; // Placeholder
+    },
+    [formData, cardStates]
+  );
 
   return (
-    <CardContext.Provider value={{
-      formData,
-      cardStates,
-      updateField,
-      completeCard,
-      activateCard,
-      checkRevealConditions
-    }}>
+    <CardContext.Provider
+      value={{
+        formData,
+        cardStates,
+        updateField,
+        completeCard,
+        activateCard,
+        checkRevealConditions,
+      }}
+    >
       {children}
     </CardContext.Provider>
   );
@@ -205,12 +228,14 @@ export function CardProvider({ children }: { children: React.ReactNode }) {
 
 export const useCardContext = () => {
   const context = useContext(CardContext);
-  if (!context) throw new Error('useCardContext must be used within CardProvider');
+  if (!context)
+    throw new Error('useCardContext must be used within CardProvider');
   return context;
 };
 ```
 
 ### 2.2 CardStream Component
+
 Create `src/components/card-system/CardStream.tsx`:
 
 ```tsx
@@ -257,9 +282,10 @@ function CardStreamContent() {
     <div className="max-w-3xl mx-auto py-8 px-4">
       <AnimatePresence>
         {cards.map((card, index) => {
-          const state = cardStates[card.id]?.status || (index === 0 ? 'active' : 'locked');
+          const state =
+            cardStates[card.id]?.status || (index === 0 ? 'active' : 'locked');
           const isVisible = state !== 'hidden' && state !== 'locked';
-          
+
           return (
             <motion.div
               key={card.id}
@@ -288,7 +314,7 @@ function CardStreamContent() {
           );
         })}
       </AnimatePresence>
-      
+
       <div className="text-center py-8">
         <motion.div
           animate={{ y: [0, 10, 0] }}
@@ -312,6 +338,7 @@ export function CardStream() {
 ```
 
 ### 2.3 CardRenderer Component
+
 Create `src/components/card-system/CardRenderer.tsx`:
 
 ```tsx
@@ -371,7 +398,7 @@ export function FormCard({ card }: FormCardProps) {
       .select('*')
       .eq('card_id', card.id)
       .order('display_order');
-    
+
     setFields(data || []);
   };
 
@@ -385,7 +412,7 @@ export function FormCard({ card }: FormCardProps) {
 
   const renderField = (field: CardField) => {
     const value = formData[field.field_name] || '';
-    
+
     switch (field.field_type) {
       case 'text':
       case 'email':
@@ -394,7 +421,7 @@ export function FormCard({ card }: FormCardProps) {
           <input
             type={field.field_type}
             value={value}
-            onChange={(e) => {
+            onChange={e => {
               updateField(field.field_name, e.target.value);
               checkCompletion();
             }}
@@ -407,7 +434,7 @@ export function FormCard({ card }: FormCardProps) {
         return (
           <select
             value={value}
-            onChange={(e) => {
+            onChange={e => {
               updateField(field.field_name, e.target.value);
               checkCompletion();
             }}
@@ -416,7 +443,9 @@ export function FormCard({ card }: FormCardProps) {
           >
             <option value="">Select...</option>
             {field.options?.map(opt => (
-              <option key={opt.value} value={opt.value}>{opt.label}</option>
+              <option key={opt.value} value={opt.value}>
+                {opt.label}
+              </option>
             ))}
           </select>
         );
@@ -433,7 +462,7 @@ export function FormCard({ card }: FormCardProps) {
           Step {card.display_order}
         </span>
       </div>
-      
+
       <div className="grid grid-cols-12 gap-4">
         {fields.map(field => (
           <div
@@ -496,7 +525,7 @@ export function CalculationCard({ card }: CalculationCardProps) {
         </span>
       </div>
       <div className="text-3xl font-bold text-green-600 mt-4">
-        {card.config.result_format === 'currency' ? '€' : ''} 
+        {card.config.result_format === 'currency' ? '€' : ''}
         {result.toLocaleString()}
         {card.config.result_format === 'percentage' ? '%' : ''}
       </div>
@@ -551,13 +580,14 @@ export function SubmitCard({ card }: SubmitCardProps) {
   const { formData, cardStates } = useCardContext();
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
-  
-  const isEnabled = cardStates[card.id]?.status === 'active' || 
-                    cardStates[card.id]?.status === 'unlocked';
+
+  const isEnabled =
+    cardStates[card.id]?.status === 'active' ||
+    cardStates[card.id]?.status === 'unlocked';
 
   const handleSubmit = async () => {
     if (!isEnabled || submitted) return;
-    
+
     setLoading(true);
     try {
       const response = await fetch('/api/submit-lead', {
@@ -565,7 +595,7 @@ export function SubmitCard({ card }: SubmitCardProps) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData),
       });
-      
+
       if (response.ok) {
         setSubmitted(true);
       }
@@ -583,14 +613,20 @@ export function SubmitCard({ card }: SubmitCardProps) {
         disabled={!isEnabled || loading || submitted}
         className={`
           w-full px-8 py-4 rounded-lg font-semibold text-lg transition-all
-          ${submitted 
-            ? 'bg-green-500 text-white cursor-default' 
-            : isEnabled 
-              ? 'bg-white text-purple-600 hover:scale-105 hover:shadow-xl' 
-              : 'bg-gray-300 text-gray-500 cursor-not-allowed opacity-50'}
+          ${
+            submitted
+              ? 'bg-green-500 text-white cursor-default'
+              : isEnabled
+                ? 'bg-white text-purple-600 hover:scale-105 hover:shadow-xl'
+                : 'bg-gray-300 text-gray-500 cursor-not-allowed opacity-50'
+          }
         `}
       >
-        {submitted ? '✓ Successfully Sent!' : loading ? 'Sending...' : card.config.buttonText || 'Submit'}
+        {submitted
+          ? '✓ Successfully Sent!'
+          : loading
+            ? 'Sending...'
+            : card.config.buttonText || 'Submit'}
       </button>
       {card.config.description && (
         <p className="text-white/90 text-sm mt-4">{card.config.description}</p>
@@ -628,7 +664,7 @@ export default function CalculatorPage() {
           fieldValue={activeContext.value}
         />
       </div>
-      
+
       {/* Card Stream Panel - 50% */}
       <div className="w-1/2 overflow-y-auto bg-gradient-to-b from-gray-50 to-gray-100">
         <CardStream />
@@ -667,16 +703,12 @@ export default function CardBuilderPage() {
         </button>
         {/* Card list */}
       </div>
-      
+
       {/* Center: Card Editor */}
-      <div className="flex-1 p-6">
-        {/* Card properties form */}
-      </div>
-      
+      <div className="flex-1 p-6">{/* Card properties form */}</div>
+
       {/* Right: Preview */}
-      <div className="w-96 bg-gray-50 border-l p-4">
-        {/* Live preview */}
-      </div>
+      <div className="w-96 bg-gray-50 border-l p-4">{/* Live preview */}</div>
     </div>
   );
 }

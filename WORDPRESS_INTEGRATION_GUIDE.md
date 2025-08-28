@@ -9,14 +9,15 @@ This guide provides complete instructions for embedding the Energiaykkonen Calcu
 Add this HTML code to any WordPress page or post:
 
 ```html
-<iframe 
-  src="https://laskuri.energiaykkonen.fi/calculator" 
-  width="100%" 
-  height="600" 
-  frameborder="0" 
-  scrolling="no" 
+<iframe
+  src="https://laskuri.energiaykkonen.fi/calculator"
+  width="100%"
+  height="600"
+  frameborder="0"
+  scrolling="no"
   allowtransparency="true"
-  title="Energiaykkonen Calculator">
+  title="Energiaykkonen Calculator"
+>
 </iframe>
 ```
 
@@ -26,43 +27,45 @@ For automatic height adjustment, use this enhanced version:
 
 ```html
 <div class="energiaykkonen-calculator-container">
-  <iframe 
+  <iframe
     id="energiaykkonen-calculator"
-    src="https://laskuri.energiaykkonen.fi/calculator" 
-    width="100%" 
-    height="600" 
-    frameborder="0" 
-    scrolling="no" 
+    src="https://laskuri.energiaykkonen.fi/calculator"
+    width="100%"
+    height="600"
+    frameborder="0"
+    scrolling="no"
     allowtransparency="true"
-    title="Energiaykkonen Calculator">
+    title="Energiaykkonen Calculator"
+  >
   </iframe>
 </div>
 
 <script>
-// Listen for resize messages from the calculator
-window.addEventListener('message', function(event) {
-  if (event.data.type === 'calculator-resize' && 
-      event.data.source === 'energiaykkonen-calculator') {
-    
-    const iframe = document.getElementById('energiaykkonen-calculator');
-    if (iframe) {
-      iframe.style.height = event.data.height + 'px';
+  // Listen for resize messages from the calculator
+  window.addEventListener('message', function (event) {
+    if (
+      event.data.type === 'calculator-resize' &&
+      event.data.source === 'energiaykkonen-calculator'
+    ) {
+      const iframe = document.getElementById('energiaykkonen-calculator');
+      if (iframe) {
+        iframe.style.height = event.data.height + 'px';
+      }
     }
-  }
-});
+  });
 </script>
 
 <style>
-.energiaykkonen-calculator-container {
-  margin: 2rem 0;
-  border-radius: 8px;
-  overflow: hidden;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-}
+  .energiaykkonen-calculator-container {
+    margin: 2rem 0;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  }
 
-.energiaykkonen-calculator-container iframe {
-  transition: height 0.3s ease;
-}
+  .energiaykkonen-calculator-container iframe {
+    transition: height 0.3s ease;
+  }
 </style>
 ```
 
@@ -120,7 +123,7 @@ For permanent placement in your theme:
     margin: 1rem 0;
     padding: 0.5rem;
   }
-  
+
   .energiaykkonen-calculator-container iframe {
     height: 500px !important; /* Force mobile height */
   }
@@ -152,9 +155,9 @@ The calculator automatically adjusts its height based on content. Enable this by
 Listen for calculator events:
 
 ```javascript
-window.addEventListener('message', function(event) {
+window.addEventListener('message', function (event) {
   if (event.data.source === 'energiaykkonen-calculator') {
-    switch(event.data.type) {
+    switch (event.data.type) {
       case 'calculator-resize':
         // Handle height changes
         console.log('Calculator height:', event.data.height);
@@ -211,6 +214,7 @@ Override calculator styles from your WordPress theme:
 ### Touch-Friendly Design
 
 The calculator is optimized for touch devices with:
+
 - Large touch targets
 - Swipe-friendly navigation
 - Mobile-optimized form controls
@@ -222,7 +226,8 @@ The calculator is optimized for touch devices with:
 #### 1. Calculator Not Loading
 
 **Problem**: Iframe shows blank or error
-**Solution**: 
+**Solution**:
+
 - Check if the URL is correct: `https://laskuri.energiaykkonen.fi/calculator`
 - Verify your hosting allows iframe embedding
 - Check browser console for errors
@@ -231,6 +236,7 @@ The calculator is optimized for touch devices with:
 
 **Problem**: Calculator height remains fixed
 **Solution**:
+
 - Ensure the resize listener script is included
 - Check that postMessage communication is working
 - Verify iframe has proper ID attribute
@@ -239,6 +245,7 @@ The calculator is optimized for touch devices with:
 
 **Problem**: Calculator looks different than expected
 **Solution**:
+
 - Check for CSS conflicts in your theme
 - Use more specific CSS selectors
 - Consider using `!important` for critical styles
@@ -247,6 +254,7 @@ The calculator is optimized for touch devices with:
 
 **Problem**: Calculator doesn't work well on mobile
 **Solution**:
+
 - Ensure responsive CSS is included
 - Test on actual mobile devices
 - Check viewport meta tag is present
@@ -257,12 +265,13 @@ Enable debug logging:
 
 ```javascript
 // Add this before the resize listener
-window.addEventListener('message', function(event) {
+window.addEventListener('message', function (event) {
   console.log('Calculator message received:', event.data);
-  
-  if (event.data.type === 'calculator-resize' && 
-      event.data.source === 'energiaykkonen-calculator') {
-    
+
+  if (
+    event.data.type === 'calculator-resize' &&
+    event.data.source === 'energiaykkonen-calculator'
+  ) {
     console.log('Resizing calculator to:', event.data.height);
     const iframe = document.getElementById('energiaykkonen-calculator');
     if (iframe) {
@@ -279,8 +288,10 @@ window.addEventListener('message', function(event) {
 If you have strict CSP, add these directives:
 
 ```html
-<meta http-equiv="Content-Security-Policy" 
-      content="frame-ancestors 'self' https://laskuri.energiaykkonen.fi;">
+<meta
+  http-equiv="Content-Security-Policy"
+  content="frame-ancestors 'self' https://laskuri.energiaykkonen.fi;"
+/>
 ```
 
 ### Origin Verification
@@ -288,12 +299,12 @@ If you have strict CSP, add these directives:
 For enhanced security, verify message origin:
 
 ```javascript
-window.addEventListener('message', function(event) {
+window.addEventListener('message', function (event) {
   // Verify origin for security
   if (event.origin !== 'https://laskuri.energiaykkonen.fi') {
     return;
   }
-  
+
   // Process message...
 });
 ```
@@ -316,7 +327,9 @@ function loadCalculator() {
 }
 
 // Load on scroll or button click
-document.getElementById('load-calculator').addEventListener('click', loadCalculator);
+document
+  .getElementById('load-calculator')
+  .addEventListener('click', loadCalculator);
 ```
 
 ### Preloading
@@ -324,7 +337,11 @@ document.getElementById('load-calculator').addEventListener('click', loadCalcula
 Preload calculator for better performance:
 
 ```html
-<link rel="preload" href="https://laskuri.energiaykkonen.fi/calculator" as="document">
+<link
+  rel="preload"
+  href="https://laskuri.energiaykkonen.fi/calculator"
+  as="document"
+/>
 ```
 
 ## 🌐 Multi-Language Support
@@ -357,20 +374,20 @@ if (userLang.startsWith('fi')) {
 
 ```javascript
 // Google Analytics 4
-window.addEventListener('message', function(event) {
+window.addEventListener('message', function (event) {
   if (event.data.source === 'energiaykkonen-calculator') {
     if (event.data.type === 'form-submitted') {
       gtag('event', 'calculator_completed', {
-        'event_category': 'calculator',
-        'event_label': 'energy_calculator',
-        'value': event.data.formData.savings
+        event_category: 'calculator',
+        event_label: 'energy_calculator',
+        value: event.data.formData.savings,
       });
     }
   }
 });
 
 // Google Analytics Universal
-window.addEventListener('message', function(event) {
+window.addEventListener('message', function (event) {
   if (event.data.source === 'energiaykkonen-calculator') {
     if (event.data.type === 'form-submitted') {
       ga('send', 'event', 'Calculator', 'Completed', 'Energy Calculator');
@@ -402,6 +419,7 @@ window.addEventListener('message', function(event) {
 ### Technical Support
 
 For technical issues:
+
 - Check browser console for errors
 - Verify iframe permissions
 - Test with different browsers

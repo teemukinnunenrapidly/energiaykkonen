@@ -1,12 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 import {
-  getVisualAssets,
-  createVisualAsset,
+  getVisualObjects,
+  createVisualObject,
 } from '@/lib/visual-assets-service';
 
 export async function GET() {
   try {
-    const assets = await getVisualAssets();
+    const assets = await getVisualObjects();
     return NextResponse.json(assets);
   } catch (error) {
     console.error('Error fetching visual assets:', error);
@@ -20,42 +20,21 @@ export async function GET() {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const {
-      name,
-      display_name,
-      type,
-      category,
-      url,
-      thumbnail_url,
-      file_size,
-      width,
-      height,
-      tags,
-      used_in,
-    } = body;
+    const { name, display_name } = body;
 
-    if (!name || !display_name || !type || !category || !url || !file_size) {
+    if (!name || !display_name) {
       return NextResponse.json(
         {
-          error:
-            'Missing required fields: name, display_name, type, category, url, file_size',
+          error: 'Missing required fields: name, display_name',
         },
         { status: 400 }
       );
     }
 
-    const newAsset = await createVisualAsset({
+    const newAsset = await createVisualObject({
       name,
-      display_name,
-      type,
-      category,
-      url,
-      thumbnail_url,
-      file_size,
-      width,
-      height,
-      tags: tags || [],
-      used_in: used_in || [],
+      title: display_name,
+      description: `Visual asset: ${display_name}`,
     });
 
     return NextResponse.json(newAsset, { status: 201 });

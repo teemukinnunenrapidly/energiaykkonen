@@ -1,77 +1,77 @@
 {
-	"meta": {
-		"generatedAt": "2025-08-25T18:02:06.497Z",
-		"tasksAnalyzed": 8,
-		"totalTasks": 27,
-		"analysisCount": 8,
-		"thresholdScore": 5,
-		"projectName": "Taskmaster",
-		"usedResearch": true
-	},
-	"complexityAnalysis": [
-		{
-			"taskId": 11,
-			"taskTitle": "Implement WordPress iFrame Embed and Public Subdomain",
-			"complexityScore": 5,
-			"recommendedSubtasks": 1,
-			"expansionPrompt": "Review the current subtask coverage for deployment, DNS, and embed testing. Add a subtask for post-deployment monitoring and incident response documentation to ensure ongoing reliability and support for the embedded calculator.",
-			"reasoning": "The task is moderately complex due to cross-platform integration (Vercel, WordPress), DNS, and security configuration, but most subtasks are already defined and granular. The only missing aspect is ongoing monitoring and support, which is a best practice for production deployments."
-		},
-		{
-			"taskId": 15,
-			"taskTitle": "Final Deployment and Client Feedback",
-			"complexityScore": 6,
-			"recommendedSubtasks": 2,
-			"expansionPrompt": "Expand by adding subtasks for (1) post-deployment monitoring and error tracking setup, and (2) a structured client feedback review meeting with documented action items and sign-off process.",
-			"reasoning": "This task involves coordination, production deployment, client interaction, and rapid iteration. While core subtasks exist, industry standards recommend explicit monitoring/error tracking and a formal feedback/sign-off process to ensure completeness and accountability."
-		},
-		{
-			"taskId": 18,
-			"taskTitle": "Build Brand Customization System for Calculator in Admin Panel",
-			"complexityScore": 7,
-			"recommendedSubtasks": 7,
-			"expansionPrompt": "Decompose into subtasks for: (1) UI/UX design for customization panel, (2) theme presets system, (3) color controls, (4) typography controls, (5) layout/spacing controls, (6) live preview implementation, (7) theme import/export, (8) brand asset management, (9) accessibility validation, (10) CSS variable generation, (11) persistence/database integration, (12) cross-browser/accessibility testing.",
-			"reasoning": "This is a multi-faceted feature requiring UI/UX, state management, live preview, file handling, accessibility, and persistence. Each area is a distinct implementation concern, and best practice is to break down by functional area and integration/testing to ensure maintainability and testability."
-		},
-		{
-			"taskId": 21,
-			"taskTitle": "Implement Form Builder Page with Visual Content System in Admin Panel",
-			"complexityScore": 9,
-			"recommendedSubtasks": 10,
-			"expansionPrompt": "Further decompose into subtasks for: (1) advanced validation rule builder, (2) dynamic shortcode integration, (3) real-time preview enhancements, (4) responsive/accessibility testing, (5) Supabase schema migrations, (6) undo/redo and versioning, (7) integration with calculation engine, (8) automated form testing tools, (9) onboarding/tutorials for admins, (10) performance optimization for large forms.",
-			"reasoning": "This is a highly complex, feature-rich admin tool involving dynamic schema editing, visual content, validation, real-time preview, and deep integrations. Industry standards for such builders require modularization by feature, robust testing, and performance/accessibility considerations."
-		},
-		{
-			"taskId": 22,
-			"taskTitle": "Implement Test Email Functionality in Admin Preview Page",
-			"complexityScore": 6,
-			"recommendedSubtasks": 1,
-			"expansionPrompt": "Add a subtask for comprehensive security review and audit logging of test email actions, ensuring compliance and traceability for all test submissions.",
-			"reasoning": "The task covers API, UI, and email logic, but security and auditability are critical for admin-only features that interact with production-like systems. Adding explicit security/audit coverage aligns with best practices for admin tooling."
-		},
-		{
-			"taskId": 25,
-			"taskTitle": "Implement Visual Content System for Form UI",
-			"complexityScore": 7,
-			"recommendedSubtasks": 1,
-			"expansionPrompt": "Add a subtask for accessibility and localization review of all visual content, ensuring WCAG 2.1 compliance and robust i18n support for all visual elements.",
-			"reasoning": "The task is moderately complex, involving asset management, UI integration, and transitions. While subtasks are well-defined, explicit accessibility and localization review is essential for production-grade visual systems."
-		},
-		{
-			"taskId": 26,
-			"taskTitle": "Implement Role-Based Access Control (RBAC) System for Admin Panel",
-			"complexityScore": 9,
-			"recommendedSubtasks": 2,
-			"expansionPrompt": "Add subtasks for (1) penetration testing and security audit of RBAC implementation, and (2) end-user training/documentation for role management workflows.",
-			"reasoning": "RBAC is a critical security feature with high complexity due to schema, API, UI, and security requirements. Industry standards require explicit security testing and user training/documentation to ensure secure and correct usage."
-		},
-		{
-			"taskId": 27,
-			"taskTitle": "Integrate Cloudflare Images API for Visual Asset Management",
-			"complexityScore": 8,
-			"recommendedSubtasks": 2,
-			"expansionPrompt": "Add subtasks for (1) migration of existing local images to Cloudflare with data integrity checks, and (2) monitoring/alerting setup for image upload/delivery failures.",
-			"reasoning": "This integration is technically complex, involving external APIs, CDN, security, and UI refactoring. Migration and monitoring are essential for reliability and data integrity, and are standard in production asset management rollouts."
-		}
-	]
+  "meta": {
+    "generatedAt": "2025-08-25T18:02:06.497Z",
+    "tasksAnalyzed": 8,
+    "totalTasks": 27,
+    "analysisCount": 8,
+    "thresholdScore": 5,
+    "projectName": "Taskmaster",
+    "usedResearch": true
+  },
+  "complexityAnalysis": [
+    {
+      "taskId": 11,
+      "taskTitle": "Implement WordPress iFrame Embed and Public Subdomain",
+      "complexityScore": 5,
+      "recommendedSubtasks": 1,
+      "expansionPrompt": "Review the current subtask coverage for deployment, DNS, and embed testing. Add a subtask for post-deployment monitoring and incident response documentation to ensure ongoing reliability and support for the embedded calculator.",
+      "reasoning": "The task is moderately complex due to cross-platform integration (Vercel, WordPress), DNS, and security configuration, but most subtasks are already defined and granular. The only missing aspect is ongoing monitoring and support, which is a best practice for production deployments."
+    },
+    {
+      "taskId": 15,
+      "taskTitle": "Final Deployment and Client Feedback",
+      "complexityScore": 6,
+      "recommendedSubtasks": 2,
+      "expansionPrompt": "Expand by adding subtasks for (1) post-deployment monitoring and error tracking setup, and (2) a structured client feedback review meeting with documented action items and sign-off process.",
+      "reasoning": "This task involves coordination, production deployment, client interaction, and rapid iteration. While core subtasks exist, industry standards recommend explicit monitoring/error tracking and a formal feedback/sign-off process to ensure completeness and accountability."
+    },
+    {
+      "taskId": 18,
+      "taskTitle": "Build Brand Customization System for Calculator in Admin Panel",
+      "complexityScore": 7,
+      "recommendedSubtasks": 7,
+      "expansionPrompt": "Decompose into subtasks for: (1) UI/UX design for customization panel, (2) theme presets system, (3) color controls, (4) typography controls, (5) layout/spacing controls, (6) live preview implementation, (7) theme import/export, (8) brand asset management, (9) accessibility validation, (10) CSS variable generation, (11) persistence/database integration, (12) cross-browser/accessibility testing.",
+      "reasoning": "This is a multi-faceted feature requiring UI/UX, state management, live preview, file handling, accessibility, and persistence. Each area is a distinct implementation concern, and best practice is to break down by functional area and integration/testing to ensure maintainability and testability."
+    },
+    {
+      "taskId": 21,
+      "taskTitle": "Implement Form Builder Page with Visual Content System in Admin Panel",
+      "complexityScore": 9,
+      "recommendedSubtasks": 10,
+      "expansionPrompt": "Further decompose into subtasks for: (1) advanced validation rule builder, (2) dynamic shortcode integration, (3) real-time preview enhancements, (4) responsive/accessibility testing, (5) Supabase schema migrations, (6) undo/redo and versioning, (7) integration with calculation engine, (8) automated form testing tools, (9) onboarding/tutorials for admins, (10) performance optimization for large forms.",
+      "reasoning": "This is a highly complex, feature-rich admin tool involving dynamic schema editing, visual content, validation, real-time preview, and deep integrations. Industry standards for such builders require modularization by feature, robust testing, and performance/accessibility considerations."
+    },
+    {
+      "taskId": 22,
+      "taskTitle": "Implement Test Email Functionality in Admin Preview Page",
+      "complexityScore": 6,
+      "recommendedSubtasks": 1,
+      "expansionPrompt": "Add a subtask for comprehensive security review and audit logging of test email actions, ensuring compliance and traceability for all test submissions.",
+      "reasoning": "The task covers API, UI, and email logic, but security and auditability are critical for admin-only features that interact with production-like systems. Adding explicit security/audit coverage aligns with best practices for admin tooling."
+    },
+    {
+      "taskId": 25,
+      "taskTitle": "Implement Visual Content System for Form UI",
+      "complexityScore": 7,
+      "recommendedSubtasks": 1,
+      "expansionPrompt": "Add a subtask for accessibility and localization review of all visual content, ensuring WCAG 2.1 compliance and robust i18n support for all visual elements.",
+      "reasoning": "The task is moderately complex, involving asset management, UI integration, and transitions. While subtasks are well-defined, explicit accessibility and localization review is essential for production-grade visual systems."
+    },
+    {
+      "taskId": 26,
+      "taskTitle": "Implement Role-Based Access Control (RBAC) System for Admin Panel",
+      "complexityScore": 9,
+      "recommendedSubtasks": 2,
+      "expansionPrompt": "Add subtasks for (1) penetration testing and security audit of RBAC implementation, and (2) end-user training/documentation for role management workflows.",
+      "reasoning": "RBAC is a critical security feature with high complexity due to schema, API, UI, and security requirements. Industry standards require explicit security testing and user training/documentation to ensure secure and correct usage."
+    },
+    {
+      "taskId": 27,
+      "taskTitle": "Integrate Cloudflare Images API for Visual Asset Management",
+      "complexityScore": 8,
+      "recommendedSubtasks": 2,
+      "expansionPrompt": "Add subtasks for (1) migration of existing local images to Cloudflare with data integrity checks, and (2) monitoring/alerting setup for image upload/delivery failures.",
+      "reasoning": "This integration is technically complex, involving external APIs, CDN, security, and UI refactoring. Migration and monitoring are essential for reliability and data integrity, and are standard in production asset management rollouts."
+    }
+  ]
 }

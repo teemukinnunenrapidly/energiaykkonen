@@ -29,18 +29,21 @@ Client Request → Development → Testing → Deployment → Verification
 ### Update Types
 
 #### 1. **Quick Changes** (Same Day)
+
 - Text updates and translations
 - Minor styling adjustments
 - Bug fixes
 - Configuration changes
 
 #### 2. **Feature Updates** (1-3 Days)
+
 - New form fields
 - Calculation formula adjustments
 - Email template updates
 - Admin panel enhancements
 
 #### 3. **Major Changes** (1 Week+)
+
 - New calculator types
 - Database schema changes
 - Third-party integrations
@@ -51,6 +54,7 @@ Client Request → Development → Testing → Deployment → Verification
 ### Git Workflow
 
 #### Branch Strategy
+
 ```
 main (production) ← Always deployable
     ↑
@@ -62,6 +66,7 @@ hotfix/urgent-fix ← Emergency fixes
 #### Commit Standards
 
 **Commit Message Format:**
+
 ```
 type(scope): description
 
@@ -75,6 +80,7 @@ type(scope): description
 ```
 
 **Examples:**
+
 ```bash
 feat(calculator): add solar panel calculation option
 fix(admin): resolve CSV export date formatting issue
@@ -102,6 +108,7 @@ style(ui): improve button hover states
 ### Repository Management
 
 #### File Organization
+
 ```
 E1-calculator/
 ├── src/                    # Source code
@@ -113,6 +120,7 @@ E1-calculator/
 ```
 
 #### Ignored Files
+
 - `.env.local` (environment variables)
 - `.next/` (build output)
 - `node_modules/` (dependencies)
@@ -123,6 +131,7 @@ E1-calculator/
 ### Automated Deployment
 
 #### Vercel Integration
+
 - **Trigger**: Push to `main` branch
 - **Build**: Automatic Next.js build
 - **Deploy**: Live in 2-5 minutes
@@ -131,6 +140,7 @@ E1-calculator/
 #### Deployment Steps
 
 1. **Prepare Changes**
+
    ```bash
    # Ensure all changes are committed
    git status
@@ -139,6 +149,7 @@ E1-calculator/
    ```
 
 2. **Push to Main**
+
    ```bash
    git push origin main
    ```
@@ -170,6 +181,7 @@ vercel --prod
 ### Environment Management
 
 #### Development vs Production
+
 ```bash
 # Development (.env.local)
 NODE_ENV=development
@@ -201,6 +213,7 @@ RESEND_API_KEY=re_prod_key_456
 ### Change Request Template
 
 **Standard Change Request:**
+
 ```
 Change Type: [Feature/Bug Fix/Enhancement]
 Priority: [High/Medium/Low]
@@ -214,12 +227,14 @@ Testing Requirements: [How to verify the change works]
 ### Approval Process
 
 #### Minor Changes (Same Day)
+
 - **Requirement**: Client request via email/chat
 - **Approval**: Verbal confirmation
 - **Implementation**: Immediate development
 - **Deployment**: Same day if possible
 
 #### Major Changes (1 Week+)
+
 - **Requirement**: Formal change request document
 - **Approval**: Written client approval
 - **Implementation**: Scheduled development
@@ -228,6 +243,7 @@ Testing Requirements: [How to verify the change works]
 ### Change Documentation
 
 #### Update Log
+
 - **Date**: When change was implemented
 - **Change**: What was modified
 - **Reason**: Why the change was made
@@ -235,6 +251,7 @@ Testing Requirements: [How to verify the change works]
 - **Rollback**: How to undo if needed
 
 #### Version History
+
 ```
 v1.0.0 (Current)
 ├── Initial MVP release
@@ -257,11 +274,13 @@ v1.1.0 (Planned)
 #### 1. **Calculator Not Loading**
 
 **Symptoms:**
+
 - Blank page or error message
 - JavaScript errors in console
 - Network connection failures
 
 **Solutions:**
+
 ```bash
 # Check environment variables
 cat .env.local
@@ -274,6 +293,7 @@ vercel ls
 ```
 
 **Quick Fix:**
+
 1. Verify domain is accessible
 2. Check browser console for errors
 3. Confirm environment variables are set
@@ -282,11 +302,13 @@ vercel ls
 #### 2. **Form Submission Fails**
 
 **Symptoms:**
+
 - Form doesn't submit
 - Error messages appear
 - Data not saved to database
 
 **Solutions:**
+
 ```bash
 # Test database connection
 node scripts/test-supabase-connection.js
@@ -299,6 +321,7 @@ node scripts/test-form-validation.js
 ```
 
 **Quick Fix:**
+
 1. Check Supabase project status
 2. Verify Resend API key
 3. Test form validation rules
@@ -307,11 +330,13 @@ node scripts/test-form-validation.js
 #### 3. **Calculations Incorrect**
 
 **Symptoms:**
+
 - Wrong savings amounts
 - Incorrect payback periods
 - Formula errors
 
 **Solutions:**
+
 ```bash
 # Review calculation logic
 cat src/lib/calculations.ts
@@ -321,6 +346,7 @@ cat src/lib/calculations.ts
 ```
 
 **Quick Fix:**
+
 1. Verify input values are correct
 2. Check calculation formulas
 3. Test with edge cases
@@ -331,11 +357,13 @@ cat src/lib/calculations.ts
 #### 1. **Admin Login Fails**
 
 **Symptoms:**
+
 - Password not accepted
 - Access denied errors
 - Redirect loops
 
 **Solutions:**
+
 ```bash
 # Check admin password
 echo $ADMIN_PASSWORD
@@ -348,6 +376,7 @@ node -e "console.log(process.env.ADMIN_PASSWORD)"
 ```
 
 **Quick Fix:**
+
 1. Reset admin password in environment
 2. Clear browser cache and cookies
 3. Verify admin route configuration
@@ -356,11 +385,13 @@ node -e "console.log(process.env.ADMIN_PASSWORD)"
 #### 2. **Leads Not Displaying**
 
 **Symptoms:**
+
 - Empty leads table
 - "No data" messages
 - Loading errors
 
 **Solutions:**
+
 ```bash
 # Check database connection
 node scripts/verify-table-structure.js
@@ -370,6 +401,7 @@ node scripts/verify-table-structure.js
 ```
 
 **Quick Fix:**
+
 1. Verify Supabase connection
 2. Check table permissions
 3. Verify RLS policies
@@ -378,11 +410,13 @@ node scripts/verify-table-structure.js
 #### 3. **CSV Export Fails**
 
 **Symptoms:**
+
 - Export button doesn't work
 - Incomplete data
 - File download errors
 
 **Solutions:**
+
 ```bash
 # Test export functionality
 # Verify file permissions
@@ -390,6 +424,7 @@ node scripts/verify-table-structure.js
 ```
 
 **Quick Fix:**
+
 1. Check browser download settings
 2. Verify data selection
 3. Test with smaller datasets
@@ -400,11 +435,13 @@ node scripts/verify-table-structure.js
 #### 1. **Emails Not Sending**
 
 **Symptoms:**
+
 - No email delivery
 - Error messages
 - Missing notifications
 
 **Solutions:**
+
 ```bash
 # Test email system
 npm run test:email
@@ -414,6 +451,7 @@ npm run test:email
 ```
 
 **Quick Fix:**
+
 1. Verify Resend API key
 2. Check domain verification
 3. Test email templates
@@ -422,11 +460,13 @@ npm run test:email
 #### 2. **Email Formatting Issues**
 
 **Symptoms:**
+
 - Broken layouts
 - Missing content
 - Styling problems
 
 **Solutions:**
+
 ```bash
 # Review email templates
 cat src/lib/email-templates/customer-results.tsx
@@ -436,6 +476,7 @@ cat src/lib/email-templates/customer-results.tsx
 ```
 
 **Quick Fix:**
+
 1. Update email templates
 2. Test with different email clients
 3. Use inline CSS
@@ -446,11 +487,13 @@ cat src/lib/email-templates/customer-results.tsx
 #### 1. **Slow Page Loading**
 
 **Symptoms:**
+
 - Long load times
 - Unresponsive interface
 - Timeout errors
 
 **Solutions:**
+
 ```bash
 # Check bundle size
 npm run build
@@ -460,6 +503,7 @@ npm run build
 ```
 
 **Quick Fix:**
+
 1. Optimize images and assets
 2. Enable caching
 3. Minimize JavaScript bundles
@@ -468,11 +512,13 @@ npm run build
 #### 2. **Database Performance**
 
 **Symptoms:**
+
 - Slow queries
 - Connection timeouts
 - High resource usage
 
 **Solutions:**
+
 ```bash
 # Check database indexes
 # Monitor query performance
@@ -480,6 +526,7 @@ npm run build
 ```
 
 **Quick Fix:**
+
 1. Add database indexes
 2. Optimize SQL queries
 3. Enable query caching
@@ -490,30 +537,35 @@ npm run build
 ### Systematic Approach
 
 #### 1. **Identify the Problem**
+
 - **What**: What exactly is not working?
 - **When**: When did it start happening?
 - **Where**: Which part of the system is affected?
 - **Who**: Who is experiencing the issue?
 
 #### 2. **Gather Information**
+
 - **Error Messages**: Copy exact error text
 - **Console Logs**: Check browser and server logs
 - **User Actions**: What steps led to the issue?
 - **Environment**: Browser, device, network conditions
 
 #### 3. **Reproduce the Issue**
+
 - **Test Steps**: Follow the same user actions
 - **Environment**: Use similar conditions
 - **Data**: Use the same or similar data
 - **Timing**: Note when the issue occurs
 
 #### 4. **Analyze Root Cause**
+
 - **Code Review**: Check recent changes
 - **Configuration**: Verify settings and environment
 - **Dependencies**: Check external services
 - **Logs**: Analyze error logs and stack traces
 
 #### 5. **Implement Solution**
+
 - **Quick Fix**: Temporary solution if needed
 - **Proper Fix**: Permanent solution
 - **Testing**: Verify the fix works
@@ -522,6 +574,7 @@ npm run build
 ### Debug Tools
 
 #### Browser Developer Tools
+
 ```javascript
 // Enable debug logging
 localStorage.setItem('debug', 'true');
@@ -534,6 +587,7 @@ console.log('Debug information');
 ```
 
 #### Server-Side Debugging
+
 ```bash
 # Enable debug mode
 export NODE_ENV=development
@@ -547,6 +601,7 @@ npm run dev
 ```
 
 #### Database Debugging
+
 ```sql
 -- Check table structure
 \d leads
@@ -561,6 +616,7 @@ SELECT * FROM leads LIMIT 5;
 ### Testing Procedures
 
 #### Local Testing
+
 ```bash
 # Start development server
 npm run dev
@@ -572,6 +628,7 @@ npm run dev
 ```
 
 #### Production Testing
+
 ```bash
 # Deploy to staging (if available)
 vercel --staging
@@ -587,16 +644,19 @@ vercel --staging
 ### Support Levels
 
 #### Level 1: Self-Service
+
 - **Documentation**: README, guides, troubleshooting
 - **Common Issues**: Known problems and solutions
 - **Basic Configuration**: Environment setup and changes
 
 #### Level 2: Developer Support
+
 - **Technical Issues**: Code problems, bugs, performance
 - **Integration Issues**: Third-party service problems
 - **Configuration Issues**: Complex setup problems
 
 #### Level 3: Emergency Support
+
 - **System Down**: Complete service failure
 - **Data Loss**: Database or file corruption
 - **Security Issues**: Breaches or vulnerabilities
@@ -604,17 +664,20 @@ vercel --staging
 ### Contact Information
 
 #### Primary Support
+
 - **Developer**: [Your Name/Contact]
 - **Email**: [your-email@domain.com]
 - **Phone**: [your-phone-number]
 - **Response Time**: Within 4 hours during business hours
 
 #### Emergency Support
+
 - **After Hours**: [emergency-contact]
 - **Critical Issues**: [emergency-phone]
 - **Response Time**: Within 1 hour for critical issues
 
 #### External Services
+
 - **Supabase Support**: [supabase.com/support](https://supabase.com/support)
 - **Resend Support**: [resend.com/support](https://resend.com/support)
 - **Vercel Support**: [vercel.com/support](https://vercel.com/support)
@@ -622,6 +685,7 @@ vercel --staging
 ### Escalation Process
 
 #### Escalation Triggers
+
 1. **Service Down**: Calculator not accessible
 2. **Data Loss**: Leads or calculations missing
 3. **Security Breach**: Unauthorized access
@@ -629,6 +693,7 @@ vercel --staging
 5. **Integration Failures**: Email or database not working
 
 #### Escalation Steps
+
 1. **Immediate Response**: Acknowledge issue within 15 minutes
 2. **Assessment**: Evaluate impact and urgency
 3. **Communication**: Update stakeholders on status
@@ -656,24 +721,28 @@ Impact: [How this affects users/business]
 ### Regular Maintenance
 
 #### Daily
+
 - **Monitoring**: Check system status
 - **Logs**: Review error logs
 - **Performance**: Monitor response times
 - **Backups**: Verify data integrity
 
 #### Weekly
+
 - **Data Review**: Check lead generation trends
 - **Performance**: Analyze system metrics
 - **Security**: Review access logs
 - **Updates**: Check for dependency updates
 
 #### Monthly
+
 - **Backup Verification**: Test restore procedures
 - **Security Review**: Audit access and permissions
 - **Performance Analysis**: Review trends and patterns
 - **Documentation**: Update procedures and guides
 
 #### Quarterly
+
 - **Security Assessment**: Comprehensive security review
 - **Performance Optimization**: Identify improvement opportunities
 - **Feature Planning**: Plan future enhancements
@@ -682,6 +751,7 @@ Impact: [How this affects users/business]
 ### Preventive Maintenance
 
 #### Database Maintenance
+
 ```sql
 -- Regular cleanup
 DELETE FROM leads WHERE created_at < NOW() - INTERVAL '2 years';
@@ -694,6 +764,7 @@ ANALYZE leads;
 ```
 
 #### Code Maintenance
+
 ```bash
 # Update dependencies
 npm update
@@ -707,6 +778,7 @@ npm run type-check
 ```
 
 #### Infrastructure Maintenance
+
 - **SSL Certificates**: Monitor expiration dates
 - **Domain Renewals**: Track domain registration
 - **Service Subscriptions**: Monitor billing and limits
@@ -715,6 +787,7 @@ npm run type-check
 ### Emergency Procedures
 
 #### System Recovery
+
 1. **Assessment**: Determine scope of issue
 2. **Communication**: Notify stakeholders
 3. **Recovery**: Implement recovery procedures
@@ -722,6 +795,7 @@ npm run type-check
 5. **Documentation**: Record incident details
 
 #### Data Recovery
+
 1. **Backup Restoration**: Restore from latest backup
 2. **Data Validation**: Verify data integrity
 3. **Service Restoration**: Restore affected services
@@ -733,6 +807,7 @@ npm run type-check
 ## 📋 Quick Reference
 
 ### Common Commands
+
 ```bash
 # Development
 npm run dev          # Start development server
@@ -749,6 +824,7 @@ vercel --staging     # Deploy to staging
 ```
 
 ### Emergency Contacts
+
 - **Developer**: [Your Contact]
 - **Client**: Energiaykkönen Oy
 - **Hosting**: Vercel Support
@@ -756,6 +832,7 @@ vercel --staging     # Deploy to staging
 - **Email**: Resend Support
 
 ### Key URLs
+
 - **Production**: [your-domain.com](https://your-domain.com)
 - **Admin Panel**: [your-domain.com/admin](https://your-domain.com/admin)
 - **Vercel Dashboard**: [vercel.com/dashboard](https://vercel.com/dashboard)
@@ -763,6 +840,6 @@ vercel --staging     # Deploy to staging
 
 ---
 
-*Last updated: August 2025*
-*Update Process & Troubleshooting Guide version: 1.0*
-*For support, contact the development team*
+_Last updated: August 2025_
+_Update Process & Troubleshooting Guide version: 1.0_
+_For support, contact the development team_
