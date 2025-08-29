@@ -77,16 +77,14 @@ interface MultiStepFormProps {
 }
 
 export function MultiStepForm({
-  currentStep: _currentStep,
+  currentStep: _currentStep, // eslint-disable-line @typescript-eslint/no-unused-vars
   onStepChange,
   onSubmit,
   onComplete,
   isPreviewMode = false,
 }: MultiStepFormProps) {
   const [activeSection, setActiveSection] = useState(0);
-  const [completedSections, setCompletedSections] = useState<Set<number>>(
-    new Set()
-  );
+  const [completedSections] = useState<Set<number>>(new Set());
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formStarted, setFormStarted] = useState(false);
   const [debouncedActiveSection, setDebouncedActiveSection] = useState(0);

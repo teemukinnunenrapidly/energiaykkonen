@@ -5,8 +5,8 @@ import React, {
   useCallback,
   useEffect,
 } from 'react';
-import type { CardTemplate } from '@/lib/supabase';
 import {
+  type CardTemplate,
   getCardsDirect,
   updateFieldCompletion,
   updateCardCompletion,
@@ -57,7 +57,7 @@ export function CardProvider({ children }: { children: React.ReactNode }) {
   const [formData, setFormData] = useState<Record<string, any>>({});
   const [cardStates, setCardStates] = useState<Record<string, CardState>>({});
   const [cards, setCards] = useState<CardTemplate[]>([]);
-  const [cardOrder, setCardOrder] = useState<string[]>([]);
+  const [cardOrder, setCardOrder] = useState<string[]>([]); // eslint-disable-line @typescript-eslint/no-unused-vars
   const [sessionId] = useState<string>(getSessionId());
 
   const updateField = useCallback(
@@ -70,10 +70,10 @@ export function CardProvider({ children }: { children: React.ReactNode }) {
       setFormData(prev => {
         const newData = { ...prev, [fieldName]: value };
         console.log(`Updated formData for ${fieldName}:`, newData);
-        
+
         // Also update the session data table (like a waiter writing down the order)
         updateSessionWithFormData(sessionId, newData);
-        
+
         return newData;
       });
 
@@ -118,6 +118,7 @@ export function CardProvider({ children }: { children: React.ReactNode }) {
     [cards, sessionId]
   );
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const unlockCard = useCallback((cardId: string) => {
     setCardStates(prev => ({
       ...prev,
@@ -125,47 +126,48 @@ export function CardProvider({ children }: { children: React.ReactNode }) {
     }));
   }, []);
 
-  const unlockNextCards = useCallback(
-    (cardId: string) => {
-      const cardIndex = cardOrder.indexOf(cardId);
+  // Preserved for future use when card unlocking logic is needed
+  // const _unlockNextCards = useCallback(
+  //   (cardId: string) => {
+  //     const cardIndex = cardOrder.indexOf(cardId);
 
-      // Based on card position in order, unlock the appropriate next cards
-      // This matches the HTML demo's behavior
+  //     // Based on card position in order, unlock the appropriate next cards
+  //     // This matches the HTML demo's behavior
 
-      if (cardIndex === 0) {
-        // First form card (Property Details)
-        // Immediately unlock next card (should be calculation)
-        if (cardOrder[1]) {
-          unlockCard(cardOrder[1]);
-        }
-        // After delay, unlock third card (next form)
-        if (cardOrder[2]) {
-          setTimeout(() => unlockCard(cardOrder[2]), 1000);
-        }
-      } else if (cardIndex === 2) {
-        // Second form card (Heating)
-        // Immediately unlock info card
-        if (cardOrder[3]) {
-          unlockCard(cardOrder[3]);
-        }
-        // After 800ms, unlock savings calculation
-        if (cardOrder[4]) {
-          setTimeout(() => unlockCard(cardOrder[4]), 800);
-        }
-        // After 1600ms, unlock contact form
-        if (cardOrder[5]) {
-          setTimeout(() => unlockCard(cardOrder[5]), 1600);
-        }
-      } else if (cardIndex === 5) {
-        // Contact form
-        // After 500ms, unlock submit button
-        if (cardOrder[6]) {
-          setTimeout(() => unlockCard(cardOrder[6]), 500);
-        }
-      }
-    },
-    [cardOrder, unlockCard]
-  );
+  //     if (cardIndex === 0) {
+  //       // First form card (Property Details)
+  //       // Immediately unlock next card (should be calculation)
+  //       if (cardOrder[1]) {
+  //         unlockCard(cardOrder[1]);
+  //       }
+  //       // After delay, unlock third card (next form)
+  //       if (cardOrder[2]) {
+  //         setTimeout(() => unlockCard(cardOrder[2]), 1000);
+  //       }
+  //     } else if (cardIndex === 2) {
+  //       // Second form card (Heating)
+  //       // Immediately unlock info card
+  //       if (cardOrder[3]) {
+  //         unlockCard(cardOrder[3]);
+  //       }
+  //       // After 800ms, unlock savings calculation
+  //       if (cardOrder[4]) {
+  //         setTimeout(() => unlockCard(cardOrder[4]), 800);
+  //       }
+  //       // After 1600ms, unlock contact form
+  //       if (cardOrder[5]) {
+  //         setTimeout(() => unlockCard(cardOrder[5]), 1600);
+  //       }
+  //     } else if (cardIndex === 5) {
+  //       // Contact form
+  //       // After 500ms, unlock submit button
+  //       if (cardOrder[6]) {
+  //         setTimeout(() => unlockCard(cardOrder[6]), 500);
+  //       }
+  //     }
+  //   },
+  //   [cardOrder, unlockCard]
+  // );
 
   const uncompleteCard = useCallback((cardId: string) => {
     setCardStates(prev => ({

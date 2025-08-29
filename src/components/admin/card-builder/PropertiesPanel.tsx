@@ -14,7 +14,7 @@ interface PropertiesPanelProps {
 
 export function PropertiesPanel({
   card,
-  selectedFieldId: _selectedFieldId,
+  selectedFieldId: _selectedFieldId, // eslint-disable-line @typescript-eslint/no-unused-vars
   shortcodes,
   allCards,
   onUpdateCard,

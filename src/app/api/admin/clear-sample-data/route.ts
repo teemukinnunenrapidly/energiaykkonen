@@ -1,7 +1,7 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import { supabase } from '@/lib/supabase';
 
-export async function POST(_request: NextRequest) {
+export async function POST() {
   try {
     // Delete sample visual objects (those with UUID 00000000-0000-0000-0000-00000000000x)
     const { error: deleteObjectsError } = await supabase

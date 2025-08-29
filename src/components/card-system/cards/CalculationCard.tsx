@@ -1,21 +1,16 @@
 import React, { useEffect, useState, useRef } from 'react';
 import type { CardTemplate } from '@/lib/supabase';
-import {
-  getFormulas,
-  resolveFormulaDependencies,
-  executeFormulaWithFieldResolution,
-} from '@/lib/formula-service';
+import { getFormulas } from '@/lib/formula-service';
 import { useCardContext } from '../CardContext';
 import { processDisplayContentWithSession } from '@/lib/shortcode-processor';
-import { storeCalculationResult, evaluateExpression } from '@/lib/calculation-engine';
-import { 
+import {
   storeSessionCalculation,
   processFormulaWithSession,
   evaluateProcessedFormula,
   needsRecalculation,
   markCalculationCurrent,
   discoverDependenciesFromFormula,
-  discoverDependenciesFromLookup
+  discoverDependenciesFromLookup,
 } from '@/lib/session-data-table';
 
 interface CalculationCardProps {
@@ -32,9 +27,13 @@ export function CalculationCard({ card }: CalculationCardProps) {
   const hasProcessedCalculationRef = useRef<boolean>(false);
 
   // Parse shortcode to extract formula name and type (supports both calc and lookup)
-  const parseShortcode = (shortcode: string): { name: string; type: 'calc' | 'lookup' } | null => {
+  const parseShortcode = (
+    shortcode: string
+  ): { name: string; type: 'calc' | 'lookup' } | null => {
     const match = shortcode.match(/\[(calc|lookup):([^\]]+)\]/);
-    return match ? { type: match[1] as 'calc' | 'lookup', name: match[2] } : null;
+    return match
+      ? { type: match[1] as 'calc' | 'lookup', name: match[2] }
+      : null;
   };
 
   // Process shortcode and calculate result
@@ -58,18 +57,19 @@ export function CalculationCard({ card }: CalculationCardProps) {
       // Check if we need to recalculate based on dependencies
       // For lookup cards, use the lookup name; for regular cards, use card name
       const shortcodeInfo = parseShortcode(card.config.main_result);
-      const calculationName = shortcodeInfo && shortcodeInfo.type === 'lookup' 
-        ? shortcodeInfo.name 
-        : card.name;
+      const calculationName =
+        shortcodeInfo && shortcodeInfo.type === 'lookup'
+          ? shortcodeInfo.name
+          : card.name;
       const needsRecalc = needsRecalculation(sessionId, calculationName);
-      
+
       if (isAlreadyComplete && !needsRecalc) {
         console.log(
           `⏭️ CalculationCard "${card.name}" is already complete and dependencies haven't changed, skipping calculation`
         );
         return;
       }
-      
+
       if (needsRecalc) {
         console.log(
           `🔄 CalculationCard "${card.name}" needs recalculation due to dependency changes`
@@ -98,7 +98,7 @@ export function CalculationCard({ card }: CalculationCardProps) {
         `🔄 CalculationCard "${card.name}" IS revealed and not complete yet, processing calculation`
       );
       hasProcessedCalculationRef.current = true;
-      
+
       // Set calculating state early to prevent flashing
       setIsCalculating(true);
       setError(null);
@@ -110,59 +110,71 @@ export function CalculationCard({ card }: CalculationCardProps) {
 
       if (shortcodeInfo && shortcodeInfo.type === 'lookup') {
         // Handle lookup shortcodes directly using the shortcode processor
-        console.log(`🔍 Processing lookup shortcode: ${card.config.main_result}`);
-        
+        console.log(
+          `🔍 Processing lookup shortcode: ${card.config.main_result}`
+        );
+
         // Auto-discover dependencies for lookup shortcodes
         // This ensures that lookup calculations are invalidated when dependent fields change
         const lookupName = shortcodeInfo.name;
         await discoverDependenciesFromLookup(lookupName);
-        
+
         const result = await processDisplayContentWithSession(
           card.config.main_result,
           sessionId,
           formData
         );
-        
+
         if (!result.success) {
           setError(result.error || 'Lookup processing failed');
-          console.log(`❌ CalculationCard "${card.name}" lookup failed: ${result.error}`);
+          console.log(
+            `❌ CalculationCard "${card.name}" lookup failed: ${result.error}`
+          );
           uncompleteCard(card.id);
           hasProcessedCalculationRef.current = false; // Allow retry
           setIsCalculating(false);
           return;
         }
-        
+
         // Parse and format the lookup result properly
         let formattedResult = result.result || card.config.main_result;
-        
+
         // Try to extract numeric value and format it with units
         if (result.result && typeof result.result === 'string') {
           // Check if the result looks like a numeric value (possibly with units)
-          const numericMatch = result.result.match(/^([\d\s,]+(?:\.\d+)?)\s*(.*)$/);
-          
+          const numericMatch = result.result.match(
+            /^([\d\s,]+(?:\.\d+)?)\s*(.*)$/
+          );
+
           if (numericMatch) {
             const numericPart = numericMatch[1].replace(/[\s,]/g, ''); // Remove spaces and commas
             const unitPart = numericMatch[2].trim();
-            
+
             const numericValue = parseFloat(numericPart);
-            
+
             if (!isNaN(numericValue)) {
               // Format with Finnish locale and include units
               const formattedNumber = numericValue.toLocaleString('fi-FI');
-              formattedResult = unitPart ? `${formattedNumber} ${unitPart}` : formattedNumber;
-              
-              console.log(`🎯 [FORMAT] Lookup result formatted: ${result.result} → ${formattedResult}`);
+              formattedResult = unitPart
+                ? `${formattedNumber} ${unitPart}`
+                : formattedNumber;
+
+              console.log(
+                `🎯 [FORMAT] Lookup result formatted: ${result.result} → ${formattedResult}`
+              );
             }
           }
         }
-        
+
         setCalculatedResult(formattedResult);
-        
+
         // Store the lookup result in session table for dependency tracking
         if (result.result && typeof result.result === 'string') {
           const numericMatch = result.result.match(/^([\\d\\s,]+(?:\\.\\d+)?)/);
           if (numericMatch) {
-            const numericValue = parseFloat(numericMatch[1].replace(/[\\s,]/g, ''));
+            const numericValue = parseFloat(
+              numericMatch[1].replace(/[\\s,]/g, '')
+            );
             if (!isNaN(numericValue)) {
               storeSessionCalculation(sessionId, lookupName, numericValue, '');
               // Mark this calculation as current (remove from invalidation queue)
@@ -170,30 +182,35 @@ export function CalculationCard({ card }: CalculationCardProps) {
             }
           }
         }
-        
-        console.log(`✅ CalculationCard "${card.name}" lookup result: ${formattedResult}`);
+
+        console.log(
+          `✅ CalculationCard "${card.name}" lookup result: ${formattedResult}`
+        );
         completeCard(card.id);
         setIsCalculating(false);
         return;
       }
-      
+
       // Handle calc shortcodes and direct formula references
       let currentFormula: any = null;
-      
+
       if (shortcodeInfo && shortcodeInfo.type === 'calc') {
         const formulas = await getFormulas();
         currentFormula = formulas.find(f => f.name === shortcodeInfo.name);
       }
-      
+
       // If no formula found by shortcode, look for a formula with the card name
       if (!currentFormula) {
         const formulas = await getFormulas();
         currentFormula = formulas.find(f => f.name === card.name);
       }
-      
+
       // Auto-discover dependencies from the formula
       if (currentFormula) {
-        discoverDependenciesFromFormula(currentFormula.name, currentFormula.formula_text);
+        discoverDependenciesFromFormula(
+          currentFormula.name,
+          currentFormula.formula_text
+        );
       }
 
       if (!currentFormula) {
@@ -205,11 +222,18 @@ export function CalculationCard({ card }: CalculationCardProps) {
       }
 
       // Step 1: Process formula with session data (handles [field:], [calc:], and [lookup:] references)
-      const processed = await processFormulaWithSession(currentFormula.formula_text, sessionId);
-      
+      const processed = await processFormulaWithSession(
+        currentFormula.formula_text,
+        sessionId
+      );
+
       if (!processed.success) {
-        setError(processed.error || 'Failed to process formula with session data');
-        console.log(`❌ CalculationCard "${card.name}" processing failed: ${processed.error}`);
+        setError(
+          processed.error || 'Failed to process formula with session data'
+        );
+        console.log(
+          `❌ CalculationCard "${card.name}" processing failed: ${processed.error}`
+        );
         uncompleteCard(card.id);
         hasProcessedCalculationRef.current = false; // Allow retry
         setIsCalculating(false);
@@ -218,10 +242,12 @@ export function CalculationCard({ card }: CalculationCardProps) {
 
       // Step 2: Evaluate the processed formula
       const result = evaluateProcessedFormula(processed.processedFormula!);
-      
+
       if (!result.success) {
         setError(result.error || 'Formula evaluation failed');
-        console.log(`❌ CalculationCard "${card.name}" evaluation failed: ${result.error}`);
+        console.log(
+          `❌ CalculationCard "${card.name}" evaluation failed: ${result.error}`
+        );
         uncompleteCard(card.id);
         hasProcessedCalculationRef.current = false; // Allow retry
         setIsCalculating(false);
@@ -231,7 +257,7 @@ export function CalculationCard({ card }: CalculationCardProps) {
       // Step 3: Format and display result
       // Get unit from formula database or use fallback based on formula name
       let unit = currentFormula.unit || '';
-      
+
       // Fallback unit mapping based on formula names (temporary until database has unit field)
       if (!unit) {
         const nameLower = currentFormula.name.toLowerCase();
@@ -240,30 +266,42 @@ export function CalculationCard({ card }: CalculationCardProps) {
         } else if (nameLower.includes('öljyn menekki')) {
           unit = 'L/vuosi';
         } else if (nameLower.includes('kaasun menekki')) {
-          unit = 'MWh/vuosi'; 
+          unit = 'MWh/vuosi';
         } else if (nameLower.includes('puun menekki')) {
           unit = 'motti/vuosi';
         }
       }
-      
-      const formattedResult = unit 
+
+      const formattedResult = unit
         ? `${result.result!.toLocaleString('fi-FI')} ${unit}`
         : result.result!.toLocaleString('fi-FI');
       setCalculatedResult(formattedResult);
-      
+
       // Step 4: Store in session table for future calculations
-      storeSessionCalculation(sessionId, currentFormula.name, result.result!, unit);
-      
+      storeSessionCalculation(
+        sessionId,
+        currentFormula.name,
+        result.result!,
+        unit
+      );
+
       // Step 5: Mark this calculation as current (remove from invalidation queue)
       markCalculationCurrent(sessionId, currentFormula.name);
-      
-      console.log(`✅ CalculationCard "${card.name}" calculated: ${result.result} ${unit}`);
+
+      console.log(
+        `✅ CalculationCard "${card.name}" calculated: ${result.result} ${unit}`
+      );
       completeCard(card.id);
       setIsCalculating(false);
     };
 
     processShortcode();
-  }, [card.config?.main_result, formData, sessionId, cardStates[card.id]?.isRevealed ?? false]);
+  }, [
+    card.config?.main_result,
+    formData,
+    sessionId,
+    cardStates[card.id]?.isRevealed ?? false,
+  ]);
 
   // Check if we have a main result shortcode configured
   if (!card.config?.main_result) {

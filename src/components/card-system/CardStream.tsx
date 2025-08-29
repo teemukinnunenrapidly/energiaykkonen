@@ -110,7 +110,7 @@ export function CardStream({
   // Memoize current reveal states to prevent infinite loops
   const currentRevealStates = useMemo(() => {
     const states: Record<string, boolean> = {};
-    cards.forEach((card, index) => {
+    cards.forEach(card => {
       // Use the new reveal permission system
       states[card.id] = shouldBeRevealed(card, new Set());
     });
@@ -188,17 +188,11 @@ export function CardStream({
               top: Math.max(0, targetScrollTop),
               behavior: 'smooth',
             });
-
           }, 300); // Wait for blur-to-reveal transition
         }
       }
     }
-  }, [
-    cards,
-    currentRevealStates,
-    isUserScrolling,
-    userScrolledUp,
-  ]); // Remove objects from dependencies to prevent constant re-runs
+  }, [cards, currentRevealStates, isUserScrolling, userScrolledUp]); // Remove objects from dependencies to prevent constant re-runs
 
   return (
     <div className="relative h-full w-full">

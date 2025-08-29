@@ -1,7 +1,7 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import { supabase } from '@/lib/supabase';
 
-export async function GET(_request: NextRequest) {
+export async function GET() {
   try {
     console.log('API: Starting formulas fetch...');
     console.log('API: Supabase URL:', process.env.NEXT_PUBLIC_SUPABASE_URL);
@@ -11,7 +11,7 @@ export async function GET(_request: NextRequest) {
     );
 
     // Test database connection first
-    const { data: testData, error: testError } = await supabase
+    const { error: testError } = await supabase
       .from('formulas')
       .select('count')
       .limit(1);

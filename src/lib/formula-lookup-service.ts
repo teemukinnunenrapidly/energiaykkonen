@@ -19,7 +19,7 @@ export interface FormulaLookupCondition {
   id: string;
   lookup_id: string;
   condition_order: number;
-  condition_rule: string;  // e.g., "[field:heating_type] == 'oil'"
+  condition_rule: string; // e.g., "[field:heating_type] == 'oil'"
   target_shortcode: string; // e.g., "[calc:oil-heating-formula]"
   description?: string;
   is_active: boolean;
@@ -42,10 +42,12 @@ export interface CreateFormulaLookupRequest {
 export async function getFormulaLookups(): Promise<FormulaLookup[]> {
   const { data, error } = await supabase
     .from('formula_lookups')
-    .select(`
+    .select(
+      `
       *,
       formula_lookup_conditions (*)
-    `)
+    `
+    )
     .order('name');
 
   if (error) {
@@ -53,22 +55,31 @@ export async function getFormulaLookups(): Promise<FormulaLookup[]> {
     throw error;
   }
 
-  return data?.map(lookup => ({
-    ...lookup,
-    conditions: lookup.formula_lookup_conditions?.sort((a: any, b: any) => a.condition_order - b.condition_order) || []
-  })) || [];
+  return (
+    data?.map(lookup => ({
+      ...lookup,
+      conditions:
+        lookup.formula_lookup_conditions?.sort(
+          (a: any, b: any) => a.condition_order - b.condition_order
+        ) || [],
+    })) || []
+  );
 }
 
 /**
  * Get a single formula lookup by name
  */
-export async function getFormulaLookupByName(name: string): Promise<FormulaLookup | null> {
+export async function getFormulaLookupByName(
+  name: string
+): Promise<FormulaLookup | null> {
   const { data, error } = await supabase
     .from('formula_lookups')
-    .select(`
+    .select(
+      `
       *,
       formula_lookup_conditions (*)
-    `)
+    `
+    )
     .eq('name', name)
     .eq('is_active', true)
     .single();
@@ -83,21 +94,26 @@ export async function getFormulaLookupByName(name: string): Promise<FormulaLooku
 
   return {
     ...data,
-    conditions: data.formula_lookup_conditions?.sort((a: any, b: any) => a.condition_order - b.condition_order) || []
+    conditions:
+      data.formula_lookup_conditions?.sort(
+        (a: any, b: any) => a.condition_order - b.condition_order
+      ) || [],
   };
 }
 
 /**
  * Create a new formula lookup with conditions
  */
-export async function createFormulaLookup(request: CreateFormulaLookupRequest): Promise<FormulaLookup> {
+export async function createFormulaLookup(
+  request: CreateFormulaLookupRequest
+): Promise<FormulaLookup> {
   // First create the lookup table
   const { data: lookup, error: lookupError } = await supabase
     .from('formula_lookups')
     .insert({
       name: request.name,
       description: request.description,
-      is_active: true
+      is_active: true,
     })
     .select()
     .single();
@@ -114,7 +130,7 @@ export async function createFormulaLookup(request: CreateFormulaLookupRequest): 
     condition_rule: condition.condition_rule,
     target_shortcode: condition.target_shortcode,
     description: condition.description,
-    is_active: true
+    is_active: true,
   }));
 
   const { data: createdConditions, error: conditionsError } = await supabase
@@ -129,7 +145,9 @@ export async function createFormulaLookup(request: CreateFormulaLookupRequest): 
 
   return {
     ...lookup,
-    conditions: createdConditions.sort((a, b) => a.condition_order - b.condition_order)
+    conditions: createdConditions.sort(
+      (a, b) => a.condition_order - b.condition_order
+    ),
   };
 }
 
@@ -137,7 +155,7 @@ export async function createFormulaLookup(request: CreateFormulaLookupRequest): 
  * Update formula lookup
  */
 export async function updateFormulaLookup(
-  id: string, 
+  id: string,
   updates: Partial<CreateFormulaLookupRequest>
 ): Promise<FormulaLookup> {
   // Update the lookup table
@@ -146,7 +164,7 @@ export async function updateFormulaLookup(
     .update({
       name: updates.name,
       description: updates.description,
-      updated_at: new Date().toISOString()
+      updated_at: new Date().toISOString(),
     })
     .eq('id', id)
     .select()
@@ -172,7 +190,7 @@ export async function updateFormulaLookup(
       condition_rule: condition.condition_rule,
       target_shortcode: condition.target_shortcode,
       description: condition.description,
-      is_active: true
+      is_active: true,
     }));
 
     const { data: createdConditions, error: conditionsError } = await supabase
@@ -187,7 +205,9 @@ export async function updateFormulaLookup(
 
     return {
       ...lookup,
-      conditions: createdConditions.sort((a, b) => a.condition_order - b.condition_order)
+      conditions: createdConditions.sort(
+        (a, b) => a.condition_order - b.condition_order
+      ),
     };
   }
 
@@ -214,7 +234,9 @@ export async function deleteFormulaLookup(id: string): Promise<void> {
 /**
  * Toggle formula lookup active status
  */
-export async function toggleFormulaLookupStatus(id: string): Promise<FormulaLookup> {
+export async function toggleFormulaLookupStatus(
+  id: string
+): Promise<FormulaLookup> {
   // Get current status
   const { data: current, error: fetchError } = await supabase
     .from('formula_lookups')
@@ -230,9 +252,9 @@ export async function toggleFormulaLookupStatus(id: string): Promise<FormulaLook
   // Toggle status
   const { data: updated, error: updateError } = await supabase
     .from('formula_lookups')
-    .update({ 
+    .update({
       is_active: !current.is_active,
-      updated_at: new Date().toISOString()
+      updated_at: new Date().toISOString(),
     })
     .eq('id', id)
     .select()

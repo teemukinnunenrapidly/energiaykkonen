@@ -10,8 +10,10 @@
  * - Combined: ([calc:energy-usage] * 0.15 + 100)
  */
 
-import { executeFormula, executeFormulaWithFieldResolution } from './formula-service';
-import { getFormulas } from './formula-service';
+import {
+  executeFormulaWithFieldResolution,
+  getFormulas,
+} from './formula-service';
 
 export interface CalculationResult {
   success: boolean;
@@ -100,7 +102,9 @@ export async function evaluateExpression(
 
     for (const ref of calcReferences) {
       const formulaName = ref.replace(/\[calc:([^\]]+)\]/, '$1').trim();
-      console.log(`🔍 Processing reference: "${ref}" -> formula name: "${formulaName}"`);
+      console.log(
+        `🔍 Processing reference: "${ref}" -> formula name: "${formulaName}"`
+      );
 
       // Check if we have a cached result in the session
       const cachedResult = context.results.get(formulaName.toLowerCase());
@@ -114,7 +118,9 @@ export async function evaluateExpression(
           new RegExp(escapeRegExp(ref), 'g'),
           cachedResult.toString()
         );
-        console.log(`🔍 After replacing "${ref}" with cached "${cachedResult}": "${resolvedExpression}"`);
+        console.log(
+          `🔍 After replacing "${ref}" with cached "${cachedResult}": "${resolvedExpression}"`
+        );
       } else {
         // If not cached, we need to execute the formula
         console.log(`🔄 Calculating ${formulaName}...`);
@@ -156,7 +162,9 @@ export async function evaluateExpression(
           new RegExp(escapeRegExp(ref), 'g'),
           result.result.toString()
         );
-        console.log(`🔍 After replacing "${ref}" with "${result.result}": "${resolvedExpression}"`);
+        console.log(
+          `🔍 After replacing "${ref}" with "${result.result}": "${resolvedExpression}"`
+        );
       }
     }
 

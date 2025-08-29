@@ -93,18 +93,20 @@ export default function CardBuilderPage() {
   const loadShortcodes = async () => {
     // Load available shortcodes from calculations and lookups
     const { data: formulas } = await supabase.from('formulas').select('name');
-    const { data: lookups } = await supabase.from('formula_lookups').select('name');
+    const { data: lookups } = await supabase
+      .from('formula_lookups')
+      .select('name');
 
     const allShortcodes = [];
-    
+
     if (formulas) {
       allShortcodes.push(...formulas.map(f => `[calc:${f.name}]`));
     }
-    
+
     if (lookups) {
       allShortcodes.push(...lookups.map(l => `[lookup:${l.name}]`));
     }
-    
+
     setShortcodes(allShortcodes);
   };
 

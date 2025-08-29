@@ -1,8 +1,8 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import { supabase } from '@/lib/supabase';
 
 // Complete Supabase connection and table verification
-export async function GET(_request: NextRequest) {
+export async function GET() {
   const results = {
     connection: false,
     tables: {} as Record<string, any>,

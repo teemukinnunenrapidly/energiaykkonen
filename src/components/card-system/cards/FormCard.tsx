@@ -10,14 +10,7 @@ interface FormCardProps {
 export function FormCard({ card, onFieldFocus }: FormCardProps) {
   const [fields, setFields] = useState<CardField[]>([]);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
-  const {
-    formData,
-    updateField,
-    completeCard,
-    uncompleteCard,
-    isCardComplete,
-    cardStates,
-  } = useCardContext();
+  const { formData, updateField } = useCardContext();
 
   useEffect(() => {
     loadFields();
@@ -230,7 +223,6 @@ export function FormCard({ card, onFieldFocus }: FormCardProps) {
     const value = formData[field.field_name] || '';
     const error = fieldErrors[field.field_name];
     const isCompleted = isFieldCompleted(field, value);
-
 
     // Always allow editing - completion is just for navigation tracking
     const isFieldEditable = true;

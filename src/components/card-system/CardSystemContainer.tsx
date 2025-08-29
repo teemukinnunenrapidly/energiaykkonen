@@ -46,7 +46,6 @@ export function CardSystemContainer({
 
   // Determine if we should show desktop or mobile layout
   const isMobileMode = forceMode === 'mobile';
-  const isDesktopMode = forceMode === 'desktop';
 
   return (
     <CardProvider>

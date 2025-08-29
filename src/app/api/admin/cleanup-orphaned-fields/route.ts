@@ -1,7 +1,7 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import { supabase } from '@/lib/supabase';
 
-export async function POST(_request: NextRequest) {
+export async function POST() {
   try {
     // Get all cards with their fields
     const { data: cards, error: cardsError } = await supabase
@@ -47,7 +47,6 @@ export async function POST(_request: NextRequest) {
 
     // Find fields that exist in frontend but not in database
     const frontendFields = cards.flatMap(card => card.card_fields || []);
-    const frontendFieldIds = new Set(frontendFields.map(f => f.id));
     const missingFields = frontendFields.filter(
       field => !existingFieldIds.has(field.id)
     );

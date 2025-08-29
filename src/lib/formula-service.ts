@@ -93,7 +93,9 @@ function validateAccessControl(
 /**
  * Formula Management Functions
  */
-export async function getFormulas(forceRefresh: boolean = false): Promise<Formula[]> {
+export async function getFormulas(
+  forceRefresh: boolean = false
+): Promise<Formula[]> {
   try {
     // Check cache first (unless force refresh is requested)
     if (!forceRefresh) {
@@ -120,15 +122,17 @@ export async function getFormulas(forceRefresh: boolean = false): Promise<Formul
     }
 
     const formulas = data || [];
-    
+
     // Cache the results
     formulaCache.set(FORMULA_CACHE_KEY, {
       formulas,
       timestamp: Date.now(),
-      ttl: FORMULA_CACHE_TTL
+      ttl: FORMULA_CACHE_TTL,
     });
-    
-    console.log(`✅ Successfully fetched and cached ${formulas.length} formulas`);
+
+    console.log(
+      `✅ Successfully fetched and cached ${formulas.length} formulas`
+    );
     return formulas;
   } catch (error) {
     console.error('Exception in getFormulas:', error);
@@ -555,8 +559,7 @@ export async function resolveFormulaDependencies(
     // Execute the referenced formula
     const executionResult = await executeFormulaWithFieldResolution(
       dependencyResult.resolvedFormula,
-      formData,
-      processedFormulas
+      formData
     );
 
     if (!executionResult.success || executionResult.result === undefined) {
@@ -579,8 +582,7 @@ export async function resolveFormulaDependencies(
 
 export async function executeFormulaWithFieldResolution(
   formulaText: string,
-  formData: Record<string, any>,
-  processedFormulas: Map<string, number> = new Map()
+  formData: Record<string, any>
 ): Promise<FormulaExecutionResult> {
   // Process [field:xxx] syntax in the formula
   let processedFormula = formulaText;
@@ -674,7 +676,7 @@ export async function executeFormula(
     // Enhanced security: Variable type validation
     // Only validate variables that are actually used in the formula
     const validatedVariables: Record<string, number> = {};
-    
+
     // Extract variable names from the formula (match data.variableName patterns)
     const variablePattern = /data\.(\w+)/g;
     const usedVariables = new Set<string>();
@@ -682,13 +684,13 @@ export async function executeFormula(
     while ((match = variablePattern.exec(formulaText)) !== null) {
       usedVariables.add(match[1]);
     }
-    
+
     for (const [key, value] of Object.entries(variables)) {
       // Skip validation for variables not used in the formula
       if (!usedVariables.has(key)) {
         continue;
       }
-      
+
       const numValue = Number(value);
       if (isNaN(numValue)) {
         return {
@@ -1069,18 +1071,18 @@ export function getFormulaCacheStats(): {
   timeUntilExpiry?: number;
 } {
   const cached = formulaCache.get(FORMULA_CACHE_KEY);
-  
+
   if (!cached) {
     return { isCached: false };
   }
-  
+
   const now = Date.now();
   const cacheAge = now - cached.timestamp;
-  const timeUntilExpiry = (cached.timestamp + cached.ttl) - now;
-  
+  const timeUntilExpiry = cached.timestamp + cached.ttl - now;
+
   return {
     isCached: true,
     cacheAge,
-    timeUntilExpiry: Math.max(0, timeUntilExpiry)
+    timeUntilExpiry: Math.max(0, timeUntilExpiry),
   };
 }

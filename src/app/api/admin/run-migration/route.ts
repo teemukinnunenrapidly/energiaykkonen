@@ -1,7 +1,9 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import { supabase } from '@/lib/supabase';
+import fs from 'fs';
+import path from 'path';
 
-export async function POST(_request: NextRequest) {
+export async function POST() {
   try {
     // Check if the new columns exist
     const { data: existingColumns, error: checkError } = await supabase
@@ -36,9 +38,6 @@ export async function POST(_request: NextRequest) {
       console.log('Running card reveal system migration...');
 
       // Read and execute the migration file
-      const fs = require('fs');
-      const path = require('path');
-
       try {
         const migrationPath = path.join(
           process.cwd(),

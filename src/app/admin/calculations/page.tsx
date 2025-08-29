@@ -14,12 +14,17 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import {
   Calculator,
   FileText,
   Download,
-  Eye,
   Settings,
   Shield,
   AlertTriangle,
@@ -31,20 +36,16 @@ import {
   Formula,
   CreateFormulaRequest,
   FormulaValidationResult,
-  FormulaExecutionResult,
 } from '@/lib/types/formula';
 import {
   getFormulas,
   createFormula,
   updateFormula,
   deleteFormula,
-  toggleFormulaStatus,
   validateFormula,
-  executeFormula,
   generateFormulaShortcode,
   generateFormulaShortcodeWithVariables,
   generateFormulaShortcodeWithDefaults,
-  logSecurityEvent,
 } from '@/lib/formula-service';
 import {
   FormulaLookup,
@@ -53,7 +54,6 @@ import {
   createFormulaLookup,
   updateFormulaLookup,
   deleteFormulaLookup,
-  toggleFormulaLookupStatus,
   generateLookupShortcode,
 } from '@/lib/formula-lookup-service';
 import AdminNavigation from '@/components/admin/AdminNavigation';
@@ -73,7 +73,6 @@ export default function AdminCalculationsPage() {
     unit: '',
   });
 
-
   // UI state
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [editingFormula, setEditingFormula] = useState<Formula | null>(null);
@@ -87,11 +86,13 @@ export default function AdminCalculationsPage() {
   // Formula Lookup state
   const [lookups, setLookups] = useState<FormulaLookup[]>([]);
   const [showCreateLookupForm, setShowCreateLookupForm] = useState(false);
-  const [editingLookup, setEditingLookup] = useState<FormulaLookup | null>(null);
+  const [editingLookup, setEditingLookup] = useState<FormulaLookup | null>(
+    null
+  );
   const [lookupForm, setLookupForm] = useState<CreateFormulaLookupRequest>({
     name: '',
     description: '',
-    conditions: [{ condition_rule: '', target_shortcode: '', description: '' }]
+    conditions: [{ condition_rule: '', target_shortcode: '', description: '' }],
   });
 
   // Visual condition builder state
@@ -104,7 +105,7 @@ export default function AdminCalculationsPage() {
   }
 
   const [visualConditions, setVisualConditions] = useState<VisualCondition[]>([
-    { field: '', operator: '==', value: '', formula: '', description: '' }
+    { field: '', operator: '==', value: '', formula: '', description: '' },
   ]);
 
   useEffect(() => {
@@ -130,14 +131,16 @@ export default function AdminCalculationsPage() {
       setFieldsLoading(true);
       const { data, error } = await supabase
         .from('card_fields')
-        .select(`
+        .select(
+          `
           *,
           card_templates!card_fields_card_id_fkey (
             id,
             name,
             title
           )
-        `)
+        `
+        )
         .order('display_order');
 
       if (error) {
@@ -174,22 +177,29 @@ export default function AdminCalculationsPage() {
     try {
       if (editingLookup) {
         // Update existing lookup
-        const updatedLookup = await updateFormulaLookup(editingLookup.id, lookupForm);
-        setLookups(lookups.map(l => l.id === editingLookup.id ? updatedLookup : l));
+        const updatedLookup = await updateFormulaLookup(
+          editingLookup.id,
+          lookupForm
+        );
+        setLookups(
+          lookups.map(l => (l.id === editingLookup.id ? updatedLookup : l))
+        );
         setEditingLookup(null);
       } else {
         // Create new lookup
         const newLookup = await createFormulaLookup(lookupForm);
         setLookups([newLookup, ...lookups]);
       }
-      
+
       setLookupForm({
         name: '',
         description: '',
-        conditions: [{ condition_rule: '', target_shortcode: '', description: '' }]
+        conditions: [
+          { condition_rule: '', target_shortcode: '', description: '' },
+        ],
       });
       setVisualConditions([
-        { field: '', operator: '==', value: '', formula: '', description: '' }
+        { field: '', operator: '==', value: '', formula: '', description: '' },
       ]);
       setShowCreateLookupForm(false);
     } catch (error) {
@@ -214,49 +224,57 @@ export default function AdminCalculationsPage() {
       conditions: lookup.conditions?.map(c => ({
         condition_rule: c.condition_rule,
         target_shortcode: c.target_shortcode,
-        description: c.description || ''
-      })) || [{ condition_rule: '', target_shortcode: '', description: '' }]
+        description: c.description || '',
+      })) || [{ condition_rule: '', target_shortcode: '', description: '' }],
     });
 
     // Parse existing conditions back to visual conditions format
     const parsedVisualConditions = lookup.conditions?.map(condition => {
       // Try to parse the condition_rule back to visual format
       // Example: "[field:valitse] == \"Öljylämmitys\"" -> field="valitse", operator="==", value="Öljylämmitys"
-      const match = condition.condition_rule.match(/\[field:([^\]]+)\]\s*(==|!=|<=|>=|<|>)\s*['"]?([^'"]*)['"]?/);
-      const formulaMatch = condition.target_shortcode.match(/\[calc:([^\]]+)\]/);
-      
+      const match = condition.condition_rule.match(
+        /\[field:([^\]]+)\]\s*(==|!=|<=|>=|<|>)\s*['"]?([^'"]*)['"]?/
+      );
+      const formulaMatch =
+        condition.target_shortcode.match(/\[calc:([^\]]+)\]/);
+
       console.log(`🔍 [EDIT DEBUG] Parsing condition:`, {
         condition_rule: condition.condition_rule,
         target_shortcode: condition.target_shortcode,
         match: match,
-        formulaMatch: formulaMatch
+        formulaMatch: formulaMatch,
       });
-      
+
       if (match && formulaMatch) {
         const parsed = {
           field: match[1].trim(),
           operator: match[2].trim(),
           value: match[3].trim(),
           formula: formulaMatch[1].trim(),
-          description: condition.description || ''
+          description: condition.description || '',
         };
         console.log(`✅ [EDIT DEBUG] Successfully parsed:`, parsed);
         return parsed;
       } else {
-        console.error(`❌ [EDIT DEBUG] Failed to parse condition, using fallback:`, {
-          condition_rule: condition.condition_rule,
-          target_shortcode: condition.target_shortcode
-        });
+        console.error(
+          `❌ [EDIT DEBUG] Failed to parse condition, using fallback:`,
+          {
+            condition_rule: condition.condition_rule,
+            target_shortcode: condition.target_shortcode,
+          }
+        );
         // Fallback to empty condition if parsing fails
         return {
           field: '',
           operator: '==',
           value: '',
           formula: '',
-          description: condition.description || ''
+          description: condition.description || '',
         };
       }
-    }) || [{ field: '', operator: '==', value: '', formula: '', description: '' }];
+    }) || [
+      { field: '', operator: '==', value: '', formula: '', description: '' },
+    ];
 
     setVisualConditions(parsedVisualConditions);
     setShowCreateLookupForm(true);
@@ -271,23 +289,26 @@ export default function AdminCalculationsPage() {
       conditions: lookup.conditions?.map(c => ({
         condition_rule: c.condition_rule,
         target_shortcode: c.target_shortcode,
-        description: c.description || ''
-      })) || [{ condition_rule: '', target_shortcode: '', description: '' }]
+        description: c.description || '',
+      })) || [{ condition_rule: '', target_shortcode: '', description: '' }],
     });
 
     // Parse existing conditions back to visual conditions format for duplicate
     const parsedVisualConditions = lookup.conditions?.map(condition => {
       // Try to parse the condition_rule back to visual format
-      const match = condition.condition_rule.match(/\[field:([^\]]+)\]\s*(==|!=|<=|>=|<|>)\s*['"]?([^'"]*)['"]?/);
-      const formulaMatch = condition.target_shortcode.match(/\[calc:([^\]]+)\]/);
-      
+      const match = condition.condition_rule.match(
+        /\[field:([^\]]+)\]\s*(==|!=|<=|>=|<|>)\s*['"]?([^'"]*)['"]?/
+      );
+      const formulaMatch =
+        condition.target_shortcode.match(/\[calc:([^\]]+)\]/);
+
       if (match && formulaMatch) {
         return {
           field: match[1].trim(),
           operator: match[2].trim(),
           value: match[3].trim(),
           formula: formulaMatch[1].trim(),
-          description: condition.description || ''
+          description: condition.description || '',
         };
       } else {
         return {
@@ -295,10 +316,12 @@ export default function AdminCalculationsPage() {
           operator: '==',
           value: '',
           formula: '',
-          description: condition.description || ''
+          description: condition.description || '',
         };
       }
-    }) || [{ field: '', operator: '==', value: '', formula: '', description: '' }];
+    }) || [
+      { field: '', operator: '==', value: '', formula: '', description: '' },
+    ];
 
     setVisualConditions(parsedVisualConditions);
     setShowCreateLookupForm(true);
@@ -306,22 +329,25 @@ export default function AdminCalculationsPage() {
 
   // Convert visual conditions to syntax
   const convertVisualConditionsToSyntax = () => {
-    const syntaxConditions = visualConditions.map((vc, index) => ({
-      condition_rule: vc.field && vc.value ? `[field:${vc.field}] ${vc.operator} "${vc.value}"` : '',
+    const syntaxConditions = visualConditions.map(vc => ({
+      condition_rule:
+        vc.field && vc.value
+          ? `[field:${vc.field}] ${vc.operator} "${vc.value}"`
+          : '',
       target_shortcode: vc.formula ? `[calc:${vc.formula}]` : '',
-      description: vc.description || ''
+      description: vc.description || '',
     }));
 
     setLookupForm({
       ...lookupForm,
-      conditions: syntaxConditions
+      conditions: syntaxConditions,
     });
   };
 
   const addVisualCondition = () => {
     setVisualConditions([
       ...visualConditions,
-      { field: '', operator: '==', value: '', formula: '', description: '' }
+      { field: '', operator: '==', value: '', formula: '', description: '' },
     ]);
   };
 
@@ -329,7 +355,10 @@ export default function AdminCalculationsPage() {
     setVisualConditions(visualConditions.filter((_, i) => i !== index));
   };
 
-  const updateVisualCondition = (index: number, updates: Partial<VisualCondition>) => {
+  const updateVisualCondition = (
+    index: number,
+    updates: Partial<VisualCondition>
+  ) => {
     const newConditions = [...visualConditions];
     newConditions[index] = { ...newConditions[index], ...updates };
     setVisualConditions(newConditions);
@@ -340,19 +369,23 @@ export default function AdminCalculationsPage() {
     convertVisualConditionsToSyntax();
   }, [visualConditions]);
 
-  const addLookupCondition = () => {
-    setLookupForm({
-      ...lookupForm,
-      conditions: [...lookupForm.conditions, { condition_rule: '', target_shortcode: '', description: '' }]
-    });
-  };
+  // These functions are preserved for future use when lookup condition editing is re-enabled
+  // const _addLookupCondition = () => {
+  //   setLookupForm({
+  //     ...lookupForm,
+  //     conditions: [
+  //       ...lookupForm.conditions,
+  //       { condition_rule: '', target_shortcode: '', description: '' },
+  //     ],
+  //   });
+  // };
 
-  const removeLookupCondition = (index: number) => {
-    setLookupForm({
-      ...lookupForm,
-      conditions: lookupForm.conditions.filter((_, i) => i !== index)
-    });
-  };
+  // const _removeLookupCondition = (index: number) => {
+  //   setLookupForm({
+  //     ...lookupForm,
+  //     conditions: lookupForm.conditions.filter((_, i) => i !== index),
+  //   });
+  // };
 
   const handleDuplicateFormula = (formula: Formula) => {
     const duplicatedName = `${formula.name} (Copy)`;
@@ -437,8 +470,6 @@ export default function AdminCalculationsPage() {
       }
     }
   };
-
-
 
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text);
@@ -954,10 +985,13 @@ export default function AdminCalculationsPage() {
               <Card>
                 <CardHeader>
                   <CardTitle>
-                    {editingLookup ? 'Edit Formula Lookup' : 'Create New Formula Lookup'}
+                    {editingLookup
+                      ? 'Edit Formula Lookup'
+                      : 'Create New Formula Lookup'}
                   </CardTitle>
                   <CardDescription>
-                    Create conditional lookup tables that return different formulas based on field values
+                    Create conditional lookup tables that return different
+                    formulas based on field values
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
@@ -995,21 +1029,29 @@ export default function AdminCalculationsPage() {
                   <div>
                     <Label>Conditions & Actions</Label>
                     <p className="text-xs text-muted-foreground mb-3">
-                      Define conditions and which formulas to use. Conditions are evaluated in order - first match wins.
+                      Define conditions and which formulas to use. Conditions
+                      are evaluated in order - first match wins.
                     </p>
-                    
+
                     {/* Available Fields Reference */}
                     <div className="mb-4 p-3 bg-blue-50 rounded-lg border border-blue-200">
                       <div className="flex items-center gap-2 mb-2">
                         <FileText className="h-4 w-4 text-blue-600" />
-                        <Label className="text-sm font-medium text-blue-800">Available Fields</Label>
-                        {fieldsLoading && <div className="animate-spin rounded-full h-3 w-3 border-b border-blue-600"></div>}
+                        <Label className="text-sm font-medium text-blue-800">
+                          Available Fields
+                        </Label>
+                        {fieldsLoading && (
+                          <div className="animate-spin rounded-full h-3 w-3 border-b border-blue-600"></div>
+                        )}
                       </div>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                         {availableFields.length > 0 ? (
                           availableFields.map(field => (
                             <div key={field.id} className="text-xs">
-                              <Badge variant="outline" className="font-mono text-xs">
+                              <Badge
+                                variant="outline"
+                                className="font-mono text-xs"
+                              >
                                 [field:{field.field_name}]
                               </Badge>
                               <div className="text-muted-foreground text-xs mt-1">
@@ -1024,38 +1066,48 @@ export default function AdminCalculationsPage() {
                           ))
                         ) : (
                           <p className="text-xs text-muted-foreground col-span-full">
-                            {fieldsLoading ? 'Loading fields...' : 'No fields found. Create cards in Card Builder first.'}
+                            {fieldsLoading
+                              ? 'Loading fields...'
+                              : 'No fields found. Create cards in Card Builder first.'}
                           </p>
                         )}
                       </div>
                     </div>
-                    
+
                     {/* Available Formulas Reference */}
                     <div className="mb-4 p-3 bg-green-50 rounded-lg border border-green-200">
                       <div className="flex items-center gap-2 mb-2">
                         <Calculator className="h-4 w-4 text-green-600" />
-                        <Label className="text-sm font-medium text-green-800">Available Formulas</Label>
+                        <Label className="text-sm font-medium text-green-800">
+                          Available Formulas
+                        </Label>
                       </div>
                       <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
                         {formulas.length > 0 ? (
-                          formulas.filter(f => f.is_active).map(formula => (
-                            <div key={formula.id} className="text-xs">
-                              <Badge variant="outline" className="font-mono text-xs">
-                                [calc:{formula.name}]
-                              </Badge>
-                              <div className="text-muted-foreground text-xs mt-1">
-                                {formula.description || formula.name}
+                          formulas
+                            .filter(f => f.is_active)
+                            .map(formula => (
+                              <div key={formula.id} className="text-xs">
+                                <Badge
+                                  variant="outline"
+                                  className="font-mono text-xs"
+                                >
+                                  [calc:{formula.name}]
+                                </Badge>
+                                <div className="text-muted-foreground text-xs mt-1">
+                                  {formula.description || formula.name}
+                                </div>
                               </div>
-                            </div>
-                          ))
+                            ))
                         ) : (
                           <p className="text-xs text-muted-foreground col-span-full">
-                            No formulas found. Create formulas in the Formulas tab first.
+                            No formulas found. Create formulas in the Formulas
+                            tab first.
                           </p>
                         )}
                       </div>
                     </div>
-                    
+
                     {visualConditions.map((condition, index) => (
                       <Card key={index} className="p-4 mb-3">
                         <div className="space-y-4">
@@ -1071,14 +1123,21 @@ export default function AdminCalculationsPage() {
                               </Button>
                             )}
                           </div>
-                          
+
                           <div className="grid grid-cols-1 md:grid-cols-4 gap-3 items-end">
                             {/* Field Selection */}
                             <div>
-                              <Label htmlFor={`condition-field-${index}`}>Field</Label>
-                              <Select 
-                                value={condition.field} 
-                                onValueChange={(value) => updateVisualCondition(index, { field: value, value: '' })}
+                              <Label htmlFor={`condition-field-${index}`}>
+                                Field
+                              </Label>
+                              <Select
+                                value={condition.field}
+                                onValueChange={value =>
+                                  updateVisualCondition(index, {
+                                    field: value,
+                                    value: '',
+                                  })
+                                }
                               >
                                 <SelectTrigger>
                                   <SelectValue placeholder="Select field" />
@@ -1087,89 +1146,139 @@ export default function AdminCalculationsPage() {
                                   {availableFields
                                     .sort((a, b) => {
                                       // Sort by card title first, then by field label
-                                      const cardA = a.card_templates?.title || '';
-                                      const cardB = b.card_templates?.title || '';
-                                      if (cardA !== cardB) return cardA.localeCompare(cardB);
+                                      const cardA =
+                                        a.card_templates?.title || '';
+                                      const cardB =
+                                        b.card_templates?.title || '';
+                                      if (cardA !== cardB) {
+                                        return cardA.localeCompare(cardB);
+                                      }
                                       return a.label.localeCompare(b.label);
                                     })
                                     .map(field => (
-                                    <SelectItem key={field.id} value={field.field_name}>
-                                      <div className="flex flex-col">
-                                        <span className="font-medium">{field.label}</span>
-                                        <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                                          <span>({field.field_name})</span>
-                                          {field.card_templates ? (
-                                            <>
-                                              <span>•</span>
-                                              <span className="italic">{field.card_templates.title}</span>
-                                            </>
-                                          ) : (
-                                            <>
-                                              <span>•</span>
-                                              <span className="italic text-red-400">Card info missing</span>
-                                            </>
-                                          )}
+                                      <SelectItem
+                                        key={field.id}
+                                        value={field.field_name}
+                                      >
+                                        <div className="flex flex-col">
+                                          <span className="font-medium">
+                                            {field.label}
+                                          </span>
+                                          <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                                            <span>({field.field_name})</span>
+                                            {field.card_templates ? (
+                                              <>
+                                                <span>•</span>
+                                                <span className="italic">
+                                                  {field.card_templates.title}
+                                                </span>
+                                              </>
+                                            ) : (
+                                              <>
+                                                <span>•</span>
+                                                <span className="italic text-red-400">
+                                                  Card info missing
+                                                </span>
+                                              </>
+                                            )}
+                                          </div>
                                         </div>
-                                      </div>
-                                    </SelectItem>
-                                  ))}
+                                      </SelectItem>
+                                    ))}
                                 </SelectContent>
                               </Select>
                             </div>
 
                             {/* Operator Selection */}
                             <div>
-                              <Label htmlFor={`condition-operator-${index}`}>Is</Label>
-                              <Select 
-                                value={condition.operator} 
-                                onValueChange={(value) => updateVisualCondition(index, { operator: value })}
+                              <Label htmlFor={`condition-operator-${index}`}>
+                                Is
+                              </Label>
+                              <Select
+                                value={condition.operator}
+                                onValueChange={value =>
+                                  updateVisualCondition(index, {
+                                    operator: value,
+                                  })
+                                }
                               >
                                 <SelectTrigger>
                                   <SelectValue />
                                 </SelectTrigger>
                                 <SelectContent>
                                   <SelectItem value="==">Equal to</SelectItem>
-                                  <SelectItem value="!=">Not equal to</SelectItem>
-                                  <SelectItem value=">">Greater than</SelectItem>
+                                  <SelectItem value="!=">
+                                    Not equal to
+                                  </SelectItem>
+                                  <SelectItem value=">">
+                                    Greater than
+                                  </SelectItem>
                                   <SelectItem value="<">Less than</SelectItem>
-                                  <SelectItem value=">=">Greater or equal</SelectItem>
-                                  <SelectItem value="<=">Less or equal</SelectItem>
+                                  <SelectItem value=">=">
+                                    Greater or equal
+                                  </SelectItem>
+                                  <SelectItem value="<=">
+                                    Less or equal
+                                  </SelectItem>
                                 </SelectContent>
                               </Select>
                             </div>
 
                             {/* Value Input */}
                             <div>
-                              <Label htmlFor={`condition-value-${index}`}>Value</Label>
+                              <Label htmlFor={`condition-value-${index}`}>
+                                Value
+                              </Label>
                               {(() => {
-                                const selectedField = availableFields.find(f => f.field_name === condition.field);
-                                const isButtonField = selectedField?.field_type === 'buttons';
-                                const fieldOptions = selectedField?.options || [];
-                                
+                                const selectedField = availableFields.find(
+                                  f => f.field_name === condition.field
+                                );
+                                const isButtonField =
+                                  selectedField?.field_type === 'buttons';
+                                const fieldOptions =
+                                  selectedField?.options || [];
+
                                 if (isButtonField && fieldOptions.length > 0) {
                                   return (
                                     <Select
                                       value={condition.value}
-                                      onValueChange={(value) => updateVisualCondition(index, { value })}
+                                      onValueChange={value =>
+                                        updateVisualCondition(index, { value })
+                                      }
                                     >
                                       <SelectTrigger>
                                         <SelectValue placeholder="Select option">
                                           {condition.value ? (
                                             <div className="flex items-center gap-2">
-                                              <span>{fieldOptions.find(opt => opt.value === condition.value)?.label || condition.value}</span>
-                                              <span className="text-xs text-muted-foreground">({condition.value})</span>
+                                              <span>
+                                                {fieldOptions.find(
+                                                  opt =>
+                                                    opt.value ===
+                                                    condition.value
+                                                )?.label || condition.value}
+                                              </span>
+                                              <span className="text-xs text-muted-foreground">
+                                                ({condition.value})
+                                              </span>
                                             </div>
                                           ) : (
-                                            "Select option"
+                                            'Select option'
                                           )}
                                         </SelectValue>
                                       </SelectTrigger>
                                       <SelectContent>
                                         {fieldOptions.map(option => (
-                                          <SelectItem key={option.value} value={option.value}>
+                                          <SelectItem
+                                            key={option.value}
+                                            value={option.value}
+                                          >
                                             <div className="flex flex-col">
-                                              <span className="font-medium">{option.label}</span>
-                                              <span className="text-xs text-muted-foreground">value: {option.value}</span>
+                                              <span className="font-medium">
+                                                {option.label}
+                                              </span>
+                                              <span className="text-xs text-muted-foreground">
+                                                value: {option.value}
+                                              </span>
                                             </div>
                                           </SelectItem>
                                         ))}
@@ -1181,7 +1290,11 @@ export default function AdminCalculationsPage() {
                                     <Input
                                       id={`condition-value-${index}`}
                                       value={condition.value}
-                                      onChange={e => updateVisualCondition(index, { value: e.target.value })}
+                                      onChange={e =>
+                                        updateVisualCondition(index, {
+                                          value: e.target.value,
+                                        })
+                                      }
                                       placeholder="e.g., oil"
                                     />
                                   );
@@ -1191,20 +1304,31 @@ export default function AdminCalculationsPage() {
 
                             {/* Formula Selection */}
                             <div>
-                              <Label htmlFor={`condition-formula-${index}`}>Then use formula</Label>
-                              <Select 
-                                value={condition.formula} 
-                                onValueChange={(value) => updateVisualCondition(index, { formula: value })}
+                              <Label htmlFor={`condition-formula-${index}`}>
+                                Then use formula
+                              </Label>
+                              <Select
+                                value={condition.formula}
+                                onValueChange={value =>
+                                  updateVisualCondition(index, {
+                                    formula: value,
+                                  })
+                                }
                               >
                                 <SelectTrigger>
                                   <SelectValue placeholder="Select formula" />
                                 </SelectTrigger>
                                 <SelectContent>
-                                  {formulas.filter(f => f.is_active).map(formula => (
-                                    <SelectItem key={formula.id} value={formula.name}>
-                                      {formula.name}
-                                    </SelectItem>
-                                  ))}
+                                  {formulas
+                                    .filter(f => f.is_active)
+                                    .map(formula => (
+                                      <SelectItem
+                                        key={formula.id}
+                                        value={formula.name}
+                                      >
+                                        {formula.name}
+                                      </SelectItem>
+                                    ))}
                                 </SelectContent>
                               </Select>
                             </div>
@@ -1212,25 +1336,35 @@ export default function AdminCalculationsPage() {
 
                           {/* Description */}
                           <div>
-                            <Label htmlFor={`condition-desc-${index}`}>Description (Optional)</Label>
+                            <Label htmlFor={`condition-desc-${index}`}>
+                              Description (Optional)
+                            </Label>
                             <Input
                               id={`condition-desc-${index}`}
                               value={condition.description}
-                              onChange={e => updateVisualCondition(index, { description: e.target.value })}
+                              onChange={e =>
+                                updateVisualCondition(index, {
+                                  description: e.target.value,
+                                })
+                              }
                               placeholder="e.g., Oil heating calculation"
                             />
                           </div>
 
                           {/* Preview of generated rule */}
-                          {condition.field && condition.value && condition.formula && (
-                            <div className="p-2 bg-gray-50 rounded text-xs font-mono text-gray-600">
-                              Preview: [field:{condition.field}] {condition.operator} "{condition.value}" → [calc:{condition.formula}]
-                            </div>
-                          )}
+                          {condition.field &&
+                            condition.value &&
+                            condition.formula && (
+                              <div className="p-2 bg-gray-50 rounded text-xs font-mono text-gray-600">
+                                Preview: [field:{condition.field}]{' '}
+                                {condition.operator} &quot;{condition.value}
+                                &quot; → [calc:{condition.formula}]
+                              </div>
+                            )}
                         </div>
                       </Card>
                     ))}
-                    
+
                     <Button variant="outline" onClick={addVisualCondition}>
                       Add Condition
                     </Button>
@@ -1248,10 +1382,22 @@ export default function AdminCalculationsPage() {
                         setLookupForm({
                           name: '',
                           description: '',
-                          conditions: [{ condition_rule: '', target_shortcode: '', description: '' }]
+                          conditions: [
+                            {
+                              condition_rule: '',
+                              target_shortcode: '',
+                              description: '',
+                            },
+                          ],
                         });
                         setVisualConditions([
-                          { field: '', operator: '==', value: '', formula: '', description: '' }
+                          {
+                            field: '',
+                            operator: '==',
+                            value: '',
+                            formula: '',
+                            description: '',
+                          },
                         ]);
                       }}
                     >
@@ -1277,7 +1423,9 @@ export default function AdminCalculationsPage() {
                       <div>
                         <CardTitle className="text-lg">{lookup.name}</CardTitle>
                         {lookup.description && (
-                          <CardDescription>{lookup.description}</CardDescription>
+                          <CardDescription>
+                            {lookup.description}
+                          </CardDescription>
                         )}
                       </div>
                       <div className="flex items-center gap-2">
@@ -1317,14 +1465,20 @@ export default function AdminCalculationsPage() {
                         </Badge>
                         <span>← Use this shortcode in calculation cards</span>
                       </div>
-                      
+
                       <div>
-                        <Label className="text-sm font-medium">Conditions:</Label>
+                        <Label className="text-sm font-medium">
+                          Conditions:
+                        </Label>
                         <div className="mt-1 space-y-1">
                           {lookup.conditions?.map((condition, index) => (
-                            <div key={condition.id} className="text-sm bg-muted p-2 rounded">
+                            <div
+                              key={condition.id}
+                              className="text-sm bg-muted p-2 rounded"
+                            >
                               <span className="font-mono text-xs">
-                                {index + 1}. {condition.condition_rule} → {condition.target_shortcode}
+                                {index + 1}. {condition.condition_rule} →{' '}
+                                {condition.target_shortcode}
                               </span>
                               {condition.description && (
                                 <div className="text-muted-foreground text-xs mt-1">
@@ -1348,7 +1502,8 @@ export default function AdminCalculationsPage() {
                       No Formula Lookups Yet
                     </h3>
                     <p className="text-muted-foreground mb-4">
-                      Create conditional lookup tables to make calculation cards smarter
+                      Create conditional lookup tables to make calculation cards
+                      smarter
                     </p>
                     <Button onClick={() => setShowCreateLookupForm(true)}>
                       Create Your First Lookup
@@ -1358,7 +1513,6 @@ export default function AdminCalculationsPage() {
               )}
             </div>
           </TabsContent>
-
         </Tabs>
       </div>
     </div>

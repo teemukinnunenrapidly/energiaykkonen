@@ -1,8 +1,10 @@
-import { executeFormula, getFormulas, executeFormulaWithFieldResolution } from './formula-service';
+import {
+  getFormulas,
+  executeFormulaWithFieldResolution,
+} from './formula-service';
 import {
   evaluateExpression,
   storeCalculationResult,
-  getCalculationContext,
 } from './calculation-engine';
 import { processLookupShortcode } from './conditional-lookup';
 
@@ -152,20 +154,22 @@ export async function processDisplayContent(
 
           if (lookupResult.success && lookupResult.shortcode) {
             // Recursively process the returned shortcode
-            console.log(`🔄 [SHORTCODE] About to recursively process lookup result: "${lookupResult.shortcode}"`);
-            
+            console.log(
+              `🔄 [SHORTCODE] About to recursively process lookup result: "${lookupResult.shortcode}"`
+            );
+
             const recursiveResult = await processDisplayContent(
               lookupResult.shortcode,
               formVariables,
               sessionId
             );
-            
+
             console.log(`🔄 [SHORTCODE] Recursive processing result:`, {
               success: recursiveResult.success,
               result: recursiveResult.result,
-              error: recursiveResult.error
+              error: recursiveResult.error,
             });
-            
+
             if (recursiveResult.success) {
               processedContent = processedContent.replace(
                 shortcode.original,
@@ -184,7 +188,10 @@ export async function processDisplayContent(
             );
           }
         } catch (error) {
-          console.error(`Error processing lookup ${shortcode.formulaId}:`, error);
+          console.error(
+            `Error processing lookup ${shortcode.formulaId}:`,
+            error
+          );
           processedContent = processedContent.replace(
             shortcode.original,
             `[Error: Lookup processing failed]`
@@ -215,30 +222,40 @@ export async function processDisplayContent(
         // Use session-based formula processing if sessionId is available
         // This handles [field:xxx], [calc:xxx], and [lookup:xxx] references
         let executionResult;
-        
+
         if (sessionId) {
-          console.log(`🔄 [SHORTCODE] Processing formula with session: "${formula.formula_text}"`);
+          console.log(
+            `🔄 [SHORTCODE] Processing formula with session: "${formula.formula_text}"`
+          );
           // Use session-aware processing
-          const { processFormulaWithSession, evaluateProcessedFormula } = await import('./session-data-table');
-          
-          const processed = await processFormulaWithSession(formula.formula_text, sessionId);
+          const { processFormulaWithSession, evaluateProcessedFormula } =
+            await import('./session-data-table');
+
+          const processed = await processFormulaWithSession(
+            formula.formula_text,
+            sessionId
+          );
           if (processed.success) {
-            const evaluated = evaluateProcessedFormula(processed.processedFormula!);
+            const evaluated = evaluateProcessedFormula(
+              processed.processedFormula!
+            );
             executionResult = {
               success: evaluated.success,
               result: evaluated.result,
               error: evaluated.error,
-              executionTime: 0
+              executionTime: 0,
             };
           } else {
             executionResult = {
               success: false,
               error: processed.error,
-              executionTime: 0
+              executionTime: 0,
             };
           }
         } else {
-          console.log(`🔄 [SHORTCODE] Processing formula without session: "${formula.formula_text}"`);
+          console.log(
+            `🔄 [SHORTCODE] Processing formula without session: "${formula.formula_text}"`
+          );
           // Fallback to field-only resolution
           executionResult = await executeFormulaWithFieldResolution(
             formula.formula_text,
@@ -259,26 +276,31 @@ export async function processDisplayContent(
           // Format the result with proper unit and Finnish locale
           // Get unit from formula database or use fallback based on formula name
           let unit = formula.unit || '';
-          
+
           // Fallback unit mapping based on formula names (temporary until database has unit field)
           if (!unit) {
             const nameLower = formula.name.toLowerCase();
-            if (nameLower.includes('energiantarve') && nameLower.includes('kwh')) {
+            if (
+              nameLower.includes('energiantarve') &&
+              nameLower.includes('kwh')
+            ) {
               unit = 'kW';
             } else if (nameLower.includes('öljyn menekki')) {
               unit = 'L/vuosi';
             } else if (nameLower.includes('kaasun menekki')) {
-              unit = 'MWh/vuosi'; 
+              unit = 'MWh/vuosi';
             } else if (nameLower.includes('puun menekki')) {
               unit = 'motti/vuosi';
             }
           }
-          
-          const formattedResult = unit 
+
+          const formattedResult = unit
             ? `${executionResult.result.toLocaleString('fi-FI')} ${unit}`
             : executionResult.result.toLocaleString('fi-FI');
-            
-          console.log(`🎯 [FORMAT] Formatted formula result: ${executionResult.result} → ${formattedResult} (unit: "${unit}", formula: "${formula.name}")`);
+
+          console.log(
+            `🎯 [FORMAT] Formatted formula result: ${executionResult.result} → ${formattedResult} (unit: "${unit}", formula: "${formula.name}")`
+          );
 
           // Replace the shortcode with the result
           processedContent = processedContent.replace(

@@ -331,7 +331,7 @@ export async function updateFieldCompletion(
     }
 
     return data;
-  } catch (error) {
+  } catch {
     // Fail silently for any network/auth errors
     return null;
   }
@@ -369,7 +369,7 @@ export async function updateCardCompletion(
     }
 
     return data;
-  } catch (error) {
+  } catch {
     // Fail silently for any network/auth errors
     return null;
   }
@@ -393,7 +393,7 @@ export async function getCardCompletion(
     }
 
     return data || null;
-  } catch (error) {
+  } catch {
     // Fail silently for any network/auth errors
     return null;
   }
