@@ -48,6 +48,13 @@ export async function GET() {
       // Email system
       { name: 'email_templates', description: 'Email templates' },
 
+      // Lookup system
+      { name: 'formula_lookups', description: 'Formula lookup tables' },
+      {
+        name: 'formula_lookup_conditions',
+        description: 'Lookup table conditions',
+      },
+
       // Other
       { name: 'shortcodes', description: 'Shortcode definitions' },
     ];

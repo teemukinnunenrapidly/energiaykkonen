@@ -14,6 +14,7 @@ import {
   executeFormulaWithFieldResolution,
   getFormulas,
 } from './formula-service';
+import { processLookupShortcode } from './conditional-lookup';
 
 export interface CalculationResult {
   success: boolean;
@@ -93,11 +94,47 @@ export async function evaluateExpression(
       updateContextFormData(sessionId, formData);
     }
 
-    // First, resolve all [calc:xxx] references in the expression
+    // First, resolve all [lookup:xxx] references to [calc:xxx] references
     let resolvedExpression = expression;
-    const calcReferences = expression.match(/\[calc:([^\]]+)\]/g) || [];
+    const lookupReferences = expression.match(/\[lookup:([^\]]+)\]/g) || [];
+    console.log(`🔍 Expression before lookup resolution: "${expression}"`);
+    console.log(`🔍 Found lookup references:`, lookupReferences);
 
-    console.log(`🔍 Expression before resolution: "${expression}"`);
+    for (const ref of lookupReferences) {
+      const lookupName = ref.replace(/\[lookup:([^\]]+)\]/, '$1').trim();
+      console.log(
+        `🔍 Processing lookup reference: "${ref}" -> lookup name: "${lookupName}"`
+      );
+
+      const lookupResult = await processLookupShortcode(
+        lookupName,
+        sessionId,
+        formData
+      );
+
+      if (!lookupResult.success) {
+        return {
+          success: false,
+          error: `Lookup failed for "${lookupName}": ${lookupResult.error}`,
+        };
+      }
+
+      // Replace lookup reference with the returned shortcode
+      resolvedExpression = resolvedExpression.replace(
+        new RegExp(escapeRegExp(ref), 'g'),
+        lookupResult.shortcode!
+      );
+      console.log(
+        `🔍 After replacing lookup "${ref}" with "${lookupResult.shortcode}": "${resolvedExpression}"`
+      );
+    }
+
+    // Then, resolve all [calc:xxx] references in the expression
+    const calcReferences = resolvedExpression.match(/\[calc:([^\]]+)\]/g) || [];
+
+    console.log(
+      `🔍 Expression after lookup resolution: "${resolvedExpression}"`
+    );
     console.log(`🔍 Found calc references:`, calcReferences);
 
     for (const ref of calcReferences) {

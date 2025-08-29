@@ -158,7 +158,10 @@ export async function processLookupShortcode(
         `🔍 [LOOKUP] Target shortcode: "${condition.target_shortcode}"`
       );
 
-      const result = evaluateCondition(condition.condition_rule, sessionId);
+      const result = await evaluateCondition(
+        condition.condition_rule,
+        sessionId
+      );
 
       console.log(`🔍 [LOOKUP] Condition evaluation result:`, result);
 
@@ -212,10 +215,10 @@ export async function processLookupShortcode(
  * Evaluate a single condition against session data
  * Supports: [field:name] == 'value', [field:name] > 100, etc.
  */
-function evaluateCondition(
+async function evaluateCondition(
   condition: string,
   sessionId: string
-): { success: boolean; result?: boolean; error?: string } {
+): Promise<{ success: boolean; result?: boolean; error?: string }> {
   try {
     console.log(`🔍 [LOOKUP] Evaluating condition: "${condition}"`);
 
@@ -315,7 +318,7 @@ function evaluateCondition(
 
     for (const ref of calcReferences) {
       const formulaName = ref.replace(/\[calc:([^\]]+)\]/, '$1').trim();
-      const calcData = getSessionCalculation(sessionId, formulaName);
+      const calcData = await getSessionCalculation(sessionId, formulaName);
 
       if (!calcData) {
         return {

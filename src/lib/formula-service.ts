@@ -215,6 +215,17 @@ export async function updateFormula(
       );
     }
 
+    // Get the current formula to check if name changed
+    const { data: currentFormula, error: fetchError } = await supabase
+      .from('formulas')
+      .select('name')
+      .eq('id', formula.id)
+      .single();
+
+    if (fetchError) {
+      throw new Error(`Failed to fetch current formula: ${fetchError.message}`);
+    }
+
     const { id, ...updateData } = formula;
 
     const { data, error } = await supabase
@@ -232,6 +243,12 @@ export async function updateFormula(
       );
     }
 
+    // If formula name changed, update all references in other formulas
+    if (updateData.name && currentFormula.name !== updateData.name) {
+      console.log('🔄 Formula name changed, updating references...');
+      await updateFormulaReferences(currentFormula.name, updateData.name);
+    }
+
     // Invalidate cache after updating formula
     formulaCache.delete(FORMULA_CACHE_KEY);
     console.log('🗑️ Invalidated formula cache after update');
@@ -241,6 +258,70 @@ export async function updateFormula(
   } catch (error) {
     console.error('Exception in updateFormula:', error);
     throw error;
+  }
+}
+
+// Helper function to update formula references when a formula name changes
+async function updateFormulaReferences(
+  oldName: string,
+  newName: string
+): Promise<void> {
+  try {
+    console.log(`🔍 Searching for references to formula "${oldName}"...`);
+
+    // Get all formulas to search for references
+    const { data: allFormulas, error: fetchAllError } = await supabase
+      .from('formulas')
+      .select('id, name, formula_text');
+
+    if (fetchAllError) {
+      throw new Error(
+        `Failed to fetch formulas for reference update: ${fetchAllError.message}`
+      );
+    }
+
+    let updatedCount = 0;
+
+    // Check each formula for references to the old name
+    for (const formula of allFormulas) {
+      const oldReference = `[calc:${oldName}]`;
+      const newReference = `[calc:${newName}]`;
+
+      if (formula.formula_text && formula.formula_text.includes(oldReference)) {
+        console.log(`📝 Updating references in formula "${formula.name}"`);
+
+        const updatedFormulaText = formula.formula_text.replace(
+          new RegExp(
+            `\\[calc:${oldName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\]`,
+            'g'
+          ),
+          newReference
+        );
+
+        // Update the formula with the new reference
+        const { error: updateRefError } = await supabase
+          .from('formulas')
+          .update({ formula_text: updatedFormulaText })
+          .eq('id', formula.id);
+
+        if (updateRefError) {
+          console.error(
+            `❌ Failed to update references in formula "${formula.name}":`,
+            updateRefError
+          );
+        } else {
+          console.log(`✅ Updated references in formula "${formula.name}"`);
+          updatedCount++;
+        }
+      }
+    }
+
+    console.log(
+      `🎉 Successfully updated ${updatedCount} formula references from "${oldName}" to "${newName}"`
+    );
+  } catch (error) {
+    console.error('❌ Error updating formula references:', error);
+    // Don't throw here - we don't want to fail the main update if reference updates fail
   }
 }
 

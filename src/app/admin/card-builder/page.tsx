@@ -91,11 +91,16 @@ export default function CardBuilderPage() {
   };
 
   const loadShortcodes = async () => {
-    // Load available shortcodes from calculations and lookups
-    const { data: formulas } = await supabase.from('formulas').select('name');
+    // Load available shortcodes from calculations and enhanced lookups
+    const { data: formulas } = await supabase
+      .from('formulas')
+      .select('name')
+      .eq('is_active', true);
+
     const { data: lookups } = await supabase
-      .from('formula_lookups')
-      .select('name');
+      .from('enhanced_lookups')
+      .select('name')
+      .eq('is_active', true);
 
     const allShortcodes = [];
 

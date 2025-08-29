@@ -9,6 +9,7 @@
  */
 
 import { processLookupShortcode } from './conditional-lookup';
+import { supabase } from './supabase';
 
 export interface SessionFieldData {
   fieldName: string;
@@ -51,6 +52,12 @@ const autodiscoveredDependencies = new Map<
   string,
   { fields: Set<string>; calculations: Set<string> }
 >();
+
+/**
+ * Pending calculations queue
+ * Maps sessionId to calculations waiting for dependencies
+ */
+const pendingCalculations = new Map<string, Set<string>>();
 
 /**
  * Global session data tables
@@ -113,12 +120,12 @@ export function storeSessionField(
  * Store calculation result in session
  * Now includes dependency discovery
  */
-export function storeSessionCalculation(
+export async function storeSessionCalculation(
   sessionId: string,
   formulaName: string,
   value: number,
   unit?: string
-): void {
+): Promise<void> {
   const table = getSessionTable(sessionId);
   const key = formulaName.toLowerCase();
 
@@ -126,6 +133,7 @@ export function storeSessionCalculation(
   const existing = table.calculations.get(key);
   const hasChanged = !existing || existing.value !== value;
 
+  // Store in memory (for immediate access)
   table.calculations.set(key, {
     formulaName,
     value,
@@ -134,12 +142,55 @@ export function storeSessionCalculation(
   });
 
   console.log(
-    `📋 [SESSION CALC] Stored: "${formulaName}" = ${value} ${unit || ''}`
+    `📋 [SESSION CALC] Stored in memory: "${formulaName}" = ${value} ${unit || ''} (key: "${key}")`
   );
+
+  // Persist to database using upsert (insert or update)
+  try {
+    const { error } = await supabase.from('session_calculations').upsert(
+      {
+        session_id: sessionId,
+        name: key, // Store in lowercase for consistent lookups
+        value: value,
+        unit: unit || null,
+        updated_at: new Date().toISOString(),
+      },
+      {
+        onConflict: 'session_id,name',
+      }
+    );
+
+    if (error) {
+      console.error(
+        `❌ [DATABASE] Failed to persist calculation "${formulaName}":`,
+        error
+      );
+    } else {
+      console.log(
+        `✅ [DATABASE] Persisted: "${formulaName}" = ${value} ${unit || ''}`
+      );
+    }
+  } catch (error) {
+    console.error(
+      `❌ [DATABASE] Error persisting calculation "${formulaName}":`,
+      error
+    );
+  }
+
+  // Debug: Show all stored calculations for this session
+  console.log(
+    `📋 [SESSION DEBUG] All calculations in session ${sessionId.slice(0, 8)}:`
+  );
+  table.calculations.forEach((calc, calcKey) => {
+    console.log(`  - "${calcKey}" = ${calc.value} ${calc.unit || ''}`);
+  });
 
   // If calculation changed, invalidate dependent calculations
   if (hasChanged) {
     invalidateDependentCalculations(sessionId, formulaName, 'calculation');
+
+    // Check if any pending calculations can now be triggered
+    triggerPendingCalculations(sessionId, formulaName);
   }
 }
 
@@ -161,25 +212,67 @@ export function getSessionField(sessionId: string, fieldName: string): any {
 }
 
 /**
- * Get calculation value from session
+ * Get calculation value from session (checks memory first, then database)
  */
-export function getSessionCalculation(
+export async function getSessionCalculation(
   sessionId: string,
   formulaName: string
-): SessionCalculationData | null {
+): Promise<SessionCalculationData | null> {
   const table = getSessionTable(sessionId);
   const key = formulaName.toLowerCase();
-  const calc = table.calculations.get(key);
 
+  // First check memory
+  const calc = table.calculations.get(key);
   if (calc) {
     console.log(
-      `📋 [SESSION CALC] Found: "${formulaName}" = ${calc.value} ${calc.unit || ''}`
+      `📋 [SESSION CALC] Found in memory: "${formulaName}" = ${calc.value} ${calc.unit || ''} (key: "${key}")`
     );
     return calc;
   }
 
-  console.log(`📋 [SESSION CALC] Not found: "${formulaName}"`);
-  return null;
+  // If not in memory, check database
+  try {
+    const { data, error } = await supabase
+      .from('session_calculations')
+      .select('*')
+      .eq('session_id', sessionId)
+      .eq('name', key)
+      .single();
+
+    if (error || !data) {
+      console.log(
+        `📋 [SESSION CALC] NOT FOUND in memory or database: "${formulaName}" (key: "${key}")`
+      );
+      console.log(
+        `📋 [SESSION DEBUG] Available calculations in session ${sessionId.slice(0, 8)}:`
+      );
+      table.calculations.forEach((calc, calcKey) => {
+        console.log(`  - "${calcKey}" = ${calc.value} ${calc.unit || ''}`);
+      });
+      return null;
+    }
+
+    // Found in database, store in memory for future access
+    const sessionCalc: SessionCalculationData = {
+      formulaName: data.name,
+      value: parseFloat(data.value),
+      unit: data.unit || undefined,
+      timestamp: data.updated_at,
+    };
+
+    table.calculations.set(key, sessionCalc);
+
+    console.log(
+      `📋 [SESSION CALC] Found in database and cached: "${formulaName}" = ${sessionCalc.value} ${sessionCalc.unit || ''}`
+    );
+    return sessionCalc;
+  } catch (error) {
+    console.error(
+      `❌ [DATABASE] Error fetching calculation "${formulaName}":`,
+      error
+    );
+    return null;
+  }
 }
 
 /**
@@ -203,7 +296,8 @@ export function updateSessionWithFormData(
  */
 export async function processFormulaWithSession(
   formulaText: string,
-  sessionId: string
+  sessionId: string,
+  calculationName?: string
 ): Promise<{ success: boolean; processedFormula?: string; error?: string }> {
   try {
     console.log(`📋 [SESSION] Processing formula: "${formulaText}"`);
@@ -290,10 +384,22 @@ export async function processFormulaWithSession(
 
     for (const ref of calcReferences) {
       const formulaName = ref.replace(/\[calc:([^\]]+)\]/, '$1').trim();
-      const calcData = getSessionCalculation(sessionId, formulaName);
+      const calcData = await getSessionCalculation(sessionId, formulaName);
 
       if (!calcData) {
-        // Instead of failing immediately, mark this calculation as needing the dependency
+        // Add this calculation to pending queue if we know its name
+        if (calculationName) {
+          let pending = pendingCalculations.get(sessionId);
+          if (!pending) {
+            pending = new Set();
+            pendingCalculations.set(sessionId, pending);
+          }
+          pending.add(calculationName);
+          console.log(
+            `⏳ [PENDING] Added "${calculationName}" to pending queue, waiting for dependency "${formulaName}"`
+          );
+        }
+
         console.log(
           `⚠️ [SESSION] Dependency "${formulaName}" not yet calculated, deferring this calculation`
         );
@@ -723,6 +829,56 @@ export function markCalculationCurrent(
   if (queue) {
     queue.delete(calculationName);
     console.log(`✅ [INVALIDATION] Marked "${calculationName}" as current`);
+  }
+
+  // Also remove from pending calculations if it's there
+  const pending = pendingCalculations.get(sessionId);
+  if (pending && pending.has(calculationName)) {
+    pending.delete(calculationName);
+    console.log(
+      `✅ [PENDING] Removed "${calculationName}" from pending queue (completed)`
+    );
+  }
+}
+
+/**
+ * Trigger pending calculations when their dependencies become available
+ */
+function triggerPendingCalculations(
+  sessionId: string,
+  completedCalculation: string
+): void {
+  const pending = pendingCalculations.get(sessionId);
+  if (!pending || pending.size === 0) {
+    return;
+  }
+
+  console.log(
+    `🔄 [PENDING] Checking if completion of "${completedCalculation}" can trigger pending calculations:`,
+    Array.from(pending)
+  );
+
+  // For now, we'll trigger all pending calculations since we don't have
+  // fine-grained dependency tracking between calculations yet
+  // In a more sophisticated system, we'd only trigger calculations that depend on this specific one
+
+  const pendingArray = Array.from(pending);
+  pending.clear(); // Clear the pending queue
+
+  console.log(
+    `🚀 [PENDING] Triggering retry for ${pendingArray.length} pending calculations`
+  );
+
+  // Trigger the card system to retry these calculations
+  // We'll dispatch a custom event that the CalculationCard components can listen to
+  if (typeof window !== 'undefined') {
+    pendingArray.forEach(calculationName => {
+      window.dispatchEvent(
+        new CustomEvent('retryPendingCalculation', {
+          detail: { sessionId, calculationName },
+        })
+      );
+    });
   }
 }
 

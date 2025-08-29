@@ -2,11 +2,13 @@ import {
   getFormulas,
   executeFormulaWithFieldResolution,
 } from './formula-service';
-import {
-  evaluateExpression,
-  storeCalculationResult,
-} from './calculation-engine';
+import { evaluateExpression } from './calculation-engine';
+import { storeSessionCalculation } from './session-data-table';
 import { processLookupShortcode } from './conditional-lookup';
+import {
+  createUnifiedEngine,
+  type ProcessingResult,
+} from './unified-calculation-engine';
 
 export interface ShortcodeResult {
   success: boolean;
@@ -64,6 +66,8 @@ export function parseDisplayContent(content: string): ProcessedDisplayContent {
 /**
  * Process shortcodes with session-based calculation engine
  * Supports simple math expressions like ([calc:energy] * 0.1)
+ *
+ * NEW: Now uses UnifiedCalculationEngine for better performance
  */
 export async function processDisplayContentWithSession(
   content: string,
@@ -71,10 +75,48 @@ export async function processDisplayContentWithSession(
   formVariables: Record<string, any> = {}
 ): Promise<ShortcodeResult> {
   try {
+    // Use the new unified engine first
+    const engine = createUnifiedEngine(sessionId, formVariables);
+    await engine.loadCachedValues();
+    const result = await engine.process(content);
+
+    if (result.success) {
+      return {
+        success: true,
+        result: result.result,
+      };
+    } else {
+      console.warn(
+        'Unified engine failed, falling back to legacy processing:',
+        result.error
+      );
+      // Fall back to legacy processing if unified engine fails
+      return processDisplayContentLegacy(content, sessionId, formVariables);
+    }
+  } catch (error) {
+    console.error(
+      'Error in unified processing, falling back to legacy:',
+      error
+    );
+    // Fall back to legacy processing on any error
+    return processDisplayContentLegacy(content, sessionId, formVariables);
+  }
+}
+
+/**
+ * Legacy processing function (kept as fallback)
+ */
+async function processDisplayContentLegacy(
+  content: string,
+  sessionId: string,
+  formVariables: Record<string, any> = {}
+): Promise<ShortcodeResult> {
+  try {
     // Check if content looks like a simple expression with calc or lookup shortcodes
     // e.g., "([calc:something] / 10)" or "[lookup:something] * 2 + 100"
+    // Note: hyphen moved to end to avoid being treated as character range
     const hasExpression =
-      /[\+\-\*\/\(\)]/.test(content) && /\[(calc|lookup):/.test(content);
+      /[\+\*\/\(\)\-]/.test(content) && /\[(calc|lookup):/.test(content);
 
     if (hasExpression) {
       // Use the calculation engine for expression evaluation
@@ -111,11 +153,29 @@ export async function processDisplayContentWithSession(
 /**
  * Process shortcodes in display content and replace with calculation results
  * Now supports optional sessionId for caching results
+ *
+ * NEW: Uses UnifiedCalculationEngine when sessionId is available
  */
 export async function processDisplayContent(
   content: string,
   formVariables: Record<string, any> = {},
   sessionId?: string
+): Promise<ShortcodeResult> {
+  // If sessionId is provided, use the unified engine
+  if (sessionId) {
+    return processDisplayContentWithSession(content, sessionId, formVariables);
+  }
+
+  // Otherwise, use legacy processing
+  return processDisplayContentLegacyOnly(content, formVariables);
+}
+
+/**
+ * Legacy-only processing (for when no sessionId is available)
+ */
+async function processDisplayContentLegacyOnly(
+  content: string,
+  formVariables: Record<string, any> = {}
 ): Promise<ShortcodeResult> {
   try {
     const parsed = parseDisplayContent(content);
@@ -130,77 +190,20 @@ export async function processDisplayContent(
 
     // Get all formulas to find the ones referenced in shortcodes
     const formulas = await getFormulas();
-
     let processedContent = content;
 
-    // Process each shortcode
+    // Process each shortcode (simplified for legacy without session)
     for (const shortcode of parsed.shortcodes) {
       if (shortcode.type === 'lookup') {
-        // Handle lookup shortcodes
-        if (!sessionId) {
-          processedContent = processedContent.replace(
-            shortcode.original,
-            `[Error: Lookup shortcodes require session context]`
-          );
-          continue;
-        }
-
-        try {
-          const lookupResult = await processLookupShortcode(
-            shortcode.formulaId,
-            sessionId,
-            formVariables
-          );
-
-          if (lookupResult.success && lookupResult.shortcode) {
-            // Recursively process the returned shortcode
-            console.log(
-              `🔄 [SHORTCODE] About to recursively process lookup result: "${lookupResult.shortcode}"`
-            );
-
-            const recursiveResult = await processDisplayContent(
-              lookupResult.shortcode,
-              formVariables,
-              sessionId
-            );
-
-            console.log(`🔄 [SHORTCODE] Recursive processing result:`, {
-              success: recursiveResult.success,
-              result: recursiveResult.result,
-              error: recursiveResult.error,
-            });
-
-            if (recursiveResult.success) {
-              processedContent = processedContent.replace(
-                shortcode.original,
-                recursiveResult.result || lookupResult.shortcode
-              );
-            } else {
-              processedContent = processedContent.replace(
-                shortcode.original,
-                `[Error: ${recursiveResult.error}]`
-              );
-            }
-          } else {
-            processedContent = processedContent.replace(
-              shortcode.original,
-              `[Error: ${lookupResult.error || 'Lookup failed'}]`
-            );
-          }
-        } catch (error) {
-          console.error(
-            `Error processing lookup ${shortcode.formulaId}:`,
-            error
-          );
-          processedContent = processedContent.replace(
-            shortcode.original,
-            `[Error: Lookup processing failed]`
-          );
-        }
+        // Lookup shortcodes require session context
+        processedContent = processedContent.replace(
+          shortcode.original,
+          `[Error: Lookup shortcodes require session context]`
+        );
         continue;
       }
 
-      // Handle calc shortcodes (existing logic)
+      // Handle calc shortcodes
       const formula = formulas.find(
         f =>
           f.name.toLowerCase() === shortcode.formulaId.toLowerCase() ||
@@ -209,8 +212,6 @@ export async function processDisplayContent(
       );
 
       if (!formula) {
-        console.warn(`Formula not found for shortcode: ${shortcode.formulaId}`);
-        // Replace with error message or keep original
         processedContent = processedContent.replace(
           shortcode.original,
           `[Error: Formula '${shortcode.formulaId}' not found]`
@@ -219,96 +220,20 @@ export async function processDisplayContent(
       }
 
       try {
-        // Use session-based formula processing if sessionId is available
-        // This handles [field:xxx], [calc:xxx], and [lookup:xxx] references
-        let executionResult;
-
-        if (sessionId) {
-          console.log(
-            `🔄 [SHORTCODE] Processing formula with session: "${formula.formula_text}"`
-          );
-          // Use session-aware processing
-          const { processFormulaWithSession, evaluateProcessedFormula } =
-            await import('./session-data-table');
-
-          const processed = await processFormulaWithSession(
-            formula.formula_text,
-            sessionId
-          );
-          if (processed.success) {
-            const evaluated = evaluateProcessedFormula(
-              processed.processedFormula!
-            );
-            executionResult = {
-              success: evaluated.success,
-              result: evaluated.result,
-              error: evaluated.error,
-              executionTime: 0,
-            };
-          } else {
-            executionResult = {
-              success: false,
-              error: processed.error,
-              executionTime: 0,
-            };
-          }
-        } else {
-          console.log(
-            `🔄 [SHORTCODE] Processing formula without session: "${formula.formula_text}"`
-          );
-          // Fallback to field-only resolution
-          executionResult = await executeFormulaWithFieldResolution(
-            formula.formula_text,
-            formVariables
-          );
-        }
+        // Use field-only resolution (no session context)
+        const executionResult = await executeFormulaWithFieldResolution(
+          formula.formula_text,
+          formVariables
+        );
 
         if (executionResult.success && executionResult.result !== undefined) {
-          // Store result in session cache if sessionId is provided
-          if (sessionId) {
-            storeCalculationResult(
-              sessionId,
-              formula.name,
-              executionResult.result
-            );
-          }
-
-          // Format the result with proper unit and Finnish locale
-          // Get unit from formula database or use fallback based on formula name
-          let unit = formula.unit || '';
-
-          // Fallback unit mapping based on formula names (temporary until database has unit field)
-          if (!unit) {
-            const nameLower = formula.name.toLowerCase();
-            if (
-              nameLower.includes('energiantarve') &&
-              nameLower.includes('kwh')
-            ) {
-              unit = 'kW';
-            } else if (nameLower.includes('öljyn menekki')) {
-              unit = 'L/vuosi';
-            } else if (nameLower.includes('kaasun menekki')) {
-              unit = 'MWh/vuosi';
-            } else if (nameLower.includes('puun menekki')) {
-              unit = 'motti/vuosi';
-            }
-          }
-
-          const formattedResult = unit
-            ? `${executionResult.result.toLocaleString('fi-FI')} ${unit}`
-            : executionResult.result.toLocaleString('fi-FI');
-
-          console.log(
-            `🎯 [FORMAT] Formatted formula result: ${executionResult.result} → ${formattedResult} (unit: "${unit}", formula: "${formula.name}")`
-          );
-
-          // Replace the shortcode with the result
+          const formattedResult =
+            executionResult.result.toLocaleString('fi-FI');
           processedContent = processedContent.replace(
             shortcode.original,
             formattedResult
           );
         } else {
-          // Replace with error message
           processedContent = processedContent.replace(
             shortcode.original,
             `[Error: ${executionResult.error || 'Calculation failed'}]`

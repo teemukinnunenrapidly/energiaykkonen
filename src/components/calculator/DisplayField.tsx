@@ -6,6 +6,7 @@ import {
   ShortcodeResult,
 } from '@/lib/shortcode-processor';
 import { FormField } from '@/types/form';
+import { useCardContext } from '@/components/card-system/CardContext';
 
 interface DisplayFieldProps {
   field: FormField;
@@ -21,6 +22,10 @@ export function DisplayField({
   const [processedContent, setProcessedContent] = useState<string>('');
   const [isProcessing, setIsProcessing] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // Get sessionId from CardContext if available
+  const cardContext = useCardContext();
+  const sessionId = cardContext?.sessionId;
 
   useEffect(() => {
     if (field.type === 'display' && field.displayContent) {
@@ -39,7 +44,8 @@ export function DisplayField({
     try {
       const result: ShortcodeResult = await processDisplayContent(
         field.displayContent,
-        formVariables
+        formVariables,
+        sessionId // Now passes sessionId to enable unified engine
       );
 
       if (result.success && result.result) {

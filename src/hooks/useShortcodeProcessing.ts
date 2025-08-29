@@ -8,6 +8,7 @@ import {
 interface UseShortcodeProcessingProps {
   content: string;
   formVariables?: Record<string, any>;
+  sessionId?: string; // NEW: optional sessionId for unified engine
 }
 
 interface UseShortcodeProcessingReturn {
@@ -26,6 +27,7 @@ interface UseShortcodeProcessingReturn {
 export function useShortcodeProcessing({
   content,
   formVariables = {},
+  sessionId,
 }: UseShortcodeProcessingProps): UseShortcodeProcessingReturn {
   const [processedContent, setProcessedContent] = useState<string>('');
   const [isProcessing, setIsProcessing] = useState(false);
@@ -39,12 +41,12 @@ export function useShortcodeProcessing({
     }>
   >([]);
 
-  // Process shortcodes when content or form variables change
+  // Process shortcodes when content, form variables, or sessionId change
   useEffect(() => {
     if (content) {
       processShortcodes();
     }
-  }, [content, formVariables]);
+  }, [content, formVariables, sessionId]);
 
   // Load available shortcodes on mount
   useEffect(() => {
@@ -62,7 +64,8 @@ export function useShortcodeProcessing({
     try {
       const result: ShortcodeResult = await processDisplayContent(
         content,
-        formVariables
+        formVariables,
+        sessionId // Now passes sessionId to enable unified engine
       );
 
       if (result.success && result.result) {

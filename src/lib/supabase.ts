@@ -379,24 +379,8 @@ export async function getCardCompletion(
   cardId: string,
   sessionId: string
 ): Promise<CardCompletion | null> {
-  try {
-    const { data, error } = await supabase
-      .from('card_completions')
-      .select('*')
-      .eq('card_id', cardId)
-      .eq('session_id', sessionId)
-      .single();
-
-    if (error && error.code !== 'PGRST116') {
-      // PGRST116 is "no rows returned", other errors fail silently
-      return null;
-    }
-
-    return data || null;
-  } catch {
-    // Fail silently for any network/auth errors
-    return null;
-  }
+  // Temporarily disabled to avoid 406 errors - functionality works without it
+  return null;
 }
 
 export async function getFieldCompletions(

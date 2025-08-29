@@ -187,7 +187,7 @@ export function CardProvider({ children }: { children: React.ReactNode }) {
           ...prev,
           [cardId]: { ...prev[cardId], isRevealed: true },
         };
-        console.log(`🎯 REVEAL: Updated card states:`, newStates);
+        // console.log(`🎯 REVEAL: Updated card states:`, newStates);
         return newStates;
       });
     },
@@ -528,7 +528,7 @@ export function CardProvider({ children }: { children: React.ReactNode }) {
         }
       }
 
-      console.log('🔄 INIT: Final initial card states:', newStates);
+      // console.log('🔄 INIT: Final initial card states:', newStates);
       setCardStates(newStates);
     },
     [sessionId]
@@ -589,26 +589,26 @@ export function CardProvider({ children }: { children: React.ReactNode }) {
         return false;
       }
 
-      console.log(
-        `shouldBeRevealed called for card: ${card.name} (${card.id}) - index: ${cards.findIndex(c => c.id === card.id)}`
-      );
+      // console.log(
+      // `shouldBeRevealed called for card: ${card.name} (${card.id}) - index: ${cards.findIndex(c => c.id === card.id)}`
+      // );
 
       // Find the card state
       const cardState = cardStates[card.id];
-      console.log(`Card state for ${card.name}:`, cardState);
+      // console.log(`Card state for ${card.name}:`, cardState);
 
       // Check if this card has been explicitly revealed (has permission)
       if (cardState?.isRevealed === true) {
-        console.log(
-          `Card ${card.name} has reveal permission - should be revealed`
-        );
+        // console.log(
+        // `Card ${card.name} has reveal permission - should be revealed`
+        // );
         return true;
       }
 
       if (cardState?.isRevealed === false) {
-        console.log(
-          `Card ${card.name} does not have reveal permission - should stay blurred`
-        );
+        // console.log(
+        // `Card ${card.name} does not have reveal permission - should stay blurred`
+        // );
         return false;
       }
 
@@ -620,9 +620,9 @@ export function CardProvider({ children }: { children: React.ReactNode }) {
       }
 
       // If we get here, the card doesn't have explicit reveal permission
-      console.log(
-        `Card ${card.name} has no explicit reveal permission - defaulting to false`
-      );
+      // console.log(
+      // `Card ${card.name} has no explicit reveal permission - defaulting to false`
+      // );
       return false;
     },
     [cardStates, cards]
