@@ -16,30 +16,30 @@ import {
   getVisualObjectById,
   type VisualObject,
   type VisualObjectWithDetails,
+  getSafeImageUrl,
 } from '@/lib/visual-assets-service';
-import { getSafeImageUrl } from '@/lib/visual-assets-service';
 
-// Validation function for reveal conditions
-const validateRevealConditions = (
-  conditions: any[],
-  allCards: CardTemplate[]
-) => {
-  if (!conditions || !Array.isArray(conditions)) {
-    return conditions;
-  }
+// Validation function for reveal conditions - preserved for future use
+// const validateRevealConditions = (
+//   conditions: any[],
+//   allCards: CardTemplate[]
+// ) => {
+//   if (!conditions || !Array.isArray(conditions)) {
+//     return conditions;
+//   }
 
-  return conditions.map(condition => {
-    if (condition.type === 'card_complete' && condition.target) {
-      // Filter out non-existent card references
-      const validTargets = condition.target.filter((targetName: string) =>
-        allCards.some(c => c.name === targetName)
-      );
+//   return conditions.map(condition => {
+//     if (condition.type === 'card_complete' && condition.target) {
+//       // Filter out non-existent card references
+//       const validTargets = condition.target.filter((targetName: string) =>
+//         allCards.some(c => c.name === targetName)
+//       );
 
-      return { ...condition, target: validTargets };
-    }
-    return condition;
-  });
-};
+//       return { ...condition, target: validTargets };
+//     }
+//     return condition;
+//   });
+// };
 
 interface CardEditorProps {
   card: CardTemplate;
@@ -139,7 +139,7 @@ function SortableField({
 
 export function CardEditor({
   card,
-  allCards,
+  allCards: _allCards, // eslint-disable-line @typescript-eslint/no-unused-vars
   onUpdateCard,
   onSelectField,
   selectedFieldId,
@@ -192,17 +192,18 @@ export function CardEditor({
   }, [card.config?.linked_visual_object_id]);
 
   // Wrapper function to validate reveal conditions before updating
-  const handleUpdateCard = (updates: Partial<CardTemplate>) => {
-    if (updates.reveal_next_conditions) {
-      // Validate reveal conditions if they're being updated
-      const validatedConditions = validateRevealConditions(
-        [updates.reveal_next_conditions],
-        allCards
-      );
-      updates.reveal_next_conditions = validatedConditions[0];
-    }
-    onUpdateCard(updates);
-  };
+  // Preserved for future use when reveal condition validation is needed
+  // const _handleUpdateCard = (updates: Partial<CardTemplate>) => {
+  //   if (updates.reveal_next_conditions) {
+  //     // Validate reveal conditions if they're being updated
+  //     const validatedConditions = validateRevealConditions(
+  //       [updates.reveal_next_conditions],
+  //       allCards
+  //     );
+  //     updates.reveal_next_conditions = validatedConditions[0];
+  //   }
+  //   onUpdateCard(updates);
+  // };
 
   const handleFieldDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
@@ -774,3 +775,5 @@ export function CardEditor({
     </div>
   );
 }
+
+export default CardEditor;
