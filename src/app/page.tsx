@@ -1,4 +1,7 @@
+'use client';
+
 import Link from 'next/link';
+import { CardSystemContainer } from '@/components/card-system/CardSystemContainer';
 
 export default function HomePage() {
   return (
@@ -68,6 +71,33 @@ export default function HomePage() {
                 </p>
               </div>
             </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Calculator Preview Section */}
+      <div className="bg-white">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-bold text-gray-900 mb-4">
+              Try the Calculator
+            </h2>
+            <p className="text-lg text-gray-600">
+              Experience our interactive calculator below or{' '}
+              <Link
+                href="/calculator"
+                className="text-blue-600 hover:text-blue-700 font-semibold"
+              >
+                open it in full-screen mode
+              </Link>
+            </p>
+          </div>
+          <div className="rounded-lg border border-gray-200 shadow-lg overflow-hidden">
+            <CardSystemContainer
+              maxWidth={1200}
+              showVisualSupport={true}
+              visualWidth="40%"
+            />
           </div>
         </div>
       </div>
