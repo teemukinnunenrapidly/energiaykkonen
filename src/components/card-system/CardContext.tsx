@@ -48,14 +48,17 @@ const getSessionId = (): string => {
   }
 
   // Check for forced new session (for testing/debugging)
-  const forceNewSession = new URLSearchParams(window.location.search).get('new_session') === 'true';
-  
+  const forceNewSession =
+    new URLSearchParams(window.location.search).get('new_session') === 'true';
+
   let sessionId = localStorage.getItem('card_session_id');
-  
+
   if (!sessionId || forceNewSession) {
     sessionId = `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
     localStorage.setItem('card_session_id', sessionId);
-    console.log(`🆕 ${forceNewSession ? 'Forced' : 'Generated'} new session: ${sessionId}`);
+    console.log(
+      `🆕 ${forceNewSession ? 'Forced' : 'Generated'} new session: ${sessionId}`
+    );
   }
 
   return sessionId;
@@ -285,11 +288,16 @@ export function CardProvider({ children }: { children: React.ReactNode }) {
                 // All fields must be filled
                 const result = fields.every(field => {
                   const value = formData[field.field_name];
-                  const isComplete = value !== undefined && value !== null && value !== '';
-                  console.log(`🔍 Field completion check: ${field.field_name} (${field.field_type}) = "${value}" -> ${isComplete ? 'COMPLETE' : 'INCOMPLETE'}`);
+                  const isComplete =
+                    value !== undefined && value !== null && value !== '';
+                  console.log(
+                    `🔍 Field completion check: ${field.field_name} (${field.field_type}) = "${value}" -> ${isComplete ? 'COMPLETE' : 'INCOMPLETE'}`
+                  );
                   return isComplete;
                 });
-                console.log(`🎯 Card "${card.name}" all_fields completion result: ${result} (${fields.length} fields total)`);
+                console.log(
+                  `🎯 Card "${card.name}" all_fields completion result: ${result} (${fields.length} fields total)`
+                );
                 return result;
 
               case 'required_fields':

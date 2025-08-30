@@ -46,7 +46,7 @@ import {
 } from '@/lib/formula-service';
 import { EnhancedLookupManager } from '@/components/admin/EnhancedLookupManager';
 import AdminNavigation from '@/components/admin/AdminNavigation';
-import { supabase } from '@/lib/supabase';
+// import { supabase } from '@/lib/supabase'; // Currently unused
 
 export default function AdminCalculationsPage() {
   const [formulas, setFormulas] = useState<Formula[]>([]);
@@ -441,7 +441,8 @@ export default function AdminCalculationsPage() {
                       No Formulas Found
                     </h3>
                     <p className="text-muted-foreground mb-4">
-                      No formulas match your search query &quot;{searchQuery}&quot;
+                      No formulas match your search query &quot;{searchQuery}
+                      &quot;
                     </p>
                     <Button
                       variant="outline"
