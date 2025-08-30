@@ -239,6 +239,11 @@ export function CardStream({
             const isPreviewMode =
               window.location.pathname.includes('/admin/preview');
 
+            // Calculate step number for form cards only
+            const formCards = cards.filter(c => c.type === 'form');
+            const formCardIndex = formCards.findIndex(c => c.id === card.id);
+            const stepNumber = card.type === 'form' && formCardIndex >= 0 ? formCardIndex + 1 : undefined;
+
             // Find the first unrevealed card index (next card to be revealed)
             const firstUnrevealedIndex = cards.findIndex(
               c => !currentRevealStates[c.id]
@@ -314,7 +319,7 @@ export function CardStream({
                   }}
                   data-card-id={card.id}
                 >
-                  <CardRenderer card={card} onFieldFocus={onFieldFocus} />
+                  <CardRenderer card={card} onFieldFocus={onFieldFocus} stepNumber={stepNumber} />
                 </div>
               </div>
             );

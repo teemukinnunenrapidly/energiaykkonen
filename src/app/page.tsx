@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { CardSystemContainer } from '@/components/card-system/CardSystemContainer';
+import { ThemeProvider } from '@/components/theme/ThemeProvider';
 
 export default function HomePage() {
   return (
@@ -122,13 +123,15 @@ export default function HomePage() {
             </p>
           </div>
           <div className="rounded-lg overflow-hidden bg-transparent">
-            <CardSystemContainer
-              maxWidth={1200}
-              showVisualSupport={true}
-              visualWidth="50%"
-              height={700}
-              showBlurredCards={true}
-            />
+            <ThemeProvider>
+              <CardSystemContainer
+                maxWidth={1200}
+                showVisualSupport={true}
+                visualWidth="50%"
+                height={700}
+                showBlurredCards={true}
+              />
+            </ThemeProvider>
           </div>
         </div>
       </div>

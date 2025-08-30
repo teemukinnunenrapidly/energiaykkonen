@@ -1,18 +1,21 @@
 import React, { useEffect, useState } from 'react';
 import { useCardContext } from '../CardContext';
 import { supabase, type CardTemplate, type CardField } from '@/lib/supabase';
+import { useTheme } from '@/components/theme/ThemeProvider';
 
 interface FormCardProps {
   card: CardTemplate;
   onFieldFocus?: (cardId: string, fieldId: string, value: any) => void;
+  stepNumber?: number;
 }
 
-export function FormCard({ card, onFieldFocus }: FormCardProps) {
+export function FormCard({ card, onFieldFocus, stepNumber }: FormCardProps) {
   const [fields, setFields] = useState<CardField[]>([]);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitSuccess, setSubmitSuccess] = useState(false);
   const { formData, updateField, completeCard, submitData } = useCardContext();
+  const { getEffectiveTheme } = useTheme();
 
   useEffect(() => {
     loadFields();
@@ -282,10 +285,15 @@ export function FormCard({ card, onFieldFocus }: FormCardProps) {
           ? 'border-red-300 focus:ring-red-500 focus:border-red-500'
           : isCompleted
             ? 'border-green-300 focus:ring-green-500 focus:border-green-500'
-            : 'border-gray-300 focus:ring-blue-500 focus:border-blue-500'
+            : 'border-gray-300'
       }
       ${!isFieldEditable ? 'bg-gray-100 cursor-not-allowed' : ''}
     `;
+
+    const inputStyle = !error && !isCompleted ? {
+      borderColor: 'var(--theme-primary)',
+      outlineColor: 'var(--theme-primary)'
+    } as React.CSSProperties : {};
 
     switch (field.field_type) {
       case 'text':
@@ -304,6 +312,7 @@ export function FormCard({ card, onFieldFocus }: FormCardProps) {
               placeholder={field.placeholder}
               disabled={!isFieldEditable}
               className={inputClasses}
+              style={inputStyle}
               min={
                 field.field_type === 'number'
                   ? field.validation_rules?.min
@@ -350,6 +359,7 @@ export function FormCard({ card, onFieldFocus }: FormCardProps) {
               onBlur={() => handleFieldBlur(field)}
               disabled={!isFieldEditable}
               className={inputClasses}
+              style={inputStyle}
             >
               <option value="">Select...</option>
               {field.options?.map(opt => (
@@ -399,7 +409,10 @@ export function FormCard({ card, onFieldFocus }: FormCardProps) {
                     onFocus={() => handleFieldFocus(field)}
                     onBlur={() => handleFieldBlur(field)}
                     disabled={!isFieldEditable}
-                    className="w-4 h-4 text-blue-600 focus:ring-blue-500 border-gray-300"
+                    className="w-4 h-4 border-gray-300"
+                    style={{
+                      accentColor: 'var(--theme-primary)',
+                    }}
                   />
                   <span className="text-sm text-gray-700">{opt.label}</span>
                 </label>
@@ -477,12 +490,16 @@ export function FormCard({ card, onFieldFocus }: FormCardProps) {
                       w-full px-4 py-3 text-center border rounded-lg transition-all duration-200 font-medium
                       ${
                         isSelected
-                          ? 'bg-blue-600 text-white border-blue-600 shadow-md transform scale-[0.98]'
-                          : 'bg-white text-gray-700 border-gray-300 hover:border-blue-400 hover:bg-blue-50'
+                          ? 'text-white shadow-md transform scale-[0.98]'
+                          : 'bg-white text-gray-700 border-gray-300'
                       }
                       ${!isFieldEditable ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}
-                      focus:ring-2 focus:ring-blue-500 focus:ring-offset-2
+                      focus:ring-2 focus:ring-offset-2
                     `}
+                    style={isSelected ? {
+                      backgroundColor: 'var(--theme-primary)',
+                      borderColor: 'var(--theme-primary)',
+                    } : {}}
                   >
                     {opt.label}
                   </button>
@@ -523,7 +540,10 @@ export function FormCard({ card, onFieldFocus }: FormCardProps) {
                 onFocus={() => handleFieldFocus(field)}
                 onBlur={() => handleFieldBlur(field)}
                 disabled={!isFieldEditable}
-                className="w-4 h-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                className="w-4 h-4 border-gray-300 rounded"
+                style={{
+                  accentColor: 'var(--theme-primary)',
+                }}
               />
               <span className="text-sm text-gray-700">{field.label}</span>
             </label>
@@ -562,6 +582,7 @@ export function FormCard({ card, onFieldFocus }: FormCardProps) {
               disabled={!isFieldEditable}
               rows={4}
               className={inputClasses}
+              style={inputStyle}
               minLength={field.validation_rules?.minLength}
               maxLength={field.validation_rules?.maxLength}
             />
@@ -591,10 +612,40 @@ export function FormCard({ card, onFieldFocus }: FormCardProps) {
     }
   };
 
+  // Get theme for step number styling
+  const theme = getEffectiveTheme();
+  
+
+  // Get border radius class based on theme settings
+  const getBorderRadiusClass = (radius: string): string => {
+    switch (radius) {
+      case 'none': return 'rounded-none';
+      case 'sm': return 'rounded-sm';
+      case 'md': return 'rounded-md';
+      case 'lg': return 'rounded-lg';
+      case 'xl': return 'rounded-xl';
+      case 'full': return 'rounded-full';
+      default: return 'rounded-lg'; // fallback
+    }
+  };
+
   return (
     <div className="bg-white p-6">
       <div className="mb-4">
-        <h2 className="text-xl font-semibold">{card.title}</h2>
+        <div className="flex items-center gap-3">
+          {stepNumber && (
+            <div
+              className={`flex items-center justify-center min-w-8 h-8 px-2 text-sm font-bold shadow-sm ${getBorderRadiusClass(theme.borderRadius || 'lg')}`}
+              style={{
+                backgroundColor: 'var(--theme-primary)',
+                color: 'var(--theme-primary-text)',
+              }}
+            >
+              {stepNumber}
+            </div>
+          )}
+          <h2 className="text-xl font-semibold">{card.title}</h2>
+        </div>
       </div>
 
       <div className="grid grid-cols-12 gap-4">
@@ -666,10 +717,13 @@ export function FormCard({ card, onFieldFocus }: FormCardProps) {
                   ${
                     isSubmitting
                       ? 'bg-gray-400 cursor-not-allowed'
-                      : 'bg-blue-600 hover:bg-blue-700 active:bg-blue-800'
+                      : ''
                   }
                   transition-colors duration-200
                 `}
+                style={!isSubmitting ? {
+                  backgroundColor: 'var(--theme-primary)',
+                } : {}}
               >
                 {isSubmitting ? (
                   <>

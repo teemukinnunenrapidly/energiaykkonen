@@ -1,4 +1,11 @@
 import { supabase } from './supabase';
+import { createClient } from '@supabase/supabase-js';
+
+// Admin client with service role for bypassing RLS
+const adminClient = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+);
 import {
   GlobalTheme,
   GlobalThemeCore,
@@ -111,7 +118,7 @@ export async function createTheme(
     updatedAt: new Date().toISOString(),
   };
 
-  const { data, error } = await supabase
+  const { data, error } = await adminClient
     .from('themes')
     .insert([themeToRecord(theme)])
     .select()
@@ -130,7 +137,7 @@ export async function updateTheme(
   updates: Partial<GlobalThemeCore & { name?: string; description?: string }>
 ): Promise<GlobalTheme> {
   // First get the existing theme
-  const { data: existing, error: fetchError } = await supabase
+  const { data: existing, error: fetchError } = await adminClient
     .from('themes')
     .select('*')
     .eq('id', id)
@@ -169,11 +176,13 @@ export async function updateTheme(
     updatedAt: new Date().toISOString(),
   };
 
-  const { data, error } = await supabase
+  const updateData = themeToRecord(updatedTheme);
+  
+  const { data, error } = await adminClient
     .from('themes')
-    .update(themeToRecord(updatedTheme))
+    .update(updateData)
     .eq('id', id)
-    .select()
+    .select('*')
     .single();
 
   if (error) {
@@ -187,10 +196,10 @@ export async function updateTheme(
 export async function activateTheme(id: string): Promise<void> {
   try {
     // Deactivate all themes
-    await supabase.from('themes').update({ is_active: false });
+    await adminClient.from('themes').update({ is_active: false });
 
     // Activate the selected theme
-    const { error } = await supabase
+    const { error } = await adminClient
       .from('themes')
       .update({ is_active: true })
       .eq('id', id);
@@ -207,7 +216,7 @@ export async function activateTheme(id: string): Promise<void> {
 // Delete a theme (cannot delete active or default themes)
 export async function deleteTheme(id: string): Promise<void> {
   // Check if theme can be deleted
-  const { data: theme, error: fetchError } = await supabase
+  const { data: theme, error: fetchError } = await adminClient
     .from('themes')
     .select('is_active, is_default')
     .eq('id', id)
@@ -225,7 +234,7 @@ export async function deleteTheme(id: string): Promise<void> {
     throw new Error('Cannot delete the default theme');
   }
 
-  const { error } = await supabase.from('themes').delete().eq('id', id);
+  const { error } = await adminClient.from('themes').delete().eq('id', id);
 
   if (error) {
     throw new Error(`Failed to delete theme: ${error.message}`);
@@ -271,7 +280,7 @@ export async function setCardOverride(
     ...override,
   };
 
-  const { error } = await supabase.from('card_style_overrides').upsert({
+  const { error } = await adminClient.from('card_style_overrides').upsert({
     card_id: cardId,
     theme_id: themeId,
     style_overrides: styleOverride,
@@ -286,7 +295,7 @@ export async function removeCardOverride(
   cardId: string,
   themeId: string
 ): Promise<void> {
-  const { error } = await supabase
+  const { error } = await adminClient
     .from('card_style_overrides')
     .delete()
     .eq('card_id', cardId)

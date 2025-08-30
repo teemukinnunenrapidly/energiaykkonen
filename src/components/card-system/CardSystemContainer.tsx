@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { CardStream } from './CardStream';
 import { VisualSupport } from './VisualSupport';
 import { CardProvider } from './CardContext';
-import { ThemeProvider } from '@/components/theme/ThemeProvider';
 import { initializeCommonDependencies } from '@/lib/session-data-table';
 
 interface CardSystemContainerProps {
@@ -51,7 +50,6 @@ export function CardSystemContainer({
   const isMobileMode = forceMode === 'mobile';
 
   return (
-    <ThemeProvider>
       <CardProvider>
         <div className={`mx-auto ${className}`} style={containerStyle}>
           <div
@@ -119,6 +117,5 @@ export function CardSystemContainer({
           </div>
         </div>
       </CardProvider>
-    </ThemeProvider>
   );
 }

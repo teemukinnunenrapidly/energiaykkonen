@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Slider } from '@/components/ui/slider';
 import { Label } from '@/components/ui/label';
 import { CardSystemContainer } from '@/components/card-system/CardSystemContainer';
+import { ThemeProvider } from '@/components/theme/ThemeProvider';
 
 export default function PreviewPage() {
   const [viewMode, setViewMode] = useState<'desktop' | 'mobile'>('desktop');
@@ -175,14 +176,16 @@ export default function PreviewPage() {
             )}
 
             {/* Live Card System - No iframe, direct component */}
-            <CardSystemContainer
-              maxWidth="100%"
-              showVisualSupport={true}
-              visualWidth="50%"
-              fullWidth={true}
-              className={viewMode === 'mobile' ? 'pt-12' : ''}
-              forceMode={viewMode}
-            />
+            <ThemeProvider>
+              <CardSystemContainer
+                maxWidth="100%"
+                showVisualSupport={true}
+                visualWidth="50%"
+                fullWidth={true}
+                className={viewMode === 'mobile' ? 'pt-12' : ''}
+                forceMode={viewMode}
+              />
+            </ThemeProvider>
           </div>
         </div>
 

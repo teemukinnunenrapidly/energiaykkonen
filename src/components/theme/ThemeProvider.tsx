@@ -8,6 +8,7 @@ import {
   DEFAULT_THEME_CORE,
   computeThemeColors,
 } from '@/lib/types/theme';
+import { getActiveTheme, getCardOverrides } from '@/lib/theme-service';
 
 interface ThemeContextType {
   // Current theme
@@ -55,6 +56,36 @@ export function ThemeProvider({ children, initialTheme }: ThemeProviderProps) {
   const [cardOverrides, setCardOverrides] = useState<
     Record<string, CardStyleOverride>
   >({});
+
+  // Load active theme from database on mount
+  useEffect(() => {
+    const loadActiveTheme = async () => {
+      try {
+        const activeTheme = await getActiveTheme();
+        if (activeTheme) {
+          setThemeCore({
+            primaryColor: activeTheme.primaryColor,
+            secondaryColor: activeTheme.secondaryColor,
+            fontFamily: activeTheme.fontFamily,
+            headingFontFamily: activeTheme.headingFontFamily,
+            fieldSettings: activeTheme.fieldSettings,
+          });
+        }
+
+        // Load card overrides
+        const overrides = await getCardOverrides(activeTheme?.id);
+        setCardOverrides(overrides);
+      } catch (error) {
+        console.error('Failed to load active theme:', error);
+        // Keep using default theme on error
+      }
+    };
+
+    // Only load from database if no initial theme was provided
+    if (!initialTheme) {
+      loadActiveTheme();
+    }
+  }, [initialTheme]);
 
   // Compute full theme from core settings
   const theme: GlobalTheme = {
