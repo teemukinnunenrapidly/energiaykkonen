@@ -88,20 +88,17 @@ export function CardProvider({ children }: { children: React.ReactNode }) {
           `🗃️ Updating field completion in database for card "${fieldCard.name}"`
         );
 
-        // Update field completion in database
+        // Update field completion in database (for analytics and persistence)
         await updateFieldCompletion(fieldCard.id, fieldName, value, sessionId);
 
-        // Check if card should be completed based on database rules
-        const shouldBeComplete = await checkCardCompletion(
-          fieldCard.id,
-          sessionId
-        );
+        // Check completion using client-side logic (more reliable than database)
+        const shouldBeComplete = isCardComplete(fieldCard);
 
         console.log(
-          `📋 Card "${fieldCard.name}" completion check result: ${shouldBeComplete}`
+          `📋 Card "${fieldCard.name}" client-side completion check: ${shouldBeComplete}`
         );
 
-        // Update card completion state
+        // Update card completion state based on client-side logic
         if (shouldBeComplete) {
           await updateCardCompletion(fieldCard.id, sessionId, true, fieldName);
 
@@ -116,7 +113,7 @@ export function CardProvider({ children }: { children: React.ReactNode }) {
         }
       }
     },
-    [cards, sessionId]
+    [cards, sessionId, isCardComplete]
   );
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -276,10 +273,14 @@ export function CardProvider({ children }: { children: React.ReactNode }) {
 
               case 'all_fields':
                 // All fields must be filled
-                return fields.every(field => {
+                const result = fields.every(field => {
                   const value = formData[field.field_name];
-                  return value !== undefined && value !== null && value !== '';
+                  const isComplete = value !== undefined && value !== null && value !== '';
+                  console.log(`🔍 Field completion check: ${field.field_name} (${field.field_type}) = "${value}" -> ${isComplete ? 'COMPLETE' : 'INCOMPLETE'}`);
+                  return isComplete;
                 });
+                console.log(`🎯 Card "${card.name}" all_fields completion result: ${result} (${fields.length} fields total)`);
+                return result;
 
               case 'required_fields':
                 // Only specified required fields need to be filled
