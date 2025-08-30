@@ -9,6 +9,7 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
+  DialogDescription,
   DialogFooter,
 } from '@/components/ui/dialog';
 import {
@@ -202,6 +203,11 @@ export function CreateEditModal({
           <DialogTitle>
             {editingObject ? 'Edit Visual Object' : 'Create Visual Object'}
           </DialogTitle>
+          <DialogDescription>
+            {editingObject 
+              ? 'Update the visual object details and manage its images.' 
+              : 'Create a new visual object with images for the calculator interface.'}
+          </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-6">
@@ -461,6 +467,9 @@ export function UploadAssetsModal({
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Upload Assets</DialogTitle>
+          <DialogDescription>
+            Select and upload multiple images to create visual objects quickly.
+          </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-4">
