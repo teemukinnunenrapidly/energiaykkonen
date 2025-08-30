@@ -65,7 +65,12 @@ export async function POST(_request: NextRequest) {
 
     const uploadUrl = `https://api.cloudflare.com/client/v4/accounts/${process.env.CLOUDFLARE_ACCOUNT_ID}/images/v1`;
     
-    console.log('Attempting upload to Cloudflare Images...');
+    console.log('Attempting upload to Cloudflare Images...', {
+      url: uploadUrl,
+      fileSize: file.size,
+      fileType: file.type,
+      fileName: file.name,
+    });
     
     const response = await fetch(uploadUrl, {
       method: 'POST',
@@ -104,6 +109,11 @@ export async function POST(_request: NextRequest) {
       const errorMessage = data.errors?.[0]?.message || 'Upload failed';
       return NextResponse.json({ error: errorMessage }, { status: 500 });
     }
+
+    console.log('Upload successful:', {
+      imageId: data.result.id,
+      variantsCount: data.result.variants?.length,
+    });
 
     // Return the image ID and URLs
     return NextResponse.json({
