@@ -732,7 +732,7 @@ export class UnifiedCalculationEngine {
    * Persist processed value to database (non-blocking)
    * Temporarily disabled to avoid console errors - functionality works without it
    */
-  private async _persistValue(_value: ProcessedValue): Promise<void> {
+  private async _persistValue(_unusedValue: ProcessedValue): Promise<void> {
     // Disabled - calculations work perfectly without database persistence
     return;
   }

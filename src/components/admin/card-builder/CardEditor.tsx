@@ -18,6 +18,10 @@ import {
   type VisualObjectWithDetails,
   getSafeImageUrl,
 } from '@/lib/visual-assets-service';
+import {
+  getEmailTemplates,
+  type EmailTemplate,
+} from '@/lib/email-templates-service';
 
 // Validation function for reveal conditions - preserved for future use
 // const validateRevealConditions = (
@@ -151,6 +155,8 @@ export function CardEditor({
   const [loadingVisualObjects, setLoadingVisualObjects] = useState(false);
   const [linkedVisualObject, setLinkedVisualObject] =
     useState<VisualObjectWithDetails | null>(null);
+  const [emailTemplates, setEmailTemplates] = useState<EmailTemplate[]>([]);
+  const [loadingTemplates, setLoadingTemplates] = useState(false);
   const fields = card.card_fields || [];
 
   // Load visual objects for linking
@@ -169,6 +175,24 @@ export function CardEditor({
 
     loadVisualObjects();
   }, []);
+
+  // Load email templates when submit button is enabled
+  useEffect(() => {
+    const loadEmailTemplates = async () => {
+      if (card.config?.has_submit_button || card.type === 'submit') {
+        setLoadingTemplates(true);
+        try {
+          const templates = await getEmailTemplates();
+          setEmailTemplates(templates);
+        } catch (error) {
+          console.error('Error loading email templates:', error);
+        } finally {
+          setLoadingTemplates(false);
+        }
+      }
+    };
+    loadEmailTemplates();
+  }, [card.config?.has_submit_button, card.type]);
 
   // Load linked visual object details when card changes
   useEffect(() => {
@@ -493,66 +517,119 @@ export function CardEditor({
         </div>
       )}
 
-      {card.type === 'submit' && (
+      {/* Submit Button Configuration - Available for all card types */}
+      <div className="mt-6 p-4 bg-green-50 rounded-lg border border-green-200">
+        <h3 className="font-semibold mb-3 text-green-800">Submit Button</h3>
+
         <div className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium mb-1">
-              Button Text
-            </label>
+          <label className="flex items-center gap-2">
             <input
-              type="text"
-              value={card.config?.buttonText || ''}
+              type="checkbox"
+              checked={card.config?.has_submit_button || false}
               onChange={e =>
                 onUpdateCard({
-                  config: { ...card.config, buttonText: e.target.value },
+                  config: {
+                    ...card.config,
+                    has_submit_button: e.target.checked,
+                  },
                 })
               }
-              className="w-full p-2 border rounded"
-              placeholder="Submit"
             />
-          </div>
+            <span>Add submit button to this card</span>
+          </label>
+          <p className="text-xs text-gray-600 ml-6">
+            When enabled, this card will automatically be considered complete
+            when the submit button is clicked.
+          </p>
 
-          <div>
-            <label className="block text-sm font-medium mb-1">
-              Success Message
-            </label>
-            <input
-              type="text"
-              value={card.config?.successMessage || ''}
-              onChange={e =>
-                onUpdateCard({
-                  config: { ...card.config, successMessage: e.target.value },
-                })
-              }
-              className="w-full p-2 border rounded"
-              placeholder="Thank you! Your submission has been received."
-            />
-          </div>
+          {card.config?.has_submit_button && (
+            <div className="ml-6 space-y-3">
+              <div>
+                <label className="block text-sm font-medium mb-1">
+                  Button Text
+                </label>
+                <input
+                  type="text"
+                  value={card.config?.submit_button_text || 'Submit'}
+                  onChange={e =>
+                    onUpdateCard({
+                      config: {
+                        ...card.config,
+                        submit_button_text: e.target.value,
+                      },
+                    })
+                  }
+                  className="w-full p-2 border rounded"
+                  placeholder="Submit"
+                />
+                <p className="text-xs text-gray-500 mt-1">
+                  Text shown on the submit button
+                </p>
+              </div>
 
-          <div>
-            <label className="block text-sm font-medium mb-1">
-              Email Template
-            </label>
-            <select
-              value={card.config?.emailTemplate || ''}
-              onChange={e =>
-                onUpdateCard({
-                  config: { ...card.config, emailTemplate: e.target.value },
-                })
-              }
-              className="w-full p-2 border rounded"
-            >
-              <option value="">No email</option>
-              <option value="quote_request">Quote Request</option>
-              <option value="contact_form">Contact Form</option>
-              <option value="calculation_results">Calculation Results</option>
-            </select>
-          </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">
+                  Success Message
+                </label>
+                <input
+                  type="text"
+                  value={card.config?.submit_success_message || ''}
+                  onChange={e =>
+                    onUpdateCard({
+                      config: {
+                        ...card.config,
+                        submit_success_message: e.target.value,
+                      },
+                    })
+                  }
+                  className="w-full p-2 border rounded"
+                  placeholder="Thank you! Your submission has been received."
+                />
+                <p className="text-xs text-gray-500 mt-1">
+                  Message shown after successful submission
+                </p>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-1">
+                  Email Template
+                </label>
+                {loadingTemplates ? (
+                  <div className="w-full p-2 border rounded bg-gray-50 text-gray-500">
+                    Loading templates...
+                  </div>
+                ) : (
+                  <select
+                    value={card.config?.submit_email_template || ''}
+                    onChange={e =>
+                      onUpdateCard({
+                        config: {
+                          ...card.config,
+                          submit_email_template: e.target.value,
+                        },
+                      })
+                    }
+                    className="w-full p-2 border rounded"
+                  >
+                    <option value="">No email</option>
+                    {emailTemplates.map(template => (
+                      <option key={template.id} value={template.id}>
+                        {template.name} ({template.category})
+                      </option>
+                    ))}
+                  </select>
+                )}
+                <p className="text-xs text-gray-500 mt-1">
+                  Email template to send when form is submitted
+                </p>
+              </div>
+            </div>
+          )}
         </div>
-      )}
+      </div>
 
-      {/* Two-Phase Reveal System - not shown for the last card (submit type) */}
-      {card.type !== 'submit' && (
+      {/* Two-Phase Reveal System */}
+      {
         <div className="mt-6 space-y-6">
           {/* FORM CARDS: Show both Card Completion and Reveal Timing sections */}
           {card.type === 'form' && (
@@ -776,7 +853,7 @@ export function CardEditor({
             </div>
           )}
         </div>
-      )}
+      }
 
       {/* Visual Object Linking */}
       <div className="mt-6 p-4 bg-blue-50 rounded-lg border border-blue-200">

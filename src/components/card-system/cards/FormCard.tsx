@@ -10,7 +10,9 @@ interface FormCardProps {
 export function FormCard({ card, onFieldFocus }: FormCardProps) {
   const [fields, setFields] = useState<CardField[]>([]);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
-  const { formData, updateField } = useCardContext();
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitSuccess, setSubmitSuccess] = useState(false);
+  const { formData, updateField, completeCard, submitData } = useCardContext();
 
   useEffect(() => {
     loadFields();
@@ -196,6 +198,52 @@ export function FormCard({ card, onFieldFocus }: FormCardProps) {
   const handleFieldFocus = (field: CardField) => {
     if (onFieldFocus) {
       onFieldFocus(card.id, field.field_name, formData[field.field_name]);
+    }
+  };
+
+  const handleSubmit = async () => {
+    if (isSubmitting) {
+      return;
+    }
+
+    // Validate all required fields before submission
+    const validationErrors: Record<string, string> = {};
+    for (const field of fields) {
+      if (field.required && !formData[field.field_name]) {
+        validationErrors[field.field_name] = 'This field is required';
+      } else {
+        const error = getFieldError(field, formData[field.field_name]);
+        if (error) {
+          validationErrors[field.field_name] = error;
+        }
+      }
+    }
+
+    if (Object.keys(validationErrors).length > 0) {
+      setFieldErrors(validationErrors);
+      return;
+    }
+
+    setIsSubmitting(true);
+    try {
+      // Submit the form data using the CardContext submit functionality
+      if (submitData) {
+        await submitData(card.config?.submit_email_template);
+      }
+
+      // Mark this card as complete when submit button is clicked
+      completeCard(card.id);
+
+      // Show success message
+      setSubmitSuccess(true);
+
+      // Hide success message after 3 seconds
+      setTimeout(() => setSubmitSuccess(false), 3000);
+    } catch (error) {
+      console.error('Submission failed:', error);
+      // Could add error state here if needed
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -585,6 +633,75 @@ export function FormCard({ card, onFieldFocus }: FormCardProps) {
           </div>
         ))}
       </div>
+
+      {/* Submit Button Section */}
+      {card.config?.has_submit_button && (
+        <div className="mt-6 pt-4 border-t border-gray-200">
+          {submitSuccess ? (
+            <div className="text-center p-4 bg-green-50 border border-green-200 rounded-lg">
+              <svg
+                className="w-8 h-8 text-green-600 mx-auto mb-2"
+                fill="currentColor"
+                viewBox="0 0 20 20"
+              >
+                <path
+                  fillRule="evenodd"
+                  d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                  clipRule="evenodd"
+                />
+              </svg>
+              <p className="text-green-800 font-medium">
+                {card.config?.submit_success_message ||
+                  'Thank you! Your submission has been received.'}
+              </p>
+            </div>
+          ) : (
+            <div className="text-center">
+              <button
+                onClick={handleSubmit}
+                disabled={isSubmitting}
+                className={`
+                  inline-flex items-center gap-2 px-6 py-3 text-white font-medium rounded-lg
+                  ${
+                    isSubmitting
+                      ? 'bg-gray-400 cursor-not-allowed'
+                      : 'bg-blue-600 hover:bg-blue-700 active:bg-blue-800'
+                  }
+                  transition-colors duration-200
+                `}
+              >
+                {isSubmitting ? (
+                  <>
+                    <svg
+                      className="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                    >
+                      <circle
+                        className="opacity-25"
+                        cx="12"
+                        cy="12"
+                        r="10"
+                        stroke="currentColor"
+                        strokeWidth="4"
+                      ></circle>
+                      <path
+                        className="opacity-75"
+                        fill="currentColor"
+                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                      ></path>
+                    </svg>
+                    Submitting...
+                  </>
+                ) : (
+                  card.config?.submit_button_text || 'Submit'
+                )}
+              </button>
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }

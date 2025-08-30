@@ -401,7 +401,7 @@ export default function CardBuilderPage() {
     // Get all existing fields in ONE query instead of per-card queries
     const cardIds = cards.filter(c => !c.id.startsWith('temp-')).map(c => c.id);
 
-    let existingFieldMap = new Map();
+    const existingFieldMap = new Map();
     if (cardIds.length > 0) {
       const { data: existingFields, error: fetchError } = await supabase
         .from('card_fields')
@@ -425,7 +425,9 @@ export default function CardBuilderPage() {
 
     // Process each card's fields
     for (const card of cards) {
-      if (card.id.startsWith('00000000-')) continue;
+      if (card.id.startsWith('00000000-')) {
+        continue;
+      }
 
       const currentFieldIds = card.card_fields?.map(f => f.id) || [];
       const existingFieldIds = existingFieldMap.get(card.id) || [];
