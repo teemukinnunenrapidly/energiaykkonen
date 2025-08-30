@@ -237,9 +237,27 @@ export function CardStream({
             const isPreviewMode =
               window.location.pathname.includes('/admin/preview');
 
-            // Show cards based on preview mode OR showBlurredCards prop
-            const shouldShow = isPreviewMode || showBlurredCards ? true : isRevealed;
-            const isBlurred = (isPreviewMode || showBlurredCards) && !isRevealed;
+            // Find the first unrevealed card index (next card to be revealed)
+            const firstUnrevealedIndex = cards.findIndex(c => !currentRevealStates[c.id]);
+            const isFirstUpcoming = index === firstUnrevealedIndex;
+            const isSecondUpcoming = index === firstUnrevealedIndex + 1;
+
+            // Show logic:
+            // - Preview mode: show all cards
+            // - showBlurredCards: show revealed + next 2 upcoming cards
+            // - Default: show only revealed cards
+            let shouldShow = false;
+            if (isPreviewMode) {
+              shouldShow = true;
+            } else if (showBlurredCards) {
+              shouldShow = isRevealed || isFirstUpcoming || isSecondUpcoming;
+            } else {
+              shouldShow = isRevealed;
+            }
+
+            // Blur states for upcoming cards
+            const isBlurred = !isRevealed && shouldShow;
+            const isSecondBlur = isSecondUpcoming && !isRevealed;
 
             // Check if card is completed
             const cardState = cardStates[card.id];
@@ -257,7 +275,9 @@ export function CardStream({
                   transition-all duration-500 ease-out
                   ${
                     isBlurred
-                      ? 'opacity-60 translate-y-0 blur-sm pointer-events-none'
+                      ? isSecondBlur
+                        ? 'opacity-30 translate-y-0 blur-md pointer-events-none'
+                        : 'opacity-60 translate-y-0 blur-sm pointer-events-none'
                       : 'opacity-100 translate-y-0'
                   }
                 `}
@@ -270,7 +290,9 @@ export function CardStream({
                   bg-white rounded-lg shadow-lg border overflow-hidden hover:shadow-xl transition-all duration-200
                   ${
                     isBlurred
-                      ? 'border-gray-300 bg-gray-50'
+                      ? isSecondBlur
+                        ? 'border-gray-400 bg-gray-100'
+                        : 'border-gray-300 bg-gray-50'
                       : isCompleted
                         ? 'border-green-300 shadow-green-100 hover:border-green-400'
                         : 'border-gray-200'
