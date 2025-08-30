@@ -51,18 +51,11 @@ const getSessionId = (): string => {
   const forceNewSession = new URLSearchParams(window.location.search).get('new_session') === 'true';
   
   let sessionId = localStorage.getItem('card_session_id');
-  let isNewSession = false;
   
   if (!sessionId || forceNewSession) {
     sessionId = `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
     localStorage.setItem('card_session_id', sessionId);
-    isNewSession = true;
     console.log(`🆕 ${forceNewSession ? 'Forced' : 'Generated'} new session: ${sessionId}`);
-  }
-
-  // If this is a new session, we'll need to clean up old data
-  if (isNewSession) {
-    localStorage.setItem('session_needs_cleanup', 'true');
   }
 
   return sessionId;
@@ -604,21 +597,18 @@ export function CardProvider({ children }: { children: React.ReactNode }) {
     loadCards();
   }, [setCardsAndInitialize]);
 
-  // Initialize clean session on first load
+  // Initialize clean session on every app load (ensures fresh start)
   useEffect(() => {
     const initializeSession = async () => {
-      const needsCleanup = localStorage.getItem('session_needs_cleanup');
-      
-      if (needsCleanup === 'true') {
-        console.log('🧹 Initializing clean session...');
-        try {
-          await initializeCleanSession(sessionId);
-          localStorage.removeItem('session_needs_cleanup');
-          console.log('✅ Session initialized successfully');
-        } catch (error) {
-          console.error('❌ Failed to initialize clean session:', error);
-          // Continue anyway - don't break the user experience
-        }
+      console.log('🧹 Cleaning session data for fresh start...');
+      try {
+        await initializeCleanSession(sessionId);
+        // Remove the cleanup flag if it exists
+        localStorage.removeItem('session_needs_cleanup');
+        console.log('✅ Session cleaned and initialized successfully');
+      } catch (error) {
+        console.error('❌ Failed to clean session:', error);
+        // Continue anyway - don't break the user experience
       }
     };
 
