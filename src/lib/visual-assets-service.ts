@@ -103,6 +103,10 @@ export async function getVisualObjects(): Promise<VisualObject[]> {
 export async function getVisualObjectById(
   id: string
 ): Promise<VisualObjectWithDetails | null> {
+  if (!id) {
+    return null;
+  }
+  
   const { data, error } = await supabase
     .from('visual_objects')
     .select(
@@ -112,7 +116,7 @@ export async function getVisualObjectById(
     `
     )
     .eq('id', id)
-    .single();
+    .maybeSingle(); // Use maybeSingle() to handle cases where object doesn't exist
 
   if (error) {
     console.error('Error fetching visual object by ID:', error);
