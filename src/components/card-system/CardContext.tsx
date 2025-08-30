@@ -347,11 +347,21 @@ export function CardProvider({ children }: { children: React.ReactNode }) {
             const revealConditions = card.reveal_next_conditions;
 
             if (!revealConditions || revealConditions.type === 'immediately') {
-              // No specific completion requirements - any field fills completes it
-              return fields.some(field => {
-                const value = formData[field.field_name];
-                return value !== undefined && value !== null && value !== '';
-              });
+              // Check if there are required fields first
+              const requiredFields = fields.filter(field => field.required);
+              if (requiredFields.length > 0) {
+                // If there are required fields, all must be filled
+                return requiredFields.every(field => {
+                  const value = formData[field.field_name];
+                  return value !== undefined && value !== null && value !== '';
+                });
+              } else {
+                // No required fields - any field fills completes it
+                return fields.some(field => {
+                  const value = formData[field.field_name];
+                  return value !== undefined && value !== null && value !== '';
+                });
+              }
             } else if (revealConditions.type === 'all_complete') {
               // All fields must be filled
               return fields.every(field => {
