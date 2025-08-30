@@ -2,6 +2,14 @@ import { NextRequest, NextResponse } from 'next/server';
 
 export async function POST(_request: NextRequest) {
   try {
+    // Debug: Log environment variable status (without exposing values)
+    console.log('Environment check:', {
+      hasAccountId: !!process.env.CLOUDFLARE_ACCOUNT_ID,
+      hasApiToken: !!process.env.CLOUDFLARE_IMAGES_API_TOKEN,
+      accountIdLength: process.env.CLOUDFLARE_ACCOUNT_ID?.length || 0,
+      apiTokenLength: process.env.CLOUDFLARE_IMAGES_API_TOKEN?.length || 0,
+    });
+    
     // Check if Cloudflare credentials are configured
     if (!process.env.CLOUDFLARE_ACCOUNT_ID || !process.env.CLOUDFLARE_IMAGES_API_TOKEN) {
       console.error('Cloudflare Images not configured - missing environment variables');
