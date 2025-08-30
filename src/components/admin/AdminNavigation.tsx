@@ -13,6 +13,7 @@ import {
   Image as ImageIcon,
   ChevronDown,
   MoreHorizontal,
+  Palette,
 } from 'lucide-react';
 import {
   DropdownMenu,
@@ -46,6 +47,12 @@ const primaryNavigation = [
 
 // Secondary navigation items (in dropdown)
 const secondaryNavigation = [
+  {
+    name: 'Appearance',
+    href: '/admin/appearance',
+    icon: Palette,
+    description: 'Branding & Themes',
+  },
   {
     name: 'Visual Assets',
     href: '/admin/visual-assets',

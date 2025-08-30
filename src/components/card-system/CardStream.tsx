@@ -3,6 +3,7 @@ import React, { useEffect, useRef, useState, useMemo } from 'react';
 import { useCardContext } from './CardContext';
 import { CardRenderer } from './CardRenderer';
 import { VisualSupport } from './VisualSupport';
+import { useTheme } from '@/components/theme/ThemeProvider';
 
 interface CardStreamProps {
   onFieldFocus?: (cardId: string, fieldId: string, value?: string) => void;
@@ -20,6 +21,7 @@ export function CardStream({
   showBlurredCards = false,
 }: CardStreamProps) {
   const { cards, shouldBeRevealed, cardStates } = useCardContext();
+  const { getCardStyles, getEffectiveTheme } = useTheme();
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const [scrollIndicators, setScrollIndicators] = useState({
     showTop: false,
@@ -294,10 +296,20 @@ export function CardStream({
                         ? 'border-gray-400 bg-gray-100'
                         : 'border-gray-300 bg-gray-50'
                       : isCompleted
-                        ? 'border-green-300 shadow-green-100 hover:border-green-400'
-                        : 'border-gray-200'
+                        ? 'shadow-green-100 hover:shadow-green-200'
+                        : ''
                   }
                 `}
+                  style={{
+                    ...getCardStyles(card.id),
+                    borderColor: isCompleted 
+                      ? 'var(--theme-secondary, #22c55e)' 
+                      : isBlurred 
+                        ? undefined
+                        : 'var(--theme-border, #e2e8f0)',
+                    fontFamily: 'var(--theme-font-body, Inter, system-ui, sans-serif)',
+                  }}
+                  data-card-id={card.id}
                 >
                   <CardRenderer card={card} onFieldFocus={onFieldFocus} />
                 </div>
