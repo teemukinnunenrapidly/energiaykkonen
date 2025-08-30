@@ -2,6 +2,15 @@ import { NextRequest, NextResponse } from 'next/server';
 
 export async function POST(_request: NextRequest) {
   try {
+    // Check if Cloudflare credentials are configured
+    if (!process.env.CLOUDFLARE_ACCOUNT_ID || !process.env.CLOUDFLARE_IMAGES_API_TOKEN) {
+      console.error('Cloudflare Images not configured - missing environment variables');
+      return NextResponse.json(
+        { error: 'Cloudflare Images not configured. Please set CLOUDFLARE_ACCOUNT_ID and CLOUDFLARE_IMAGES_API_TOKEN in environment variables.' },
+        { status: 500 }
+      );
+    }
+
     // Check admin authentication here if needed
     // const isAdmin = await checkAdminAuth(request);
     // if (!isAdmin) {
@@ -46,28 +55,46 @@ export async function POST(_request: NextRequest) {
     };
     cloudflareFormData.append('metadata', JSON.stringify(metadata));
 
-    const response = await fetch(
-      `https://api.cloudflare.com/client/v4/accounts/${process.env.CLOUDFLARE_ACCOUNT_ID}/images/v1`,
-      {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${process.env.CLOUDFLARE_IMAGES_API_TOKEN}`,
-        },
-        body: cloudflareFormData,
-      }
-    );
+    const uploadUrl = `https://api.cloudflare.com/client/v4/accounts/${process.env.CLOUDFLARE_ACCOUNT_ID}/images/v1`;
+    
+    console.log('Attempting upload to Cloudflare Images...');
+    
+    const response = await fetch(uploadUrl, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${process.env.CLOUDFLARE_IMAGES_API_TOKEN}`,
+      },
+      body: cloudflareFormData,
+    });
 
     if (!response.ok) {
-      const error = await response.text();
-      console.error('Cloudflare upload failed:', error);
-      return NextResponse.json({ error: 'Upload failed' }, { status: 500 });
+      const errorText = await response.text();
+      console.error('Cloudflare upload failed:', {
+        status: response.status,
+        statusText: response.statusText,
+        error: errorText,
+      });
+      
+      // Try to parse the error for better messaging
+      let errorMessage = 'Upload failed';
+      try {
+        const errorData = JSON.parse(errorText);
+        if (errorData.errors && errorData.errors.length > 0) {
+          errorMessage = errorData.errors[0].message || errorMessage;
+        }
+      } catch {
+        // If parsing fails, use the generic message
+      }
+      
+      return NextResponse.json({ error: errorMessage }, { status: 500 });
     }
 
     const data = await response.json();
 
     if (!data.success) {
       console.error('Cloudflare error:', data.errors);
-      return NextResponse.json({ error: 'Upload failed' }, { status: 500 });
+      const errorMessage = data.errors?.[0]?.message || 'Upload failed';
+      return NextResponse.json({ error: errorMessage }, { status: 500 });
     }
 
     // Return the image ID and URLs

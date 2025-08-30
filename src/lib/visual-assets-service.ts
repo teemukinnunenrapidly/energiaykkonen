@@ -211,9 +211,15 @@ export async function getVisualObjectByContext(
 export async function createVisualObject(
   data: CreateVisualObjectData
 ): Promise<VisualObject> {
+  // Clean up folder_id - convert empty string to null
+  const cleanedData = {
+    ...data,
+    folder_id: data.folder_id && data.folder_id !== '' ? data.folder_id : null,
+  };
+  
   const { data: result, error } = await supabase
     .from('visual_objects')
-    .insert([data])
+    .insert([cleanedData])
     .select()
     .single();
 
@@ -230,9 +236,17 @@ export async function updateVisualObject(
   id: string,
   data: UpdateVisualObjectData
 ): Promise<VisualObject> {
+  // Clean up folder_id - convert empty string to null
+  const cleanedData = {
+    ...data,
+    folder_id: data.folder_id !== undefined 
+      ? (data.folder_id && data.folder_id !== '' ? data.folder_id : null)
+      : undefined,
+  };
+  
   const { data: result, error } = await supabase
     .from('visual_objects')
-    .update(data)
+    .update(cleanedData)
     .eq('id', id)
     .select()
     .single();

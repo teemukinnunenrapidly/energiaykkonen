@@ -223,13 +223,19 @@ export default function VisualAssetsPage() {
 
       // Upload images if provided
       if (images.length > 0) {
-        for (let i = 0; i < images.length; i++) {
-          const imageUrl = await uploadToCloudflare(images[i]);
-          await addImageToVisualObject(newObject.id, {
-            cloudflare_image_id: imageUrl.split('/').pop()!, // Extract ID from URL
-            title: images[i].name,
-            display_order: i,
-          });
+        try {
+          for (let i = 0; i < images.length; i++) {
+            const imageUrl = await uploadToCloudflare(images[i]);
+            await addImageToVisualObject(newObject.id, {
+              cloudflare_image_id: imageUrl.split('/').pop()!, // Extract ID from URL
+              title: images[i].name,
+              display_order: i,
+            });
+          }
+        } catch (uploadError: any) {
+          console.warn('Image upload failed, but visual object was created:', uploadError);
+          // Show a warning that images couldn't be uploaded but object was created
+          alert(`Visual object created successfully, but images could not be uploaded: ${uploadError.message || 'Unknown error'}`);
         }
       }
 
