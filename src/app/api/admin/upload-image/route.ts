@@ -3,10 +3,18 @@ import { NextRequest, NextResponse } from 'next/server';
 export async function POST(_request: NextRequest) {
   try {
     // Check if Cloudflare credentials are configured
-    if (!process.env.CLOUDFLARE_ACCOUNT_ID || !process.env.CLOUDFLARE_IMAGES_API_TOKEN) {
-      console.error('Cloudflare Images not configured - missing environment variables');
+    if (
+      !process.env.CLOUDFLARE_ACCOUNT_ID ||
+      !process.env.CLOUDFLARE_IMAGES_API_TOKEN
+    ) {
+      console.error(
+        'Cloudflare Images not configured - missing environment variables'
+      );
       return NextResponse.json(
-        { error: 'Cloudflare Images not configured. Please set CLOUDFLARE_ACCOUNT_ID and CLOUDFLARE_IMAGES_API_TOKEN in environment variables.' },
+        {
+          error:
+            'Cloudflare Images not configured. Please set CLOUDFLARE_ACCOUNT_ID and CLOUDFLARE_IMAGES_API_TOKEN in environment variables.',
+        },
         { status: 500 }
       );
     }
@@ -56,7 +64,7 @@ export async function POST(_request: NextRequest) {
     cloudflareFormData.append('metadata', JSON.stringify(metadata));
 
     const uploadUrl = `https://api.cloudflare.com/client/v4/accounts/${process.env.CLOUDFLARE_ACCOUNT_ID}/images/v1`;
-    
+
     const response = await fetch(uploadUrl, {
       method: 'POST',
       headers: {
@@ -72,7 +80,7 @@ export async function POST(_request: NextRequest) {
         statusText: response.statusText,
         error: errorText,
       });
-      
+
       // Try to parse the error for better messaging
       let errorMessage = 'Upload failed';
       try {
@@ -83,7 +91,7 @@ export async function POST(_request: NextRequest) {
       } catch {
         // If parsing fails, use the generic message
       }
-      
+
       return NextResponse.json({ error: errorMessage }, { status: 500 });
     }
 
@@ -95,7 +103,7 @@ export async function POST(_request: NextRequest) {
       return NextResponse.json({ error: errorMessage }, { status: 500 });
     }
 
-// Return the image ID and URLs
+    // Return the image ID and URLs
     return NextResponse.json({
       success: true,
       imageId: data.result.id,

@@ -1,6 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
-import type { CardTemplate } from '@/lib/supabase';
-import { supabase } from '@/lib/supabase';
+import { supabase, type CardTemplate } from '@/lib/supabase';
 import { useCardContext } from '../CardContext';
 import { UnifiedCalculationEngine } from '@/lib/unified-calculation-engine';
 import { EditableCalculationResult } from './EditableCalculationResult';

@@ -106,7 +106,7 @@ export async function getVisualObjectById(
   if (!id) {
     return null;
   }
-  
+
   const { data, error } = await supabase
     .from('visual_objects')
     .select(
@@ -220,7 +220,7 @@ export async function createVisualObject(
     ...data,
     folder_id: data.folder_id && data.folder_id !== '' ? data.folder_id : null,
   };
-  
+
   const { data: result, error } = await supabase
     .from('visual_objects')
     .insert([cleanedData])
@@ -243,11 +243,14 @@ export async function updateVisualObject(
   // Clean up folder_id - convert empty string to null
   const cleanedData = {
     ...data,
-    folder_id: data.folder_id !== undefined 
-      ? (data.folder_id && data.folder_id !== '' ? data.folder_id : null)
-      : undefined,
+    folder_id:
+      data.folder_id !== undefined
+        ? data.folder_id && data.folder_id !== ''
+          ? data.folder_id
+          : null
+        : undefined,
   };
-  
+
   const { data: result, error } = await supabase
     .from('visual_objects')
     .update(cleanedData)

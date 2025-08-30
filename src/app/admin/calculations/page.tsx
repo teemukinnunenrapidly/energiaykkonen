@@ -15,13 +15,6 @@ import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
-import {
   Table,
   TableBody,
   TableCell,
@@ -32,12 +25,7 @@ import {
 import {
   Calculator,
   FileText,
-  Download,
-  Settings,
   Shield,
-  AlertTriangle,
-  CheckCircle,
-  XCircle,
   Copy,
   Edit2,
   Trash2,
@@ -55,13 +43,10 @@ import {
   updateFormula,
   deleteFormula,
   validateFormula,
-  generateFormulaShortcode,
-  generateFormulaShortcodeWithVariables,
-  generateFormulaShortcodeWithDefaults,
 } from '@/lib/formula-service';
 import { EnhancedLookupManager } from '@/components/admin/EnhancedLookupManager';
 import AdminNavigation from '@/components/admin/AdminNavigation';
-import { supabase, type CardField } from '@/lib/supabase';
+import { supabase } from '@/lib/supabase';
 
 export default function AdminCalculationsPage() {
   const [formulas, setFormulas] = useState<Formula[]>([]);
@@ -85,12 +70,9 @@ export default function AdminCalculationsPage() {
     useState<FormulaValidationResult | null>(null);
 
   // Available fields from Card Builder
-  const [availableFields, setAvailableFields] = useState<CardField[]>([]);
-  const [fieldsLoading, setFieldsLoading] = useState(false);
 
   useEffect(() => {
     loadFormulas();
-    loadAvailableFields();
   }, []);
 
   const loadFormulas = async () => {
@@ -105,39 +87,7 @@ export default function AdminCalculationsPage() {
     }
   };
 
-  const loadAvailableFields = async () => {
-    try {
-      setFieldsLoading(true);
-      const { data, error } = await supabase
-        .from('card_fields')
-        .select(
-          `
-          *,
-          card_templates!card_fields_card_id_fkey (
-            id,
-            name,
-            title
-          )
-        `
-        )
-        .order('display_order');
-
-      if (error) {
-        console.error('Error loading available fields:', error);
-        return;
-      }
-
-      if (data) {
-        setAvailableFields(data);
-        console.log(`Loaded ${data.length} available fields from Card Builder`);
-        console.log('Sample field with card info:', data[0]); // Debug log
-      }
-    } catch (error) {
-      console.error('Failed to load available fields:', error);
-    } finally {
-      setFieldsLoading(false);
-    }
-  };
+  // loadAvailableFields function removed - not currently used
 
   // Lookup functions removed - using EnhancedLookupManager component instead
 
@@ -227,26 +177,30 @@ export default function AdminCalculationsPage() {
     }
   };
 
-  const copyToClipboard = (text: string) => {
-    navigator.clipboard.writeText(text);
-  };
+  // Helper functions for future use
+  // const copyToClipboard = (text: string) => {
+  //   navigator.clipboard.writeText(text);
+  // };
 
-  const insertFieldReference = (fieldName: string) => {
-    const fieldRef = `[field:${fieldName}]`;
-    setFormulaForm(prev => ({
-      ...prev,
-      formula_text: prev.formula_text + fieldRef,
-    }));
-  };
+  // const insertFieldReference = (fieldName: string) => {
+  //   const fieldRef = `[field:${fieldName}]`;
+  //   setFormulaForm(prev => ({
+  //     ...prev,
+  //     formula_text: prev.formula_text + fieldRef,
+  //   }));
+  // };
 
   // Filter formulas based on search query
   const filteredFormulas = formulas.filter(formula => {
-    if (!searchQuery.trim()) return true;
-    
+    if (!searchQuery.trim()) {
+      return true;
+    }
+
     const query = searchQuery.toLowerCase();
     return (
       formula.name.toLowerCase().includes(query) ||
-      (formula.description && formula.description.toLowerCase().includes(query)) ||
+      (formula.description &&
+        formula.description.toLowerCase().includes(query)) ||
       formula.formula_text.toLowerCase().includes(query) ||
       (formula.unit && formula.unit.toLowerCase().includes(query))
     );
@@ -381,7 +335,7 @@ export default function AdminCalculationsPage() {
                   />
                   <p className="text-xs text-muted-foreground mt-1">
                     Use JavaScript syntax. Access form data with
-                    "data.fieldName"
+                    &quot;data.fieldName&quot;
                   </p>
                 </div>
 
@@ -461,7 +415,7 @@ export default function AdminCalculationsPage() {
                   <Input
                     placeholder="Search formulas by name, description, formula text, or unit..."
                     value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
+                    onChange={e => setSearchQuery(e.target.value)}
                     className="pl-10"
                   />
                 </div>
@@ -487,9 +441,9 @@ export default function AdminCalculationsPage() {
                       No Formulas Found
                     </h3>
                     <p className="text-muted-foreground mb-4">
-                      No formulas match your search query "{searchQuery}"
+                      No formulas match your search query &quot;{searchQuery}&quot;
                     </p>
-                    <Button 
+                    <Button
                       variant="outline"
                       onClick={() => setSearchQuery('')}
                     >

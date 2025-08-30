@@ -76,28 +76,31 @@ export default function HomePage() {
       </div>
 
       {/* Calculator Preview Section with Green Background */}
-      <div className="relative bg-green-500 overflow-hidden" style={{ height: '1200px' }}>
+      <div
+        className="relative bg-green-500 overflow-hidden"
+        style={{ height: '1200px' }}
+      >
         {/* Geometric Background Shapes */}
         <div className="absolute inset-0">
           {/* Large circular shape */}
           <div className="absolute -top-32 -right-32 w-96 h-96 bg-green-400 rounded-full opacity-30"></div>
-          
+
           {/* Diagonal lines/shapes */}
           <div className="absolute top-0 left-0 w-full h-full">
             <div className="absolute top-20 left-10 w-64 h-2 bg-green-300 rotate-45 opacity-40"></div>
             <div className="absolute top-40 left-32 w-48 h-2 bg-green-300 rotate-12 opacity-40"></div>
             <div className="absolute bottom-32 right-16 w-72 h-2 bg-green-300 -rotate-45 opacity-40"></div>
           </div>
-          
+
           {/* Triangular shapes */}
           <div className="absolute bottom-20 left-20">
             <div className="w-0 h-0 border-l-[80px] border-r-[80px] border-b-[120px] border-l-transparent border-r-transparent border-b-green-400 opacity-25"></div>
           </div>
-          
+
           {/* Rectangle shapes */}
           <div className="absolute top-60 right-1/4 w-32 h-20 bg-green-400 opacity-20 rotate-12"></div>
           <div className="absolute bottom-60 left-1/3 w-24 h-40 bg-green-300 opacity-25 -rotate-6"></div>
-          
+
           {/* Additional circular elements */}
           <div className="absolute bottom-10 right-1/3 w-24 h-24 bg-green-300 rounded-full opacity-30"></div>
           <div className="absolute top-1/3 left-1/4 w-16 h-16 bg-green-400 rounded-full opacity-40"></div>
@@ -118,11 +121,12 @@ export default function HomePage() {
               </Link>
             </p>
           </div>
-          <div className="rounded-lg border border-green-300 shadow-2xl overflow-hidden bg-white/95 backdrop-blur-sm">
+          <div className="rounded-lg overflow-hidden bg-transparent">
             <CardSystemContainer
               maxWidth={1200}
               showVisualSupport={true}
-              visualWidth="40%"
+              visualWidth="50%"
+              height={700}
             />
           </div>
         </div>
@@ -136,7 +140,7 @@ export default function HomePage() {
               Why Choose Heat Pumps?
             </h2>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              Heat pumps are the most efficient way to heat and cool your home, 
+              Heat pumps are the most efficient way to heat and cool your home,
               offering significant savings and environmental benefits.
             </p>
           </div>
@@ -152,8 +156,13 @@ export default function HomePage() {
                     <span className="text-white font-bold">3x</span>
                   </div>
                   <div>
-                    <h4 className="font-semibold text-gray-900">300% Efficiency</h4>
-                    <p className="text-gray-600">Heat pumps deliver 3 units of heat for every 1 unit of electricity</p>
+                    <h4 className="font-semibold text-gray-900">
+                      300% Efficiency
+                    </h4>
+                    <p className="text-gray-600">
+                      Heat pumps deliver 3 units of heat for every 1 unit of
+                      electricity
+                    </p>
                   </div>
                 </div>
                 <div className="flex items-center">
@@ -161,8 +170,13 @@ export default function HomePage() {
                     <span className="text-white font-bold">50%</span>
                   </div>
                   <div>
-                    <h4 className="font-semibold text-gray-900">Energy Savings</h4>
-                    <p className="text-gray-600">Reduce your heating costs by up to 50% compared to traditional systems</p>
+                    <h4 className="font-semibold text-gray-900">
+                      Energy Savings
+                    </h4>
+                    <p className="text-gray-600">
+                      Reduce your heating costs by up to 50% compared to
+                      traditional systems
+                    </p>
                   </div>
                 </div>
                 <div className="flex items-center">
@@ -170,13 +184,18 @@ export default function HomePage() {
                     <span className="text-white font-bold">70%</span>
                   </div>
                   <div>
-                    <h4 className="font-semibold text-gray-900">CO2 Reduction</h4>
-                    <p className="text-gray-600">Lower your carbon footprint by up to 70% with renewable energy</p>
+                    <h4 className="font-semibold text-gray-900">
+                      CO2 Reduction
+                    </h4>
+                    <p className="text-gray-600">
+                      Lower your carbon footprint by up to 70% with renewable
+                      energy
+                    </p>
                   </div>
                 </div>
               </div>
             </div>
-            
+
             <div className="bg-white rounded-lg p-8 shadow-lg">
               <h3 className="text-xl font-semibold text-gray-900 mb-4">
                 Average Annual Savings
@@ -184,19 +203,26 @@ export default function HomePage() {
               <div className="space-y-4">
                 <div className="flex justify-between items-center p-4 bg-gray-50 rounded-lg">
                   <span className="font-medium">Small Home (100m²)</span>
-                  <span className="text-green-600 font-bold">€800 - €1,200</span>
+                  <span className="text-green-600 font-bold">
+                    €800 - €1,200
+                  </span>
                 </div>
                 <div className="flex justify-between items-center p-4 bg-gray-50 rounded-lg">
                   <span className="font-medium">Medium Home (150m²)</span>
-                  <span className="text-green-600 font-bold">€1,200 - €1,800</span>
+                  <span className="text-green-600 font-bold">
+                    €1,200 - €1,800
+                  </span>
                 </div>
                 <div className="flex justify-between items-center p-4 bg-gray-50 rounded-lg">
                   <span className="font-medium">Large Home (200m²)</span>
-                  <span className="text-green-600 font-bold">€1,800 - €2,400</span>
+                  <span className="text-green-600 font-bold">
+                    €1,800 - €2,400
+                  </span>
                 </div>
               </div>
               <p className="text-sm text-gray-500 mt-4">
-                *Savings depend on current heating system, home insulation, and local energy prices
+                *Savings depend on current heating system, home insulation, and
+                local energy prices
               </p>
             </div>
           </div>
@@ -211,7 +237,8 @@ export default function HomePage() {
               Available Incentives & Grants
             </h2>
             <p className="text-xl text-gray-600">
-              Take advantage of government programs to reduce your investment costs
+              Take advantage of government programs to reduce your investment
+              costs
             </p>
           </div>
 
@@ -224,7 +251,8 @@ export default function HomePage() {
                 Energy Grant Program
               </h3>
               <p className="text-gray-600 mb-4">
-                Get up to €4,000 in grants for qualifying heat pump installations
+                Get up to €4,000 in grants for qualifying heat pump
+                installations
               </p>
               <ul className="text-sm text-gray-500 space-y-1">
                 <li>• Air-to-water heat pumps: up to €2,400</li>
@@ -241,7 +269,8 @@ export default function HomePage() {
                 Tax Incentives
               </h3>
               <p className="text-gray-600 mb-4">
-                Benefit from reduced VAT rates and tax deductions on your installation
+                Benefit from reduced VAT rates and tax deductions on your
+                installation
               </p>
               <ul className="text-sm text-gray-500 space-y-1">
                 <li>• Reduced VAT rate of 10% on installation</li>
@@ -292,12 +321,11 @@ export default function HomePage() {
                 </div>
               </div>
               <p className="text-gray-600 mb-4">
-                "Our heating bills dropped by 60% after installing the heat pump. 
-                The house is more comfortable than ever, and we're doing our part for the environment."
+                "Our heating bills dropped by 60% after installing the heat
+                pump. The house is more comfortable than ever, and we're doing
+                our part for the environment."
               </p>
-              <div className="flex text-yellow-400">
-                ★★★★★
-              </div>
+              <div className="flex text-yellow-400">★★★★★</div>
             </div>
 
             <div className="bg-gray-50 rounded-lg p-6">
@@ -309,12 +337,11 @@ export default function HomePage() {
                 </div>
               </div>
               <p className="text-gray-600 mb-4">
-                "Installation was smooth and professional. The system works perfectly 
-                even in -25°C weather. Best investment we've made for our home."
+                "Installation was smooth and professional. The system works
+                perfectly even in -25°C weather. Best investment we've made for
+                our home."
               </p>
-              <div className="flex text-yellow-400">
-                ★★★★★
-              </div>
+              <div className="flex text-yellow-400">★★★★★</div>
             </div>
 
             <div className="bg-gray-50 rounded-lg p-6">
@@ -326,12 +353,10 @@ export default function HomePage() {
                 </div>
               </div>
               <p className="text-gray-600 mb-4">
-                "The calculator helped us understand the savings potential. 
+                "The calculator helped us understand the savings potential.
                 After one year, we're saving exactly what was predicted!"
               </p>
-              <div className="flex text-yellow-400">
-                ★★★★★
-              </div>
+              <div className="flex text-yellow-400">★★★★★</div>
             </div>
           </div>
         </div>
@@ -355,8 +380,9 @@ export default function HomePage() {
                 How long does a heat pump installation take?
               </h3>
               <p className="text-gray-300">
-                Most installations are completed within 1-2 days. Ground source heat pumps 
-                may require additional time for ground work, typically 3-5 days total.
+                Most installations are completed within 1-2 days. Ground source
+                heat pumps may require additional time for ground work,
+                typically 3-5 days total.
               </p>
             </div>
 
@@ -365,8 +391,9 @@ export default function HomePage() {
                 Do heat pumps work in Finnish winters?
               </h3>
               <p className="text-gray-300">
-                Yes! Modern heat pumps are designed to work efficiently even at -25°C. 
-                They're specifically engineered for Nordic climates and provide reliable heating year-round.
+                Yes! Modern heat pumps are designed to work efficiently even at
+                -25°C. They're specifically engineered for Nordic climates and
+                provide reliable heating year-round.
               </p>
             </div>
 
@@ -375,8 +402,9 @@ export default function HomePage() {
                 What maintenance is required?
               </h3>
               <p className="text-gray-300">
-                Heat pumps require minimal maintenance. Annual servicing by a qualified technician 
-                and regular filter cleaning are typically all that's needed to keep your system running efficiently.
+                Heat pumps require minimal maintenance. Annual servicing by a
+                qualified technician and regular filter cleaning are typically
+                all that's needed to keep your system running efficiently.
               </p>
             </div>
 
@@ -385,8 +413,9 @@ export default function HomePage() {
                 How long is the warranty period?
               </h3>
               <p className="text-gray-300">
-                Most heat pump systems come with a 5-7 year manufacturer warranty on parts, 
-                with extended warranty options available. Installation work is typically guaranteed for 2 years.
+                Most heat pump systems come with a 5-7 year manufacturer
+                warranty on parts, with extended warranty options available.
+                Installation work is typically guaranteed for 2 years.
               </p>
             </div>
           </div>
@@ -398,10 +427,13 @@ export default function HomePage() {
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid md:grid-cols-4 gap-8">
             <div>
-              <h3 className="text-lg font-semibold mb-4">E1 Energy Solutions</h3>
+              <h3 className="text-lg font-semibold mb-4">
+                E1 Energy Solutions
+              </h3>
               <p className="text-gray-300 text-sm">
-                Leading provider of energy-efficient heating solutions in Finland. 
-                Helping homeowners save money and reduce their carbon footprint.
+                Leading provider of energy-efficient heating solutions in
+                Finland. Helping homeowners save money and reduce their carbon
+                footprint.
               </p>
             </div>
             <div>

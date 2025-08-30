@@ -2,21 +2,22 @@ import { NextRequest, NextResponse } from 'next/server';
 
 export async function GET(_request: NextRequest) {
   // This endpoint helps debug if Cloudflare environment variables are properly set
-  
+
   const config = {
     hasAccountId: !!process.env.CLOUDFLARE_ACCOUNT_ID,
     hasApiToken: !!process.env.CLOUDFLARE_IMAGES_API_TOKEN,
     hasPublicHash: !!process.env.NEXT_PUBLIC_CLOUDFLARE_ACCOUNT_HASH,
     accountIdLength: process.env.CLOUDFLARE_ACCOUNT_ID?.length || 0,
     apiTokenLength: process.env.CLOUDFLARE_IMAGES_API_TOKEN?.length || 0,
-    publicHashLength: process.env.NEXT_PUBLIC_CLOUDFLARE_ACCOUNT_HASH?.length || 0,
+    publicHashLength:
+      process.env.NEXT_PUBLIC_CLOUDFLARE_ACCOUNT_HASH?.length || 0,
     nodeEnv: process.env.NODE_ENV,
     vercelEnv: process.env.VERCEL_ENV,
   };
 
   // Test if we can make a simple API call to Cloudflare
   let cloudflareTestResult = 'Not tested';
-  
+
   if (config.hasAccountId && config.hasApiToken) {
     try {
       const response = await fetch(
@@ -28,7 +29,7 @@ export async function GET(_request: NextRequest) {
           },
         }
       );
-      
+
       if (response.ok) {
         cloudflareTestResult = 'API connection successful';
       } else {
@@ -52,10 +53,11 @@ export async function GET(_request: NextRequest) {
   }
 
   return NextResponse.json({
-    configured: config.hasAccountId && config.hasApiToken && config.hasPublicHash,
+    configured:
+      config.hasAccountId && config.hasApiToken && config.hasPublicHash,
     config,
     cloudflareTest: cloudflareTestResult,
-    message: 
+    message:
       config.hasAccountId && config.hasApiToken && config.hasPublicHash
         ? 'All Cloudflare environment variables are configured'
         : 'Missing Cloudflare environment variables',

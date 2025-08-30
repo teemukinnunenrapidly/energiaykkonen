@@ -207,15 +207,12 @@ export function CardProvider({ children }: { children: React.ReactNode }) {
 
       if (nextCard) {
         const revealTiming = card.reveal_timing;
-        const legacyRevealConditions = card.reveal_next_conditions;
-
         console.log(`🕐 Reveal timing settings:`, {
           reveal_timing: revealTiming,
-          legacy: legacyRevealConditions,
           nextCard: nextCard.name,
         });
 
-        // Use new reveal_timing if available, otherwise fall back to legacy system
+        // Use reveal_timing (required for all cards)
         if (revealTiming) {
           if (revealTiming.timing === 'immediately') {
             console.log(
@@ -234,34 +231,12 @@ export function CardProvider({ children }: { children: React.ReactNode }) {
               revealCard(nextCard.id);
             }, delayMs);
           }
-        } else if (legacyRevealConditions) {
-          // Fall back to legacy system
-          if (
-            legacyRevealConditions.type === 'immediately' ||
-            legacyRevealConditions.type === 'required_complete' ||
-            legacyRevealConditions.type === 'all_complete'
-          ) {
-            console.log(
-              `⚡ Granting immediate reveal permission to "${nextCard.name}" (legacy)`
-            );
-            revealCard(nextCard.id);
-          } else if (legacyRevealConditions.type === 'after_delay') {
-            const delayMs = (legacyRevealConditions.delay_seconds || 3) * 1000;
-            console.log(
-              `⏱️ Will grant reveal permission to "${nextCard.name}" after ${delayMs}ms (legacy)`
-            );
-            setTimeout(() => {
-              console.log(
-                `⚡ Granting delayed reveal permission to "${nextCard.name}" (legacy)`
-              );
-              revealCard(nextCard.id);
-            }, delayMs);
-          }
         } else {
-          // Default behavior: immediate reveal
-          console.log(
-            `⚡ No reveal timing specified, defaulting to immediate reveal for "${nextCard.name}"`
+          // No reveal_timing defined - require proper reveal_timing to be set
+          console.warn(
+            `Card "${card.name}" has no reveal_timing defined. Please set reveal_timing in admin.`
           );
+          // Default to immediate reveal for now to prevent system from breaking
           revealCard(nextCard.id);
         }
       }
@@ -285,7 +260,7 @@ export function CardProvider({ children }: { children: React.ReactNode }) {
             return true;
           } // No fields = complete
 
-          // Use new completion_rules if available, otherwise fall back to legacy system
+          // Use completion_rules (required for all form cards)
           const completionRules = card.completion_rules;
 
           if (completionRules?.form_completion) {
@@ -343,49 +318,11 @@ export function CardProvider({ children }: { children: React.ReactNode }) {
                 return false;
             }
           } else {
-            // Fall back to legacy system
-            const revealConditions = card.reveal_next_conditions;
-
-            if (!revealConditions || revealConditions.type === 'immediately') {
-              // Check if there are required fields first
-              const requiredFields = fields.filter(field => field.required);
-              if (requiredFields.length > 0) {
-                // If there are required fields, all must be filled
-                return requiredFields.every(field => {
-                  const value = formData[field.field_name];
-                  return value !== undefined && value !== null && value !== '';
-                });
-              } else {
-                // No required fields - any field fills completes it
-                return fields.some(field => {
-                  const value = formData[field.field_name];
-                  return value !== undefined && value !== null && value !== '';
-                });
-              }
-            } else if (revealConditions.type === 'all_complete') {
-              // All fields must be filled
-              return fields.every(field => {
-                const value = formData[field.field_name];
-                return value !== undefined && value !== null && value !== '';
-              });
-            } else if (revealConditions.type === 'required_complete') {
-              // Required fields must be filled (or any field if no required fields specified)
-              const requiredFields = fields.filter(field => field.required);
-              if (requiredFields.length === 0) {
-                // No required fields specified, any field completion works
-                return fields.some(field => {
-                  const value = formData[field.field_name];
-                  return value !== undefined && value !== null && value !== '';
-                });
-              } else {
-                // Check if all required fields are filled
-                return requiredFields.every(field => {
-                  const value = formData[field.field_name];
-                  return value !== undefined && value !== null && value !== '';
-                });
-              }
-            }
-            return false;
+            // No completion_rules defined - card requires proper completion_rules to be set
+            console.warn(
+              `Form card "${card.name}" has no completion_rules defined. Please set completion_rules in admin.`
+            );
+            return false; // Don't auto-complete cards without proper rules
           }
         }
 
@@ -440,14 +377,12 @@ export function CardProvider({ children }: { children: React.ReactNode }) {
       if (nextCard) {
         const currentCard = cards[currentCardIndex];
         const revealTiming = currentCard.reveal_timing;
-        const legacyRevealConditions = currentCard.reveal_next_conditions;
-
         console.log(
           `Card ${currentCard.name} completed, checking reveal timing for next card ${nextCard.name}:`,
-          { reveal_timing: revealTiming, legacy: legacyRevealConditions }
+          { reveal_timing: revealTiming }
         );
 
-        // Use new reveal_timing if available, otherwise fall back to legacy system
+        // Use reveal_timing (required for all cards)
         if (revealTiming) {
           if (revealTiming.timing === 'immediately') {
             // Grant reveal permission immediately when current card completes
@@ -468,36 +403,12 @@ export function CardProvider({ children }: { children: React.ReactNode }) {
               revealCard(nextCard.id);
             }, delayMs);
           }
-        } else if (legacyRevealConditions) {
-          // Fall back to legacy system
-          if (
-            legacyRevealConditions.type === 'immediately' ||
-            legacyRevealConditions.type === 'required_complete' ||
-            legacyRevealConditions.type === 'all_complete'
-          ) {
-            // Grant reveal permission immediately when current card completes
-            console.log(
-              `Granting immediate reveal permission to ${nextCard.name} (legacy)`
-            );
-            revealCard(nextCard.id);
-          } else if (legacyRevealConditions.type === 'after_delay') {
-            // Grant reveal permission after delay when current card completes
-            const delayMs = (legacyRevealConditions.delay_seconds || 3) * 1000;
-            console.log(
-              `Will grant reveal permission to ${nextCard.name} after ${delayMs}ms (legacy)`
-            );
-            setTimeout(() => {
-              console.log(
-                `Granting delayed reveal permission to ${nextCard.name} (legacy)`
-              );
-              revealCard(nextCard.id);
-            }, delayMs);
-          }
         } else {
-          // Default behavior: immediate reveal
-          console.log(
-            `No reveal timing specified, defaulting to immediate reveal for ${nextCard.name}`
+          // No reveal_timing defined - require proper reveal_timing to be set
+          console.warn(
+            `Card "${currentCard.name}" has no reveal_timing defined. Please set reveal_timing in admin.`
           );
+          // Default to immediate reveal for now to prevent system from breaking
           revealCard(nextCard.id);
         }
       }

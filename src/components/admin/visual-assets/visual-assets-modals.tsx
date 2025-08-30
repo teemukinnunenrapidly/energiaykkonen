@@ -204,8 +204,8 @@ export function CreateEditModal({
             {editingObject ? 'Edit Visual Object' : 'Create Visual Object'}
           </DialogTitle>
           <DialogDescription>
-            {editingObject 
-              ? 'Update the visual object details and manage its images.' 
+            {editingObject
+              ? 'Update the visual object details and manage its images.'
               : 'Create a new visual object with images for the calculator interface.'}
           </DialogDescription>
         </DialogHeader>

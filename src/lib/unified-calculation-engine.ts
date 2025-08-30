@@ -340,7 +340,7 @@ export class UnifiedCalculationEngine {
           this.cache.set(depId, processedValue);
 
           // Persist to database (non-blocking)
-          this._persistValue(processedValue).catch(console.error);
+          this._persistValue().catch(console.error);
         }
       }
 
@@ -732,7 +732,7 @@ export class UnifiedCalculationEngine {
    * Persist processed value to database (non-blocking)
    * Temporarily disabled to avoid console errors - functionality works without it
    */
-  private async _persistValue(_unusedValue: ProcessedValue): Promise<void> {
+  private async _persistValue(): Promise<void> {
     // Disabled - calculations work perfectly without database persistence
     return;
   }
