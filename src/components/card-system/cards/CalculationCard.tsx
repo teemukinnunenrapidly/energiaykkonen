@@ -355,7 +355,6 @@ export function CalculationCard({ card }: CalculationCardProps) {
                 : undefined
             }
             isCalculating={isCalculating}
-            formulaName={formulaName || undefined}
           />
         ) : isCalculating ? (
           <div className="text-4xl font-bold text-blue-600 flex items-center gap-3">

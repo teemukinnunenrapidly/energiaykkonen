@@ -35,6 +35,7 @@ interface CardContextValue {
   shouldBeRevealed: (card: CardTemplate, visitedCards?: Set<string>) => boolean;
   revealCard: (cardId: string) => void; // New: grants reveal permission to a card
   isCardComplete: (card: CardTemplate) => boolean; // New: checks if card meets completion criteria
+  submitData: (emailTemplate?: string) => Promise<void>; // Submit form data
 }
 
 const CardContext = createContext<CardContextValue | null>(null);
@@ -389,6 +390,26 @@ export function CardProvider({ children }: { children: React.ReactNode }) {
     [formData, cardStates]
   );
 
+  const submitData = useCallback(
+    async (emailTemplate?: string) => {
+      const submitPayload = {
+        ...formData,
+        submit_email_template: emailTemplate,
+      };
+
+      const response = await fetch('/api/submit-lead', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(submitPayload),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to submit form data');
+      }
+    },
+    [formData]
+  );
+
   const completeCard = useCallback(
     (cardId: string) => {
       console.log(`completeCard called for: ${cardId}`);
@@ -660,6 +681,7 @@ export function CardProvider({ children }: { children: React.ReactNode }) {
         shouldBeRevealed,
         revealCard,
         isCardComplete,
+        submitData,
       }}
     >
       {children}
