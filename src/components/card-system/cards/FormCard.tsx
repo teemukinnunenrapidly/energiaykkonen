@@ -602,9 +602,10 @@ export function FormCard({ card, onFieldFocus }: FormCardProps) {
           <div
             key={field.id}
             className={`
-              ${field.width === 'full' ? 'col-span-12' : ''}
-              ${field.width === 'half' ? 'col-span-6' : ''}
-              ${field.width === 'third' ? 'col-span-4' : ''}
+              col-span-12
+              ${field.width === 'full' ? 'md:col-span-12' : ''}
+              ${field.width === 'half' ? 'md:col-span-6' : ''}
+              ${field.width === 'third' ? 'md:col-span-4' : ''}
             `}
           >
             <label className="block text-sm font-medium mb-2 flex items-center gap-2">
