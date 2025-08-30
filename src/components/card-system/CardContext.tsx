@@ -12,6 +12,7 @@ import {
   updateCardCompletion,
   getCardCompletion,
   checkCardCompletion,
+  initializeCleanSession,
 } from '@/lib/supabase';
 import { updateSessionWithFormData } from '@/lib/session-data-table';
 
@@ -46,11 +47,24 @@ const getSessionId = (): string => {
     return 'server-side';
   }
 
+  // Check for forced new session (for testing/debugging)
+  const forceNewSession = new URLSearchParams(window.location.search).get('new_session') === 'true';
+  
   let sessionId = localStorage.getItem('card_session_id');
-  if (!sessionId) {
+  let isNewSession = false;
+  
+  if (!sessionId || forceNewSession) {
     sessionId = `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
     localStorage.setItem('card_session_id', sessionId);
+    isNewSession = true;
+    console.log(`🆕 ${forceNewSession ? 'Forced' : 'Generated'} new session: ${sessionId}`);
   }
+
+  // If this is a new session, we'll need to clean up old data
+  if (isNewSession) {
+    localStorage.setItem('session_needs_cleanup', 'true');
+  }
+
   return sessionId;
 };
 
@@ -88,17 +102,20 @@ export function CardProvider({ children }: { children: React.ReactNode }) {
           `🗃️ Updating field completion in database for card "${fieldCard.name}"`
         );
 
-        // Update field completion in database (for analytics and persistence)
+        // Update field completion in database
         await updateFieldCompletion(fieldCard.id, fieldName, value, sessionId);
 
-        // Check completion using client-side logic (more reliable than database)
-        const shouldBeComplete = isCardComplete(fieldCard);
-
-        console.log(
-          `📋 Card "${fieldCard.name}" client-side completion check: ${shouldBeComplete}`
+        // Check completion using database logic with proper session isolation
+        const shouldBeComplete = await checkCardCompletion(
+          fieldCard.id,
+          sessionId
         );
 
-        // Update card completion state based on client-side logic
+        console.log(
+          `📋 Card "${fieldCard.name}" database completion check (session-isolated): ${shouldBeComplete}`
+        );
+
+        // Update card completion state based on database logic
         if (shouldBeComplete) {
           await updateCardCompletion(fieldCard.id, sessionId, true, fieldName);
 
@@ -113,7 +130,7 @@ export function CardProvider({ children }: { children: React.ReactNode }) {
         }
       }
     },
-    [cards, sessionId, isCardComplete]
+    [cards, sessionId]
   );
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -586,6 +603,27 @@ export function CardProvider({ children }: { children: React.ReactNode }) {
 
     loadCards();
   }, [setCardsAndInitialize]);
+
+  // Initialize clean session on first load
+  useEffect(() => {
+    const initializeSession = async () => {
+      const needsCleanup = localStorage.getItem('session_needs_cleanup');
+      
+      if (needsCleanup === 'true') {
+        console.log('🧹 Initializing clean session...');
+        try {
+          await initializeCleanSession(sessionId);
+          localStorage.removeItem('session_needs_cleanup');
+          console.log('✅ Session initialized successfully');
+        } catch (error) {
+          console.error('❌ Failed to initialize clean session:', error);
+          // Continue anyway - don't break the user experience
+        }
+      }
+    };
+
+    initializeSession();
+  }, [sessionId]);
 
   return (
     <CardContext.Provider

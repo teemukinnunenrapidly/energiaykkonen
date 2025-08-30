@@ -481,3 +481,55 @@ export async function checkCardCompletion(
     return false;
   }
 }
+
+/**
+ * Clear all field completions for a specific session
+ * This ensures each session starts with a clean slate
+ */
+export async function clearSessionFieldCompletions(
+  sessionId: string
+): Promise<void> {
+  try {
+    const { error } = await supabase
+      .from('field_completions')
+      .delete()
+      .eq('session_id', sessionId);
+
+    if (error) {
+      console.error('Error clearing session field completions:', error);
+      throw error;
+    }
+
+    console.log(`✅ Cleared field completions for session: ${sessionId}`);
+  } catch (error) {
+    console.error('Failed to clear session field completions:', error);
+    throw error;
+  }
+}
+
+/**
+ * Initialize a clean session by clearing any existing field completions
+ * and card completions for this session
+ */
+export async function initializeCleanSession(sessionId: string): Promise<void> {
+  try {
+    // Clear field completions
+    await clearSessionFieldCompletions(sessionId);
+
+    // Clear card completions
+    const { error: cardError } = await supabase
+      .from('card_completions')
+      .delete()
+      .eq('session_id', sessionId);
+
+    if (cardError) {
+      console.error('Error clearing session card completions:', cardError);
+      throw cardError;
+    }
+
+    console.log(`🧹 Initialized clean session: ${sessionId}`);
+  } catch (error) {
+    console.error('Failed to initialize clean session:', error);
+    throw error;
+  }
+}
