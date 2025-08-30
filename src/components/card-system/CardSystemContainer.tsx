@@ -13,6 +13,7 @@ interface CardSystemContainerProps {
   visualWidth?: string; // e.g., '40%', '500px', '50%'
   height?: number; // Height in pixels
   forceMode?: 'desktop' | 'mobile'; // Force a specific mode for preview
+  showBlurredCards?: boolean; // Show upcoming cards in blurred state
 }
 
 export function CardSystemContainer({
@@ -24,6 +25,7 @@ export function CardSystemContainer({
   visualWidth = '50%',
   height = 800,
   forceMode,
+  showBlurredCards = false,
 }: CardSystemContainerProps) {
   // Initialize dependencies on mount
   useEffect(() => {
@@ -93,6 +95,7 @@ export function CardSystemContainer({
               showInlineVisual={forceMode ? isMobileMode : showVisualSupport}
               activeCardId={activeContext.cardId}
               forceShowInline={isMobileMode}
+              showBlurredCards={showBlurredCards}
             />
           </div>
 

@@ -9,6 +9,7 @@ interface CardStreamProps {
   showInlineVisual?: boolean;
   activeCardId?: string;
   forceShowInline?: boolean; // For preview mode mobile
+  showBlurredCards?: boolean; // Show upcoming cards in blurred state
 }
 
 export function CardStream({
@@ -16,6 +17,7 @@ export function CardStream({
   showInlineVisual,
   activeCardId,
   forceShowInline,
+  showBlurredCards = false,
 }: CardStreamProps) {
   const { cards, shouldBeRevealed, cardStates } = useCardContext();
   const scrollContainerRef = useRef<HTMLDivElement>(null);
@@ -235,9 +237,9 @@ export function CardStream({
             const isPreviewMode =
               window.location.pathname.includes('/admin/preview');
 
-            // If in preview mode, show all cards but style them based on reveal status
-            const shouldShow = isPreviewMode ? true : isRevealed;
-            const isBlurred = isPreviewMode && !isRevealed;
+            // Show cards based on preview mode OR showBlurredCards prop
+            const shouldShow = isPreviewMode || showBlurredCards ? true : isRevealed;
+            const isBlurred = (isPreviewMode || showBlurredCards) && !isRevealed;
 
             // Check if card is completed
             const cardState = cardStates[card.id];

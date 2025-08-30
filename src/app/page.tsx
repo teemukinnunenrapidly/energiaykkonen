@@ -127,6 +127,7 @@ export default function HomePage() {
               showVisualSupport={true}
               visualWidth="50%"
               height={700}
+              showBlurredCards={true}
             />
           </div>
         </div>
