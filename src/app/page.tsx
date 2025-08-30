@@ -76,7 +76,7 @@ export default function HomePage() {
       </div>
 
       {/* Calculator Preview Section with Green Background */}
-      <div className="relative bg-green-500 overflow-hidden" style={{ height: '1000px' }}>
+      <div className="relative bg-green-500 overflow-hidden" style={{ height: '1200px' }}>
         {/* Geometric Background Shapes */}
         <div className="absolute inset-0">
           {/* Large circular shape */}
