@@ -2,14 +2,6 @@ import { NextRequest, NextResponse } from 'next/server';
 
 export async function POST(_request: NextRequest) {
   try {
-    // Debug: Log environment variable status (without exposing values)
-    console.log('Environment check:', {
-      hasAccountId: !!process.env.CLOUDFLARE_ACCOUNT_ID,
-      hasApiToken: !!process.env.CLOUDFLARE_IMAGES_API_TOKEN,
-      accountIdLength: process.env.CLOUDFLARE_ACCOUNT_ID?.length || 0,
-      apiTokenLength: process.env.CLOUDFLARE_IMAGES_API_TOKEN?.length || 0,
-    });
-    
     // Check if Cloudflare credentials are configured
     if (!process.env.CLOUDFLARE_ACCOUNT_ID || !process.env.CLOUDFLARE_IMAGES_API_TOKEN) {
       console.error('Cloudflare Images not configured - missing environment variables');
@@ -65,13 +57,6 @@ export async function POST(_request: NextRequest) {
 
     const uploadUrl = `https://api.cloudflare.com/client/v4/accounts/${process.env.CLOUDFLARE_ACCOUNT_ID}/images/v1`;
     
-    console.log('Attempting upload to Cloudflare Images...', {
-      url: uploadUrl,
-      fileSize: file.size,
-      fileType: file.type,
-      fileName: file.name,
-    });
-    
     const response = await fetch(uploadUrl, {
       method: 'POST',
       headers: {
@@ -110,12 +95,7 @@ export async function POST(_request: NextRequest) {
       return NextResponse.json({ error: errorMessage }, { status: 500 });
     }
 
-    console.log('Upload successful:', {
-      imageId: data.result.id,
-      variantsCount: data.result.variants?.length,
-    });
-
-    // Return the image ID and URLs
+// Return the image ID and URLs
     return NextResponse.json({
       success: true,
       imageId: data.result.id,
