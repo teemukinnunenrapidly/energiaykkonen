@@ -42,6 +42,7 @@ import {
   Edit2,
   Trash2,
   Plus,
+  Search,
 } from 'lucide-react';
 import {
   Formula,
@@ -66,6 +67,7 @@ export default function AdminCalculationsPage() {
   const [formulas, setFormulas] = useState<Formula[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('formulas');
+  const [searchQuery, setSearchQuery] = useState('');
 
   // Formula form state
   const [formulaForm, setFormulaForm] = useState<CreateFormulaRequest>({
@@ -236,6 +238,19 @@ export default function AdminCalculationsPage() {
       formula_text: prev.formula_text + fieldRef,
     }));
   };
+
+  // Filter formulas based on search query
+  const filteredFormulas = formulas.filter(formula => {
+    if (!searchQuery.trim()) return true;
+    
+    const query = searchQuery.toLowerCase();
+    return (
+      formula.name.toLowerCase().includes(query) ||
+      (formula.description && formula.description.toLowerCase().includes(query)) ||
+      formula.formula_text.toLowerCase().includes(query) ||
+      (formula.unit && formula.unit.toLowerCase().includes(query))
+    );
+  });
 
   if (loading) {
     return (
@@ -441,6 +456,15 @@ export default function AdminCalculationsPage() {
                     Create Formula
                   </Button>
                 </div>
+                <div className="relative mt-4">
+                  <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    placeholder="Search formulas by name, description, formula text, or unit..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="pl-10"
+                  />
+                </div>
               </CardHeader>
               <CardContent>
                 {formulas.length === 0 ? (
@@ -456,6 +480,22 @@ export default function AdminCalculationsPage() {
                       Create Your First Formula
                     </Button>
                   </div>
+                ) : filteredFormulas.length === 0 ? (
+                  <div className="text-center py-8">
+                    <Search className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
+                    <h3 className="text-lg font-semibold mb-2">
+                      No Formulas Found
+                    </h3>
+                    <p className="text-muted-foreground mb-4">
+                      No formulas match your search query "{searchQuery}"
+                    </p>
+                    <Button 
+                      variant="outline"
+                      onClick={() => setSearchQuery('')}
+                    >
+                      Clear Search
+                    </Button>
+                  </div>
                 ) : (
                   <Table>
                     <TableHeader>
@@ -464,12 +504,11 @@ export default function AdminCalculationsPage() {
                         <TableHead>Title</TableHead>
                         <TableHead>Formula</TableHead>
                         <TableHead>Unit</TableHead>
-                        <TableHead>Status</TableHead>
                         <TableHead>Actions</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {formulas.map(formula => (
+                      {filteredFormulas.map(formula => (
                         <TableRow key={formula.id}>
                           <TableCell className="font-mono text-sm">
                             [calc:{formula.name}]
@@ -496,15 +535,6 @@ export default function AdminCalculationsPage() {
                             {formula.unit && (
                               <Badge variant="outline">{formula.unit}</Badge>
                             )}
-                          </TableCell>
-                          <TableCell>
-                            <Badge
-                              variant={
-                                formula.is_active ? 'default' : 'secondary'
-                              }
-                            >
-                              {formula.is_active ? 'Active' : 'Inactive'}
-                            </Badge>
                           </TableCell>
                           <TableCell>
                             <div className="flex gap-2">
