@@ -5,11 +5,13 @@ The new `[formula:name]` reference system allows you to use results from existin
 ## Basic Example
 
 If you have a formula named "Öljyn menekki vuodessa" that calculates:
+
 ```
 [field:neliot] * [field:korkeus] * [field:henkilomaara] / 10
 ```
 
 You can now create a new formula that references this result:
+
 ```
 [formula:Öljyn menekki vuodessa] * [field:energy_price]
 ```
@@ -19,11 +21,13 @@ You can now create a new formula that references this result:
 Create a formula chain:
 
 1. **Base Calculation**: "Energy Consumption"
+
    ```
    [field:square_meters] * [field:ceiling_height] * 0.8
    ```
 
-2. **Intermediate Calculation**: "Energy Cost" 
+2. **Intermediate Calculation**: "Energy Cost"
+
    ```
    [formula:Energy Consumption] * [field:energy_price]
    ```

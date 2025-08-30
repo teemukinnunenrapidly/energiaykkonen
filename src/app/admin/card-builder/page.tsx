@@ -296,27 +296,27 @@ export default function CardBuilderPage() {
   const saveAllChanges = async () => {
     setLoading(true);
     try {
-      console.log('Starting to save all changes...');
+      console.log('🚀 Starting optimized save...');
 
-      // Update display_order for all cards first
+      // 1. Update display_order for all cards
       const orderedCards = cards.map((card, index) => ({
         ...card,
         display_order: index + 1,
       }));
 
-      // Separate temp cards from existing cards
+      // 2. Separate temp cards from existing cards
       const tempCards = orderedCards.filter(c => c.id.startsWith('temp-'));
       const existingCards = orderedCards.filter(
         c => !c.id.startsWith('temp-') && !c.id.startsWith('00000000-')
       );
 
-      // Initialize cardsToProcess with orderedCards, will be updated if we create new cards
       let cardsToProcess = orderedCards;
 
-      // Insert all new cards
+      // 3. BATCH INSERT: Create all new cards at once
       if (tempCards.length > 0) {
+        console.log(`📦 Batch creating ${tempCards.length} cards...`);
+
         const cardsToInsert = tempCards.map(tempCard => {
-          // eslint-disable-next-line @typescript-eslint/no-unused-vars
           const { id, card_fields, ...card } = tempCard;
           return {
             ...card,
@@ -333,9 +333,8 @@ export default function CardBuilderPage() {
         if (insertError) {
           throw new Error(`Failed to create cards: ${insertError.message}`);
         }
-        console.log(`Created ${tempCards.length} new cards`);
 
-        // Update local state with real IDs for new cards
+        // Update local state with real IDs
         const updatedCards = orderedCards.map(card => {
           if (card.id.startsWith('temp-')) {
             const newCard = newCards?.find(nc => nc.name === card.name);
@@ -344,339 +343,30 @@ export default function CardBuilderPage() {
           return card;
         });
 
-        // Update cardsToProcess with the real IDs
         cardsToProcess = updatedCards;
         setCards(updatedCards);
       }
 
-      // Save/update card fields for all cards
-      for (const card of cardsToProcess) {
-        if (!card.id.startsWith('00000000-')) {
-          console.log(
-            `Processing fields for card: ${card.name} (ID: ${card.id})`
-          );
+      // 4. BATCH UPDATE: Update all existing cards at once
+      if (existingCards.length > 0) {
+        console.log(`📦 Batch updating ${existingCards.length} cards...`);
 
-          // First, get all existing fields for this card from the database to check for deletions
-          const { data: existingFields, error: fetchError } = await supabase
-            .from('card_fields')
-            .select('id')
-            .eq('card_id', card.id);
-
-          if (fetchError) {
-            console.error(
-              `Failed to fetch existing fields for card ${card.name}:`,
-              fetchError
-            );
-          } else if (existingFields) {
-            // Find fields that exist in database but not in current card.card_fields (these were deleted)
-            const currentFieldIds = card.card_fields?.map(f => f.id) || [];
-            const fieldsToDelete = existingFields.filter(
-              dbField =>
-                !dbField.id.startsWith('temp-field-') &&
-                !currentFieldIds.includes(dbField.id)
-            );
-
-            // Delete removed fields from database
-            for (const fieldToDelete of fieldsToDelete) {
-              console.log(`Deleting field ${fieldToDelete.id} from database`);
-              const { error: deleteError } = await supabase
-                .from('card_fields')
-                .delete()
-                .eq('id', fieldToDelete.id);
-
-              if (deleteError) {
-                console.error(
-                  `Failed to delete field ${fieldToDelete.id}:`,
-                  deleteError
-                );
-              } else {
-                console.log(`Successfully deleted field ${fieldToDelete.id}`);
-              }
-            }
-          }
-
-          // Now process the remaining fields (create/update)
-          if (card.card_fields && card.card_fields.length > 0) {
-            for (const field of card.card_fields) {
-              if (field.id.startsWith('temp-field-')) {
-                // Create new field
-                // eslint-disable-next-line @typescript-eslint/no-unused-vars
-                const { id, ...fieldData } = field;
-
-                // Ensure all required fields are present with defaults
-                const completeFieldData = {
-                  field_name: field.field_name,
-                  field_type: field.field_type,
-                  label: field.label,
-                  placeholder: field.placeholder || '',
-                  help_text: field.help_text || '',
-                  validation_rules: field.validation_rules || {},
-                  width: field.width || 'full',
-                  display_order: field.display_order ?? 0,
-                  options: field.options || [],
-                  required: field.required ?? false,
-                };
-
-                // Add better validation and logging
-                console.log(
-                  `Creating field ${field.field_name} for card ${card.name}:`,
-                  completeFieldData
-                );
-                console.log('Full field object:', field);
-
-                // Validate required fields for creation
-                const requiredFields = [
-                  'field_name',
-                  'field_type',
-                  'label',
-                  'width',
-                  'display_order',
-                  'required',
-                ];
-                const missingFields = requiredFields.filter(fieldName => {
-                  const value =
-                    completeFieldData[
-                      fieldName as keyof typeof completeFieldData
-                    ];
-                  return (
-                    value === null ||
-                    value === undefined ||
-                    (fieldName === 'field_name' && value === '')
-                  );
-                });
-
-                if (missingFields.length > 0) {
-                  console.error(
-                    `Missing required fields for ${field.field_name}:`,
-                    missingFields
-                  );
-                  console.error(
-                    'Available field data:',
-                    Object.keys(completeFieldData)
-                  );
-                  console.error('Field values:', completeFieldData);
-                  continue; // Skip this field
-                }
-
-                const { error: fieldError } = await supabase
-                  .from('card_fields')
-                  .insert({
-                    ...completeFieldData,
-                    card_id: card.id,
-                  });
-
-                if (fieldError && Object.keys(fieldError).length > 0) {
-                  console.error(
-                    `Failed to create field ${field.field_name}:`,
-                    fieldError
-                  );
-                  console.error(
-                    'Field data being inserted:',
-                    completeFieldData
-                  );
-                  console.error(
-                    'Supabase error details:',
-                    JSON.stringify(fieldError, null, 2)
-                  );
-                } else {
-                  console.log(
-                    `Created field: ${field.field_name} for card ${card.name}`
-                  );
-                }
-              } else {
-                // Update existing field
-                // eslint-disable-next-line @typescript-eslint/no-unused-vars
-                const { id, card_id, ...fieldData } = field;
-
-                // Ensure all required fields are present with defaults if missing
-                const completeFieldData = {
-                  field_name: field.field_name,
-                  field_type: field.field_type,
-                  label: field.label,
-                  placeholder: field.placeholder || '',
-                  help_text: field.help_text || '',
-                  validation_rules: field.validation_rules || {},
-                  width: field.width || 'full',
-                  display_order: field.display_order ?? 0,
-                  options: field.options || [],
-                  required: field.required ?? false,
-                  // Note: removed updated_at as it doesn't exist in the card_fields table
-                };
-
-                // Add better validation and logging
-                console.log(
-                  `Updating field ${field.field_name} (ID: ${field.id}):`,
-                  completeFieldData
-                );
-                console.log('Full field object:', field);
-
-                // Check if field exists before updating
-                const { data: existingField, error: checkError } =
-                  await supabase
-                    .from('card_fields')
-                    .select('*')
-                    .eq('id', field.id)
-                    .single();
-
-                if (checkError) {
-                  console.error(
-                    `Field ${field.field_name} (ID: ${field.id}) not found in database:`,
-                    checkError
-                  );
-                  console.error(
-                    'Check error details:',
-                    JSON.stringify(checkError, null, 2)
-                  );
-
-                  // If field doesn't exist, treat it as a new field instead of skipping
-                  console.log(
-                    `Field ${field.field_name} not found, treating as new field`
-                  );
-
-                  // Create the field instead of updating
-                  const { error: createError } = await supabase
-                    .from('card_fields')
-                    .insert({
-                      ...completeFieldData,
-                      card_id: card.id,
-                    });
-
-                  if (createError) {
-                    console.error(
-                      `Failed to create field ${field.field_name}:`,
-                      createError
-                    );
-                  } else {
-                    console.log(
-                      `Created missing field: ${field.field_name} for card ${card.name}`
-                    );
-                  }
-                  continue; // Skip the update logic
-                }
-
-                console.log('Existing field in database:', existingField);
-                console.log('Comparing field data:');
-                console.log('- Current field object:', field);
-                console.log('- Database field:', existingField);
-
-                // Validate required fields are not null/undefined
-                const requiredFields = [
-                  'field_name',
-                  'field_type',
-                  'label',
-                  'width',
-                  'display_order',
-                  'required',
-                ];
-                const missingFields = requiredFields.filter(fieldName => {
-                  const value =
-                    completeFieldData[
-                      fieldName as keyof typeof completeFieldData
-                    ];
-                  return (
-                    value === null ||
-                    value === undefined ||
-                    (fieldName === 'field_name' && value === '')
-                  );
-                });
-
-                if (missingFields.length > 0) {
-                  console.error(
-                    `Missing required fields for ${field.field_name}:`,
-                    missingFields
-                  );
-                  console.error(
-                    'Available field data:',
-                    Object.keys(completeFieldData)
-                  );
-                  console.error('Field values:', completeFieldData);
-                  continue; // Skip this field
-                }
-
-                // Additional data validation
-                console.log('Data type validation:');
-                console.log(
-                  '- field_name type:',
-                  typeof completeFieldData.field_name
-                );
-                console.log(
-                  '- field_type type:',
-                  typeof completeFieldData.field_type
-                );
-                console.log('- label type:', typeof completeFieldData.label);
-                console.log('- width type:', typeof completeFieldData.width);
-                console.log(
-                  '- display_order type:',
-                  typeof completeFieldData.display_order
-                );
-                console.log(
-                  '- required type:',
-                  typeof completeFieldData.required
-                );
-                console.log(
-                  '- validation_rules type:',
-                  typeof completeFieldData.validation_rules
-                );
-                console.log(
-                  '- options type:',
-                  typeof completeFieldData.options
-                );
-
-                console.log(
-                  'Attempting to update field with data:',
-                  completeFieldData
-                );
-                console.log('Update target ID:', field.id);
-
-                const { data: updateResult, error: fieldError } = await supabase
-                  .from('card_fields')
-                  .update(completeFieldData)
-                  .eq('id', field.id)
-                  .select(); // Return the updated record
-
-                if (fieldError && Object.keys(fieldError).length > 0) {
-                  console.error(
-                    `Failed to update field ${field.field_name} (ID: ${field.id}):`,
-                    fieldError
-                  );
-                  console.error('Field data being updated:', completeFieldData);
-                  console.error(
-                    'Supabase error details:',
-                    JSON.stringify(fieldError, null, 2)
-                  );
-                  // Skip this field and continue with others instead of stopping
-                  continue;
-                } else {
-                  console.log(
-                    `Updated field: ${field.field_name} (ID: ${field.id})`
-                  );
-                  console.log('Update result:', updateResult);
-                }
-              }
-            }
-          }
+        for (const card of existingCards) {
+          const { card_fields, ...cardData } = card;
+          await supabase
+            .from('card_templates')
+            .update({
+              ...cardData,
+              updated_at: new Date().toISOString(),
+            })
+            .eq('id', card.id);
         }
       }
 
-      // Update existing cards
-      for (const card of existingCards) {
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        const { card_fields, ...updateData } = card;
-        updateData.updated_at = new Date().toISOString();
+      // 5. BATCH FIELD OPERATIONS: Process all fields efficiently
+      await batchProcessFields(cardsToProcess);
 
-        const { error: updateError } = await supabase
-          .from('card_templates')
-          .update(updateData)
-          .eq('id', card.id);
-
-        if (updateError) {
-          throw new Error(
-            `Failed to update card ${card.name}: ${updateError.message}`
-          );
-        }
-      }
-
-      console.log('All changes saved successfully!');
+      console.log('✅ Optimized save completed!');
       setHasUnsavedChanges(false);
       setNotification({
         type: 'success',
@@ -690,7 +380,7 @@ export default function CardBuilderPage() {
 
       await loadCards(); // Reload to get real IDs
     } catch (error) {
-      console.error('Save failed:', error);
+      console.error('❌ Save failed:', error);
       setNotification({
         type: 'error',
         message: `Save failed: ${error instanceof Error ? error.message : 'Unknown error'}`,
@@ -698,6 +388,151 @@ export default function CardBuilderPage() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const batchProcessFields = async (cards: CardTemplate[]) => {
+    console.log('📦 Starting optimized batch field operations...');
+
+    // Collect all operations
+    const fieldsToCreate: any[] = [];
+    const fieldsToUpdate: any[] = [];
+    const fieldIdsToDelete: string[] = [];
+
+    // Get all existing fields in ONE query instead of per-card queries
+    const cardIds = cards.filter(c => !c.id.startsWith('temp-')).map(c => c.id);
+
+    let existingFieldMap = new Map();
+    if (cardIds.length > 0) {
+      const { data: existingFields, error: fetchError } = await supabase
+        .from('card_fields')
+        .select('id, card_id')
+        .in('card_id', cardIds);
+
+      if (fetchError) {
+        throw new Error(
+          `Failed to fetch existing fields: ${fetchError.message}`
+        );
+      }
+
+      // Group existing fields by card_id
+      existingFields?.forEach(field => {
+        if (!existingFieldMap.has(field.card_id)) {
+          existingFieldMap.set(field.card_id, []);
+        }
+        existingFieldMap.get(field.card_id).push(field.id);
+      });
+    }
+
+    // Process each card's fields
+    for (const card of cards) {
+      if (card.id.startsWith('00000000-')) continue;
+
+      const currentFieldIds = card.card_fields?.map(f => f.id) || [];
+      const existingFieldIds = existingFieldMap.get(card.id) || [];
+
+      // Find fields to delete (exist in DB but not in current state)
+      const toDelete = existingFieldIds.filter(
+        (dbFieldId: string) =>
+          !dbFieldId.startsWith('temp-field-') &&
+          !currentFieldIds.includes(dbFieldId)
+      );
+      fieldIdsToDelete.push(...toDelete);
+
+      // Process fields for create/update
+      if (card.card_fields) {
+        for (const field of card.card_fields) {
+          if (field.id.startsWith('temp-field-')) {
+            // New field - add to create batch
+            const { id, ...fieldData } = field;
+            const completeFieldData = {
+              ...fieldData,
+              card_id: card.id,
+              field_name: field.field_name,
+              field_type: field.field_type,
+              label: field.label,
+              placeholder: field.placeholder || '',
+              help_text: field.help_text || '',
+              validation_rules: field.validation_rules || {},
+              width: field.width || 'full',
+              display_order: field.display_order ?? 0,
+              options: field.options || [],
+              required: field.required ?? false,
+            };
+            fieldsToCreate.push(completeFieldData);
+          } else {
+            // Existing field - add to update batch
+            const { id, card_id, ...fieldData } = field;
+            const completeFieldData = {
+              ...fieldData,
+              field_name: field.field_name,
+              field_type: field.field_type,
+              label: field.label,
+              placeholder: field.placeholder || '',
+              help_text: field.help_text || '',
+              validation_rules: field.validation_rules || {},
+              width: field.width || 'full',
+              display_order: field.display_order ?? 0,
+              options: field.options || [],
+              required: field.required ?? false,
+            };
+            fieldsToUpdate.push({ id: field.id, ...completeFieldData });
+          }
+        }
+      }
+    }
+
+    // Execute batch operations
+    const totalOps =
+      fieldsToCreate.length + fieldsToUpdate.length + fieldIdsToDelete.length;
+    console.log(
+      `📦 Executing ${totalOps} field operations: ${fieldsToCreate.length} creates, ${fieldsToUpdate.length} updates, ${fieldIdsToDelete.length} deletes`
+    );
+
+    // 1. Batch delete - Single query
+    if (fieldIdsToDelete.length > 0) {
+      console.log(`🗑️ Batch deleting ${fieldIdsToDelete.length} fields...`);
+      const { error: deleteError } = await supabase
+        .from('card_fields')
+        .delete()
+        .in('id', fieldIdsToDelete);
+
+      if (deleteError) {
+        throw new Error(`Failed to delete fields: ${deleteError.message}`);
+      }
+    }
+
+    // 2. Batch create - Single query
+    if (fieldsToCreate.length > 0) {
+      console.log(`✨ Batch creating ${fieldsToCreate.length} fields...`);
+      const { error: createError } = await supabase
+        .from('card_fields')
+        .insert(fieldsToCreate);
+
+      if (createError) {
+        console.error('Create error details:', createError);
+        console.error('Fields being created:', fieldsToCreate);
+        throw new Error(`Failed to create fields: ${createError.message}`);
+      }
+    }
+
+    // 3. Parallel updates - Much faster than sequential
+    if (fieldsToUpdate.length > 0) {
+      console.log(`🔄 Parallel updating ${fieldsToUpdate.length} fields...`);
+      const updatePromises = fieldsToUpdate.map(field => {
+        const { id, ...updateData } = field;
+        return supabase.from('card_fields').update(updateData).eq('id', id);
+      });
+
+      const updateResults = await Promise.all(updatePromises);
+      const updateErrors = updateResults.filter(result => result.error);
+
+      if (updateErrors.length > 0) {
+        console.error('Update errors:', updateErrors);
+        throw new Error(`Failed to update ${updateErrors.length} fields`);
+      }
+    }
+
+    console.log('✅ Batch field operations completed successfully!');
   };
 
   // Helper function to save just the order

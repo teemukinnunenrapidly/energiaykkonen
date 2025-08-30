@@ -376,6 +376,120 @@ export function CardEditor({
               shortcode will be replaced with the actual calculated value
             </p>
           </div>
+
+          <div className="border-t pt-4">
+            <h3 className="font-semibold mb-4">User Edit Mode</h3>
+            <div className="space-y-4">
+              <label className="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  checked={card.config?.enable_edit_mode || false}
+                  onChange={e =>
+                    onUpdateCard({
+                      config: {
+                        ...card.config,
+                        enable_edit_mode: e.target.checked,
+                      },
+                    })
+                  }
+                  className="rounded"
+                />
+                <span className="text-sm">
+                  Allow users to edit the calculated value
+                </span>
+              </label>
+
+              {card.config?.enable_edit_mode && (
+                <div className="ml-6 space-y-3">
+                  <div>
+                    <label className="block text-sm font-medium mb-1">
+                      Edit Button Text
+                    </label>
+                    <input
+                      type="text"
+                      value={card.config?.edit_button_text || 'Korjaa lukemaa'}
+                      onChange={e =>
+                        onUpdateCard({
+                          config: {
+                            ...card.config,
+                            edit_button_text: e.target.value,
+                          },
+                        })
+                      }
+                      className="w-full p-2 border rounded"
+                      placeholder="Korjaa lukemaa"
+                    />
+                    <p className="text-xs text-gray-500 mt-1">
+                      Text shown on the button to enter edit mode
+                    </p>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium mb-1">
+                      Validation Range (optional)
+                    </label>
+                    <div className="flex gap-2 items-center">
+                      <input
+                        type="number"
+                        value={card.config?.validation_min || ''}
+                        onChange={e =>
+                          onUpdateCard({
+                            config: {
+                              ...card.config,
+                              validation_min: e.target.value,
+                            },
+                          })
+                        }
+                        className="flex-1 p-2 border rounded"
+                        placeholder="Min (e.g., 0)"
+                      />
+                      <span className="text-gray-500">–</span>
+                      <input
+                        type="number"
+                        value={card.config?.validation_max || ''}
+                        onChange={e =>
+                          onUpdateCard({
+                            config: {
+                              ...card.config,
+                              validation_max: e.target.value,
+                            },
+                          })
+                        }
+                        className="flex-1 p-2 border rounded"
+                        placeholder="Max (e.g., 100000)"
+                      />
+                    </div>
+                    <p className="text-xs text-gray-500 mt-1">
+                      Reasonable min/max limits for user input validation
+                    </p>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium mb-1">
+                      Edit Prompt (optional)
+                    </label>
+                    <input
+                      type="text"
+                      value={card.config?.edit_prompt || ''}
+                      onChange={e =>
+                        onUpdateCard({
+                          config: {
+                            ...card.config,
+                            edit_prompt: e.target.value,
+                          },
+                        })
+                      }
+                      className="w-full p-2 border rounded"
+                      placeholder="Syötä todellinen kulutuksesi laskustasi"
+                    />
+                    <p className="text-xs text-gray-500 mt-1">
+                      Help text shown when editing the value
+                    </p>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
         </div>
       )}
 

@@ -1,8 +1,8 @@
 import React, { useEffect, useState, useRef } from 'react';
-import type { CardTemplate } from '@/lib/supabase';
+import type { CardTemplate, supabase } from '@/lib/supabase';
 import { useCardContext } from '../CardContext';
 import { UnifiedCalculationEngine } from '@/lib/unified-calculation-engine';
-import { supabase } from '@/lib/supabase';
+import { EditableCalculationResult } from './EditableCalculationResult';
 
 interface CalculationCardProps {
   card: CardTemplate;
@@ -10,12 +10,21 @@ interface CalculationCardProps {
 }
 
 export function CalculationCard({ card }: CalculationCardProps) {
-  const { formData, completeCard, uncompleteCard, cardStates, sessionId } =
-    useCardContext();
+  const {
+    formData,
+    completeCard,
+    uncompleteCard,
+    cardStates,
+    sessionId,
+    updateField,
+  } = useCardContext();
   const [calculatedResult, setCalculatedResult] = useState<string | null>(null);
+  const [originalResult, setOriginalResult] = useState<string | null>(null);
+  const [resultUnit, setResultUnit] = useState<string>('');
   const [isCalculating, setIsCalculating] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [fieldDependencies, setFieldDependencies] = useState<string[]>([]);
+  const [formulaName, setFormulaName] = useState<string | null>(null);
   const hasProcessedCalculationRef = useRef<boolean>(false);
 
   // Process calculation using unified engine
@@ -109,40 +118,105 @@ export function CalculationCard({ card }: CalculationCardProps) {
           return;
         }
 
+        // Extract shortcode name for override checking (works for both calc and lookup)
+        const shortcodeMatch =
+          card.config.main_result?.match(/^\[(\w+):([^\]]+)\]$/);
+        let extractedShortcodeName = null;
+        if (shortcodeMatch) {
+          extractedShortcodeName = shortcodeMatch[2]; // The name part after the colon
+          setFormulaName(extractedShortcodeName);
+        }
+
         // Format the result for display with units
         let formattedResult = String(result.result);
+        let unit = '';
 
-        // If it's a number, format it with Finnish locale and unit
-        const numericResult = Number(result.result);
-        if (!isNaN(numericResult)) {
-          formattedResult = numericResult.toLocaleString('fi-FI');
+        console.log(
+          `🔍 Processing result: "${formattedResult}" for card "${card.name}"`
+        );
 
-          // Try to get unit from formula if this is a direct calc shortcode
-          const calcMatch =
-            card.config.main_result?.match(/^\[calc:([^\]]+)\]$/);
-          if (calcMatch) {
-            const formulaName = calcMatch[1];
-            try {
-              const { data: formula } = await supabase
-                .from('formulas')
-                .select('unit')
-                .eq('name', formulaName)
-                .single();
+        // Extract unit from the processed result (works for both calc and lookup)
+        // Updated regex to handle multi-word Finnish units like "mottia puuta", "öljylitraa"
+        const resultWithUnitMatch = formattedResult.match(
+          /^([\d\s,.-]+)\s+(.+)$/
+        );
+        if (resultWithUnitMatch) {
+          // Result already contains units (like "2500 mottia puuta" or "1500 öljylitraa")
+          const numericPart = resultWithUnitMatch[1].trim();
+          unit = resultWithUnitMatch[2].trim();
 
-              if (formula?.unit) {
-                formattedResult = `${numericResult.toLocaleString('fi-FI')} ${formula.unit}`;
+          console.log(
+            `✅ Extracted unit from result: "${unit}" (numeric: "${numericPart}")`
+          );
+
+          // Reformat the numeric part with Finnish locale
+          const numericValue = parseFloat(numericPart.replace(/[^\d.-]/g, ''));
+          if (!isNaN(numericValue)) {
+            formattedResult = `${numericValue.toLocaleString('fi-FI')} ${unit}`;
+          }
+        } else {
+          console.log(`❌ No unit found in result: "${formattedResult}"`);
+          // No unit in result, check if it's a pure number
+          const numericResult = Number(result.result);
+          if (!isNaN(numericResult)) {
+            formattedResult = numericResult.toLocaleString('fi-FI');
+
+            // Try to get unit from formula metadata for calc shortcodes
+            const calcMatch =
+              card.config.main_result?.match(/^\[calc:([^\]]+)\]$/);
+            if (calcMatch && extractedShortcodeName) {
+              try {
+                const { data: formula } = await supabase
+                  .from('formulas')
+                  .select('unit')
+                  .eq('name', extractedShortcodeName)
+                  .single();
+
+                if (formula?.unit) {
+                  unit = formula.unit;
+                  formattedResult = `${numericResult.toLocaleString('fi-FI')} ${formula.unit}`;
+                }
+              } catch (unitError) {
+                // If unit fetching fails, just use the number without unit
+                console.warn(
+                  `Could not fetch unit for formula ${extractedShortcodeName}:`,
+                  unitError
+                );
               }
-            } catch (unitError) {
-              // If unit fetching fails, just use the number without unit
-              console.warn(
-                `Could not fetch unit for formula ${formulaName}:`,
-                unitError
-              );
             }
           }
         }
 
-        setCalculatedResult(formattedResult);
+        // Check if user has an override value for this calculation
+        const overrideKey = `override_${extractedShortcodeName || formulaName || 'calc'}`;
+        const existingOverride = formData[overrideKey];
+
+        // Set unit first so it's available for all scenarios
+        console.log(
+          `🔧 Setting resultUnit to: "${unit}" for card "${card.name}"`
+        );
+        setResultUnit(unit);
+
+        if (
+          existingOverride !== undefined &&
+          existingOverride !== null &&
+          existingOverride !== ''
+        ) {
+          // User has an override - preserve it in display but update original value
+          console.log(
+            `🔒 Preserving user override for "${card.name}": ${existingOverride} (new calculated would be: ${formattedResult})`
+          );
+          const overrideFormatted =
+            Number(existingOverride).toLocaleString('fi-FI');
+          setCalculatedResult(
+            unit ? `${overrideFormatted} ${unit}` : overrideFormatted
+          );
+          setOriginalResult(formattedResult); // Keep new calculated value as "original" for comparison
+        } else {
+          // No override - use calculated result
+          setCalculatedResult(formattedResult);
+          setOriginalResult(formattedResult);
+        }
 
         console.log(
           `✅ CalculationCard "${card.name}" calculated: ${formattedResult}`
@@ -200,13 +274,62 @@ export function CalculationCard({ card }: CalculationCardProps) {
 
       {/* Main Result Field */}
       <div className="mt-4">
-        {isCalculating ? (
+        {error ? (
+          <div className="text-lg font-medium text-red-600">{error}</div>
+        ) : calculatedResult && card.config?.enable_edit_mode ? (
+          <EditableCalculationResult
+            value={calculatedResult}
+            originalValue={originalResult || calculatedResult}
+            unit={resultUnit}
+            onUpdate={newValue => {
+              // Store the override in formData
+              const overrideKey = `override_${formulaName || 'calc'}`;
+              updateField(overrideKey, newValue);
+
+              // Update display value with unit
+              const formattedValue = newValue.toLocaleString('fi-FI');
+
+              // Ensure we have the unit - try multiple sources
+              let unitToUse = resultUnit;
+              if (!unitToUse && calculatedResult) {
+                // Try to extract unit from current calculatedResult as fallback
+                // Updated to handle multi-word Finnish units like "mottia puuta", "öljylitraa"
+                const currentUnitMatch = calculatedResult.match(
+                  /^([\d\s,.-]+)\s+(.+)$/
+                );
+                if (currentUnitMatch) {
+                  unitToUse = currentUnitMatch[2].trim();
+                }
+              }
+
+              setCalculatedResult(
+                unitToUse ? `${formattedValue} ${unitToUse}` : formattedValue
+              );
+
+              console.log(
+                `🔧 User update: ${newValue} -> "${formattedValue}${unitToUse ? ' ' + unitToUse : ''}" (unit: ${unitToUse || 'none'}, resultUnit: ${resultUnit || 'none'}, calculatedResult: ${calculatedResult})`
+              );
+            }}
+            editButtonText={card.config?.edit_button_text || 'Korjaa lukemaa'}
+            editPrompt={card.config?.edit_prompt}
+            validationMin={
+              card.config?.validation_min
+                ? Number(card.config.validation_min)
+                : undefined
+            }
+            validationMax={
+              card.config?.validation_max
+                ? Number(card.config.validation_max)
+                : undefined
+            }
+            isCalculating={isCalculating}
+            formulaName={formulaName || undefined}
+          />
+        ) : isCalculating ? (
           <div className="text-4xl font-bold text-blue-600 flex items-center gap-3">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
             Lasketaan...
           </div>
-        ) : error ? (
-          <div className="text-lg font-medium text-red-600">{error}</div>
         ) : calculatedResult ? (
           <div className="text-4xl font-bold text-green-600">
             {calculatedResult}

@@ -423,6 +423,27 @@ export class UnifiedCalculationEngine {
     formulaName: string,
     depth = 0
   ): Promise<string> {
+    // Check for user override first - try multiple key formats
+    const possibleOverrideKeys = [
+      `override_${formulaName}`,
+      `override_${formulaName.replace(/-/g, '_')}`,
+      `override_${formulaName.replace(/_/g, '-')}`,
+    ];
+
+    for (const overrideKey of possibleOverrideKeys) {
+      const overrideValue = this.context.formData[overrideKey];
+      if (
+        overrideValue !== undefined &&
+        overrideValue !== null &&
+        overrideValue !== ''
+      ) {
+        console.log(
+          `🔄 Using override value for '${formulaName}' (key: ${overrideKey}): ${overrideValue} (instead of calculating)`
+        );
+        return String(overrideValue);
+      }
+    }
+
     if (depth > 5) {
       throw new Error(
         `Maximum formula recursion depth exceeded for '${formulaName}'`

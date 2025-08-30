@@ -3,13 +3,24 @@
 ## ✅ Problem 1: Multiple Processing Paths
 
 ### ❌ BEFORE (Complex)
+
 ```typescript
 // Multiple separate processing functions
-async function processDisplayContent(content: string) { /* ... */ }
-async function processDisplayContentWithSession(content: string, session: any) { /* ... */ }
-async function evaluateExpression(expression: string) { /* ... */ }
-async function processCalculation(calc: string) { /* ... */ }
-async function processLookup(lookup: string) { /* ... */ }
+async function processDisplayContent(content: string) {
+  /* ... */
+}
+async function processDisplayContentWithSession(content: string, session: any) {
+  /* ... */
+}
+async function evaluateExpression(expression: string) {
+  /* ... */
+}
+async function processCalculation(calc: string) {
+  /* ... */
+}
+async function processLookup(lookup: string) {
+  /* ... */
+}
 
 // Usage requires choosing the right processor
 if (needsSession) {
@@ -20,6 +31,7 @@ if (needsSession) {
 ```
 
 ### ✅ AFTER (Unified)
+
 ```typescript
 // Single processing method for everything
 const engine = new UnifiedCalculationEngine(supabase, sessionId);
@@ -33,13 +45,14 @@ const result = await engine.process(content); // That's it!
 ## ✅ Problem 2: Complex Routing Logic
 
 ### ❌ BEFORE (Regex Maze)
+
 ```typescript
 function routeToProcessor(content: string) {
   // Complex regex detection
   const calcPattern = /\[calc:([^\]]+)\]/g;
   const lookupPattern = /\[lookup:([^\]]+)\]/g;
   const fieldPattern = /\{([^}]+)\}/g;
-  
+
   if (calcPattern.test(content)) {
     return processCalculation(content);
   } else if (lookupPattern.test(content)) {
@@ -53,12 +66,13 @@ function routeToProcessor(content: string) {
 ```
 
 ### ✅ AFTER (Unified Pattern)
+
 ```typescript
 // Single pattern extraction for all types
 private extractDependencies(content: string): Set<string> {
   const deps = new Set<string>();
   const unifiedPattern = /\[(\w+):([^\]]+)\]|\{([^}]+)\}/g;
-  
+
   let match;
   while ((match = unifiedPattern.exec(content)) !== null) {
     // All patterns handled uniformly
@@ -75,6 +89,7 @@ private extractDependencies(content: string): Set<string> {
 ## ✅ Problem 3: Dual Storage Systems
 
 ### ❌ BEFORE (Dual Storage)
+
 ```typescript
 // Session data in one table
 await supabase.from('session_data').insert({ field_id, value });
@@ -87,6 +102,7 @@ const dependencies = await trackDependencies(sessionData, formulaResults);
 ```
 
 ### ✅ AFTER (Single Cache)
+
 ```typescript
 // Single in-memory cache for everything
 private cache: Map<string, ProcessedValue> = new Map();
@@ -111,6 +127,7 @@ private async _persistValue(value: ProcessedValue) {
 ## ✅ Problem 4: Type Confusion
 
 ### ❌ BEFORE (Different Handling)
+
 ```typescript
 // Different processors for different types
 if (type === 'calc') {
@@ -125,6 +142,7 @@ if (type === 'calc') {
 ```
 
 ### ✅ AFTER (Uniform Processing)
+
 ```typescript
 // Type is just metadata, not a routing decision
 private determineType(content: string): 'field' | 'calculation' | 'lookup' | 'static' {
@@ -145,10 +163,11 @@ const processed = this.evaluateWithDependencies(content, resolvedDeps);
 ## ✅ Problem 5: Recursive Processing
 
 ### ❌ BEFORE (Recursive Nightmare)
+
 ```typescript
 async function processLookup(lookup: string): Promise<string> {
   const result = await fetchLookupValue(lookup);
-  
+
   // Recursive processing - dangerous!
   if (containsMoreLookups(result)) {
     return await processLookup(result); // RECURSION!
@@ -156,35 +175,36 @@ async function processLookup(lookup: string): Promise<string> {
   if (containsCalculations(result)) {
     return await processCalculation(result); // MORE RECURSION!
   }
-  
+
   return result;
 }
 ```
 
 ### ✅ AFTER (Iterative & Safe)
+
 ```typescript
 private async resolveDependencies(dependencies: Set<string>): Promise<Map<string, any>> {
   const toProcess = Array.from(dependencies);
   const processed = new Set<string>();
-  
+
   // Iterative processing with depth limit
   let depth = 0;
   while (toProcess.length > 0 && depth < this.context.maxDepth) {
     const batch = toProcess.splice(0, 10);
-    
+
     // Process batch, add new dependencies to queue
     // No recursion, just queue management
     const results = await Promise.all(batch.map(/* ... */));
-    
+
     // If results have more dependencies, add to queue (not recursive!)
     results.forEach(r => {
       const nestedDeps = this.extractDependencies(r.value);
       nestedDeps.forEach(d => toProcess.push(d));
     });
-    
+
     depth++;
   }
-  
+
   return resolved;
 }
 ```
@@ -195,13 +215,13 @@ private async resolveDependencies(dependencies: Set<string>): Promise<Map<string
 
 ## Summary: Complete Solution
 
-| Problem | Old Approach | New Solution | Benefit |
-|---------|-------------|--------------|---------|
-| **Multiple Paths** | 5+ processing functions | 1 `process()` method | 80% less code |
-| **Complex Routing** | Regex maze + routing logic | Single pattern extractor | Simple & maintainable |
-| **Dual Storage** | 2 tables + complex sync | 1 cache + 1 table | Unified data model |
-| **Type Confusion** | Different handlers per type | Uniform processing | No special cases |
-| **Recursive Processing** | Stack overflow risk | Iterative with depth limit | Safe & predictable |
+| Problem                  | Old Approach                | New Solution               | Benefit               |
+| ------------------------ | --------------------------- | -------------------------- | --------------------- |
+| **Multiple Paths**       | 5+ processing functions     | 1 `process()` method       | 80% less code         |
+| **Complex Routing**      | Regex maze + routing logic  | Single pattern extractor   | Simple & maintainable |
+| **Dual Storage**         | 2 tables + complex sync     | 1 cache + 1 table          | Unified data model    |
+| **Type Confusion**       | Different handlers per type | Uniform processing         | No special cases      |
+| **Recursive Processing** | Stack overflow risk         | Iterative with depth limit | Safe & predictable    |
 
 ## Migration Path
 
@@ -227,14 +247,9 @@ New System: ~500 lines in single file
 Reduction: 80% less code to maintain
 ```
 
-
-
-
 Detailed Implementation Guide for Your E1 Calculator
 
-
 Step 1: Create the Core Engine FileLocation: src/lib/unified-calculation-engine.ts
-
 
 // src/lib/unified-calculation-engine.ts
 
@@ -246,26 +261,26 @@ import { debounce } from 'lodash';
 // ============================================
 
 export interface ProcessedValue {
-  id: string;
-  value: any;
-  type: 'field' | 'calculation' | 'lookup' | 'static';
-  raw: string;
-  processed: any;
-  dependencies: string[];
-  timestamp: number;
-  error?: string;
-  cardId?: string; // Link to your card system
-  fieldId?: string; // Link to your field system
+id: string;
+value: any;
+type: 'field' | 'calculation' | 'lookup' | 'static';
+raw: string;
+processed: any;
+dependencies: string[];
+timestamp: number;
+error?: string;
+cardId?: string; // Link to your card system
+fieldId?: string; // Link to your field system
 }
 
 interface CalculationNode {
-  id: string;
-  formula: string;
-  dependencies: Set<string>;
-  dependents: Set<string>;
-  result?: any;
-  isDirty: boolean;
-  cardId?: string;
+id: string;
+formula: string;
+dependencies: Set<string>;
+dependents: Set<string>;
+result?: any;
+isDirty: boolean;
+cardId?: string;
 }
 
 // ============================================
@@ -273,41 +288,42 @@ interface CalculationNode {
 // ============================================
 
 export class UnifiedCalculationEngine {
-  private cache: Map<string, ProcessedValue> = new Map();
-  private calculations: Map<string, CalculationNode> = new Map();
-  private dependencyGraph: Map<string, Set<string>> = new Map();
-  private processingQueue: Set<string> = new Set();
-  private isProcessing = false;
-  private supabase: any;
-  private sessionId: string;
-  
-  // Track field values from your form cards
-  private fieldValues: Map<string, any> = new Map();
-  
-  // Debounced persistence to reduce DB writes
-  private persistToDb = debounce(this._persistToDb.bind(this), 500);
+private cache: Map<string, ProcessedValue> = new Map();
+private calculations: Map<string, CalculationNode> = new Map();
+private dependencyGraph: Map<string, Set<string>> = new Map();
+private processingQueue: Set<string> = new Set();
+private isProcessing = false;
+private supabase: any;
+private sessionId: string;
 
-  constructor(supabase: any, sessionId: string) {
-    this.supabase = supabase;
-    this.sessionId = sessionId;
-    this.initializeRealtime();
-    this.loadExistingSession();
-  }
+// Track field values from your form cards
+private fieldValues: Map<string, any> = new Map();
 
-  // ============================================
-  // INTEGRATION WITH YOUR EXISTING SYSTEM
-  // ============================================
-  
-  /**
-   * Load existing session data from your current tables
-   */
+// Debounced persistence to reduce DB writes
+private persistToDb = debounce(this.\_persistToDb.bind(this), 500);
+
+constructor(supabase: any, sessionId: string) {
+this.supabase = supabase;
+this.sessionId = sessionId;
+this.initializeRealtime();
+this.loadExistingSession();
+}
+
+// ============================================
+// INTEGRATION WITH YOUR EXISTING SYSTEM
+// ============================================
+
+/\*\*
+
+- Load existing session data from your current tables
+  _/
   private async loadExistingSession() {
-    try {
-      // Load from your existing session_data table
-      const { data: sessionData } = await this.supabase
-        .from('session_data')
-        .select('*')
-        .eq('session_id', this.sessionId);
+  try {
+  // Load from your existing session_data table
+  const { data: sessionData } = await this.supabase
+  .from('session_data')
+  .select('_')
+  .eq('session_id', this.sessionId);
 
       if (sessionData) {
         sessionData.forEach((item: any) => {
@@ -345,25 +361,28 @@ export class UnifiedCalculationEngine {
           }
         });
       }
-    } catch (error) {
-      console.error('Error loading session:', error);
-    }
+
+  } catch (error) {
+  console.error('Error loading session:', error);
+  }
   }
 
-  // ============================================
-  // SINGLE PROCESSING METHOD (Solves Problem #1)
-  // ============================================
-  
-  /**
-   * Main entry point - replaces all your different processors
-   * This replaces: processDisplayContent, processDisplayContentWithSession, evaluateExpression
-   */
+// ============================================
+// SINGLE PROCESSING METHOD (Solves Problem #1)
+// ============================================
+
+/\*\*
+
+- Main entry point - replaces all your different processors
+- This replaces: processDisplayContent, processDisplayContentWithSession, evaluateExpression
+  \*/
   public async process(
-    content: string,
-    context?: { cardId?: string; fieldId?: string }
+  content: string,
+  context?: { cardId?: string; fieldId?: string }
   ): Promise<ProcessedValue> {
-    const id = this.generateId(content);
-    
+  const id = this.generateId(content);
+
+
     // Check cache
     const cached = this.cache.get(id);
     if (cached && Date.now() - cached.timestamp < 60000) { // 1 minute cache
@@ -374,7 +393,7 @@ export class UnifiedCalculationEngine {
     const dependencies = this.extractDependencies(content);
     const resolvedDeps = await this.resolveDependencies(dependencies);
     const processed = this.evaluateContent(content, resolvedDeps);
-    
+
     const result: ProcessedValue = {
       id,
       value: processed,
@@ -390,24 +409,27 @@ export class UnifiedCalculationEngine {
     // Cache and persist
     this.cache.set(id, result);
     this.persistToDb(result);
-    
-    return result;
-  }
 
-  // ============================================
-  // UNIFIED DEPENDENCY EXTRACTION (Solves Problem #2)
-  // ============================================
-  
-  /**
-   * Single pattern for all dependencies - no routing needed
-   * Handles: [calc:id], [lookup:id], {fieldId}
-   */
+    return result;
+
+}
+
+// ============================================
+// UNIFIED DEPENDENCY EXTRACTION (Solves Problem #2)
+// ============================================
+
+/\*\*
+
+- Single pattern for all dependencies - no routing needed
+- Handles: [calc:id], [lookup:id], {fieldId}
+  \*/
   private extractDependencies(content: string): Set<string> {
-    const deps = new Set<string>();
-    
+  const deps = new Set<string>();
+
+
     // Single unified pattern for everything
     const pattern = /\[(\w+):([^\]]+)\]|\{([^}]+)\}/g;
-    
+
     let match;
     while ((match = pattern.exec(content)) !== null) {
       if (match[1] && match[2]) {
@@ -418,37 +440,40 @@ export class UnifiedCalculationEngine {
         deps.add(`field:${match[3]}`);
       }
     }
-    
-    return deps;
-  }
 
-  // ============================================
-  // ITERATIVE RESOLUTION (Solves Problem #5)
-  // ============================================
-  
-  /**
-   * Non-recursive dependency resolution with depth limit
-   */
+    return deps;
+
+}
+
+// ============================================
+// ITERATIVE RESOLUTION (Solves Problem #5)
+// ============================================
+
+/\*\*
+
+- Non-recursive dependency resolution with depth limit
+  \*/
   private async resolveDependencies(
-    dependencies: Set<string>,
-    maxDepth = 10
+  dependencies: Set<string>,
+  maxDepth = 10
   ): Promise<Map<string, any>> {
-    const resolved = new Map<string, any>();
-    const toProcess = Array.from(dependencies);
-    const processed = new Set<string>();
-    let depth = 0;
+  const resolved = new Map<string, any>();
+  const toProcess = Array.from(dependencies);
+  const processed = new Set<string>();
+  let depth = 0;
+
 
     while (toProcess.length > 0 && depth < maxDepth) {
       // Process in batches
       const batch = toProcess.splice(0, 10);
-      
+
       const results = await Promise.all(
         batch.map(async (dep) => {
           if (processed.has(dep)) return null;
           processed.add(dep);
-          
+
           const value = await this.fetchDependencyValue(dep);
-          
+
           // If value has more dependencies, add them to queue (not recursive!)
           if (typeof value === 'string') {
             const nestedDeps = this.extractDependencies(value);
@@ -456,122 +481,129 @@ export class UnifiedCalculationEngine {
               if (!processed.has(d)) toProcess.push(d);
             });
           }
-          
+
           return { dep, value };
         })
       );
-      
+
       results.forEach(r => {
         if (r) resolved.set(r.dep, r.value);
       });
-      
+
       depth++;
     }
-    
-    return resolved;
-  }
 
-  // ============================================
-  // UNIFIED VALUE FETCHING (Solves Problem #3 & #4)
-  // ============================================
-  
-  /**
-   * Single method to fetch any dependency value
-   * No type-specific routing
-   */
+    return resolved;
+
+}
+
+// ============================================
+// UNIFIED VALUE FETCHING (Solves Problem #3 & #4)
+// ============================================
+
+/\*\*
+
+- Single method to fetch any dependency value
+- No type-specific routing
+  \*/
   private async fetchDependencyValue(dep: string): Promise<any> {
-    // Check cache first
-    const cached = this.cache.get(dep);
-    if (cached) return cached.value;
-    
+  // Check cache first
+  const cached = this.cache.get(dep);
+  if (cached) return cached.value;
+
+
     const [type, id] = dep.split(':');
-    
+
     // All types handled uniformly
     switch (type) {
       case 'field':
-        return this.fieldValues.get(id) || 
+        return this.fieldValues.get(id) ||
                await this.fetchFromSessionData(id);
-      
+
       case 'calc':
         return await this.fetchCalculation(id);
-      
+
       case 'lookup':
         return await this.fetchLookup(id);
-      
+
       default:
         return null;
     }
-  }
 
-  private async fetchFromSessionData(fieldId: string): Promise<any> {
-    const { data } = await this.supabase
-      .from('session_data')
-      .select('value')
-      .eq('session_id', this.sessionId)
-      .eq('field_id', fieldId)
-      .single();
-    
+}
+
+private async fetchFromSessionData(fieldId: string): Promise<any> {
+const { data } = await this.supabase
+.from('session_data')
+.select('value')
+.eq('session_id', this.sessionId)
+.eq('field_id', fieldId)
+.single();
+
     const value = data?.value;
     if (value !== undefined) {
       this.fieldValues.set(fieldId, value);
     }
     return value;
-  }
 
-  private async fetchCalculation(calcId: string): Promise<any> {
-    // Get from your formulas or cards table
-    const { data } = await this.supabase
-      .from('cards')
-      .select('formula')
-      .eq('id', calcId)
-      .single();
-    
+}
+
+private async fetchCalculation(calcId: string): Promise<any> {
+// Get from your formulas or cards table
+const { data } = await this.supabase
+.from('cards')
+.select('formula')
+.eq('id', calcId)
+.single();
+
     if (data?.formula) {
       const result = await this.process(data.formula, { cardId: calcId });
       return result.processed;
     }
     return null;
-  }
 
-  private async fetchLookup(lookupId: string): Promise<any> {
-    // Your existing lookup logic
-    const { data } = await this.supabase
-      .from('lookups')
-      .select('*')
-      .eq('id', lookupId)
-      .single();
-    
+}
+
+private async fetchLookup(lookupId: string): Promise<any> {
+// Your existing lookup logic
+const { data } = await this.supabase
+.from('lookups')
+.select('\*')
+.eq('id', lookupId)
+.single();
+
     if (data) {
       // Apply lookup logic
       const sourceValue = this.fieldValues.get(data.source_field);
-      
+
       const { data: lookupResult } = await this.supabase
         .from('lookup_values')
         .select('result')
         .eq('lookup_id', lookupId)
         .eq('key', sourceValue)
         .single();
-      
+
       return lookupResult?.result;
     }
     return null;
-  }
 
-  // ============================================
-  // CONTENT EVALUATION
-  // ============================================
-  
-  private evaluateContent(content: string, dependencies: Map<string, any>): any {
-    let processed = content;
-    
+}
+
+// ============================================
+// CONTENT EVALUATION
+// ============================================
+
+private evaluateContent(content: string, dependencies: Map<string, any>): any {
+let processed = content;
+
     // Replace all dependencies with resolved values
     dependencies.forEach((value, key) => {
       const [type, id] = key.split(':');
-      
+
       if (type === 'field') {
         // Replace {fieldId} with value
         processed = processed.replace(
-          new RegExp(`\\{${id}\\}`, 'g'), 
+          new RegExp(`\\{${id}\\}`, 'g'),
           String(value ?? 0)
         );
       } else {
@@ -582,44 +614,46 @@ export class UnifiedCalculationEngine {
         );
       }
     });
-    
+
     // If it's a formula, evaluate it
     if (this.isFormula(processed)) {
       return this.evaluateFormula(processed);
     }
-    
+
     return processed;
-  }
 
-  private isFormula(content: string): boolean {
-    // Check if it contains math operators or functions
-    return /[\+\-\*\/\(\)]|SUM|AVG|MIN|MAX|IF/.test(content);
-  }
+}
 
-  private evaluateFormula(formula: string): number {
-    try {
-      // Process functions first
-      formula = this.processFunctions(formula);
-      
+private isFormula(content: string): boolean {
+// Check if it contains math operators or functions
+return /[\+\-\*\/\(\)]|SUM|AVG|MIN|MAX|IF/.test(content);
+}
+
+private evaluateFormula(formula: string): number {
+try {
+// Process functions first
+formula = this.processFunctions(formula);
+
       // Safe evaluation without eval()
       // For production, use a proper expression parser like math.js
       const func = new Function('return ' + formula);
       const result = func();
-      
+
       return isNaN(result) ? 0 : result;
     } catch (error) {
       console.error('Formula evaluation error:', error);
       return 0;
     }
-  }
 
-  private processFunctions(formula: string): string {
-    // Handle SUM function
-    formula = formula.replace(/SUM\(([^)]+)\)/g, (match, args) => {
-      const values = args.split(',').map((v: string) => parseFloat(v.trim()) || 0);
-      return String(values.reduce((a: number, b: number) => a + b, 0));
-    });
-    
+}
+
+private processFunctions(formula: string): string {
+// Handle SUM function
+formula = formula.replace(/SUM\(([^)]+)\)/g, (match, args) => {
+const values = args.split(',').map((v: string) => parseFloat(v.trim()) || 0);
+return String(values.reduce((a: number, b: number) => a + b, 0));
+});
+
     // Handle IF function
     formula = formula.replace(
       /IF\(([^,]+),([^,]+),([^)]+)\)/g,
@@ -629,21 +663,22 @@ export class UnifiedCalculationEngine {
         return evalCond ? trueVal : falseVal;
       }
     );
-    
+
     // Add more functions as needed
     return formula;
-  }
 
-  private evaluateCondition(condition: string): boolean {
-    // Simple condition evaluation
-    const operators = ['>=', '<=', '!=', '==', '>', '<'];
-    
+}
+
+private evaluateCondition(condition: string): boolean {
+// Simple condition evaluation
+const operators = ['>=', '<=', '!=', '==', '>', '<'];
+
     for (const op of operators) {
       if (condition.includes(op)) {
         const [left, right] = condition.split(op).map(s => s.trim());
         const leftVal = parseFloat(left) || left;
         const rightVal = parseFloat(right) || right;
-        
+
         switch (op) {
           case '>=': return leftVal >= rightVal;
           case '<=': return leftVal <= rightVal;
@@ -654,34 +689,37 @@ export class UnifiedCalculationEngine {
         }
       }
     }
-    
-    return Boolean(condition);
-  }
 
-  // ============================================
-  // INTEGRATION WITH YOUR CARD SYSTEM
-  // ============================================
-  
-  /**
-   * Register a calculation card for tracking
-   */
+    return Boolean(condition);
+
+}
+
+// ============================================
+// INTEGRATION WITH YOUR CARD SYSTEM
+// ============================================
+
+/\*\*
+
+- Register a calculation card for tracking
+  \*/
   public registerCalculation(
-    calcId: string,
-    formula: string,
-    dependencies: string[],
-    cardId?: string
+  calcId: string,
+  formula: string,
+  dependencies: string[],
+  cardId?: string
   ) {
-    const node: CalculationNode = {
-      id: calcId,
-      formula,
-      dependencies: new Set(dependencies),
-      dependents: new Set(),
-      isDirty: true,
-      cardId
-    };
-    
+  const node: CalculationNode = {
+  id: calcId,
+  formula,
+  dependencies: new Set(dependencies),
+  dependents: new Set(),
+  isDirty: true,
+  cardId
+  };
+
+
     this.calculations.set(calcId, node);
-    
+
     // Build dependency graph
     dependencies.forEach(dep => {
       if (!this.dependencyGraph.has(dep)) {
@@ -689,19 +727,22 @@ export class UnifiedCalculationEngine {
       }
       this.dependencyGraph.get(dep)!.add(calcId);
     });
-    
+
     // Queue for processing
     this.processingQueue.add(calcId);
     this.processQueue();
-  }
 
-  /**
-   * Update a field value (from your form cards)
-   */
+}
+
+/\*\*
+
+- Update a field value (from your form cards)
+  \*/
   public async updateFieldValue(fieldId: string, value: any) {
-    // Update local cache
-    this.fieldValues.set(fieldId, value);
-    
+  // Update local cache
+  this.fieldValues.set(fieldId, value);
+
+
     const key = `field:${fieldId}`;
     this.cache.set(key, {
       id: key,
@@ -713,7 +754,7 @@ export class UnifiedCalculationEngine {
       timestamp: Date.now(),
       fieldId
     });
-    
+
     // Find affected calculations
     const affected = this.dependencyGraph.get(key) || new Set();
     affected.forEach(calcId => {
@@ -723,10 +764,10 @@ export class UnifiedCalculationEngine {
         this.processingQueue.add(calcId);
       }
     });
-    
+
     // Process queue
     await this.processQueue();
-    
+
     // Persist to your session_data table
     await this.supabase
       .from('session_data')
@@ -736,46 +777,50 @@ export class UnifiedCalculationEngine {
         value,
         updated_at: new Date().toISOString()
       });
-  }
 
-  /**
-   * Process queued calculations
-   */
+}
+
+/\*\*
+
+- Process queued calculations
+  \*/
   private async processQueue() {
-    if (this.isProcessing || this.processingQueue.size === 0) return;
-    
+  if (this.isProcessing || this.processingQueue.size === 0) return;
+
+
     this.isProcessing = true;
-    
+
     try {
       // Sort in dependency order
       const sorted = this.topologicalSort(Array.from(this.processingQueue));
-      
+
       for (const calcId of sorted) {
         const calc = this.calculations.get(calcId);
         if (calc && calc.isDirty) {
           const result = await this.process(calc.formula, { cardId: calc.cardId });
           calc.result = result.processed;
           calc.isDirty = false;
-          
+
           // Notify listeners
           this.notifySubscribers(calcId, result);
         }
-        
+
         this.processingQueue.delete(calcId);
       }
     } finally {
       this.isProcessing = false;
     }
-  }
 
-  private topologicalSort(calcIds: string[]): string[] {
-    const sorted: string[] = [];
-    const visited = new Set<string>();
-    
+}
+
+private topologicalSort(calcIds: string[]): string[] {
+const sorted: string[] = [];
+const visited = new Set<string>();
+
     const visit = (id: string) => {
       if (visited.has(id)) return;
       visited.add(id);
-      
+
       const calc = this.calculations.get(id);
       if (calc) {
         calc.dependencies.forEach(dep => {
@@ -784,77 +829,79 @@ export class UnifiedCalculationEngine {
           }
         });
       }
-      
+
       sorted.push(id);
     };
-    
+
     calcIds.forEach(visit);
     return sorted;
-  }
 
-  // ============================================
-  // REAL-TIME & SUBSCRIPTIONS
-  // ============================================
-  
-  private listeners = new Map<string, Set<(value: ProcessedValue) => void>>();
-  
-  public subscribe(
-    id: string,
-    callback: (value: ProcessedValue) => void
-  ): () => void {
-    if (!this.listeners.has(id)) {
-      this.listeners.set(id, new Set());
-    }
-    
+}
+
+// ============================================
+// REAL-TIME & SUBSCRIPTIONS
+// ============================================
+
+private listeners = new Map<string, Set<(value: ProcessedValue) => void>>();
+
+public subscribe(
+id: string,
+callback: (value: ProcessedValue) => void
+): () => void {
+if (!this.listeners.has(id)) {
+this.listeners.set(id, new Set());
+}
+
     this.listeners.get(id)!.add(callback);
-    
+
     // Send current value if available
-    const current = this.cache.get(id) || 
+    const current = this.cache.get(id) ||
                    this.cache.get(`calc:${id}`) ||
                    this.cache.get(`field:${id}`);
     if (current) {
       callback(current);
     }
-    
+
     return () => {
       this.listeners.get(id)?.delete(callback);
     };
-  }
 
-  private notifySubscribers(id: string, value: ProcessedValue) {
-    this.listeners.get(id)?.forEach(cb => cb(value));
-  }
+}
 
-  private initializeRealtime() {
-    // Subscribe to session_data changes
-    this.supabase
-      .channel(`session-${this.sessionId}`)
-      .on(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'session_data',
-          filter: `session_id=eq.${this.sessionId}`
-        },
-        (payload: any) => {
-          if (payload.new) {
-            this.updateFieldValue(payload.new.field_id, payload.new.value);
-          }
-        }
-      )
-      .subscribe();
-  }
+private notifySubscribers(id: string, value: ProcessedValue) {
+this.listeners.get(id)?.forEach(cb => cb(value));
+}
 
-  // ============================================
-  // PERSISTENCE (Single storage - Solves Problem #3)
-  // ============================================
-  
-  private async _persistToDb(value: ProcessedValue) {
-    try {
-      // You can create a new table or use existing ones
-      // For now, using session_data for fields and a new table for calculations
-      
+private initializeRealtime() {
+// Subscribe to session_data changes
+this.supabase
+.channel(`session-${this.sessionId}`)
+.on(
+'postgres_changes',
+{
+event: '\*',
+schema: 'public',
+table: 'session_data',
+filter: `session_id=eq.${this.sessionId}`
+},
+(payload: any) => {
+if (payload.new) {
+this.updateFieldValue(payload.new.field_id, payload.new.value);
+}
+}
+)
+.subscribe();
+}
+
+// ============================================
+// PERSISTENCE (Single storage - Solves Problem #3)
+// ============================================
+
+private async \_persistToDb(value: ProcessedValue) {
+try {
+// You can create a new table or use existing ones
+// For now, using session_data for fields and a new table for calculations
+
       if (value.type === 'field' && value.fieldId) {
         await this.supabase
           .from('session_data')
@@ -880,85 +927,85 @@ export class UnifiedCalculationEngine {
     } catch (error) {
       console.error('Persistence error:', error);
     }
-  }
 
-  // ============================================
-  // HELPERS
-  // ============================================
-  
-  private determineType(content: string): ProcessedValue['type'] {
-    if (content.includes('[calc:')) return 'calculation';
-    if (content.includes('[lookup:')) return 'lookup';
-    if (content.includes('{') && content.includes('}')) return 'field';
-    return 'static';
-  }
-
-  private generateId(content: string): string {
-    // Simple hash - use crypto in production
-    return content.substring(0, 30).replace(/[^a-zA-Z0-9]/g, '_');
-  }
-
-  public dispose() {
-    // Cleanup
-    this.cache.clear();
-    this.calculations.clear();
-    this.dependencyGraph.clear();
-    this.listeners.clear();
-  }
 }
 
+// ============================================
+// HELPERS
+// ============================================
 
+private determineType(content: string): ProcessedValue['type'] {
+if (content.includes('[calc:')) return 'calculation';
+if (content.includes('[lookup:')) return 'lookup';
+if (content.includes('{') && content.includes('}')) return 'field';
+return 'static';
+}
+
+private generateId(content: string): string {
+// Simple hash - use crypto in production
+return content.substring(0, 30).replace(/[^a-zA-Z0-9]/g, '\_');
+}
+
+public dispose() {
+// Cleanup
+this.cache.clear();
+this.calculations.clear();
+this.dependencyGraph.clear();
+this.listeners.clear();
+}
+}
 
 Step 2: Database Schema Changes
-
 
 -- Migration: Add calculation_results table for unified storage
 
 -- 1. Create calculation_results table (if not exists)
 CREATE TABLE IF NOT EXISTS calculation_results (
-  id SERIAL PRIMARY KEY,
-  session_id UUID NOT NULL,
-  calculation_id TEXT NOT NULL,
-  result JSONB,
-  formula TEXT,
-  dependencies TEXT[],
-  error TEXT,
-  created_at TIMESTAMP DEFAULT NOW(),
-  updated_at TIMESTAMP DEFAULT NOW(),
-  UNIQUE(session_id, calculation_id)
+id SERIAL PRIMARY KEY,
+session_id UUID NOT NULL,
+calculation_id TEXT NOT NULL,
+result JSONB,
+formula TEXT,
+dependencies TEXT[],
+error TEXT,
+created_at TIMESTAMP DEFAULT NOW(),
+updated_at TIMESTAMP DEFAULT NOW(),
+UNIQUE(session_id, calculation_id)
 );
 
 -- 2. Add indexes for performance
-CREATE INDEX IF NOT EXISTS idx_calculation_results_session 
+CREATE INDEX IF NOT EXISTS idx_calculation_results_session
 ON calculation_results(session_id);
 
-CREATE INDEX IF NOT EXISTS idx_calculation_results_updated 
+CREATE INDEX IF NOT EXISTS idx_calculation_results_updated
 ON calculation_results(updated_at);
 
 -- 3. Enable RLS
 ALTER TABLE calculation_results ENABLE ROW LEVEL SECURITY;
 
 -- 4. Create RLS policies
-CREATE POLICY "Users can view own calculation results" 
-ON calculation_results FOR SELECT 
+CREATE POLICY "Users can view own calculation results"
+ON calculation_results FOR SELECT
 USING (true); -- Adjust based on your auth setup
 
-CREATE POLICY "Users can insert own calculation results" 
-ON calculation_results FOR INSERT 
+CREATE POLICY "Users can insert own calculation results"
+ON calculation_results FOR INSERT
 WITH CHECK (true); -- Adjust based on your auth setup
 
-CREATE POLICY "Users can update own calculation results" 
-ON calculation_results FOR UPDATE 
+CREATE POLICY "Users can update own calculation results"
+ON calculation_results FOR UPDATE
 USING (true); -- Adjust based on your auth setup
 
 -- 5. Add trigger for updated_at
 CREATE OR REPLACE FUNCTION update_updated_at()
 RETURNS TRIGGER AS $$
 BEGIN
-  NEW.updated_at = NOW();
-  RETURN NEW;
+NEW.updated_at = NOW();
+RETURN NEW;
 END;
-$$ LANGUAGE plpgsql;
+
+$$
+LANGUAGE plpgsql;
 
 CREATE TRIGGER update_calculation_results_updated_at
 BEFORE UPDATE ON calculation_results
@@ -966,15 +1013,15 @@ FOR EACH ROW
 EXECUTE FUNCTION update_updated_at();
 
 -- 6. Add fields to existing tables if needed
-ALTER TABLE cards 
+ALTER TABLE cards
 ADD COLUMN IF NOT EXISTS dependencies TEXT[] DEFAULT '{}';
 
-ALTER TABLE card_fields 
+ALTER TABLE card_fields
 ADD COLUMN IF NOT EXISTS validation_rules JSONB DEFAULT '{}';
 
 -- 7. Create a view for easy querying
 CREATE OR REPLACE VIEW calculation_status AS
-SELECT 
+SELECT
   cr.session_id,
   cr.calculation_id,
   cr.result,
@@ -1064,8 +1111,8 @@ export function useCalculation(
     const calculate = async () => {
       setIsCalculating(true);
       try {
-        const processedValue = await engine.process(formula, { 
-          cardId: calculationId 
+        const processedValue = await engine.process(formula, {
+          cardId: calculationId
         });
         setResult(processedValue.processed);
         setError(processedValue.error || null);
@@ -1227,11 +1274,11 @@ interface CalculationCardProps {
   onComplete?: () => void;
 }
 
-export function CalculationCard({ 
-  card, 
-  sessionId, 
+export function CalculationCard({
+  card,
+  sessionId,
   isActive,
-  onComplete 
+  onComplete
 }: CalculationCardProps) {
   // Use the new unified hook
   const { result, error, isCalculating, recalculate } = useCalculation(
@@ -1247,7 +1294,7 @@ export function CalculationCard({
     if (result !== null && result !== undefined) {
       const formatted = formatResult(result, card.decimals, card.units);
       setDisplayValue(formatted);
-      
+
       if (onComplete) {
         onComplete();
       }
@@ -1260,7 +1307,7 @@ export function CalculationCard({
 
   const formatResult = (value: any, decimals?: number, units?: string): string => {
     if (typeof value === 'number') {
-      const formatted = decimals !== undefined 
+      const formatted = decimals !== undefined
         ? value.toFixed(decimals)
         : value.toString();
       return units ? `${formatted} ${units}` : formatted;
@@ -1414,7 +1461,7 @@ export function CardStream({ sessionId }: CardStreamProps) {
 
   const handleCardComplete = (cardId: string) => {
     setCompletedCards(prev => new Set(prev).add(cardId));
-    
+
     const nextIndex = activeCardIndex + 1;
     if (nextIndex < cards.length) {
       setActiveCardIndex(nextIndex);
@@ -1514,14 +1561,14 @@ const supabase = createClient(
 
 async function migrateData() {
   console.log('Starting migration to unified engine...');
-  
+
   try {
     // 1. Migrate existing formula results
     console.log('Migrating formula results...');
     const { data: formulaResults } = await supabase
       .from('formula_results')
       .select('*');
-    
+
     if (formulaResults) {
       for (const result of formulaResults) {
         await supabase
@@ -1538,14 +1585,14 @@ async function migrateData() {
       }
       console.log(`Migrated ${formulaResults.length} formula results`);
     }
-    
+
     // 2. Update cards to include dependencies
     console.log('Updating cards with dependencies...');
     const { data: cards } = await supabase
       .from('cards')
       .select('*')
       .eq('type', 'calculation');
-    
+
     if (cards) {
       for (const card of cards) {
         if (card.formula) {
@@ -1558,7 +1605,7 @@ async function migrateData() {
       }
       console.log(`Updated ${cards.length} calculation cards`);
     }
-    
+
     // 3. Clean up old processors (mark as deprecated)
     console.log('Migration complete!');
     console.log('Next steps:');
@@ -1566,7 +1613,7 @@ async function migrateData() {
     console.log('2. Update your components to use the new hooks');
     console.log('3. Test thoroughly in staging');
     console.log('4. Remove old processor code after confirming everything works');
-    
+
   } catch (error) {
     console.error('Migration error:', error);
     process.exit(1);
@@ -1575,20 +1622,20 @@ async function migrateData() {
 
 function extractDependencies(formula: string): string[] {
   const deps = new Set<string>();
-  
+
   // Extract [type:id] patterns
   const typePattern = /\[(\w+):([^\]]+)\]/g;
   let match;
   while ((match = typePattern.exec(formula)) !== null) {
     deps.add(`${match[1]}:${match[2]}`);
   }
-  
+
   // Extract {fieldId} patterns
   const fieldPattern = /\{([^}]+)\}/g;
   while ((match = fieldPattern.exec(formula)) !== null) {
     deps.add(`field:${match[1]}`);
   }
-  
+
   return Array.from(deps);
 }
 
@@ -1666,7 +1713,7 @@ describe('UnifiedCalculationEngine', () => {
       on: jest.fn().mockReturnThis(),
       subscribe: jest.fn().mockReturnThis(),
     };
-    
+
     engine = new UnifiedCalculationEngine(mockSupabase, 'test-session');
   });
 
@@ -1691,7 +1738,7 @@ describe('UnifiedCalculationEngine', () => {
     it('should extract all dependency types with single pattern', async () => {
       const content = 'Calculate {principal} * [lookup:rate] + [calc:fees]';
       const result = await engine.process(content);
-      
+
       expect(result.dependencies).toContain('field:principal');
       expect(result.dependencies).toContain('lookup:rate');
       expect(result.dependencies).toContain('calc:fees');
@@ -1704,12 +1751,12 @@ describe('UnifiedCalculationEngine', () => {
       await engine.process('{field1}');
       await engine.process('[calc:test]');
       await engine.process('[lookup:test]');
-      
+
       // All should be in same cache (verify through repeat calls)
       const field = await engine.process('{field1}');
       const calc = await engine.process('[calc:test]');
       const lookup = await engine.process('[lookup:test]');
-      
+
       // Second calls should be from cache (faster)
       expect(field.timestamp).toBeDefined();
       expect(calc.timestamp).toBeDefined();
@@ -1721,7 +1768,7 @@ describe('UnifiedCalculationEngine', () => {
     it('should treat type as metadata only', async () => {
       const formula = '[calc:base] + [lookup:multiplier]';
       const result = await engine.process(formula);
-      
+
       // Type is just metadata, not affecting processing
       expect(result.type).toBe('calculation');
       expect(result.dependencies).toHaveLength(2);
@@ -1743,7 +1790,7 @@ describe('UnifiedCalculationEngine', () => {
 
       const content = '[lookup:complex]';
       const result = await engine.process(content);
-      
+
       // Should not cause stack overflow
       expect(result).toBeDefined();
       expect(result.error).toBeUndefined();
@@ -1755,9 +1802,9 @@ describe('UnifiedCalculationEngine', () => {
       for (let i = 0; i < 20; i++) {
         deepContent = `[calc:level${i}(${deepContent})]`;
       }
-      
+
       const result = await engine.process(deepContent);
-      
+
       // Should complete without error (depth limit prevents infinite processing)
       expect(result).toBeDefined();
     });
@@ -1768,9 +1815,9 @@ describe('UnifiedCalculationEngine', () => {
       // Register calculations that depend on each other
       engine.registerCalculation('calc1', '[calc:calc2] + 1', ['calc:calc2']);
       engine.registerCalculation('calc2', '[calc:calc1] + 1', ['calc:calc1']);
-      
+
       const result = await engine.process('[calc:calc1]');
-      
+
       // Should handle gracefully
       expect(result.error).toBeDefined();
       expect(result.error).toContain('Circular');
@@ -1780,18 +1827,18 @@ describe('UnifiedCalculationEngine', () => {
   describe('Field Updates', () => {
     it('should trigger recalculation when field changes', async () => {
       const callback = jest.fn();
-      
+
       engine.registerCalculation('total', '{price} * {quantity}', [
         'field:price',
         'field:quantity'
       ]);
-      
+
       engine.subscribe('total', callback);
-      
+
       // Update field
       await engine.updateFieldValue('price', 10);
       await engine.updateFieldValue('quantity', 5);
-      
+
       // Should have triggered recalculation
       expect(callback).toHaveBeenCalled();
       const lastCall = callback.mock.calls[callback.mock.calls.length - 1][0];
@@ -1838,7 +1885,7 @@ describe('Integration: CalculationCard with UnifiedEngine', () => {
 
 export class EngineDebugger {
   private engine: UnifiedCalculationEngine;
-  
+
   constructor(engine: UnifiedCalculationEngine) {
     this.engine = engine;
   }
@@ -1863,7 +1910,7 @@ export class EngineDebugger {
     console.group(`🔍 Dependency Trace: ${content}`);
     const deps = (this.engine as any).extractDependencies(content);
     console.log('Direct dependencies:', Array.from(deps));
-    
+
     // Show dependency graph
     const graph = (this.engine as any).dependencyGraph;
     deps.forEach((dep: string) => {
@@ -1880,16 +1927,16 @@ export class EngineDebugger {
    */
   async profileCalculation(content: string) {
     console.group(`⏱️ Performance Profile: ${content}`);
-    
+
     const start = performance.now();
     const result = await this.engine.process(content);
     const end = performance.now();
-    
+
     console.log('Total time:', `${(end - start).toFixed(2)}ms`);
     console.log('Result:', result);
     console.log('Dependencies:', result.dependencies);
     console.log('Cache hit rate:', this.getCacheHitRate());
-    
+
     console.groupEnd();
   }
 
@@ -1904,3 +1951,4 @@ export class EngineDebugger {
 // debugger.dumpCache();
 // debugger.traceDependencies('[calc:total] + {tax}');
 // await debugger.profileCalculation('complex formula here');
+$$
