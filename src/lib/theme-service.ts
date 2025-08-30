@@ -1,7 +1,7 @@
 import { supabase } from './supabase';
-import { 
-  GlobalTheme, 
-  GlobalThemeCore, 
+import {
+  GlobalTheme,
+  GlobalThemeCore,
   CardStyleOverride,
   ThemeRecord,
   CardStyleOverrideRecord,
@@ -25,7 +25,9 @@ function recordToTheme(record: ThemeRecord): GlobalTheme {
 }
 
 // Convert theme object to database record
-function themeToRecord(theme: GlobalTheme): Omit<ThemeRecord, 'id' | 'created_at' | 'updated_at'> {
+function themeToRecord(
+  theme: GlobalTheme
+): Omit<ThemeRecord, 'id' | 'created_at' | 'updated_at'> {
   return {
     name: theme.name,
     description: theme.description,
@@ -92,7 +94,11 @@ export async function getThemes(): Promise<GlobalTheme[]> {
 }
 
 // Create a new theme
-export async function createTheme(themeCore: GlobalThemeCore, name: string, description?: string): Promise<GlobalTheme> {
+export async function createTheme(
+  themeCore: GlobalThemeCore,
+  name: string,
+  description?: string
+): Promise<GlobalTheme> {
   const theme: GlobalTheme = {
     ...themeCore,
     id: '', // Will be set by database
@@ -119,7 +125,10 @@ export async function createTheme(themeCore: GlobalThemeCore, name: string, desc
 }
 
 // Update an existing theme
-export async function updateTheme(id: string, updates: Partial<GlobalThemeCore & { name?: string; description?: string }>): Promise<GlobalTheme> {
+export async function updateTheme(
+  id: string,
+  updates: Partial<GlobalThemeCore & { name?: string; description?: string }>
+): Promise<GlobalTheme> {
   // First get the existing theme
   const { data: existing, error: fetchError } = await supabase
     .from('themes')
@@ -132,24 +141,30 @@ export async function updateTheme(id: string, updates: Partial<GlobalThemeCore &
   }
 
   const existingTheme = recordToTheme(existing);
-  
+
   // Merge updates with existing theme
   const updatedCore: GlobalThemeCore = {
     primaryColor: updates.primaryColor || existingTheme.primaryColor,
     secondaryColor: updates.secondaryColor || existingTheme.secondaryColor,
     fontFamily: updates.fontFamily || existingTheme.fontFamily,
-    headingFontFamily: updates.headingFontFamily || existingTheme.headingFontFamily,
-    fieldSettings: updates.fieldSettings ? {
-      ...existingTheme.fieldSettings,
-      ...updates.fieldSettings,
-    } : existingTheme.fieldSettings,
+    headingFontFamily:
+      updates.headingFontFamily || existingTheme.headingFontFamily,
+    fieldSettings: updates.fieldSettings
+      ? {
+          ...existingTheme.fieldSettings,
+          ...updates.fieldSettings,
+        }
+      : existingTheme.fieldSettings,
   };
 
   const updatedTheme: GlobalTheme = {
     ...existingTheme,
     ...updatedCore,
     name: updates.name || existingTheme.name,
-    description: updates.description !== undefined ? updates.description : existingTheme.description,
+    description:
+      updates.description !== undefined
+        ? updates.description
+        : existingTheme.description,
     computed: computeThemeColors(updatedCore),
     updatedAt: new Date().toISOString(),
   };
@@ -172,9 +187,7 @@ export async function updateTheme(id: string, updates: Partial<GlobalThemeCore &
 export async function activateTheme(id: string): Promise<void> {
   try {
     // Deactivate all themes
-    await supabase
-      .from('themes')
-      .update({ is_active: false });
+    await supabase.from('themes').update({ is_active: false });
 
     // Activate the selected theme
     const { error } = await supabase
@@ -212,10 +225,7 @@ export async function deleteTheme(id: string): Promise<void> {
     throw new Error('Cannot delete the default theme');
   }
 
-  const { error } = await supabase
-    .from('themes')
-    .delete()
-    .eq('id', id);
+  const { error } = await supabase.from('themes').delete().eq('id', id);
 
   if (error) {
     throw new Error(`Failed to delete theme: ${error.message}`);
@@ -223,11 +233,11 @@ export async function deleteTheme(id: string): Promise<void> {
 }
 
 // Card override functions
-export async function getCardOverrides(themeId?: string): Promise<Record<string, CardStyleOverride>> {
+export async function getCardOverrides(
+  themeId?: string
+): Promise<Record<string, CardStyleOverride>> {
   try {
-    let query = supabase
-      .from('card_style_overrides')
-      .select('*');
+    let query = supabase.from('card_style_overrides').select('*');
 
     if (themeId) {
       query = query.eq('theme_id', themeId);
@@ -252,8 +262,8 @@ export async function getCardOverrides(themeId?: string): Promise<Record<string,
 }
 
 export async function setCardOverride(
-  cardId: string, 
-  themeId: string, 
+  cardId: string,
+  themeId: string,
   override: Partial<CardStyleOverride>
 ): Promise<void> {
   const styleOverride: CardStyleOverride = {
@@ -261,20 +271,21 @@ export async function setCardOverride(
     ...override,
   };
 
-  const { error } = await supabase
-    .from('card_style_overrides')
-    .upsert({
-      card_id: cardId,
-      theme_id: themeId,
-      style_overrides: styleOverride,
-    });
+  const { error } = await supabase.from('card_style_overrides').upsert({
+    card_id: cardId,
+    theme_id: themeId,
+    style_overrides: styleOverride,
+  });
 
   if (error) {
     throw new Error(`Failed to set card override: ${error.message}`);
   }
 }
 
-export async function removeCardOverride(cardId: string, themeId: string): Promise<void> {
+export async function removeCardOverride(
+  cardId: string,
+  themeId: string
+): Promise<void> {
   const { error } = await supabase
     .from('card_style_overrides')
     .delete()

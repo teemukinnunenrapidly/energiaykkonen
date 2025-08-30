@@ -1,9 +1,9 @@
 'use client';
 
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import { 
-  GlobalTheme, 
-  GlobalThemeCore, 
+import {
+  GlobalTheme,
+  GlobalThemeCore,
   CardStyleOverride,
   DEFAULT_THEME_CORE,
   computeThemeColors,
@@ -12,15 +12,18 @@ import {
 interface ThemeContextType {
   // Current theme
   theme: GlobalTheme;
-  
+
   // Card overrides
   cardOverrides: Record<string, CardStyleOverride>;
-  
+
   // Theme management
   updateTheme: (themeCore: GlobalThemeCore) => void;
-  setCardOverride: (cardId: string, override: Partial<CardStyleOverride>) => void;
+  setCardOverride: (
+    cardId: string,
+    override: Partial<CardStyleOverride>
+  ) => void;
   removeCardOverride: (cardId: string) => void;
-  
+
   // Utility functions
   getCardStyles: (cardId: string) => React.CSSProperties;
   getEffectiveTheme: (cardId?: string) => {
@@ -49,7 +52,9 @@ export function ThemeProvider({ children, initialTheme }: ThemeProviderProps) {
   const [themeCore, setThemeCore] = useState<GlobalThemeCore>(
     initialTheme || DEFAULT_THEME_CORE
   );
-  const [cardOverrides, setCardOverrides] = useState<Record<string, CardStyleOverride>>({});
+  const [cardOverrides, setCardOverrides] = useState<
+    Record<string, CardStyleOverride>
+  >({});
 
   // Compute full theme from core settings
   const theme: GlobalTheme = {
@@ -73,21 +78,27 @@ export function ThemeProvider({ children, initialTheme }: ThemeProviderProps) {
     root.style.setProperty('--theme-primary-hover', computed.primaryHover);
     root.style.setProperty('--theme-primary-light', computed.primaryLight);
     root.style.setProperty('--theme-primary-text', computed.primaryText);
-    
+
     root.style.setProperty('--theme-secondary', theme.secondaryColor);
     root.style.setProperty('--theme-secondary-hover', computed.secondaryHover);
     root.style.setProperty('--theme-secondary-light', computed.secondaryLight);
     root.style.setProperty('--theme-secondary-text', computed.secondaryText);
-    
+
     root.style.setProperty('--theme-font-body', theme.fontFamily);
-    root.style.setProperty('--theme-font-heading', theme.headingFontFamily || theme.fontFamily);
+    root.style.setProperty(
+      '--theme-font-heading',
+      theme.headingFontFamily || theme.fontFamily
+    );
   }, [theme]);
 
   const updateTheme = (newThemeCore: GlobalThemeCore) => {
     setThemeCore(newThemeCore);
   };
 
-  const setCardOverride = (cardId: string, override: Partial<CardStyleOverride>) => {
+  const setCardOverride = (
+    cardId: string,
+    override: Partial<CardStyleOverride>
+  ) => {
     setCardOverrides(prev => ({
       ...prev,
       [cardId]: {
@@ -108,7 +119,9 @@ export function ThemeProvider({ children, initialTheme }: ThemeProviderProps) {
 
   const getCardStyles = (cardId: string): React.CSSProperties => {
     const override = cardOverrides[cardId];
-    if (!override) return {};
+    if (!override) {
+      return {};
+    }
 
     const styles: React.CSSProperties = {};
 
@@ -127,7 +140,7 @@ export function ThemeProvider({ children, initialTheme }: ThemeProviderProps) {
 
   const getEffectiveTheme = (cardId?: string) => {
     const override = cardId ? cardOverrides[cardId] : null;
-    
+
     return {
       colors: {
         primary: override?.accentColor || theme.primaryColor,
@@ -170,18 +183,29 @@ export function useTheme(): ThemeContextType {
 
 // Hook for getting theme-aware CSS classes
 export function useThemeClasses() {
-  const { theme: currentTheme, cardOverrides: currentCardOverrides, getEffectiveTheme } = useTheme();
-  
+  const {
+    theme: currentTheme,
+    cardOverrides: currentCardOverrides,
+    getEffectiveTheme,
+  } = useTheme();
+
   return {
     // Button classes based on theme
-    getButtonClasses: (variant: 'primary' | 'secondary' | 'outline' = 'primary', cardId?: string) => {
+    getButtonClasses: (
+      variant: 'primary' | 'secondary' | 'outline' = 'primary',
+      cardId?: string
+    ) => {
       const effective = getEffectiveTheme(cardId);
       const radiusClass = `rounded-${currentTheme.fieldSettings.buttonRadius}`;
-      const spacingClass = effective.spacing === 'compact' ? 'px-3 py-1.5' :
-                          effective.spacing === 'spacious' ? 'px-6 py-3' : 'px-4 py-2';
-      
+      const spacingClass =
+        effective.spacing === 'compact'
+          ? 'px-3 py-1.5'
+          : effective.spacing === 'spacious'
+            ? 'px-6 py-3'
+            : 'px-4 py-2';
+
       const baseClasses = `${radiusClass} ${spacingClass} font-medium transition-colors`;
-      
+
       if (currentTheme.fieldSettings.buttonStyle === 'solid') {
         if (variant === 'primary') {
           return `${baseClasses} text-white hover:opacity-90`;
@@ -190,35 +214,41 @@ export function useThemeClasses() {
         }
       } else if (currentTheme.fieldSettings.buttonStyle === 'outlined') {
         return `${baseClasses} border-2 bg-transparent hover:bg-opacity-10`;
-      } else { // ghost
+      } else {
+        // ghost
         return `${baseClasses} bg-transparent hover:bg-opacity-10`;
       }
     },
-    
+
     // Field classes based on theme
     getFieldClasses: (cardId?: string) => {
       const effective = getEffectiveTheme(cardId);
       const radiusClass = `rounded-${currentTheme.fieldSettings.borderRadius}`;
-      const spacingClass = effective.spacing === 'compact' ? 'p-2' :
-                          effective.spacing === 'spacious' ? 'p-4' : 'p-3';
-      
+      const spacingClass =
+        effective.spacing === 'compact'
+          ? 'p-2'
+          : effective.spacing === 'spacious'
+            ? 'p-4'
+            : 'p-3';
+
       if (currentTheme.fieldSettings.fieldStyle === 'filled') {
         return `${radiusClass} ${spacingClass} bg-gray-50 border-0 focus:bg-white focus:ring-2`;
       } else if (currentTheme.fieldSettings.fieldStyle === 'underlined') {
         return `${spacingClass} bg-transparent border-0 border-b-2 border-gray-200 rounded-none focus:border-current focus:ring-0`;
-      } else { // outlined
+      } else {
+        // outlined
         return `${radiusClass} ${spacingClass} bg-white border border-gray-200 focus:border-current focus:ring-1`;
       }
     },
-    
+
     // Card classes based on theme and overrides
     getCardClasses: (cardId: string) => {
       const override = currentCardOverrides[cardId];
       const spacing = override?.paddingDensity || 'default';
-      
-      const spacingClass = spacing === 'compact' ? 'p-4' :
-                          spacing === 'spacious' ? 'p-8' : 'p-6';
-      
+
+      const spacingClass =
+        spacing === 'compact' ? 'p-4' : spacing === 'spacious' ? 'p-8' : 'p-6';
+
       return `bg-white rounded-lg shadow-lg border ${spacingClass}`;
     },
   };

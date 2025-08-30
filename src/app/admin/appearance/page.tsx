@@ -58,10 +58,11 @@ export default function AppearancePage() {
   const [themes, setThemes] = useState<GlobalTheme[]>([]);
   const [activeTheme, setActiveTheme] = useState<GlobalTheme | null>(null);
   const [loading, setLoading] = useState(true);
-  
+
   // Form state for creating/editing themes
   const [editingTheme, setEditingTheme] = useState<GlobalTheme | null>(null);
-  const [themeForm, setThemeForm] = useState<GlobalThemeCore>(DEFAULT_THEME_CORE);
+  const [themeForm, setThemeForm] =
+    useState<GlobalThemeCore>(DEFAULT_THEME_CORE);
   const [themeName, setThemeName] = useState('');
   const [themeDescription, setThemeDescription] = useState('');
   const [showCreateForm, setShowCreateForm] = useState(false);
@@ -91,7 +92,7 @@ export default function AppearancePage() {
     try {
       await createTheme(themeForm, themeName, themeDescription);
       await loadThemes();
-      
+
       // Reset form
       setThemeForm(DEFAULT_THEME_CORE);
       setThemeName('');
@@ -103,7 +104,9 @@ export default function AppearancePage() {
   };
 
   const handleUpdateTheme = async () => {
-    if (!editingTheme) return;
+    if (!editingTheme) {
+      return;
+    }
 
     try {
       await updateTheme(editingTheme.id, {
@@ -112,7 +115,7 @@ export default function AppearancePage() {
         description: themeDescription,
       });
       await loadThemes();
-      
+
       // Reset form
       setEditingTheme(null);
       setThemeForm(DEFAULT_THEME_CORE);
@@ -134,7 +137,9 @@ export default function AppearancePage() {
   };
 
   const handleDeleteTheme = async (themeId: string) => {
-    if (!confirm('Are you sure you want to delete this theme?')) return;
+    if (!confirm('Are you sure you want to delete this theme?')) {
+      return;
+    }
 
     try {
       await deleteTheme(themeId);
@@ -217,10 +222,9 @@ export default function AppearancePage() {
                   {editingTheme ? 'Edit Theme' : 'Create New Theme'}
                 </CardTitle>
                 <CardDescription>
-                  {editingTheme 
-                    ? 'Update the theme settings' 
-                    : 'Create a new appearance theme for your calculator'
-                  }
+                  {editingTheme
+                    ? 'Update the theme settings'
+                    : 'Create a new appearance theme for your calculator'}
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
@@ -231,16 +235,18 @@ export default function AppearancePage() {
                     <Input
                       id="themeName"
                       value={themeName}
-                      onChange={(e) => setThemeName(e.target.value)}
+                      onChange={e => setThemeName(e.target.value)}
                       placeholder="e.g., Corporate Blue"
                     />
                   </div>
                   <div>
-                    <Label htmlFor="themeDescription">Description (Optional)</Label>
+                    <Label htmlFor="themeDescription">
+                      Description (Optional)
+                    </Label>
                     <Input
                       id="themeDescription"
                       value={themeDescription}
-                      onChange={(e) => setThemeDescription(e.target.value)}
+                      onChange={e => setThemeDescription(e.target.value)}
                       placeholder="Brief description of this theme"
                     />
                   </div>
@@ -262,18 +268,22 @@ export default function AppearancePage() {
                             id="primaryColor"
                             type="color"
                             value={themeForm.primaryColor}
-                            onChange={(e) => setThemeForm(prev => ({
-                              ...prev,
-                              primaryColor: e.target.value
-                            }))}
+                            onChange={e =>
+                              setThemeForm(prev => ({
+                                ...prev,
+                                primaryColor: e.target.value,
+                              }))
+                            }
                             className="w-16 h-10 p-1"
                           />
                           <Input
                             value={themeForm.primaryColor}
-                            onChange={(e) => setThemeForm(prev => ({
-                              ...prev,
-                              primaryColor: e.target.value
-                            }))}
+                            onChange={e =>
+                              setThemeForm(prev => ({
+                                ...prev,
+                                primaryColor: e.target.value,
+                              }))
+                            }
                             className="flex-1"
                           />
                         </div>
@@ -281,7 +291,7 @@ export default function AppearancePage() {
                           Used for main CTAs, active states, and brand emphasis
                         </p>
                       </div>
-                      
+
                       <div>
                         <Label htmlFor="secondaryColor">Secondary Color</Label>
                         <div className="flex items-center gap-2">
@@ -289,23 +299,28 @@ export default function AppearancePage() {
                             id="secondaryColor"
                             type="color"
                             value={themeForm.secondaryColor}
-                            onChange={(e) => setThemeForm(prev => ({
-                              ...prev,
-                              secondaryColor: e.target.value
-                            }))}
+                            onChange={e =>
+                              setThemeForm(prev => ({
+                                ...prev,
+                                secondaryColor: e.target.value,
+                              }))
+                            }
                             className="w-16 h-10 p-1"
                           />
                           <Input
                             value={themeForm.secondaryColor}
-                            onChange={(e) => setThemeForm(prev => ({
-                              ...prev,
-                              secondaryColor: e.target.value
-                            }))}
+                            onChange={e =>
+                              setThemeForm(prev => ({
+                                ...prev,
+                                secondaryColor: e.target.value,
+                              }))
+                            }
                             className="flex-1"
                           />
                         </div>
                         <p className="text-xs text-muted-foreground mt-1">
-                          Used for supporting elements, success states, and accents
+                          Used for supporting elements, success states, and
+                          accents
                         </p>
                       </div>
                     </div>
@@ -323,26 +338,32 @@ export default function AppearancePage() {
                         <Input
                           id="fontFamily"
                           value={themeForm.fontFamily}
-                          onChange={(e) => setThemeForm(prev => ({
-                            ...prev,
-                            fontFamily: e.target.value
-                          }))}
+                          onChange={e =>
+                            setThemeForm(prev => ({
+                              ...prev,
+                              fontFamily: e.target.value,
+                            }))
+                          }
                           placeholder="Inter, system-ui, sans-serif"
                         />
                         <p className="text-xs text-muted-foreground mt-1">
                           Base typography for all text content
                         </p>
                       </div>
-                      
+
                       <div>
-                        <Label htmlFor="headingFontFamily">Heading Font Family (Optional)</Label>
+                        <Label htmlFor="headingFontFamily">
+                          Heading Font Family (Optional)
+                        </Label>
                         <Input
                           id="headingFontFamily"
                           value={themeForm.headingFontFamily || ''}
-                          onChange={(e) => setThemeForm(prev => ({
-                            ...prev,
-                            headingFontFamily: e.target.value || undefined
-                          }))}
+                          onChange={e =>
+                            setThemeForm(prev => ({
+                              ...prev,
+                              headingFontFamily: e.target.value || undefined,
+                            }))
+                          }
                           placeholder="Same as body font"
                         />
                         <p className="text-xs text-muted-foreground mt-1">
@@ -364,13 +385,15 @@ export default function AppearancePage() {
                       <Label htmlFor="borderRadius">Border Radius</Label>
                       <Select
                         value={themeForm.fieldSettings.borderRadius}
-                        onValueChange={(value: any) => setThemeForm(prev => ({
-                          ...prev,
-                          fieldSettings: {
-                            ...prev.fieldSettings,
-                            borderRadius: value
-                          }
-                        }))}
+                        onValueChange={(value: any) =>
+                          setThemeForm(prev => ({
+                            ...prev,
+                            fieldSettings: {
+                              ...prev.fieldSettings,
+                              borderRadius: value,
+                            },
+                          }))
+                        }
                       >
                         <SelectTrigger>
                           <SelectValue />
@@ -390,13 +413,15 @@ export default function AppearancePage() {
                       <Label htmlFor="fieldStyle">Field Style</Label>
                       <Select
                         value={themeForm.fieldSettings.fieldStyle}
-                        onValueChange={(value: any) => setThemeForm(prev => ({
-                          ...prev,
-                          fieldSettings: {
-                            ...prev.fieldSettings,
-                            fieldStyle: value
-                          }
-                        }))}
+                        onValueChange={(value: any) =>
+                          setThemeForm(prev => ({
+                            ...prev,
+                            fieldSettings: {
+                              ...prev.fieldSettings,
+                              fieldStyle: value,
+                            },
+                          }))
+                        }
                       >
                         <SelectTrigger>
                           <SelectValue />
@@ -413,13 +438,15 @@ export default function AppearancePage() {
                       <Label htmlFor="buttonStyle">Button Style</Label>
                       <Select
                         value={themeForm.fieldSettings.buttonStyle}
-                        onValueChange={(value: any) => setThemeForm(prev => ({
-                          ...prev,
-                          fieldSettings: {
-                            ...prev.fieldSettings,
-                            buttonStyle: value
-                          }
-                        }))}
+                        onValueChange={(value: any) =>
+                          setThemeForm(prev => ({
+                            ...prev,
+                            fieldSettings: {
+                              ...prev.fieldSettings,
+                              buttonStyle: value,
+                            },
+                          }))
+                        }
                       >
                         <SelectTrigger>
                           <SelectValue />
@@ -436,13 +463,15 @@ export default function AppearancePage() {
                       <Label htmlFor="fieldSpacing">Field Spacing</Label>
                       <Select
                         value={themeForm.fieldSettings.fieldSpacing}
-                        onValueChange={(value: any) => setThemeForm(prev => ({
-                          ...prev,
-                          fieldSettings: {
-                            ...prev.fieldSettings,
-                            fieldSpacing: value
-                          }
-                        }))}
+                        onValueChange={(value: any) =>
+                          setThemeForm(prev => ({
+                            ...prev,
+                            fieldSettings: {
+                              ...prev.fieldSettings,
+                              fieldSpacing: value,
+                            },
+                          }))
+                        }
                       >
                         <SelectTrigger>
                           <SelectValue />
@@ -459,7 +488,11 @@ export default function AppearancePage() {
 
                 {/* Actions */}
                 <div className="flex gap-2">
-                  <Button onClick={editingTheme ? handleUpdateTheme : handleCreateTheme}>
+                  <Button
+                    onClick={
+                      editingTheme ? handleUpdateTheme : handleCreateTheme
+                    }
+                  >
                     <Save className="h-4 w-4 mr-2" />
                     {editingTheme ? 'Update Theme' : 'Create Theme'}
                   </Button>
@@ -476,7 +509,8 @@ export default function AppearancePage() {
               <CardHeader>
                 <CardTitle>Current Active Theme</CardTitle>
                 <CardDescription>
-                  This theme is currently being used across the entire calculator
+                  This theme is currently being used across the entire
+                  calculator
                 </CardDescription>
               </CardHeader>
               <CardContent>
@@ -491,34 +525,42 @@ export default function AppearancePage() {
                           </p>
                         )}
                       </div>
-                      <Button 
-                        variant="outline" 
+                      <Button
+                        variant="outline"
                         onClick={() => startEditTheme(activeTheme)}
                       >
                         Edit Theme
                       </Button>
                     </div>
-                    
+
                     <div className="grid grid-cols-2 gap-4 p-4 bg-muted rounded-lg">
                       <div className="flex items-center gap-2">
-                        <div 
+                        <div
                           className="w-4 h-4 rounded border"
                           style={{ backgroundColor: activeTheme.primaryColor }}
                         />
-                        <span className="text-sm">Primary: {activeTheme.primaryColor}</span>
+                        <span className="text-sm">
+                          Primary: {activeTheme.primaryColor}
+                        </span>
                       </div>
                       <div className="flex items-center gap-2">
-                        <div 
+                        <div
                           className="w-4 h-4 rounded border"
-                          style={{ backgroundColor: activeTheme.secondaryColor }}
+                          style={{
+                            backgroundColor: activeTheme.secondaryColor,
+                          }}
                         />
-                        <span className="text-sm">Secondary: {activeTheme.secondaryColor}</span>
+                        <span className="text-sm">
+                          Secondary: {activeTheme.secondaryColor}
+                        </span>
                       </div>
                       <div className="text-sm">
-                        <span className="font-medium">Font:</span> {activeTheme.fontFamily}
+                        <span className="font-medium">Font:</span>{' '}
+                        {activeTheme.fontFamily}
                       </div>
                       <div className="text-sm">
-                        <span className="font-medium">Style:</span> {activeTheme.fieldSettings.fieldStyle}
+                        <span className="font-medium">Style:</span>{' '}
+                        {activeTheme.fieldSettings.fieldStyle}
                       </div>
                     </div>
                   </div>
@@ -546,7 +588,7 @@ export default function AppearancePage() {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {themes.map((theme) => (
+                    {themes.map(theme => (
                       <TableRow key={theme.id}>
                         <TableCell>
                           <div>
@@ -560,11 +602,11 @@ export default function AppearancePage() {
                         </TableCell>
                         <TableCell>
                           <div className="flex items-center gap-2">
-                            <div 
+                            <div
                               className="w-4 h-4 rounded border"
                               style={{ backgroundColor: theme.primaryColor }}
                             />
-                            <div 
+                            <div
                               className="w-4 h-4 rounded border"
                               style={{ backgroundColor: theme.secondaryColor }}
                             />
@@ -622,14 +664,15 @@ export default function AppearancePage() {
               <CardHeader>
                 <CardTitle>Card-Specific Overrides</CardTitle>
                 <CardDescription>
-                  Customize individual cards to highlight important sections or create unique styling
+                  Customize individual cards to highlight important sections or
+                  create unique styling
                 </CardDescription>
               </CardHeader>
               <CardContent>
                 <p className="text-muted-foreground">
-                  Card-specific override functionality will be implemented next. 
-                  This will allow you to customize individual cards with different colors, 
-                  spacing, and layout variants.
+                  Card-specific override functionality will be implemented next.
+                  This will allow you to customize individual cards with
+                  different colors, spacing, and layout variants.
                 </p>
               </CardContent>
             </Card>

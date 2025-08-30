@@ -240,7 +240,9 @@ export function CardStream({
               window.location.pathname.includes('/admin/preview');
 
             // Find the first unrevealed card index (next card to be revealed)
-            const firstUnrevealedIndex = cards.findIndex(c => !currentRevealStates[c.id]);
+            const firstUnrevealedIndex = cards.findIndex(
+              c => !currentRevealStates[c.id]
+            );
             const isFirstUpcoming = index === firstUnrevealedIndex;
             const isSecondUpcoming = index === firstUnrevealedIndex + 1;
 
@@ -302,12 +304,13 @@ export function CardStream({
                 `}
                   style={{
                     ...getCardStyles(card.id),
-                    borderColor: isCompleted 
-                      ? 'var(--theme-secondary, #22c55e)' 
-                      : isBlurred 
+                    borderColor: isCompleted
+                      ? 'var(--theme-secondary, #22c55e)'
+                      : isBlurred
                         ? undefined
                         : 'var(--theme-border, #e2e8f0)',
-                    fontFamily: 'var(--theme-font-body, Inter, system-ui, sans-serif)',
+                    fontFamily:
+                      'var(--theme-font-body, Inter, system-ui, sans-serif)',
                   }}
                   data-card-id={card.id}
                 >
