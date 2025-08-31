@@ -298,10 +298,10 @@ export class EnhancedLookupEngine {
 
     switch (condition.operator) {
       case 'equals':
-        return fieldValue == compareValue;
+        return fieldValue === compareValue;
 
       case 'not_equals':
-        return fieldValue != compareValue;
+        return fieldValue !== compareValue;
 
       case 'greater_than':
         return Number(fieldValue) > Number(compareValue);

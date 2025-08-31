@@ -22,17 +22,27 @@ let passedChecks = 0;
 let criticalChecks = 0;
 let criticalPassed = 0;
 
-function runCheck(description, condition, expected, actual, isCritical = false) {
+function runCheck(
+  description,
+  condition,
+  expected,
+  actual,
+  isCritical = false
+) {
   allChecks++;
-  if (isCritical) criticalChecks++;
-  
+  if (isCritical) {
+    criticalChecks++;
+  }
+
   const passed = condition;
   const icon = isCritical ? '🔥' : '✅';
   const failIcon = isCritical ? '💥' : '❌';
-  
+
   if (passed) {
     passedChecks++;
-    if (isCritical) criticalPassed++;
+    if (isCritical) {
+      criticalPassed++;
+    }
     console.log(`${icon} ${description}${isCritical ? ' [CRITICAL]' : ''}`);
     if (actual !== undefined) {
       console.log(`   → Value: ${actual}`);
@@ -258,21 +268,27 @@ runCheck(
   'CSS uses card background variable',
   cssContent.includes('background: var(--cs-card-background);'),
   'background: var(--cs-card-background);',
-  cssContent.includes('background: var(--cs-card-background)') ? 'Found' : 'Not found'
+  cssContent.includes('background: var(--cs-card-background)')
+    ? 'Found'
+    : 'Not found'
 );
 
 runCheck(
   'CSS uses card border-radius variable',
   cssContent.includes('border-radius: var(--cs-card-border-radius);'),
   'border-radius: var(--cs-card-border-radius);',
-  cssContent.includes('border-radius: var(--cs-card-border-radius)') ? 'Found' : 'Not found'
+  cssContent.includes('border-radius: var(--cs-card-border-radius)')
+    ? 'Found'
+    : 'Not found'
 );
 
 runCheck(
   'CSS uses card border-left variable',
   cssContent.includes('border-left: var(--cs-card-border-left);'),
   'border-left: var(--cs-card-border-left);',
-  cssContent.includes('border-left: var(--cs-card-border-left)') ? 'Found' : 'Not found',
+  cssContent.includes('border-left: var(--cs-card-border-left)')
+    ? 'Found'
+    : 'Not found',
   true // CRITICAL - left border implementation
 );
 
@@ -287,21 +303,27 @@ runCheck(
   'CSS uses card margin-bottom variable',
   cssContent.includes('margin-bottom: var(--cs-card-margin-bottom);'),
   'margin-bottom: var(--cs-card-margin-bottom);',
-  cssContent.includes('margin-bottom: var(--cs-card-margin-bottom)') ? 'Found' : 'Not found'
+  cssContent.includes('margin-bottom: var(--cs-card-margin-bottom)')
+    ? 'Found'
+    : 'Not found'
 );
 
 runCheck(
   'CSS uses card box-shadow variable',
   cssContent.includes('box-shadow: var(--cs-card-box-shadow);'),
   'box-shadow: var(--cs-card-box-shadow);',
-  cssContent.includes('box-shadow: var(--cs-card-box-shadow)') ? 'Found' : 'Not found'
+  cssContent.includes('box-shadow: var(--cs-card-box-shadow)')
+    ? 'Found'
+    : 'Not found'
 );
 
 runCheck(
   'CSS uses card transition variable',
   cssContent.includes('transition: var(--cs-card-transition);'),
   'transition: var(--cs-card-transition);',
-  cssContent.includes('transition: var(--cs-card-transition)') ? 'Found' : 'Not found'
+  cssContent.includes('transition: var(--cs-card-transition)')
+    ? 'Found'
+    : 'Not found'
 );
 
 runCheck(
@@ -353,14 +375,18 @@ runCheck(
   'CSS hover uses transform variable',
   cssContent.includes('transform: var(--cs-card-hover-transform);'),
   'transform: var(--cs-card-hover-transform);',
-  cssContent.includes('transform: var(--cs-card-hover-transform)') ? 'Found' : 'Not found'
+  cssContent.includes('transform: var(--cs-card-hover-transform)')
+    ? 'Found'
+    : 'Not found'
 );
 
 runCheck(
   'CSS hover uses box-shadow variable',
   cssContent.includes('box-shadow: var(--cs-card-hover-box-shadow);'),
   'box-shadow: var(--cs-card-hover-box-shadow);',
-  cssContent.includes('box-shadow: var(--cs-card-hover-box-shadow)') ? 'Found' : 'Not found'
+  cssContent.includes('box-shadow: var(--cs-card-hover-box-shadow)')
+    ? 'Found'
+    : 'Not found'
 );
 
 console.log('\n🎨 CSS VARIABLE MAPPING VERIFICATION\n');
@@ -373,16 +399,22 @@ const cssVariables = [
   ['--cs-card-padding: 32px', card.base.padding],
   ['--cs-card-margin-bottom: 20px', card.base.marginBottom],
   ['--cs-card-box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04)', card.base.boxShadow],
-  ['--cs-card-transition: all 200ms cubic-bezier(0.4, 0, 0.2, 1)', card.base.transition],
-  ['--cs-card-hover-box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08)', hoverState.boxShadow],
-  ['--cs-card-hover-transform: translateY(-2px)', hoverState.transform]
+  [
+    '--cs-card-transition: all 200ms cubic-bezier(0.4, 0, 0.2, 1)',
+    card.base.transition,
+  ],
+  [
+    '--cs-card-hover-box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08)',
+    hoverState.boxShadow,
+  ],
+  ['--cs-card-hover-transform: translateY(-2px)', hoverState.transform],
 ];
 
 cssVariables.forEach(([expectedCSSVar, configValue], index) => {
   const variableName = expectedCSSVar.split(':')[0];
   const expectedValue = expectedCSSVar.split(': ')[1];
   const isCriticalVar = expectedCSSVar.includes('border-left');
-  
+
   runCheck(
     `CSS variable ${variableName} matches config`,
     cssContent.includes(expectedCSSVar),
@@ -395,24 +427,35 @@ cssVariables.forEach(([expectedCSSVar, configValue], index) => {
 console.log('\n📊 VERIFICATION SUMMARY\n');
 
 const successRate = Math.round((passedChecks / allChecks) * 100);
-const criticalSuccessRate = criticalChecks > 0 ? Math.round((criticalPassed / criticalChecks) * 100) : 100;
+const criticalSuccessRate =
+  criticalChecks > 0
+    ? Math.round((criticalPassed / criticalChecks) * 100)
+    : 100;
 
 console.log(`Total Checks: ${allChecks}`);
 console.log(`Passed: ${passedChecks}`);
 console.log(`Failed: ${allChecks - passedChecks}`);
 console.log(`Success Rate: ${successRate}%`);
-console.log(`\n🔥 CRITICAL CHECKS: ${criticalPassed}/${criticalChecks} passed (${criticalSuccessRate}%)`);
+console.log(
+  `\n🔥 CRITICAL CHECKS: ${criticalPassed}/${criticalChecks} passed (${criticalSuccessRate}%)`
+);
 
 if (criticalSuccessRate === 100 && successRate === 100) {
   console.log('\n🎉 PHASE 4: COMPLETE SUCCESS!');
   console.log('✅ All Card Styling requirements are properly implemented.');
-  console.log('🔥 CRITICAL: 4px solid #10b981 left border correctly implemented.');
-  console.log('✅ All card states properly configured with exact specifications.');
+  console.log(
+    '🔥 CRITICAL: 4px solid #10b981 left border correctly implemented.'
+  );
+  console.log(
+    '✅ All card states properly configured with exact specifications.'
+  );
   console.log('✅ CSS implementation uses design tokens throughout.');
   console.log('✅ Ready to proceed to Phase 5.');
 } else if (criticalSuccessRate < 100) {
   console.log('\n💥 PHASE 4: CRITICAL FAILURES DETECTED!');
-  console.log('❌ The signature 4px green left border is not properly implemented.');
+  console.log(
+    '❌ The signature 4px green left border is not properly implemented.'
+  );
   console.log('❌ This is a core design element and must be fixed.');
 } else if (successRate >= 90) {
   console.log('\n⚠️  PHASE 4: MOSTLY SUCCESSFUL');
@@ -434,11 +477,17 @@ const features = [
   'Locked state with blur and reduced opacity',
   'Active state with glowing ring effect',
   'Hover state with lift animation',
-  'Complete token-based implementation'
+  'Complete token-based implementation',
 ];
 
-console.log(features.map(feature => 
-  feature.includes('🔥') ? `🔥 ${feature.replace('🔥 ', '')}` : `✅ ${feature}`
-).join('\n'));
+console.log(
+  features
+    .map(feature =>
+      feature.includes('🔥')
+        ? `🔥 ${feature.replace('🔥 ', '')}`
+        : `✅ ${feature}`
+    )
+    .join('\n')
+);
 
 process.exit(criticalSuccessRate === 100 && successRate === 100 ? 0 : 1);

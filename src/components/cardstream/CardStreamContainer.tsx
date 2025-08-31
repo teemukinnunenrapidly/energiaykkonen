@@ -11,12 +11,11 @@ interface CardStreamContainerProps {
   className?: string;
 }
 
-export function CardStreamContainer({ children, className = '' }: CardStreamContainerProps) {
-  return (
-    <div className={`cs-container ${className}`}>
-      {children}
-    </div>
-  );
+export function CardStreamContainer({
+  children,
+  className = '',
+}: CardStreamContainerProps) {
+  return <div className={`cs-container ${className}`}>{children}</div>;
 }
 
 interface CardStreamProps {
@@ -25,11 +24,7 @@ interface CardStreamProps {
 }
 
 export function CardStream({ children, className = '' }: CardStreamProps) {
-  return (
-    <div className={`cs-card-stream ${className}`}>
-      {children}
-    </div>
-  );
+  return <div className={`cs-card-stream ${className}`}>{children}</div>;
 }
 
 interface VisualPanelProps {
@@ -38,9 +33,5 @@ interface VisualPanelProps {
 }
 
 export function VisualPanel({ children, className = '' }: VisualPanelProps) {
-  return (
-    <div className={`cs-visual-panel ${className}`}>
-      {children}
-    </div>
-  );
+  return <div className={`cs-visual-panel ${className}`}>{children}</div>;
 }

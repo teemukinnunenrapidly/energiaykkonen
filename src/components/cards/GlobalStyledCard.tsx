@@ -20,16 +20,12 @@ export function GlobalStyledCard({
 }: GlobalStyledCardProps) {
   return (
     <div className={`form-card fade-in ${className}`}>
-      {stepIndicator && (
-        <div className="step-indicator">{stepIndicator}</div>
-      )}
-      
+      {stepIndicator && <div className="step-indicator">{stepIndicator}</div>}
+
       <h2 className="card-title">{title}</h2>
-      
-      {description && (
-        <p className="card-description">{description}</p>
-      )}
-      
+
+      {description && <p className="card-description">{description}</p>}
+
       {children}
     </div>
   );
@@ -62,22 +58,24 @@ export function FormField({
   onChange,
 }: FormFieldProps) {
   const groupClasses = `form-group ${error ? 'error' : ''} ${success ? 'success' : ''}`;
-  
+
   return (
     <div className={groupClasses}>
       <label className="form-label">
         {label} {required && '*'}
       </label>
-      
+
       {type === 'select' ? (
         <select
           className="form-input form-select"
           value={value}
-          onChange={(e) => onChange?.(e.target.value)}
+          onChange={e => onChange?.(e.target.value)}
           required={required}
         >
-          <option value="">{placeholder || `Select ${label.toLowerCase()}`}</option>
-          {options.map((option) => (
+          <option value="">
+            {placeholder || `Select ${label.toLowerCase()}`}
+          </option>
+          {options.map(option => (
             <option key={option} value={option}>
               {option}
             </option>
@@ -88,7 +86,7 @@ export function FormField({
           className="form-input form-textarea"
           placeholder={placeholder}
           value={value}
-          onChange={(e) => onChange?.(e.target.value)}
+          onChange={e => onChange?.(e.target.value)}
           required={required}
         />
       ) : (
@@ -97,11 +95,11 @@ export function FormField({
           className="form-input"
           placeholder={placeholder}
           value={value}
-          onChange={(e) => onChange?.(e.target.value)}
+          onChange={e => onChange?.(e.target.value)}
           required={required}
         />
       )}
-      
+
       {error && <div className="error-message">{error}</div>}
       {success && <div className="success-message">{success}</div>}
     </div>
@@ -119,7 +117,7 @@ export function ExampleFormCard() {
         <h3>Property Information</h3>
         <p>Help content and images go here</p>
       </div>
-      
+
       {/* Card Stream Panel */}
       <div className="card-stream">
         <GlobalStyledCard
@@ -133,7 +131,7 @@ export function ExampleFormCard() {
             options={['Detached House', 'Semi-detached', 'Apartment', 'Other']}
             required
           />
-          
+
           <div className="field-row">
             <FormField
               label="Floor Area"
@@ -147,14 +145,14 @@ export function ExampleFormCard() {
               placeholder="e.g. 1985"
             />
           </div>
-          
+
           <FormField
             label="Email Address"
             type="email"
             placeholder="your@email.com"
             required
           />
-          
+
           <div style={{ marginTop: '32px', display: 'flex', gap: '16px' }}>
             <button className="btn btn-primary">Continue</button>
             <button className="btn btn-secondary">Reset</button>

@@ -5,11 +5,21 @@
  */
 
 import React, { useState, useEffect } from 'react';
-import { CardStreamContainer, CardStream, VisualPanel } from '../CardStreamContainer';
-import { FormCard, CalculationCard, InfoCard, ActionCard, ProgressCard } from '../CardVariants';
+import {
+  CardStreamContainer,
+  CardStream,
+  VisualPanel,
+} from '../CardStreamContainer';
+import {
+  FormCard,
+  CalculationCard,
+  InfoCard,
+  ActionCard,
+  ProgressCard,
+} from '../CardVariants';
 import { Field, FieldRow } from '../Form';
 import { Button } from '../Button';
-import { applyCardStreamTheme, getCardStreamConfig } from '../../../lib/cardstream-theme-applier';
+import { applyCardStreamTheme } from '../../../lib/cardstream-theme-applier';
 
 interface PropertyData {
   type: string;
@@ -26,9 +36,9 @@ export function EnergyCalculatorExample() {
     area: '',
     year: '',
     heating: '',
-    email: ''
+    email: '',
   });
-  
+
   const [calculationResults, setCalculationResults] = useState<any>(null);
 
   // Apply the CardStream theme when component mounts
@@ -41,7 +51,7 @@ export function EnergyCalculatorExample() {
     { value: 'semi', label: 'Semi-detached House' },
     { value: 'terraced', label: 'Terraced House' },
     { value: 'apartment', label: 'Apartment' },
-    { value: 'other', label: 'Other' }
+    { value: 'other', label: 'Other' },
   ];
 
   const heatingTypes = [
@@ -49,13 +59,13 @@ export function EnergyCalculatorExample() {
     { value: 'oil', label: 'Oil Boiler' },
     { value: 'electric', label: 'Electric Heating' },
     { value: 'heat-pump', label: 'Heat Pump' },
-    { value: 'wood', label: 'Wood/Biomass' }
+    { value: 'wood', label: 'Wood/Biomass' },
   ];
 
   const progressSteps = [
     { label: 'Property Information', complete: currentStep > 0 },
     { label: 'Energy Assessment', complete: currentStep > 1 },
-    { label: 'Results & Recommendations', complete: currentStep > 2 }
+    { label: 'Results & Recommendations', complete: currentStep > 2 },
   ];
 
   const handlePropertySubmit = () => {
@@ -64,7 +74,7 @@ export function EnergyCalculatorExample() {
       currentCost: 2847,
       potentialSavings: 1247,
       co2Reduction: 2.3,
-      paybackPeriod: 3.2
+      paybackPeriod: 3.2,
     });
     setCurrentStep(1);
   };
@@ -85,28 +95,35 @@ export function EnergyCalculatorExample() {
     <div style={{ margin: 'var(--cs-spacing-8)' }}>
       <CardStreamContainer>
         <VisualPanel>
-          <div style={{ 
-            padding: 'var(--cs-spacing-8)',
-            height: '100%',
-            display: 'flex',
-            flexDirection: 'column'
-          }}>
-            <h1 style={{
-              fontSize: 'var(--cs-font-size-2xl)',
-              fontWeight: 'var(--cs-font-weight-light)',
-              color: 'var(--cs-color-text-primary)',
-              marginBottom: 'var(--cs-spacing-4)'
-            }}>
+          <div
+            style={{
+              padding: 'var(--cs-spacing-8)',
+              height: '100%',
+              display: 'flex',
+              flexDirection: 'column',
+            }}
+          >
+            <h1
+              style={{
+                fontSize: 'var(--cs-font-size-2xl)',
+                fontWeight: 'var(--cs-font-weight-light)',
+                color: 'var(--cs-color-text-primary)',
+                marginBottom: 'var(--cs-spacing-4)',
+              }}
+            >
               Energy Savings Calculator
             </h1>
-            
-            <p style={{
-              fontSize: 'var(--cs-font-size-base)',
-              color: 'var(--cs-color-text-secondary)',
-              lineHeight: 'var(--cs-line-height-relaxed)',
-              marginBottom: 'var(--cs-spacing-6)'
-            }}>
-              Calculate your potential energy savings and environmental impact with our comprehensive assessment tool.
+
+            <p
+              style={{
+                fontSize: 'var(--cs-font-size-base)',
+                color: 'var(--cs-color-text-secondary)',
+                lineHeight: 'var(--cs-line-height-relaxed)',
+                marginBottom: 'var(--cs-spacing-6)',
+              }}
+            >
+              Calculate your potential energy savings and environmental impact
+              with our comprehensive assessment tool.
             </p>
 
             {/* Progress Overview */}
@@ -192,10 +209,14 @@ export function EnergyCalculatorExample() {
               />
 
               <div style={{ marginTop: 'var(--cs-spacing-6)' }}>
-                <Button 
-                  variant="primary" 
+                <Button
+                  variant="primary"
                   type="submit"
-                  disabled={!propertyData.type || !propertyData.area || !propertyData.heating}
+                  disabled={
+                    !propertyData.type ||
+                    !propertyData.area ||
+                    !propertyData.heating
+                  }
                 >
                   Calculate Savings
                 </Button>
@@ -209,26 +230,26 @@ export function EnergyCalculatorExample() {
               <CalculationCard
                 title="Your Energy Savings Potential"
                 description="Based on your property details, here's what you could save:"
-                badge={{ text: "Excellent Potential", variant: "success" }}
+                badge={{ text: 'Excellent Potential', variant: 'success' }}
                 metrics={[
                   {
-                    label: "Annual Savings",
+                    label: 'Annual Savings',
                     value: `€${calculationResults.potentialSavings.toLocaleString()}`,
                   },
                   {
-                    label: "Current Annual Cost",
+                    label: 'Current Annual Cost',
                     value: `€${calculationResults.currentCost.toLocaleString()}`,
                   },
                   {
-                    label: "CO₂ Reduction",
+                    label: 'CO₂ Reduction',
                     value: calculationResults.co2Reduction,
-                    unit: "tonnes/year"
+                    unit: 'tonnes/year',
                   },
                   {
-                    label: "Payback Period",
+                    label: 'Payback Period',
                     value: calculationResults.paybackPeriod,
-                    unit: "years"
-                  }
+                    unit: 'years',
+                  },
                 ]}
               />
 
@@ -248,8 +269,8 @@ export function EnergyCalculatorExample() {
                 />
 
                 <div style={{ marginTop: 'var(--cs-spacing-6)' }}>
-                  <Button 
-                    variant="primary" 
+                  <Button
+                    variant="primary"
                     type="submit"
                     disabled={!propertyData.email}
                   >
@@ -267,18 +288,22 @@ export function EnergyCalculatorExample() {
                 title="Report Sent Successfully!"
                 description="We've sent your detailed energy efficiency report to your email. Check your inbox for personalized recommendations."
                 primaryAction={{
-                  text: "Start Another Assessment",
+                  text: 'Start Another Assessment',
                   onClick: () => {
                     setCurrentStep(0);
                     setPropertyData({
-                      type: '', area: '', year: '', heating: '', email: ''
+                      type: '',
+                      area: '',
+                      year: '',
+                      heating: '',
+                      email: '',
                     });
                     setCalculationResults(null);
-                  }
+                  },
                 }}
                 secondaryAction={{
-                  text: "Download PDF",
-                  onClick: () => console.log('Download PDF')
+                  text: 'Download PDF',
+                  onClick: () => console.log('Download PDF'),
                 }}
               />
 
@@ -290,8 +315,8 @@ export function EnergyCalculatorExample() {
 3. Check available government incentives and rebates
 4. Schedule a detailed energy audit for maximum accuracy"
                 action={{
-                  text: "Find Local Installers",
-                  onClick: () => console.log('Find installers')
+                  text: 'Find Local Installers',
+                  onClick: () => console.log('Find installers'),
                 }}
               />
             </>

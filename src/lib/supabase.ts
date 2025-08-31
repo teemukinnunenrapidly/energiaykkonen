@@ -376,8 +376,8 @@ export async function updateCardCompletion(
 }
 
 export async function getCardCompletion(
-  cardId: string,
-  sessionId: string
+  _cardId: string,
+  _sessionId: string
 ): Promise<CardCompletion | null> {
   // Temporarily disabled to avoid 406 errors - functionality works without it
   return null;

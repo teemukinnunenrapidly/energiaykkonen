@@ -13,19 +13,16 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   className?: string;
 }
 
-export function Button({ 
-  variant = 'primary', 
-  children, 
-  className = '', 
-  ...props 
+export function Button({
+  variant = 'primary',
+  children,
+  className = '',
+  ...props
 }: ButtonProps) {
   const variantClass = `cs-button--${variant}`;
-  
+
   return (
-    <button 
-      className={`cs-button ${variantClass} ${className}`}
-      {...props}
-    >
+    <button className={`cs-button ${variantClass} ${className}`} {...props}>
       {children}
     </button>
   );
@@ -38,25 +35,33 @@ interface ButtonGroupProps {
   className?: string;
 }
 
-export function ButtonGroup({ 
-  children, 
-  align = 'left', 
-  gap = 'md', 
-  className = '' 
+export function ButtonGroup({
+  children,
+  align = 'left',
+  gap = 'md',
+  className = '',
 }: ButtonGroupProps) {
-  const gapValue = gap === 'sm' ? 'var(--cs-spacing-2)' : 
-                   gap === 'lg' ? 'var(--cs-spacing-6)' : 
-                   'var(--cs-spacing-4)';
-  
+  const gapValue =
+    gap === 'sm'
+      ? 'var(--cs-spacing-2)'
+      : gap === 'lg'
+        ? 'var(--cs-spacing-6)'
+        : 'var(--cs-spacing-4)';
+
   return (
-    <div 
+    <div
       className={`button-group ${className}`}
       style={{
         display: 'flex',
         alignItems: 'center',
-        justifyContent: align === 'center' ? 'center' : align === 'right' ? 'flex-end' : 'flex-start',
+        justifyContent:
+          align === 'center'
+            ? 'center'
+            : align === 'right'
+              ? 'flex-end'
+              : 'flex-start',
         gap: gapValue,
-        marginTop: 'var(--cs-spacing-6)'
+        marginTop: 'var(--cs-spacing-6)',
       }}
     >
       {children}

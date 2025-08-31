@@ -13,13 +13,15 @@ interface BadgeProps {
   className?: string;
 }
 
-export function Badge({ children, variant = 'default', className = '' }: BadgeProps) {
+export function Badge({
+  children,
+  variant = 'default',
+  className = '',
+}: BadgeProps) {
   const variantClass = `cs-badge--${variant}`;
-  
+
   return (
-    <span className={`cs-badge ${variantClass} ${className}`}>
-      {children}
-    </span>
+    <span className={`cs-badge ${variantClass} ${className}`}>{children}</span>
   );
 }
 
@@ -29,23 +31,29 @@ interface ProgressBarProps {
   label?: string;
 }
 
-export function ProgressBar({ value, className = '', label }: ProgressBarProps) {
+export function ProgressBar({
+  value,
+  className = '',
+  label,
+}: ProgressBarProps) {
   const clampedValue = Math.min(100, Math.max(0, value));
-  
+
   return (
     <div className={`progress-container ${className}`}>
       {label && (
-        <div style={{ 
-          marginBottom: 'var(--cs-spacing-2)',
-          fontSize: 'var(--cs-font-size-xs)',
-          fontWeight: 'var(--cs-font-weight-medium)',
-          color: 'var(--cs-color-text-tertiary)'
-        }}>
+        <div
+          style={{
+            marginBottom: 'var(--cs-spacing-2)',
+            fontSize: 'var(--cs-font-size-xs)',
+            fontWeight: 'var(--cs-font-weight-medium)',
+            color: 'var(--cs-color-text-tertiary)',
+          }}
+        >
           {label}
         </div>
       )}
       <div className="cs-progress">
-        <div 
+        <div
           className="cs-progress-fill"
           style={{ width: `${clampedValue}%` }}
         />

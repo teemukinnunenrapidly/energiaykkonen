@@ -8,12 +8,16 @@
  */
 
 import React, { useState, useEffect } from 'react';
-import { CardStreamContainer, CardStream, VisualPanel } from '../CardStreamContainer';
+import {
+  CardStreamContainer,
+  CardStream,
+  VisualPanel,
+} from '../CardStreamContainer';
 import { Card, CardHeader } from '../Card';
 import { Field, FieldRow, FormGroup } from '../Form';
 import { Button } from '../Button';
 import { Badge } from '../Badge';
-import { applyCardStreamTheme, getCardStreamConfig, createConfigStyles } from '../../../lib/cardstream-theme-applier';
+import { applyCardStreamTheme } from '../../../lib/cardstream-theme-applier';
 
 interface ContactForm {
   firstName: string;
@@ -31,7 +35,7 @@ export function MinimalFormExample() {
     email: '',
     phone: '',
     message: '',
-    newsletter: false
+    newsletter: false,
   });
 
   const [errors, setErrors] = useState<Partial<ContactForm>>({});
@@ -41,9 +45,6 @@ export function MinimalFormExample() {
   useEffect(() => {
     applyCardStreamTheme();
   }, []);
-
-  // Get configuration for inline styles
-  const config = getCardStreamConfig();
 
   const updateField = (field: keyof ContactForm) => (value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
@@ -88,7 +89,7 @@ export function MinimalFormExample() {
       email: '',
       phone: '',
       message: '',
-      newsletter: false
+      newsletter: false,
     });
     setErrors({});
     setSubmitted(false);
@@ -99,28 +100,36 @@ export function MinimalFormExample() {
       <div style={{ margin: 'var(--cs-spacing-8)' }}>
         <CardStreamContainer>
           <VisualPanel>
-            <div style={{ 
-              padding: 'var(--cs-spacing-8)',
-              textAlign: 'center'
-            }}>
-              <div style={{
-                fontSize: 'var(--cs-font-size-4xl)',
-                marginBottom: 'var(--cs-spacing-4)'
-              }}>
+            <div
+              style={{
+                padding: 'var(--cs-spacing-8)',
+                textAlign: 'center',
+              }}
+            >
+              <div
+                style={{
+                  fontSize: 'var(--cs-font-size-4xl)',
+                  marginBottom: 'var(--cs-spacing-4)',
+                }}
+              >
                 ✓
               </div>
-              <h2 style={{
-                fontSize: 'var(--cs-font-size-xl)',
-                color: 'var(--cs-color-semantic-success)',
-                marginBottom: 'var(--cs-spacing-2)'
-              }}>
+              <h2
+                style={{
+                  fontSize: 'var(--cs-font-size-xl)',
+                  color: 'var(--cs-color-semantic-success)',
+                  marginBottom: 'var(--cs-spacing-2)',
+                }}
+              >
                 Message Sent!
               </h2>
-              <p style={{
-                color: 'var(--cs-color-text-secondary)',
-                fontSize: 'var(--cs-font-size-base)'
-              }}>
-                Thank you for your message. We'll get back to you soon.
+              <p
+                style={{
+                  color: 'var(--cs-color-text-secondary)',
+                  fontSize: 'var(--cs-font-size-base)',
+                }}
+              >
+                Thank you for your message. We&apos;ll get back to you soon.
               </p>
             </div>
           </VisualPanel>
@@ -131,25 +140,29 @@ export function MinimalFormExample() {
                 title="Thank you for contacting us"
                 description="Your message has been sent successfully."
               />
-              
+
               <div style={{ marginBottom: 'var(--cs-spacing-6)' }}>
-                <h3 style={{
-                  fontSize: 'var(--cs-font-size-lg)',
-                  fontWeight: 'var(--cs-font-weight-medium)',
-                  color: 'var(--cs-color-text-primary)',
-                  marginBottom: 'var(--cs-spacing-3)'
-                }}>
+                <h3
+                  style={{
+                    fontSize: 'var(--cs-font-size-lg)',
+                    fontWeight: 'var(--cs-font-weight-medium)',
+                    color: 'var(--cs-color-text-primary)',
+                    marginBottom: 'var(--cs-spacing-3)',
+                  }}
+                >
                   What happens next?
                 </h3>
-                
-                <ul style={{
-                  fontSize: 'var(--cs-font-size-base)',
-                  color: 'var(--cs-color-text-secondary)',
-                  lineHeight: 'var(--cs-line-height-relaxed)',
-                  paddingLeft: 'var(--cs-spacing-5)'
-                }}>
-                  <li>We'll review your message within 24 hours</li>
-                  <li>You'll receive a confirmation email shortly</li>
+
+                <ul
+                  style={{
+                    fontSize: 'var(--cs-font-size-base)',
+                    color: 'var(--cs-color-text-secondary)',
+                    lineHeight: 'var(--cs-line-height-relaxed)',
+                    paddingLeft: 'var(--cs-spacing-5)',
+                  }}
+                >
+                  <li>We&apos;ll review your message within 24 hours</li>
+                  <li>You&apos;ll receive a confirmation email shortly</li>
                   <li>Our team will contact you with next steps</li>
                 </ul>
               </div>
@@ -158,7 +171,10 @@ export function MinimalFormExample() {
                 <Button variant="primary" onClick={handleReset}>
                   Send Another Message
                 </Button>
-                <Button variant="ghost" onClick={() => window.location.href = '/'}>
+                <Button
+                  variant="ghost"
+                  onClick={() => (window.location.href = '/')}
+                >
                   Return Home
                 </Button>
               </div>
@@ -174,56 +190,71 @@ export function MinimalFormExample() {
       <CardStreamContainer>
         <VisualPanel>
           <div style={{ padding: 'var(--cs-spacing-8)' }}>
-            <h1 style={{
-              fontSize: 'var(--cs-font-size-2xl)',
-              fontWeight: 'var(--cs-font-weight-light)',
-              color: 'var(--cs-color-text-primary)',
-              marginBottom: 'var(--cs-spacing-4)'
-            }}>
+            <h1
+              style={{
+                fontSize: 'var(--cs-font-size-2xl)',
+                fontWeight: 'var(--cs-font-weight-light)',
+                color: 'var(--cs-color-text-primary)',
+                marginBottom: 'var(--cs-spacing-4)',
+              }}
+            >
               Contact Us
             </h1>
-            
-            <p style={{
-              fontSize: 'var(--cs-font-size-base)',
-              color: 'var(--cs-color-text-secondary)',
-              lineHeight: 'var(--cs-line-height-relaxed)',
-              marginBottom: 'var(--cs-spacing-6)'
-            }}>
-              Get in touch with our team. We'd love to hear from you and will respond as quickly as possible.
+
+            <p
+              style={{
+                fontSize: 'var(--cs-font-size-base)',
+                color: 'var(--cs-color-text-secondary)',
+                lineHeight: 'var(--cs-line-height-relaxed)',
+                marginBottom: 'var(--cs-spacing-6)',
+              }}
+            >
+              Get in touch with our team. We&apos;d love to hear from you and
+              will respond as quickly as possible.
             </p>
 
             <div style={{ marginBottom: 'var(--cs-spacing-6)' }}>
-              <div style={{
-                padding: 'var(--cs-spacing-4)',
-                background: 'var(--cs-color-background-tertiary)',
-                borderRadius: 'var(--cs-border-radius-base)',
-                border: '1px solid var(--cs-color-border-default)'
-              }}>
-                <div style={{
-                  fontSize: 'var(--cs-font-size-sm)',
-                  fontWeight: 'var(--cs-font-weight-medium)',
-                  color: 'var(--cs-color-text-primary)',
-                  marginBottom: 'var(--cs-spacing-2)'
-                }}>
+              <div
+                style={{
+                  padding: 'var(--cs-spacing-4)',
+                  background: 'var(--cs-color-background-tertiary)',
+                  borderRadius: 'var(--cs-border-radius-base)',
+                  border: '1px solid var(--cs-color-border-default)',
+                }}
+              >
+                <div
+                  style={{
+                    fontSize: 'var(--cs-font-size-sm)',
+                    fontWeight: 'var(--cs-font-weight-medium)',
+                    color: 'var(--cs-color-text-primary)',
+                    marginBottom: 'var(--cs-spacing-2)',
+                  }}
+                >
                   Office Hours
                 </div>
-                <div style={{
-                  fontSize: 'var(--cs-font-size-base)',
-                  color: 'var(--cs-color-text-secondary)'
-                }}>
-                  Monday - Friday: 9:00 AM - 6:00 PM<br />
-                  Saturday: 10:00 AM - 4:00 PM<br />
+                <div
+                  style={{
+                    fontSize: 'var(--cs-font-size-base)',
+                    color: 'var(--cs-color-text-secondary)',
+                  }}
+                >
+                  Monday - Friday: 9:00 AM - 6:00 PM
+                  <br />
+                  Saturday: 10:00 AM - 4:00 PM
+                  <br />
                   Sunday: Closed
                 </div>
               </div>
             </div>
 
-            <div style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: 'var(--cs-spacing-2)',
-              marginTop: 'var(--cs-spacing-8)'
-            }}>
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 'var(--cs-spacing-2)',
+                marginTop: 'var(--cs-spacing-8)',
+              }}
+            >
               <Badge variant="primary">Minimal Design</Badge>
               <Badge variant="default">Token System</Badge>
             </div>
@@ -238,7 +269,12 @@ export function MinimalFormExample() {
               description="Fill out the form below and we'll get back to you as soon as possible."
             />
 
-            <form onSubmit={(e) => { e.preventDefault(); handleSubmit(); }}>
+            <form
+              onSubmit={e => {
+                e.preventDefault();
+                handleSubmit();
+              }}
+            >
               <FieldRow>
                 <Field
                   label="First Name"
@@ -288,28 +324,35 @@ export function MinimalFormExample() {
               />
 
               <FormGroup>
-                <div style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 'var(--cs-spacing-3)'
-                }}>
+                <div
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 'var(--cs-spacing-3)',
+                  }}
+                >
                   <input
                     type="checkbox"
                     id="newsletter"
                     checked={formData.newsletter}
-                    onChange={(e) => setFormData(prev => ({ ...prev, newsletter: e.target.checked }))}
+                    onChange={e =>
+                      setFormData(prev => ({
+                        ...prev,
+                        newsletter: e.target.checked,
+                      }))
+                    }
                     style={{
                       width: 'var(--cs-spacing-4)',
                       height: 'var(--cs-spacing-4)',
-                      accentColor: 'var(--cs-color-brand-primary)'
+                      accentColor: 'var(--cs-color-brand-primary)',
                     }}
                   />
-                  <label 
+                  <label
                     htmlFor="newsletter"
                     style={{
                       fontSize: 'var(--cs-font-size-base)',
                       color: 'var(--cs-color-text-secondary)',
-                      cursor: 'pointer'
+                      cursor: 'pointer',
                     }}
                   >
                     Subscribe to our newsletter for updates
@@ -319,37 +362,46 @@ export function MinimalFormExample() {
 
               {/* Error Display */}
               {Object.keys(errors).length > 0 && (
-                <div style={{
-                  padding: 'var(--cs-spacing-4)',
-                  background: 'rgba(239, 68, 68, 0.1)',
-                  border: '1px solid var(--cs-color-semantic-error)',
-                  borderRadius: 'var(--cs-border-radius-base)',
-                  marginBottom: 'var(--cs-spacing-5)'
-                }}>
-                  <div style={{
-                    fontSize: 'var(--cs-font-size-sm)',
-                    fontWeight: 'var(--cs-font-weight-medium)',
-                    color: 'var(--cs-color-semantic-error)',
-                    marginBottom: 'var(--cs-spacing-2)'
-                  }}>
+                <div
+                  style={{
+                    padding: 'var(--cs-spacing-4)',
+                    background: 'rgba(239, 68, 68, 0.1)',
+                    border: '1px solid var(--cs-color-semantic-error)',
+                    borderRadius: 'var(--cs-border-radius-base)',
+                    marginBottom: 'var(--cs-spacing-5)',
+                  }}
+                >
+                  <div
+                    style={{
+                      fontSize: 'var(--cs-font-size-sm)',
+                      fontWeight: 'var(--cs-font-weight-medium)',
+                      color: 'var(--cs-color-semantic-error)',
+                      marginBottom: 'var(--cs-spacing-2)',
+                    }}
+                  >
                     Please fix the following errors:
                   </div>
                   {Object.entries(errors).map(([field, error]) => (
-                    <div key={field} style={{
-                      fontSize: 'var(--cs-font-size-sm)',
-                      color: 'var(--cs-color-semantic-error)'
-                    }}>
+                    <div
+                      key={field}
+                      style={{
+                        fontSize: 'var(--cs-font-size-sm)',
+                        color: 'var(--cs-color-semantic-error)',
+                      }}
+                    >
                       • {error}
                     </div>
                   ))}
                 </div>
               )}
 
-              <div style={{ 
-                display: 'flex', 
-                gap: 'var(--cs-spacing-4)', 
-                marginTop: 'var(--cs-spacing-8)' 
-              }}>
+              <div
+                style={{
+                  display: 'flex',
+                  gap: 'var(--cs-spacing-4)',
+                  marginTop: 'var(--cs-spacing-8)',
+                }}
+              >
                 <Button variant="primary" type="submit">
                   Send Message
                 </Button>

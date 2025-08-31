@@ -491,7 +491,7 @@
       
       // Base calculations (simplified for demo)
       const baseEnergyUsage = floorArea * 150; // kWh per year
-      let costPerKWh = 0.25; // euros
+      const costPerKWh = 0.25; // euros
       
       // Heating system multipliers
       const heatingMultipliers = {

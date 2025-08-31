@@ -12,11 +12,7 @@ interface FormGroupProps {
 }
 
 export function FormGroup({ children, className = '' }: FormGroupProps) {
-  return (
-    <div className={`cs-form-group ${className}`}>
-      {children}
-    </div>
-  );
+  return <div className={`cs-form-group ${className}`}>{children}</div>;
 }
 
 interface FieldRowProps {
@@ -25,11 +21,7 @@ interface FieldRowProps {
 }
 
 export function FieldRow({ children, className = '' }: FieldRowProps) {
-  return (
-    <div className={`cs-field-row ${className}`}>
-      {children}
-    </div>
-  );
+  return <div className={`cs-field-row ${className}`}>{children}</div>;
 }
 
 interface LabelProps {
@@ -53,13 +45,8 @@ interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
 
 export function Input({ error = false, className = '', ...props }: InputProps) {
   const errorClass = error ? 'cs-input--error' : '';
-  
-  return (
-    <input 
-      className={`cs-input ${errorClass} ${className}`}
-      {...props}
-    />
-  );
+
+  return <input className={`cs-input ${errorClass} ${className}`} {...props} />;
 }
 
 interface SelectProps extends React.SelectHTMLAttributes<HTMLSelectElement> {
@@ -68,11 +55,16 @@ interface SelectProps extends React.SelectHTMLAttributes<HTMLSelectElement> {
   children: React.ReactNode;
 }
 
-export function Select({ error = false, className = '', children, ...props }: SelectProps) {
+export function Select({
+  error = false,
+  className = '',
+  children,
+  ...props
+}: SelectProps) {
   const errorClass = error ? 'cs-input--error' : '';
-  
+
   return (
-    <select 
+    <select
       className={`cs-input cs-select ${errorClass} ${className}`}
       {...props}
     >
@@ -81,26 +73,35 @@ export function Select({ error = false, className = '', children, ...props }: Se
   );
 }
 
-interface TextareaProps extends React.TextareaHTMLAttributes<HTMLTextAreaElement> {
+interface TextareaProps
+  extends React.TextareaHTMLAttributes<HTMLTextAreaElement> {
   error?: boolean;
   className?: string;
 }
 
-export function Textarea({ error = false, className = '', ...props }: TextareaProps) {
+export function Textarea({
+  error = false,
+  className = '',
+  ...props
+}: TextareaProps) {
   const errorClass = error ? 'cs-input--error' : '';
-  
+
   return (
-    <textarea 
-      className={`cs-input ${errorClass} ${className}`}
-      {...props}
-    />
+    <textarea className={`cs-input ${errorClass} ${className}`} {...props} />
   );
 }
 
 // Complete form field component with label and input
 interface FieldProps {
   label: string;
-  type?: 'text' | 'email' | 'number' | 'tel' | 'password' | 'select' | 'textarea';
+  type?:
+    | 'text'
+    | 'email'
+    | 'number'
+    | 'tel'
+    | 'password'
+    | 'select'
+    | 'textarea';
   placeholder?: string;
   value?: string;
   onChange?: (value: string) => void;
@@ -111,21 +112,25 @@ interface FieldProps {
   id?: string;
 }
 
-export function Field({ 
-  label, 
-  type = 'text', 
-  placeholder, 
-  value = '', 
-  onChange, 
-  error = false, 
-  disabled = false, 
-  required = false, 
+export function Field({
+  label,
+  type = 'text',
+  placeholder,
+  value = '',
+  onChange,
+  error = false,
+  disabled = false,
+  required = false,
   options = [],
-  id 
+  id,
 }: FieldProps) {
   const fieldId = id || `field-${label.toLowerCase().replace(/\s+/g, '-')}`;
-  
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
+
+  const handleChange = (
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
+    >
+  ) => {
     onChange?.(e.target.value);
   };
 
@@ -134,9 +139,9 @@ export function Field({
       <Label htmlFor={fieldId}>
         {label} {required && '*'}
       </Label>
-      
+
       {type === 'select' ? (
-        <Select 
+        <Select
           id={fieldId}
           value={value}
           onChange={handleChange}
@@ -145,7 +150,7 @@ export function Field({
           required={required}
         >
           {placeholder && <option value="">{placeholder}</option>}
-          {options.map((option) => (
+          {options.map(option => (
             <option key={option.value} value={option.value}>
               {option.label}
             </option>

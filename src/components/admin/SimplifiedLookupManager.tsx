@@ -719,8 +719,10 @@ export function SimplifiedLookupManager() {
                       condition.value &&
                       condition.formula && (
                         <div className="mt-3 p-2 bg-gray-50 rounded text-xs font-mono text-gray-600">
-                          Preview: If {condition.field} {condition.operator} "
-                          {condition.value}" → Use formula "{condition.formula}"
+                          Preview: If {condition.field} {condition.operator}{' '}
+                          &quot;
+                          {condition.value}&quot; → Use formula &quot;
+                          {condition.formula}&quot;
                         </div>
                       )}
                   </CardContent>
