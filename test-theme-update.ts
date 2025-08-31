@@ -33,11 +33,7 @@ const configFiles: ConfigFile[] = [
     path: 'src/lib/cardstream-theme-applier.ts',
     required: true,
   },
-  {
-    name: 'Card System CSS',
-    path: 'src/styles/card-system.css',
-    required: true,
-  },
+
   {
     name: 'CardStream Tokens CSS',
     path: 'src/styles/cardstream-tokens.css',
