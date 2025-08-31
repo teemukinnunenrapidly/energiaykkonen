@@ -3,6 +3,7 @@ import { CardStream } from './CardStream';
 import { VisualSupport } from './VisualSupport';
 import { CardProvider } from './CardContext';
 import { initializeCommonDependencies } from '@/lib/session-data-table';
+import { applyCardStreamTheme } from '@/lib/cardstream-theme-applier';
 
 interface CardSystemContainerProps {
   maxWidth?: string | number;
@@ -27,9 +28,13 @@ export function CardSystemContainer({
   forceMode,
   showBlurredCards = false,
 }: CardSystemContainerProps) {
-  // Initialize dependencies on mount
+  // Initialize dependencies and apply CardStream theme on mount (client-side only)
   useEffect(() => {
     initializeCommonDependencies();
+    // Only apply theme on client-side to prevent hydration mismatch
+    if (typeof window !== 'undefined') {
+      applyCardStreamTheme();
+    }
   }, []);
 
   const [activeContext, setActiveContext] = useState<{
@@ -50,72 +55,72 @@ export function CardSystemContainer({
   const isMobileMode = forceMode === 'mobile';
 
   return (
-      <CardProvider>
-        <div className={`mx-auto ${className}`} style={containerStyle}>
-          <div
-            className="flex flex-col lg:flex-row p-2.5"
-            style={{ height: `${height}px` }}
-          >
-            {/* Visual Support Panel - Conditional Position */}
-            {showVisualSupport && visualPosition === 'left' && (
-              <div
-                className={
-                  forceMode
-                    ? isMobileMode
-                      ? 'hidden'
-                      : 'block'
-                    : 'hidden lg:block'
-                }
-                style={{ width: visualWidth, height: `${height - 20}px` }}
-              >
-                <VisualSupport objectId={activeContext.cardId} />
-              </div>
-            )}
-
-            {/* Card Stream Panel */}
+    <CardProvider>
+      <div className={`mx-auto ${className}`} style={containerStyle}>
+        <div
+          className="flex flex-col lg:flex-row p-2.5"
+          style={{ height: `${height}px` }}
+        >
+          {/* Visual Support Panel - Conditional Position */}
+          {showVisualSupport && visualPosition === 'left' && (
             <div
-              className="w-full lg:w-auto flex-1 overflow-hidden"
-              style={{
-                width: forceMode
+              className={
+                forceMode
                   ? isMobileMode
-                    ? '100%'
-                    : showVisualSupport
-                      ? cardStreamWidth
-                      : '100%'
+                    ? 'hidden'
+                    : 'block'
+                  : 'hidden lg:block'
+              }
+              style={{ width: visualWidth, height: `${height - 20}px` }}
+            >
+              <VisualSupport objectId={activeContext.cardId} />
+            </div>
+          )}
+
+          {/* Card Stream Panel */}
+          <div
+            className="w-full lg:w-auto flex-1 overflow-hidden"
+            style={{
+              width: forceMode
+                ? isMobileMode
+                  ? '100%'
                   : showVisualSupport
                     ? cardStreamWidth
-                    : '100%',
-                height: `${height - 20}px`,
+                    : '100%'
+                : showVisualSupport
+                  ? cardStreamWidth
+                  : '100%',
+              height: `${height - 20}px`,
+            }}
+          >
+            <CardStream
+              onFieldFocus={(cardId, fieldId, value) => {
+                setActiveContext({ cardId, fieldId, value });
               }}
-            >
-              <CardStream
-                onFieldFocus={(cardId, fieldId, value) => {
-                  setActiveContext({ cardId, fieldId, value });
-                }}
-                showInlineVisual={forceMode ? isMobileMode : showVisualSupport}
-                activeCardId={activeContext.cardId}
-                forceShowInline={isMobileMode}
-                showBlurredCards={showBlurredCards}
-              />
-            </div>
-
-            {/* Visual Support Panel - Right Position */}
-            {showVisualSupport && visualPosition === 'right' && (
-              <div
-                className={
-                  forceMode
-                    ? isMobileMode
-                      ? 'hidden'
-                      : 'block'
-                    : 'hidden lg:block'
-                }
-                style={{ width: visualWidth, height: `${height - 20}px` }}
-              >
-                <VisualSupport objectId={activeContext.cardId} />
-              </div>
-            )}
+              showInlineVisual={forceMode ? isMobileMode : showVisualSupport}
+              activeCardId={activeContext.cardId}
+              forceShowInline={isMobileMode}
+              showBlurredCards={showBlurredCards}
+            />
           </div>
+
+          {/* Visual Support Panel - Right Position */}
+          {showVisualSupport && visualPosition === 'right' && (
+            <div
+              className={
+                forceMode
+                  ? isMobileMode
+                    ? 'hidden'
+                    : 'block'
+                  : 'hidden lg:block'
+              }
+              style={{ width: visualWidth, height: `${height - 20}px` }}
+            >
+              <VisualSupport objectId={activeContext.cardId} />
+            </div>
+          )}
         </div>
-      </CardProvider>
+      </div>
+    </CardProvider>
   );
 }

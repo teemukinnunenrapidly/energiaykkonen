@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useCardContext } from '../CardContext';
 import { supabase, type CardTemplate, type CardField } from '@/lib/supabase';
-import { useTheme } from '@/components/theme/ThemeProvider';
+// Removed theme import - using CardStream configuration system instead
 
 interface FormCardProps {
   card: CardTemplate;
@@ -15,7 +15,6 @@ export function FormCard({ card, onFieldFocus, stepNumber }: FormCardProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitSuccess, setSubmitSuccess] = useState(false);
   const { formData, updateField, completeCard, submitData } = useCardContext();
-  const { getEffectiveTheme } = useTheme();
 
   useEffect(() => {
     loadFields();
@@ -290,10 +289,13 @@ export function FormCard({ card, onFieldFocus, stepNumber }: FormCardProps) {
       ${!isFieldEditable ? 'bg-gray-100 cursor-not-allowed' : ''}
     `;
 
-    const inputStyle = !error && !isCompleted ? {
-      borderColor: 'var(--theme-primary)',
-      outlineColor: 'var(--theme-primary)'
-    } as React.CSSProperties : {};
+    const inputStyle =
+      !error && !isCompleted
+        ? ({
+            borderColor: 'var(--theme-primary)',
+            outlineColor: 'var(--theme-primary)',
+          } as React.CSSProperties)
+        : {};
 
     switch (field.field_type) {
       case 'text':
@@ -496,10 +498,14 @@ export function FormCard({ card, onFieldFocus, stepNumber }: FormCardProps) {
                       ${!isFieldEditable ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}
                       focus:ring-2 focus:ring-offset-2
                     `}
-                    style={isSelected ? {
-                      backgroundColor: 'var(--theme-primary)',
-                      borderColor: 'var(--theme-primary)',
-                    } : {}}
+                    style={
+                      isSelected
+                        ? {
+                            backgroundColor: 'var(--theme-primary)',
+                            borderColor: 'var(--theme-primary)',
+                          }
+                        : {}
+                    }
                   >
                     {opt.label}
                   </button>
@@ -612,20 +618,25 @@ export function FormCard({ card, onFieldFocus, stepNumber }: FormCardProps) {
     }
   };
 
-  // Get theme for step number styling
-  const theme = getEffectiveTheme();
-  
+  // Theme is now handled by CardStream configuration system
 
   // Get border radius class based on theme settings
   const getBorderRadiusClass = (radius: string): string => {
     switch (radius) {
-      case 'none': return 'rounded-none';
-      case 'sm': return 'rounded-sm';
-      case 'md': return 'rounded-md';
-      case 'lg': return 'rounded-lg';
-      case 'xl': return 'rounded-xl';
-      case 'full': return 'rounded-full';
-      default: return 'rounded-lg'; // fallback
+      case 'none':
+        return 'rounded-none';
+      case 'sm':
+        return 'rounded-sm';
+      case 'md':
+        return 'rounded-md';
+      case 'lg':
+        return 'rounded-lg';
+      case 'xl':
+        return 'rounded-xl';
+      case 'full':
+        return 'rounded-full';
+      default:
+        return 'rounded-lg'; // fallback
     }
   };
 
@@ -635,7 +646,7 @@ export function FormCard({ card, onFieldFocus, stepNumber }: FormCardProps) {
         <div className="flex items-center gap-3">
           {stepNumber && (
             <div
-              className={`flex items-center justify-center min-w-8 h-8 px-2 text-sm font-bold shadow-sm ${getBorderRadiusClass(theme.borderRadius || 'lg')}`}
+              className={`flex items-center justify-center min-w-8 h-8 px-2 text-sm font-bold shadow-sm ${getBorderRadiusClass('lg')}`}
               style={{
                 backgroundColor: 'var(--theme-primary)',
                 color: 'var(--theme-primary-text)',
@@ -714,16 +725,16 @@ export function FormCard({ card, onFieldFocus, stepNumber }: FormCardProps) {
                 disabled={isSubmitting}
                 className={`
                   inline-flex items-center gap-2 px-6 py-3 text-white font-medium rounded-lg
-                  ${
-                    isSubmitting
-                      ? 'bg-gray-400 cursor-not-allowed'
-                      : ''
-                  }
+                  ${isSubmitting ? 'bg-gray-400 cursor-not-allowed' : ''}
                   transition-colors duration-200
                 `}
-                style={!isSubmitting ? {
-                  backgroundColor: 'var(--theme-primary)',
-                } : {}}
+                style={
+                  !isSubmitting
+                    ? {
+                        backgroundColor: 'var(--theme-primary)',
+                      }
+                    : {}
+                }
               >
                 {isSubmitting ? (
                   <>

@@ -3,7 +3,7 @@ import React, { useEffect, useRef, useState, useMemo } from 'react';
 import { useCardContext } from './CardContext';
 import { CardRenderer } from './CardRenderer';
 import { VisualSupport } from './VisualSupport';
-import { useTheme } from '@/components/theme/ThemeProvider';
+// Removed theme import - using CardStream configuration system instead
 
 interface CardStreamProps {
   onFieldFocus?: (cardId: string, fieldId: string, value?: string) => void;
@@ -21,7 +21,6 @@ export function CardStream({
   showBlurredCards = false,
 }: CardStreamProps) {
   const { cards, shouldBeRevealed, cardStates } = useCardContext();
-  const { getCardStyles, getEffectiveTheme } = useTheme();
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const [scrollIndicators, setScrollIndicators] = useState({
     showTop: false,
@@ -242,7 +241,10 @@ export function CardStream({
             // Calculate step number for form cards only
             const formCards = cards.filter(c => c.type === 'form');
             const formCardIndex = formCards.findIndex(c => c.id === card.id);
-            const stepNumber = card.type === 'form' && formCardIndex >= 0 ? formCardIndex + 1 : undefined;
+            const stepNumber =
+              card.type === 'form' && formCardIndex >= 0
+                ? formCardIndex + 1
+                : undefined;
 
             // Find the first unrevealed card index (next card to be revealed)
             const firstUnrevealedIndex = cards.findIndex(
@@ -308,7 +310,7 @@ export function CardStream({
                   }
                 `}
                   style={{
-                    ...getCardStyles(card.id),
+                    // Card styles now handled by CardStream configuration system
                     borderColor: isCompleted
                       ? 'var(--theme-secondary, #22c55e)'
                       : isBlurred
@@ -319,7 +321,11 @@ export function CardStream({
                   }}
                   data-card-id={card.id}
                 >
-                  <CardRenderer card={card} onFieldFocus={onFieldFocus} stepNumber={stepNumber} />
+                  <CardRenderer
+                    card={card}
+                    onFieldFocus={onFieldFocus}
+                    stepNumber={stepNumber}
+                  />
                 </div>
               </div>
             );

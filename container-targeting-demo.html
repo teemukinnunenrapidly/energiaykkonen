@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WordPress Container Targeting Demo</title>
+    <link rel="stylesheet" href="dist/widget.css">
+    <style>
+        body { font-family: system-ui, sans-serif; padding: 20px; }
+        .demo-section { margin-bottom: 40px; padding: 20px; border: 2px dashed #ccc; }
+        .demo-title { color: #333; margin-bottom: 10px; }
+        .empty-container { min-height: 600px; border: 1px solid #ddd; background: #f9f9f9; }
+        .test-buttons { margin: 20px 0; }
+        .test-buttons button { margin-right: 10px; padding: 8px 16px; background: #10b981; color: white; border: none; border-radius: 4px; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <h1>🎯 WordPress Container Targeting Demo</h1>
+    <p><strong>This demonstrates how CardStream meets WordPress container requirements:</strong></p>
+
+    <div class="demo-section">
+        <h2 class="demo-title">✅ 1. Accept Container ID</h2>
+        <p>WordPress creates empty divs with unique IDs. CardStream accepts these IDs via config:</p>
+        <pre><code>CardStream.init({ 
+  container: 'unique-container-id',  // ← WordPress provides this
+  theme: 'minimal',
+  config: {...}
+})</code></pre>
+    </div>
+
+    <div class="demo-section">
+        <h2 class="demo-title">✅ 2. Find That Element</h2>
+        <p>CardStream finds the element using <code>document.getElementById()</code>:</p>
+        <pre><code>const container = document.getElementById(config.container);
+if (!container) {
+  console.error('Container not found:', config.container);
+  return;
+}</code></pre>
+    </div>
+
+    <div class="demo-section">
+        <h2 class="demo-title">✅ 3. Render App Inside Container</h2>
+        <p>WordPress-created empty div (simulated):</p>
+        <div id="cardstream-demo-1" class="empty-container" style="position: relative;">
+            <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: #666;">
+                Empty WordPress Container - Click "Initialize Widget" below
+            </div>
+        </div>
+        <div class="test-buttons">
+            <button onclick="initializeWidget1()">Initialize Widget in Container 1</button>
+            <button onclick="destroyWidget1()">Clear Container 1</button>
+        </div>
+    </div>
+
+    <div class="demo-section">
+        <h2 class="demo-title">✅ 4. Handle Multiple Instances</h2>
+        <p>Multiple calculators on the same page with independent state:</p>
+        
+        <h3>Container 2:</h3>
+        <div id="cardstream-demo-2" class="empty-container" style="position: relative;">
+            <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: #666;">
+                Empty WordPress Container - Click "Initialize Widget" below
+            </div>
+        </div>
+        
+        <h3>Container 3:</h3>
+        <div id="cardstream-demo-3" class="empty-container" style="position: relative;">
+            <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: #666;">
+                Empty WordPress Container - Click "Initialize Widget" below
+            </div>
+        </div>
+        
+        <div class="test-buttons">
+            <button onclick="initializeWidget2()">Initialize Widget in Container 2</button>
+            <button onclick="initializeWidget3()">Initialize Widget in Container 3</button>
+            <button onclick="showInstances()">Show All Instances</button>
+            <button onclick="clearAllWidgets()">Clear All Containers</button>
+        </div>
+        
+        <div id="instances-info" style="background: #f0f8f0; padding: 10px; margin-top: 10px; border-radius: 4px; display: none;">
+            <strong>Active Instances:</strong>
+            <pre id="instances-display"></pre>
+        </div>
+    </div>
+
+    <div class="demo-section">
+        <h2 class="demo-title">🔍 Instance Management</h2>
+        <p>Each widget instance is tracked independently:</p>
+        <pre id="debug-info">Loading...</pre>
+    </div>
+
+    <script src="dist/widget.js"></script>
+    <script>
+        // Mock configuration loading
+        const mockConfig = {
+            cardStreamConfig: {
+                version: "1.0.0",
+                theme: "minimal",
+                colors: {
+                    brand: { primary: "#10b981" }
+                }
+            }
+        };
+
+        function initializeWidget1() {
+            console.log('🚀 Initializing widget in container 1...');
+            CardStream.init({
+                container: 'cardstream-demo-1',
+                theme: 'minimal',
+                config: mockConfig,
+                analytics: true
+            });
+            updateDebugInfo();
+        }
+
+        function initializeWidget2() {
+            console.log('🚀 Initializing widget in container 2...');
+            CardStream.init({
+                container: 'cardstream-demo-2',
+                theme: 'minimal',
+                config: mockConfig,
+                analytics: true
+            });
+            updateDebugInfo();
+        }
+
+        function initializeWidget3() {
+            console.log('🚀 Initializing widget in container 3...');
+            CardStream.init({
+                container: 'cardstream-demo-3',
+                theme: 'minimal',
+                config: mockConfig,
+                analytics: true
+            });
+            updateDebugInfo();
+        }
+
+        function destroyWidget1() {
+            const container = document.getElementById('cardstream-demo-1');
+            if (container) {
+                container.innerHTML = '<div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: #666;">Empty WordPress Container - Click "Initialize Widget" below</div>';
+                container.style.position = 'relative';
+                delete CardStream.instances['cardstream-demo-1'];
+                updateDebugInfo();
+            }
+        }
+
+        function showInstances() {
+            const info = document.getElementById('instances-info');
+            const display = document.getElementById('instances-display');
+            const instances = CardStream.instances;
+            
+            info.style.display = 'block';
+            display.textContent = JSON.stringify(
+                Object.keys(instances).reduce((acc, key) => {
+                    acc[key] = {
+                        currentStep: instances[key].state.currentStep,
+                        isCompleted: instances[key].state.isCompleted,
+                        hasFormData: Object.keys(instances[key].state.formData).length > 0
+                    };
+                    return acc;
+                }, {}),
+                null, 2
+            );
+        }
+
+        function clearAllWidgets() {
+            ['cardstream-demo-1', 'cardstream-demo-2', 'cardstream-demo-3'].forEach(id => {
+                const container = document.getElementById(id);
+                if (container) {
+                    container.innerHTML = '<div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: #666;">Empty WordPress Container - Click "Initialize Widget" below</div>';
+                    container.style.position = 'relative';
+                    delete CardStream.instances[id];
+                }
+            });
+            document.getElementById('instances-info').style.display = 'none';
+            updateDebugInfo();
+        }
+
+        function updateDebugInfo() {
+            const instances = CardStream.instances;
+            const debugInfo = document.getElementById('debug-info');
+            
+            debugInfo.textContent = `Active Instances: ${Object.keys(instances).length}
+Instance IDs: ${Object.keys(instances).join(', ') || 'None'}
+CardStream Version: ${CardStream.version}
+Available Methods: ${Object.keys(CardStream).join(', ')}`;
+        }
+
+        // Initialize debug info
+        updateDebugInfo();
+
+        // Update debug info every 2 seconds
+        setInterval(updateDebugInfo, 2000);
+    </script>
+</body>
+</html>

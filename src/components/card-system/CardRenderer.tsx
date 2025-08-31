@@ -11,10 +11,20 @@ interface CardRendererProps {
   stepNumber?: number; // For form cards only
 }
 
-export function CardRenderer({ card, onFieldFocus, stepNumber }: CardRendererProps) {
+export function CardRenderer({
+  card,
+  onFieldFocus,
+  stepNumber,
+}: CardRendererProps) {
   switch (card.type) {
     case 'form':
-      return <FormCard card={card} onFieldFocus={onFieldFocus} stepNumber={stepNumber} />;
+      return (
+        <FormCard
+          card={card}
+          onFieldFocus={onFieldFocus}
+          stepNumber={stepNumber}
+        />
+      );
     case 'calculation':
       return <CalculationCard card={card} onFieldFocus={onFieldFocus} />;
     case 'info':

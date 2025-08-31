@@ -1,0 +1,631 @@
+/**
+ * CardStream Widget CSS - WordPress Compatible
+ * Isolated styles using [data-cardstream] attribute for scoping
+ * Based on the CardStream design system configuration
+ */
+
+/* CSS Reset for widget isolation */
+[data-cardstream] {
+  all: initial;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  box-sizing: border-box;
+}
+
+[data-cardstream] *,
+[data-cardstream] *:before,
+[data-cardstream] *:after {
+  box-sizing: inherit;
+}
+
+/* CSS Variables from CardStream configuration */
+[data-cardstream] {
+  --cs-color-brand-primary: #10b981;
+  --cs-color-brand-primary-hover: #059669;
+  --cs-color-brand-primary-light: #ecfdf5;
+  
+  --cs-color-text-primary: #1f2937;
+  --cs-color-text-secondary: #6b7280;
+  --cs-color-text-tertiary: #9ca3af;
+  --cs-color-text-placeholder: #d1d5db;
+  --cs-color-text-inverse: #ffffff;
+  
+  --cs-color-background-primary: #ffffff;
+  --cs-color-background-secondary: #f7f8f9;
+  --cs-color-background-tertiary: #f3f4f6;
+  --cs-color-background-disabled: #f9fafb;
+  
+  --cs-color-border-default: #e5e7eb;
+  --cs-color-border-hover: #d1d5db;
+  --cs-color-border-focus: #10b981;
+  --cs-color-border-subtle: #f9fafb;
+  
+  --cs-color-state-error: #ef4444;
+  --cs-color-state-warning: #f59e0b;
+  --cs-color-state-success: #10b981;
+  --cs-color-state-info: #3b82f6;
+  
+  --cs-font-size-xs: 11px;
+  --cs-font-size-sm: 12px;
+  --cs-font-size-base: 14px;
+  --cs-font-size-lg: 16px;
+  --cs-font-size-xl: 18px;
+  --cs-font-size-2xl: 24px;
+  --cs-font-size-3xl: 28px;
+  --cs-font-size-4xl: 48px;
+  
+  --cs-font-weight-light: 300;
+  --cs-font-weight-normal: 400;
+  --cs-font-weight-medium: 500;
+  --cs-font-weight-semibold: 600;
+  
+  --cs-spacing-1: 4px;
+  --cs-spacing-2: 8px;
+  --cs-spacing-3: 12px;
+  --cs-spacing-4: 16px;
+  --cs-spacing-5: 20px;
+  --cs-spacing-6: 24px;
+  --cs-spacing-8: 32px;
+  --cs-spacing-10: 40px;
+  
+  --cs-border-radius-base: 12px;
+  --cs-border-radius-sm: 8px;
+  --cs-border-radius-lg: 16px;
+  
+  --cs-transition-fast: 150ms;
+  --cs-transition-default: 200ms;
+  --cs-transition-slow: 300ms;
+  --cs-transition-slower: 500ms;
+  
+  --cs-shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.04);
+  --cs-shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
+  --cs-shadow-lg: 0 10px 40px rgba(0, 0, 0, 0.1);
+}
+
+/* Main Container */
+[data-cardstream] .cs-container {
+  width: 100%;
+  max-width: 1400px;
+  min-height: 600px;
+  margin: 0 auto;
+  border-radius: var(--cs-border-radius-base);
+  box-shadow: var(--cs-shadow-lg);
+  overflow: hidden;
+  background: var(--cs-color-background-primary);
+}
+
+/* Layout */
+[data-cardstream] .cs-layout {
+  display: flex;
+  min-height: 600px;
+}
+
+/* Visual Panel (Left Side) */
+[data-cardstream] .cs-visual-panel {
+  width: 45%;
+  min-width: 400px;
+  background: var(--cs-color-background-primary);
+  border-right: 1px solid var(--cs-color-border-default);
+  position: relative;
+}
+
+[data-cardstream] .cs-visual-content {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  background: linear-gradient(135deg, var(--cs-color-brand-primary) 0%, #34d399 100%);
+}
+
+[data-cardstream] .cs-visual-header {
+  padding: var(--cs-spacing-10);
+  text-align: center;
+  color: var(--cs-color-text-inverse);
+  flex: 0 0 auto;
+}
+
+[data-cardstream] .cs-visual-title {
+  font-size: var(--cs-font-size-3xl);
+  font-weight: var(--cs-font-weight-light);
+  margin: 0 0 var(--cs-spacing-3) 0;
+  letter-spacing: -0.02em;
+}
+
+[data-cardstream] .cs-visual-subtitle {
+  font-size: var(--cs-font-size-base);
+  font-weight: var(--cs-font-weight-normal);
+  margin: 0;
+  opacity: 0.9;
+  line-height: 1.5;
+}
+
+[data-cardstream] .cs-visual-info {
+  flex: 1;
+  padding: var(--cs-spacing-6);
+  background: var(--cs-color-background-primary);
+  border-top: 1px solid var(--cs-color-border-default);
+}
+
+[data-cardstream] .cs-info-step {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--cs-spacing-4);
+}
+
+[data-cardstream] .cs-info-icon {
+  font-size: var(--cs-font-size-2xl);
+  flex-shrink: 0;
+}
+
+[data-cardstream] .cs-info-content h3 {
+  font-size: var(--cs-font-size-xl);
+  font-weight: var(--cs-font-weight-light);
+  color: var(--cs-color-text-primary);
+  margin: 0 0 var(--cs-spacing-2) 0;
+}
+
+[data-cardstream] .cs-info-content p {
+  font-size: var(--cs-font-size-base);
+  color: var(--cs-color-text-secondary);
+  line-height: 1.5;
+  margin: 0;
+}
+
+/* Card Stream Panel (Right Side) */
+[data-cardstream] .cs-card-stream {
+  width: 55%;
+  background: var(--cs-color-background-secondary);
+  padding: var(--cs-spacing-8);
+  padding-bottom: 100px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  max-height: 100vh;
+  scroll-behavior: smooth;
+}
+
+/* Card Base Styles */
+[data-cardstream] .cs-card {
+  background: var(--cs-color-background-primary);
+  border-radius: var(--cs-border-radius-base);
+  border-left: 4px solid var(--cs-color-brand-primary);
+  padding: var(--cs-spacing-8);
+  margin-bottom: var(--cs-spacing-5);
+  box-shadow: var(--cs-shadow-sm);
+  transition: all var(--cs-transition-default) cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+[data-cardstream] .cs-card:hover {
+  box-shadow: var(--cs-shadow-md);
+  transform: translateY(-2px);
+}
+
+/* Card Header */
+[data-cardstream] .cs-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--cs-spacing-5);
+  gap: var(--cs-spacing-4);
+}
+
+[data-cardstream] .cs-step-indicator {
+  font-size: var(--cs-font-size-xs);
+  font-weight: var(--cs-font-weight-semibold);
+  color: var(--cs-color-brand-primary);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+[data-cardstream] .cs-card-badge {
+  display: inline-block;
+  padding: 4px 12px;
+  background: rgba(16, 185, 129, 0.1);
+  color: var(--cs-color-brand-primary);
+  border-radius: 100px;
+  font-size: var(--cs-font-size-xs);
+  font-weight: var(--cs-font-weight-medium);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+[data-cardstream] .cs-badge-success {
+  background: rgba(16, 185, 129, 0.1);
+  color: var(--cs-color-state-success);
+}
+
+/* Card Content */
+[data-cardstream] .cs-card-title {
+  font-size: var(--cs-font-size-2xl);
+  font-weight: var(--cs-font-weight-light);
+  color: var(--cs-color-text-primary);
+  line-height: 1.2;
+  margin: 0 0 var(--cs-spacing-2) 0;
+}
+
+[data-cardstream] .cs-card-description {
+  font-size: var(--cs-font-size-base);
+  color: var(--cs-color-text-secondary);
+  line-height: 1.5;
+  margin: 0 0 var(--cs-spacing-6) 0;
+}
+
+/* Form Styles */
+[data-cardstream] .cs-form {
+  width: 100%;
+}
+
+[data-cardstream] .cs-form-group {
+  margin-bottom: var(--cs-spacing-5);
+  width: 100%;
+}
+
+[data-cardstream] .cs-field-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--cs-spacing-4);
+  margin-bottom: var(--cs-spacing-5);
+}
+
+[data-cardstream] .cs-label {
+  display: block;
+  font-size: var(--cs-font-size-xs);
+  font-weight: var(--cs-font-weight-medium);
+  color: var(--cs-color-text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: var(--cs-spacing-2);
+  transition: color var(--cs-transition-default) ease;
+}
+
+[data-cardstream] .cs-input,
+[data-cardstream] .cs-select {
+  width: 100%;
+  padding: var(--cs-spacing-2) 0;
+  font-size: var(--cs-font-size-base);
+  font-weight: var(--cs-font-weight-normal);
+  color: var(--cs-color-text-primary);
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid var(--cs-color-border-default);
+  border-radius: 0;
+  outline: none;
+  transition: border-color var(--cs-transition-default) ease;
+  appearance: none;
+}
+
+[data-cardstream] .cs-input::placeholder {
+  color: var(--cs-color-text-placeholder);
+  font-weight: var(--cs-font-weight-normal);
+}
+
+[data-cardstream] .cs-input:hover,
+[data-cardstream] .cs-select:hover {
+  border-bottom-color: var(--cs-color-border-hover);
+}
+
+[data-cardstream] .cs-input:focus,
+[data-cardstream] .cs-select:focus {
+  border-bottom-color: var(--cs-color-brand-primary);
+}
+
+[data-cardstream] .cs-select {
+  padding-right: 32px;
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%239ca3af' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+  background-position: right 0 center;
+  background-repeat: no-repeat;
+  background-size: 20px;
+  cursor: pointer;
+}
+
+/* Checkbox Styles */
+[data-cardstream] .cs-checkbox-wrapper {
+  display: flex;
+  align-items: center;
+  gap: var(--cs-spacing-2);
+  cursor: pointer;
+}
+
+[data-cardstream] .cs-checkbox {
+  width: 16px;
+  height: 16px;
+  border: 2px solid var(--cs-color-border-default);
+  border-radius: 3px;
+  background: var(--cs-color-background-primary);
+  cursor: pointer;
+}
+
+[data-cardstream] .cs-checkbox:checked {
+  background: var(--cs-color-brand-primary);
+  border-color: var(--cs-color-brand-primary);
+}
+
+[data-cardstream] .cs-checkbox-label {
+  font-size: var(--cs-font-size-sm);
+  color: var(--cs-color-text-secondary);
+  cursor: pointer;
+  margin: 0;
+}
+
+/* Button Styles */
+[data-cardstream] .cs-button {
+  padding: 14px 28px;
+  font-size: var(--cs-font-size-base);
+  font-weight: var(--cs-font-weight-medium);
+  border: none;
+  border-radius: 0;
+  cursor: pointer;
+  transition: all var(--cs-transition-default) ease;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  outline: none;
+}
+
+[data-cardstream] .cs-button-primary {
+  color: var(--cs-color-brand-primary);
+  background: transparent;
+  border-bottom: 2px solid var(--cs-color-brand-primary);
+  width: 100%;
+}
+
+[data-cardstream] .cs-button-primary:hover:not(:disabled) {
+  background: var(--cs-color-brand-primary);
+  color: var(--cs-color-text-inverse);
+  transform: translateY(-1px);
+}
+
+[data-cardstream] .cs-button-primary:active {
+  transform: translateY(0);
+}
+
+[data-cardstream] .cs-button-primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+[data-cardstream] .cs-button-secondary {
+  color: var(--cs-color-text-secondary);
+  background: transparent;
+  border-bottom: 2px solid var(--cs-color-border-default);
+}
+
+[data-cardstream] .cs-button-secondary:hover:not(:disabled) {
+  background: var(--cs-color-background-tertiary);
+  color: var(--cs-color-text-primary);
+}
+
+[data-cardstream] .cs-form-actions {
+  margin-top: var(--cs-spacing-6);
+}
+
+[data-cardstream] .cs-actions-multi {
+  display: flex;
+  gap: var(--cs-spacing-4);
+}
+
+[data-cardstream] .cs-actions-multi .cs-button {
+  flex: 1;
+}
+
+/* Calculation Card Specific Styles */
+[data-cardstream] .cs-calculation-card {
+  background: linear-gradient(135deg, var(--cs-color-brand-primary-light), var(--cs-color-background-primary));
+}
+
+[data-cardstream] .cs-metrics {
+  margin: var(--cs-spacing-6) 0;
+}
+
+[data-cardstream] .cs-metric-primary {
+  text-align: center;
+  margin-bottom: var(--cs-spacing-8);
+  padding-bottom: var(--cs-spacing-6);
+  border-bottom: 1px solid var(--cs-color-border-subtle);
+}
+
+[data-cardstream] .cs-metric-primary .cs-metric-value {
+  font-size: var(--cs-font-size-4xl);
+  font-weight: var(--cs-font-weight-light);
+  color: var(--cs-color-brand-primary);
+  line-height: 1.1;
+}
+
+[data-cardstream] .cs-metrics-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--cs-spacing-6);
+}
+
+[data-cardstream] .cs-metric {
+  text-align: center;
+}
+
+[data-cardstream] .cs-metric-label {
+  font-size: var(--cs-font-size-xs);
+  font-weight: var(--cs-font-weight-medium);
+  color: var(--cs-color-text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: var(--cs-spacing-3);
+}
+
+[data-cardstream] .cs-metric-value {
+  font-size: var(--cs-font-size-xl);
+  font-weight: var(--cs-font-weight-light);
+  color: var(--cs-color-text-primary);
+  line-height: 1.2;
+}
+
+[data-cardstream] .cs-metric-unit {
+  font-size: var(--cs-font-size-sm);
+  color: var(--cs-color-text-secondary);
+  font-weight: var(--cs-font-weight-normal);
+  margin-left: var(--cs-spacing-1);
+}
+
+/* Success Card Styles */
+[data-cardstream] .cs-success-card {
+  text-align: center;
+  background: linear-gradient(135deg, var(--cs-color-brand-primary-light), var(--cs-color-background-primary));
+}
+
+[data-cardstream] .cs-info-list {
+  margin: var(--cs-spacing-6) 0;
+  text-align: left;
+}
+
+[data-cardstream] .cs-info-item {
+  display: flex;
+  align-items: center;
+  gap: var(--cs-spacing-3);
+  margin-bottom: var(--cs-spacing-4);
+  padding: var(--cs-spacing-3);
+  background: rgba(255, 255, 255, 0.5);
+  border-radius: var(--cs-border-radius-sm);
+}
+
+[data-cardstream] .cs-info-item .cs-info-icon {
+  font-size: var(--cs-font-size-lg);
+  flex-shrink: 0;
+}
+
+[data-cardstream] .cs-info-text {
+  font-size: var(--cs-font-size-base);
+  color: var(--cs-color-text-primary);
+  margin: 0;
+}
+
+/* Loading States */
+[data-cardstream] .cs-loading {
+  text-align: center;
+  padding: var(--cs-spacing-10);
+}
+
+[data-cardstream] .cs-spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid var(--cs-color-border-default);
+  border-top: 4px solid var(--cs-color-brand-primary);
+  border-radius: 50%;
+  animation: cs-spin 1s linear infinite;
+  margin: 0 auto var(--cs-spacing-4);
+}
+
+[data-cardstream] .cs-loading p {
+  font-size: var(--cs-font-size-base);
+  color: var(--cs-color-text-secondary);
+  margin: 0;
+}
+
+@keyframes cs-spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Responsive Design - Mobile */
+@media (max-width: 768px) {
+  [data-cardstream] .cs-layout {
+    flex-direction: column;
+    gap: 0;
+  }
+  
+  [data-cardstream] .cs-visual-panel {
+    display: none;
+    width: 100%;
+    min-width: auto;
+  }
+  
+  [data-cardstream] .cs-card-stream {
+    width: 100%;
+    padding: var(--cs-spacing-5);
+    max-height: none;
+  }
+  
+  [data-cardstream] .cs-card {
+    padding: var(--cs-spacing-6);
+    border-radius: var(--cs-border-radius-sm);
+    margin-bottom: var(--cs-spacing-4);
+  }
+  
+  [data-cardstream] .cs-card-title {
+    font-size: var(--cs-font-size-xl);
+  }
+  
+  [data-cardstream] .cs-metric-primary .cs-metric-value {
+    font-size: 36px;
+  }
+  
+  [data-cardstream] .cs-field-row {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+  
+  [data-cardstream] .cs-metrics-grid {
+    grid-template-columns: 1fr;
+    gap: var(--cs-spacing-4);
+  }
+  
+  [data-cardstream] .cs-actions-multi {
+    flex-direction: column;
+  }
+}
+
+/* Tablet */
+@media (min-width: 769px) and (max-width: 1024px) {
+  [data-cardstream] .cs-visual-panel {
+    width: 40%;
+    min-width: 320px;
+  }
+  
+  [data-cardstream] .cs-card-stream {
+    width: 60%;
+  }
+}
+
+/* Focus States for Accessibility */
+[data-cardstream] .cs-input:focus,
+[data-cardstream] .cs-select:focus,
+[data-cardstream] .cs-button:focus {
+  outline: 3px solid var(--cs-color-brand-primary);
+  outline-offset: 2px;
+}
+
+/* High Contrast Mode Support */
+@media (prefers-contrast: high) {
+  [data-cardstream] {
+    --cs-color-border-default: #000000;
+    --cs-color-text-secondary: #000000;
+  }
+}
+
+/* Reduced Motion Support */
+@media (prefers-reduced-motion: reduce) {
+  [data-cardstream] * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Print Styles */
+@media print {
+  [data-cardstream] .cs-visual-panel {
+    display: none;
+  }
+  
+  [data-cardstream] .cs-card-stream {
+    width: 100%;
+    padding: 0;
+    overflow: visible;
+    max-height: none;
+  }
+  
+  [data-cardstream] .cs-card {
+    break-inside: avoid;
+    box-shadow: none;
+    border: 1px solid #ccc;
+  }
+}
