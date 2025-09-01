@@ -146,10 +146,11 @@ export function FormCard({ card, onFieldFocus }: FormCardProps) {
               disabled={isCardCompleted}
               style={{
                 ...(styles.formElements.input as React.CSSProperties),
-                ...(focusedField === field.field_name &&
-                  styles.formElements.input.focus),
-                ...(error && styles.formElements.input.error),
-                ...(isCardCompleted && styles.formElements.input.disabled),
+                ...(focusedField === field.field_name
+                  ? styles.formElements.input.focus
+                  : {}),
+                ...(error ? styles.formElements.input.error : {}),
+                ...(isCardCompleted ? styles.formElements.input.disabled : {}),
               }}
             />
             {field.help_text && (
@@ -200,10 +201,11 @@ export function FormCard({ card, onFieldFocus }: FormCardProps) {
               style={{
                 ...(styles.formElements.input as React.CSSProperties),
                 ...(styles.formElements.select as React.CSSProperties),
-                ...(focusedField === field.field_name &&
-                  styles.formElements.input.focus),
-                ...(error && styles.formElements.input.error),
-                ...(isCardCompleted && styles.formElements.input.disabled),
+                ...(focusedField === field.field_name
+                  ? styles.formElements.input.focus
+                  : {}),
+                ...(error ? styles.formElements.input.error : {}),
+                ...(isCardCompleted ? styles.formElements.input.disabled : {}),
               }}
             >
               <option value="">Select...</option>
@@ -407,10 +409,11 @@ export function FormCard({ card, onFieldFocus }: FormCardProps) {
               disabled={isCardCompleted}
               style={{
                 ...(styles.formElements.input as React.CSSProperties),
-                ...(focusedField === field.field_name &&
-                  styles.formElements.input.focus),
-                ...(error && styles.formElements.input.error),
-                ...(isCardCompleted && styles.formElements.input.disabled),
+                ...(focusedField === field.field_name
+                  ? styles.formElements.input.focus
+                  : {}),
+                ...(error ? styles.formElements.input.error : {}),
+                ...(isCardCompleted ? styles.formElements.input.disabled : {}),
                 minHeight: '80px',
                 resize: 'vertical' as any,
               }}
@@ -522,18 +525,21 @@ export function FormCard({ card, onFieldFocus }: FormCardProps) {
                     style={{
                       ...(styles.formElements.buttons
                         .button as React.CSSProperties),
-                      ...(isSelected && {
-                        ...styles.formElements.buttons.buttonSelected,
-                        ...(isCardCompleted && {
-                          background:
-                            styles.formElements.buttons.buttonDisabled
-                              .background,
-                        }), // Use disabled background when completed
-                      }),
-                      ...(isCardCompleted &&
-                        !isSelected && {
-                          ...styles.formElements.buttons.buttonDisabled,
-                        }),
+                      ...(isSelected 
+                        ? {
+                            ...styles.formElements.buttons.buttonSelected,
+                            ...(isCardCompleted 
+                              ? {
+                                  background:
+                                    styles.formElements.buttons.buttonDisabled
+                                      .background,
+                                }
+                              : {}), // Use disabled background when completed
+                          }
+                        : {}),
+                      ...(isCardCompleted && !isSelected 
+                        ? styles.formElements.buttons.buttonDisabled
+                        : {}),
                     }}
                     onMouseEnter={e => {
                       if (!isCardCompleted && !isSelected) {
@@ -568,9 +574,10 @@ export function FormCard({ card, onFieldFocus }: FormCardProps) {
                           style={{
                             ...(styles.formElements.buttons.multiSelect
                               .checkbox as React.CSSProperties),
-                            ...(isSelected &&
-                              styles.formElements.buttons.multiSelect
-                                .checkboxChecked),
+                            ...(isSelected 
+                              ? styles.formElements.buttons.multiSelect
+                                  .checkboxChecked
+                              : {}),
                           }}
                           disabled={isCardCompleted}
                           onClick={e => e.stopPropagation()}
