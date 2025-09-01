@@ -277,9 +277,39 @@ export function CardStream({
             );
           })}
 
-          {/* Locked/Upcoming Cards */}
+          {/* Locked/Upcoming Cards - Show only the immediate next card */}
           {showBlurredCards && lockedCards.length > 0 && (
-            <div style={{ height: '20px' }}></div>
+            <>
+              <div style={{ height: '20px' }}></div>
+              {/* Render only the first locked card (immediate next) */}
+              {(() => {
+                const nextCard = lockedCards[0]; // Get only the first locked card
+                return (
+                  <div
+                    key={`locked-${nextCard.id}`}
+                    style={{
+                      marginBottom: styles.card.base.marginBottom,
+                      background: styles.card.base.background,
+                      borderRadius: styles.card.base.borderRadius,
+                      overflow: styles.card.base.overflow,
+                      border: styles.card.base.border || '1px solid #e5e7eb',
+                      // Apply locked state styles from design tokens
+                      opacity: styles.card.states.locked?.opacity || '0.6',
+                      filter: styles.card.states.locked?.filter || 'blur(8px)',
+                      pointerEvents: styles.card.states.locked?.pointerEvents as any || 'none',
+                      transform: styles.card.states.locked?.transform || 'scale(0.98)',
+                      transition: styles.card.states.locked?.transition || 'all 500ms ease',
+                      position: 'relative',
+                    }}
+                  >
+                    <CardRenderer 
+                      card={nextCard} 
+                      onFieldFocus={onFieldFocus}
+                    />
+                  </div>
+                );
+              })()}
+            </>
           )}
         </div>
       </div>
