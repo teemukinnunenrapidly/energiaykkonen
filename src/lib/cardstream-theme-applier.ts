@@ -121,10 +121,13 @@ export const applyCardStreamTheme = (
     '--cs-card-border-radius',
     themeConfig.card.base.borderRadius
   );
-  root.style.setProperty(
-    '--cs-card-border-left',
-    themeConfig.card.base.borderLeft
-  );
+  // borderLeft is in states.complete, not base
+  if (themeConfig.card.states?.complete?.borderLeft) {
+    root.style.setProperty(
+      '--cs-card-border-left',
+      themeConfig.card.states.complete.borderLeft
+    );
+  }
   root.style.setProperty('--cs-card-padding', themeConfig.card.base.padding);
   root.style.setProperty(
     '--cs-card-margin-bottom',

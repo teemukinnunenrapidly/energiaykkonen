@@ -710,7 +710,7 @@ export function FormCard({ card, onFieldFocus }: FormCardProps) {
               disabled={isSubmitting}
               style={{
                 ...(styles.submitButton.button as React.CSSProperties),
-                ...(isSubmitting ? styles.submitButton.buttonDisabled : {}),
+                ...(isSubmitting ? (styles.submitButton.buttonDisabled as React.CSSProperties) : {}),
               }}
               onMouseEnter={e => {
                 if (!isSubmitting) {
