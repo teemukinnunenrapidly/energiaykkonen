@@ -284,7 +284,19 @@ export const applyCardStreamTheme = (
   root.style.setProperty('--cs-input-font-weight', input.fontWeight);
   root.style.setProperty('--cs-input-color', input.color);
   root.style.setProperty('--cs-input-background', input.background);
-  root.style.setProperty('--cs-input-border-bottom', input.borderBottom);
+  // Use individual border properties instead of shorthand
+  root.style.setProperty(
+    '--cs-input-border-bottom-width',
+    input.borderBottomWidth
+  );
+  root.style.setProperty(
+    '--cs-input-border-bottom-style',
+    input.borderBottomStyle
+  );
+  root.style.setProperty(
+    '--cs-input-border-bottom-color',
+    input.borderBottomColor
+  );
   root.style.setProperty('--cs-input-padding', input.padding);
   root.style.setProperty('--cs-input-border-radius', input.borderRadius);
   root.style.setProperty('--cs-input-transition', input.transition);

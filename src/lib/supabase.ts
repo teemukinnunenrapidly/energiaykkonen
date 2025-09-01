@@ -171,6 +171,7 @@ export interface CardTemplate {
     gradient?: boolean;
   };
   visual_object_id?: string;
+  visual_objects?: any; // Visual objects relationship data
   is_active: boolean;
   created_at: string;
   updated_at: string;
@@ -271,7 +272,12 @@ export async function getCardsDirect() {
   try {
     const { data, error } = await supabase
       .from('card_templates')
-      .select('*, card_fields(*)')
+      .select(
+        `
+        *,
+        card_fields(*)
+      `
+      )
       .eq('is_active', true)
       .order('display_order');
 
@@ -285,10 +291,61 @@ export async function getCardsDirect() {
       data?.filter(card => !card.id.startsWith('00000000-0000-0000-0000-')) ||
       [];
 
-    console.log(
-      `Loaded ${validCards.length} cards directly from card_templates`
+    // Now fetch visual objects for cards that have linked_visual_object_id in config
+    const cardsWithVisualObjects = await Promise.all(
+      validCards.map(async card => {
+        const linkedVisualObjectId = card.config?.linked_visual_object_id;
+        console.log(
+          `🔍 Card "${card.name}" linked_visual_object_id:`,
+          linkedVisualObjectId
+        );
+
+        if (linkedVisualObjectId) {
+          console.log(
+            `🔎 Fetching visual object with ID: ${linkedVisualObjectId}`
+          );
+          const { data: visualObject, error: visualError } = await supabase
+            .from('visual_objects')
+            .select('*')
+            .eq('id', linkedVisualObjectId)
+            .maybeSingle(); // Use maybeSingle() instead of single() to handle 0 rows gracefully
+
+          if (visualObject) {
+            console.log(
+              `✅ Found visual object "${visualObject.title}" for card "${card.name}"`
+            );
+            return {
+              ...card,
+              visual_objects: visualObject,
+            };
+          } else if (visualError) {
+            console.error(
+              `❌ Error fetching visual object for card "${card.name}":`,
+              visualError.message
+            );
+            console.error(
+              `   - Tried to fetch visual object ID: ${linkedVisualObjectId}`
+            );
+          } else {
+            console.warn(
+              `⚠️ Visual object not found for card "${card.name}" with ID: ${linkedVisualObjectId}`
+            );
+            console.warn(
+              `   - This visual object may have been deleted from the database`
+            );
+            console.warn(
+              `   - Please update the card configuration in admin panel`
+            );
+          }
+        }
+        return card;
+      })
     );
-    return validCards;
+
+    console.log(
+      `Loaded ${cardsWithVisualObjects.length} cards directly from card_templates`
+    );
+    return cardsWithVisualObjects;
   } catch (error) {
     console.error('Failed to get cards directly:', error);
     return [];
@@ -375,10 +432,7 @@ export async function updateCardCompletion(
   }
 }
 
-export async function getCardCompletion(
-  _cardId: string,
-  _sessionId: string
-): Promise<CardCompletion | null> {
+export async function getCardCompletion(): Promise<CardCompletion | null> {
   // Temporarily disabled to avoid 406 errors - functionality works without it
   return null;
 }

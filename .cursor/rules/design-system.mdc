@@ -1,0 +1,65 @@
+# CardStream Design System Styling Rules
+
+## Core Principle: No Hardcoded Values
+
+**All widget styling must come from the design system, never from hardcoded CSS values.**
+
+### 1. CSS Variable Structure
+
+- **CSS file (`src/styles/cardstream-tokens.css`)**: Only defines variable names with fallback values
+- **Theme applier (`src/lib/cardstream-theme-applier.ts`)**: Reads from `cardstream-complete-config.json` and sets actual values
+- **Components**: Reference CSS variables (`--cs-*`) for all styling
+
+### 2. Variable Definition Pattern
+
+```css
+/* ✅ DO: Define variables with fallbacks */
+--cs-card-background: var(--cs-card-background, #ffffff);
+--cs-card-border-radius: var(--cs-card-border-radius, 12px);
+
+/* ❌ DON'T: Hardcode values directly */
+--cs-card-background: #ffffff;
+--cs-card-border-radius: 12px;
+```
+
+### 3. Component Usage Pattern
+
+```tsx
+// ✅ DO: Use CSS variables
+<div className="cs-card" style={{ backgroundColor: 'var(--cs-card-background)' }}>
+
+// ❌ DON'T: Use hardcoded values
+<div className="cs-card" style={{ backgroundColor: '#ffffff' }}>
+```
+
+### 4. Design System Flow
+
+1. **Config**: `cardstream-complete-config.json` contains all design values
+2. **Theme Applier**: Dynamically sets CSS variables from config
+3. **CSS**: Defines variable names with fallbacks
+4. **Components**: Consume variables for styling
+
+### 5. When Adding New Styles
+
+- Add the property to `cardstream-complete-config.json`
+- Update `cardstream-theme-applier.ts` to set the CSS variable
+- Define the variable in `cardstream-tokens.css` with fallback
+- Use the variable in components
+
+### 6. Benefits
+
+- **Single source of truth**: All design values in one config file
+- **Dynamic theming**: Easy to switch themes or customize
+- **Consistency**: All components use the same design tokens
+- **Maintainability**: Change design in one place, affects everywhere
+
+### 7. Enforcement
+
+- All `--cs-*` variables must reference the config system
+- No hardcoded colors, spacing, or other design values in CSS
+- Components must use CSS variables, not inline hardcoded styles
+- Regular audits to ensure compliance
+description:
+globs:
+alwaysApply: true
+---

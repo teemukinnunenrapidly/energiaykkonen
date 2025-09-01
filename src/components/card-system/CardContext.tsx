@@ -475,7 +475,7 @@ export function CardProvider({ children }: { children: React.ReactNode }) {
           );
         } else {
           // Check if this card was previously completed
-          const completionState = await getCardCompletion(cardId, sessionId);
+          const completionState = await getCardCompletion();
           const isComplete = completionState?.is_complete || false;
 
           newStates[cardId] = {
@@ -591,19 +591,60 @@ export function CardProvider({ children }: { children: React.ReactNode }) {
 
   // Load cards automatically when the provider initializes
   useEffect(() => {
+    console.log('🔥 CardContext useEffect is running!');
     const loadCards = async () => {
-      console.log('CardContext: Starting to load cards...');
+      console.log('🚀 CardContext: Starting to load cards...');
       try {
+        console.log('📞 CardContext: Calling getCardsDirect()...');
         const cardsData = await getCardsDirect();
-        console.log('CardContext: Cards loaded:', cardsData);
-        setCardsAndInitialize(cardsData);
+        console.log(
+          '✅ CardContext: Cards loaded successfully:',
+          cardsData.length,
+          'cards'
+        );
+        console.log(
+          '📋 CardContext: Card details:',
+          cardsData.map(c => ({
+            id: c.id,
+            name: c.name,
+            hasVisualObjects: !!c.visual_objects,
+          }))
+        );
+        // Inline setCardsAndInitialize logic to avoid dependency issues
+        console.log('🚀 setCardsAndInitialize called with:', cardsData);
+        setCards(cardsData);
+        const orderedCardIds = cardsData.map(card => card.id);
+        setCardOrder(orderedCardIds);
+
+        // Initialize card states - simplified version for first load
+        const newStates: Record<string, CardState> = {};
+        for (let index = 0; index < orderedCardIds.length; index++) {
+          const cardId = orderedCardIds[index];
+          const card = cardsData.find(c => c.id === cardId);
+
+          if (index === 0) {
+            // First card starts as active and revealed
+            newStates[cardId] = { status: 'active', isRevealed: true };
+            console.log(
+              `🟢 INIT: Card ${index} "${card?.name}" set to ACTIVE and REVEALED`
+            );
+          } else {
+            // Other cards start hidden and not revealed
+            newStates[cardId] = { status: 'hidden', isRevealed: false };
+            console.log(
+              `🔴 INIT: Card ${index} "${card?.name}" set to HIDDEN and NOT REVEALED`
+            );
+          }
+        }
+        setCardStates(newStates);
       } catch (error) {
-        console.error('CardContext: Failed to load cards:', error);
+        console.error('❌ CardContext: Failed to load cards:', error);
+        console.error('Stack trace:', error.stack);
       }
     };
 
     loadCards();
-  }, [setCardsAndInitialize]);
+  }, []);
 
   // Initialize clean session on every app load (ensures fresh start)
   useEffect(() => {

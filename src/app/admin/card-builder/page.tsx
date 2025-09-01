@@ -51,7 +51,13 @@ export default function CardBuilderPage() {
 
       const { data, error } = await supabase
         .from('card_templates')
-        .select('*, card_fields(*)')
+        .select(
+          `
+          *,
+          card_fields(*),
+          visual_objects(*)
+        `
+        )
         .order('display_order');
 
       if (error) {
@@ -352,14 +358,21 @@ export default function CardBuilderPage() {
         console.log(`📦 Batch updating ${existingCards.length} cards...`);
 
         for (const card of existingCards) {
-          const { card_fields, ...cardData } = card;
-          await supabase
+          // Remove fields that don't exist in database
+          const { card_fields, visual_objects, visual_object_id, ...cardData } =
+            card;
+          const { error } = await supabase
             .from('card_templates')
             .update({
               ...cardData,
               updated_at: new Date().toISOString(),
             })
             .eq('id', card.id);
+
+          if (error) {
+            console.error(`❌ Error updating card ${card.name}:`, error);
+            console.error('Card data being sent:', cardData);
+          }
         }
       }
 

@@ -3,7 +3,6 @@
     "version": "1.0.0",
     "theme": "minimal",
     "lastModified": "2024-01-15",
-    
     "container": {
       "_comment": "Main wrapper for the entire card system",
       "width": "100%",
@@ -18,18 +17,16 @@
       "boxShadow": "0 10px 40px rgba(0, 0, 0, 0.1)",
       "overflow": "hidden"
     },
-    
     "layout": {
       "_comment": "Layout proportions and spacing",
-      "visualSupportRatio": "45%",
-      "cardStreamRatio": "55%",
+      "visualSupportRatio": "60%",
+      "cardStreamRatio": "40%",
       "gapBetweenPanels": "0",
       "verticalSpacing": "default",
       "display": "flex",
       "flexDirection": "row",
       "alignItems": "stretch"
     },
-    
     "visualSupport": {
       "_comment": "Left panel configuration",
       "enabled": true,
@@ -42,7 +39,6 @@
       "top": "0",
       "height": "100vh",
       "maxHeight": "800px",
-      
       "content": {
         "background": "linear-gradient(135deg, #059669 0%, #34d399 100%)",
         "padding": "40px",
@@ -52,7 +48,6 @@
         "justifyContent": "center",
         "flex": "1"
       },
-      
       "title": {
         "fontSize": "28px",
         "fontWeight": "300",
@@ -61,7 +56,6 @@
         "textAlign": "center",
         "letterSpacing": "-0.02em"
       },
-      
       "subtitle": {
         "fontSize": "16px",
         "fontWeight": "400",
@@ -69,36 +63,42 @@
         "textAlign": "center",
         "lineHeight": "1.5"
       },
-      
       "icon": {
         "fontSize": "100px",
         "marginBottom": "20px",
         "animation": "float 3s ease-in-out infinite",
         "opacity": "1"
       },
-      
       "image": {
         "aspectRatio": "16/9",
-        "borderRadius": "8px",
+        "borderRadius": "0",
         "objectFit": "cover",
         "width": "100%",
         "maxWidth": "320px",
         "lazyLoading": true,
-        "fallbackColor": "#f3f4f6"
+        "fallbackColor": "#f3f4f6",
+        "overlay": {
+          "enabled": true,
+          "position": "bottom",
+          "spacing": "20px",
+          "background": "rgba(0, 0, 0, 0.7)",
+          "padding": "12px 16px",
+          "borderRadius": "8px",
+          "backdropFilter": "blur(4px)",
+          "textAlign": "center",
+          "titleColor": "#ffffff"
+        }
       },
-      
       "infoSection": {
         "background": "#ffffff",
         "padding": "24px",
         "borderTop": "1px solid #e5e7eb",
-        
         "title": {
           "fontSize": "22px",
           "fontWeight": "300",
           "color": "#1f2937",
           "marginBottom": "8px"
         },
-        
         "description": {
           "fontSize": "14px",
           "fontWeight": "400",
@@ -106,7 +106,6 @@
           "lineHeight": "1.5",
           "maxLines": "4"
         },
-        
         "tip": {
           "marginTop": "16px",
           "padding": "12px",
@@ -118,7 +117,6 @@
           "display": "block"
         }
       },
-      
       "mobile": {
         "behavior": "hide",
         "breakpoint": "768px",
@@ -132,7 +130,6 @@
         }
       }
     },
-    
     "cardStream": {
       "_comment": "Right panel containing cards",
       "width": "55%",
@@ -142,27 +139,22 @@
       "overflowY": "auto",
       "overflowX": "hidden",
       "maxHeight": "100vh",
-      "scrollBehavior": "smooth",
-      
+      "scrollBehavior": "auto",
       "contentWrapper": {
         "maxWidth": "600px",
         "margin": "0 auto",
         "width": "100%"
       },
-      
       "cardSpacing": "20px",
       "firstCardMarginTop": "0",
       "lastCardMarginBottom": "40px"
     },
-    
     "card": {
       "_comment": "Individual card styling",
-      
       "base": {
         "background": "#ffffff",
         "borderRadius": "12px",
-        "borderLeft": "4px solid #10b981",
-        "border": "none",
+        "border": "1px solid #e5e7eb",
         "padding": "32px",
         "marginBottom": "20px",
         "boxShadow": "0 1px 3px rgba(0, 0, 0, 0.04)",
@@ -171,13 +163,10 @@
         "position": "relative",
         "overflow": "hidden"
       },
-      
       "hover": {
         "boxShadow": "0 4px 12px rgba(0, 0, 0, 0.08)",
-        "transform": "translateY(-2px)",
-        "borderLeftColor": "#10b981"
+        "transform": "translateY(-2px)"
       },
-      
       "states": {
         "locked": {
           "opacity": "0.6",
@@ -187,27 +176,40 @@
           "transition": "all 500ms ease"
         },
         "active": {
-          "borderLeftColor": "#10b981",
-          "boxShadow": "0 0 0 3px rgba(16, 185, 129, 0.2)",
-          "transform": "scale(1.02)"
+          "border": "2px solid rgba(16, 185, 129, 0.5)",
+          "boxShadow": "0 0 0 3px rgba(16, 185, 129, 0.1)",
+          "transform": "scale(1.01)",
+          "background": "#ffffff"
         },
         "complete": {
-          "borderLeftColor": "#10b981",
-          "opacity": "1"
+          "borderLeft": "4px solid #10b981",
+          "opacity": "1",
+          "background": "#ffffff",
+          "checkmark": {
+            "enabled": true,
+            "position": "absolute",
+            "top": "16px",
+            "right": "16px",
+            "size": "24px",
+            "color": "#10b981",
+            "background": "rgba(16, 185, 129, 0.1)",
+            "borderRadius": "50%",
+            "padding": "4px"
+          }
         },
         "unlocking": {
           "animation": "slideUp 500ms ease-out"
         }
       },
-      
       "header": {
         "display": "flex",
         "justifyContent": "space-between",
         "alignItems": "center",
-        "marginBottom": "20px",
-        "gap": "16px"
+        "marginBottom": "24px",
+        "gap": "16px",
+        "borderBottom": "1px solid #d9d9d9",
+        "paddingBottom": "20px"
       },
-      
       "stepIndicator": {
         "fontSize": "12px",
         "fontWeight": "600",
@@ -218,7 +220,6 @@
         "marginBottom": "8px",
         "display": "block"
       },
-      
       "badge": {
         "display": "inline-block",
         "padding": "4px 12px",
@@ -230,7 +231,6 @@
         "textTransform": "uppercase",
         "letterSpacing": "0.5px"
       },
-      
       "title": {
         "fontSize": "24px",
         "fontWeight": "300",
@@ -239,7 +239,6 @@
         "marginBottom": "8px",
         "letterSpacing": "0"
       },
-      
       "description": {
         "fontSize": "14px",
         "fontWeight": "400",
@@ -249,22 +248,18 @@
         "maxWidth": "100%"
       }
     },
-    
     "formElements": {
       "_comment": "Form field styling - Minimal theme specific",
-      
       "formGroup": {
         "marginBottom": "20px",
         "width": "100%"
       },
-      
       "fieldRow": {
         "display": "grid",
         "gridTemplateColumns": "1fr 1fr",
         "gap": "16px",
         "marginBottom": "20px"
       },
-      
       "label": {
         "display": "block",
         "fontSize": "11px",
@@ -275,7 +270,6 @@
         "marginBottom": "8px",
         "transition": "color 200ms ease"
       },
-      
       "input": {
         "width": "100%",
         "padding": "8px 0",
@@ -284,37 +278,33 @@
         "color": "#1f2937",
         "background": "transparent",
         "border": "none",
-        "borderBottom": "2px solid #e5e7eb",
+        "borderBottomWidth": "2px",
+        "borderBottomStyle": "solid",
+        "borderBottomColor": "#e5e7eb",
         "borderRadius": "0",
         "outline": "none",
         "transition": "border-color 200ms ease",
         "appearance": "none",
-        
         "placeholder": {
           "color": "#d1d5db",
           "fontWeight": "400"
         },
-        
         "hover": {
           "borderBottomColor": "#d1d5db"
         },
-        
         "focus": {
           "borderBottomColor": "#10b981",
           "boxShadow": "none"
         },
-        
         "error": {
           "borderBottomColor": "#ef4444"
         },
-        
         "disabled": {
           "opacity": "0.5",
           "cursor": "not-allowed",
           "borderBottomColor": "#f3f4f6"
         }
       },
-      
       "select": {
         "_extends": "input",
         "paddingRight": "32px",
@@ -324,115 +314,494 @@
         "backgroundSize": "20px",
         "cursor": "pointer"
       },
-      
       "errorMessage": {
         "fontSize": "12px",
         "color": "#ef4444",
         "marginTop": "4px",
         "display": "block"
+      },
+      "buttons": {
+        "_comment": "Button field type - selection buttons for forms with vertical layout",
+        "container": {
+          "display": "flex",
+          "flexDirection": "column",
+          "gap": "12px",
+          "marginTop": "0"
+        },
+        "button": {
+          "padding": "16px 20px",
+          "fontSize": "14px",
+          "fontWeight": "400",
+          "color": "#4b5563",
+          "background": "#ffffff",
+          "borderWidth": "2px",
+          "borderStyle": "solid",
+          "borderColor": "#e5e7eb",
+          "borderRadius": "8px",
+          "cursor": "pointer",
+          "transition": "all 200ms ease",
+          "textAlign": "left",
+          "width": "100%",
+          "display": "flex",
+          "alignItems": "center",
+          "justifyContent": "space-between",
+          "minHeight": "56px",
+          "position": "relative"
+        },
+        "buttonHover": {
+          "borderColor": "#d1d5db",
+          "background": "#f9fafb",
+          "transform": "translateY(-1px)",
+          "boxShadow": "0 2px 4px rgba(0, 0, 0, 0.05)"
+        },
+        "buttonSelected": {
+          "borderColor": "#10b981",
+          "background": "linear-gradient(135deg, #ecfdf5, #ffffff)",
+          "color": "#065f46",
+          "fontWeight": "500",
+          "boxShadow": "0 0 0 3px rgba(16, 185, 129, 0.1)"
+        },
+        "buttonDisabled": {
+          "opacity": "0.5",
+          "cursor": "not-allowed",
+          "borderColor": "#f3f4f6",
+          "background": "#f9fafb"
+        },
+        "buttonFocus": {
+          "outline": "3px solid #10b981",
+          "outlineOffset": "2px"
+        },
+        "buttonContent": {
+          "display": "flex",
+          "alignItems": "center",
+          "flex": "1"
+        },
+        "buttonIcon": {
+          "marginRight": "12px",
+          "fontSize": "20px",
+          "color": "#6b7280",
+          "flexShrink": "0",
+          "transition": "color 200ms ease"
+        },
+        "buttonIconSelected": {
+          "color": "#10b981"
+        },
+        "buttonText": {
+          "flex": "1",
+          "textAlign": "left"
+        },
+        "buttonTitle": {
+          "fontSize": "15px",
+          "fontWeight": "500",
+          "color": "#1f2937",
+          "marginBottom": "2px",
+          "lineHeight": "1.2"
+        },
+        "buttonSubtitle": {
+          "fontSize": "13px",
+          "fontWeight": "400",
+          "color": "#6b7280",
+          "lineHeight": "1.3"
+        },
+        "buttonIndicator": {
+          "marginLeft": "12px",
+          "fontSize": "16px",
+          "color": "#d1d5db",
+          "transition": "all 200ms ease",
+          "flexShrink": "0"
+        },
+        "buttonIndicatorSelected": {
+          "color": "#10b981",
+          "transform": "scale(1.1)"
+        },
+        "multiSelect": {
+          "_comment": "Multi-selection checkbox styling",
+          "checkbox": {
+            "marginRight": "12px",
+            "width": "18px",
+            "height": "18px",
+            "accentColor": "#10b981",
+            "borderRadius": "4px",
+            "borderWidth": "2px",
+            "borderStyle": "solid",
+            "borderColor": "#d1d5db",
+            "transition": "all 200ms ease"
+          },
+          "checkboxChecked": {
+            "backgroundColor": "#10b981",
+            "borderColor": "#10b981",
+            "backgroundImage": "url(\"data:image/svg+xml,%3csvg viewBox='0 0 16 16' fill='white' xmlns='http://www.w3.org/2000/svg'%3e%3cpath d='m13.854 3.646-7.5 7.5a.5.5 0 0 1-.708 0l-3.5-3.5a.5.5 0 1 1 .708-.708L6 10.293l7.146-7.147a.5.5 0 0 1 .708.708z'/%3e%3c/svg%3e\")"
+          }
+        },
+        "animations": {
+          "buttonHover": {
+            "duration": "200ms",
+            "easing": "cubic-bezier(0.4, 0, 0.2, 1)"
+          },
+          "selection": {
+            "duration": "300ms",
+            "easing": "cubic-bezier(0.34, 1.56, 0.64, 1)",
+            "scaleEffect": "1.02"
+          },
+          "stagger": {
+            "enabled": true,
+            "delay": "50ms",
+            "direction": "top-to-bottom"
+          }
+        }
       }
     },
-    
     "calculationCard": {
-      "_comment": "Specific styling for calculation result cards",
-      
-      "background": "linear-gradient(135deg, #ecfdf5, #ffffff)",
-      "borderLeftColor": "#10b981",
-      
+      "_comment": "Display Template in Card Builder settings",
+      "container": {
+        "background": "linear-gradient(135deg, #ecfdf5, #ffffff)",
+        "borderRadius": "12px",
+        "padding": "32px",
+        "marginBottom": "20px",
+        "boxShadow": "0 1px 3px rgba(0, 0, 0, 0.04)",
+        "transition": "all 200ms cubic-bezier(0.4, 0, 0.2, 1)",
+        "position": "relative",
+        "overflow": "hidden"
+      },
+      "header": {
+        "marginBottom": "24px",
+        "borderBottom": "1px solid #d9d9d9",
+        "paddingBottom": "20px"
+      },
+      "title": {
+        "fontSize": "24px",
+        "fontWeight": "300",
+        "color": "#1f2937",
+        "lineHeight": "1.2",
+        "marginBottom": "8px",
+        "letterSpacing": "0"
+      },
+      "description": {
+        "fontSize": "14px",
+        "fontWeight": "400",
+        "color": "#6b7280",
+        "lineHeight": "1.5",
+        "marginBottom": "0"
+      },
+      "resultSection": {
+        "display": "flex",
+        "alignItems": "flex-end",
+        "justifyContent": "space-between",
+        "marginBottom": "24px",
+        "gap": "16px"
+      },
+      "resultDisplay": {
+        "flex": "1"
+      },
       "metricLabel": {
         "fontSize": "11px",
         "fontWeight": "500",
         "color": "#9ca3af",
         "textTransform": "uppercase",
         "letterSpacing": "0.5px",
-        "marginBottom": "12px"
+        "marginBottom": "12px",
+        "display": "block"
       },
-      
       "metricValue": {
         "fontSize": "48px",
         "fontWeight": "200",
         "color": "#10b981",
         "lineHeight": "1.1",
-        "marginBottom": "8px"
+        "marginBottom": "0",
+        "display": "inline-block"
       },
-      
       "metricUnit": {
         "fontSize": "18px",
         "fontWeight": "300",
         "color": "#6b7280",
-        "marginLeft": "8px"
+        "marginLeft": "8px",
+        "display": "inline-block"
       },
-      
-      "description": {
-        "fontSize": "14px",
+      "editButton": {
+        "padding": "6px 8px",
+        "fontSize": "12px",
+        "fontWeight": "400",
         "color": "#6b7280",
-        "lineHeight": "1.5",
-        "paddingBottom": "24px",
-        "borderBottom": "1px solid #f3f4f6",
-        "marginBottom": "24px"
+        "background": "transparent",
+        "borderWidth": "1px",
+        "borderStyle": "solid",
+        "borderColor": "#e5e7eb",
+        "borderRadius": "6px",
+        "cursor": "pointer",
+        "transition": "all 200ms ease",
+        "display": "flex",
+        "alignItems": "center",
+        "gap": "4px",
+        "flexShrink": "0",
+        "height": "28px"
       },
-      
+      "editButtonHover": {
+        "borderColor": "#d1d5db",
+        "background": "#f9fafb",
+        "color": "#4b5563"
+      },
+      "editButtonFocus": {
+        "outline": "2px solid #10b981",
+        "outlineOffset": "1px"
+      },
+      "editIcon": {
+        "fontSize": "14px",
+        "color": "inherit"
+      },
+      "editMode": {
+        "_comment": "Styles when in edit mode - mobile-first stacked layout",
+        "container": {
+          "borderLeft": "4px solid #f59e0b",
+          "background": "linear-gradient(135deg, #fef3c7, #ffffff)"
+        },
+        "inputGroup": {
+          "display": "flex",
+          "flexDirection": "column",
+          "gap": "16px",
+          "marginBottom": "24px",
+          "alignItems": "stretch"
+        },
+        "inputWrapper": {
+          "flex": "1",
+          "width": "100%",
+          "display": "flex",
+          "alignItems": "stretch",
+          "position": "relative",
+          "borderWidth": "2px",
+          "borderStyle": "solid",
+          "borderColor": "#e5e7eb",
+          "borderRadius": "8px",
+          "background": "#ffffff",
+          "overflow": "hidden",
+          "transition": "border-color 200ms ease"
+        },
+        "inputWrapperFocus": {
+          "borderColor": "#10b981",
+          "boxShadow": "0 0 0 3px rgba(16, 185, 129, 0.1)"
+        },
+        "input": {
+          "width": "100%",
+          "padding": "12px 16px",
+          "paddingRight": "80px",
+          "fontSize": "24px",
+          "fontWeight": "300",
+          "color": "#1f2937",
+          "background": "transparent",
+          "border": "none",
+          "outline": "none",
+          "textAlign": "center"
+        },
+        "inputFocus": {
+          "borderColor": "#10b981",
+          "boxShadow": "0 0 0 3px rgba(16, 185, 129, 0.1)"
+        },
+        "inputError": {
+          "borderColor": "#ef4444",
+          "boxShadow": "0 0 0 3px rgba(239, 68, 68, 0.1)"
+        },
+        "unitLabel": {
+          "position": "absolute",
+          "right": "0",
+          "top": "0",
+          "bottom": "0",
+          "padding": "12px 16px",
+          "fontSize": "18px",
+          "fontWeight": "300",
+          "color": "#6b7280",
+          "background": "#f9fafb",
+          "borderLeft": "1px solid #e5e7eb",
+          "display": "flex",
+          "alignItems": "center",
+          "pointerEvents": "none"
+        },
+        "actionButtons": {
+          "display": "flex",
+          "gap": "12px",
+          "alignItems": "center",
+          "justifyContent": "center",
+          "width": "100%"
+        },
+        "saveButton": {
+          "padding": "10px 24px",
+          "fontSize": "14px",
+          "fontWeight": "500",
+          "color": "#ffffff",
+          "background": "#10b981",
+          "border": "none",
+          "borderRadius": "6px",
+          "cursor": "pointer",
+          "transition": "all 200ms ease",
+          "textTransform": "uppercase",
+          "letterSpacing": "0.5px",
+          "minWidth": "100px"
+        },
+        "saveButtonHover": {
+          "background": "#059669",
+          "transform": "translateY(-1px)",
+          "boxShadow": "0 2px 4px rgba(16, 185, 129, 0.2)"
+        },
+        "saveButtonDisabled": {
+          "opacity": "0.5",
+          "cursor": "not-allowed",
+          "background": "#9ca3af"
+        },
+        "cancelButton": {
+          "padding": "10px 24px",
+          "fontSize": "14px",
+          "fontWeight": "400",
+          "color": "#6b7280",
+          "background": "transparent",
+          "borderWidth": "1px",
+          "borderStyle": "solid",
+          "borderColor": "#e5e7eb",
+          "borderRadius": "6px",
+          "cursor": "pointer",
+          "transition": "all 200ms ease",
+          "textTransform": "uppercase",
+          "letterSpacing": "0.5px",
+          "minWidth": "100px"
+        },
+        "cancelButtonHover": {
+          "borderColor": "#d1d5db",
+          "background": "#f9fafb"
+        }
+      },
+      "editedIndicator": {
+        "_comment": "Shows when value has been manually edited",
+        "badge": {
+          "position": "absolute",
+          "top": "16px",
+          "right": "16px",
+          "padding": "4px 8px",
+          "fontSize": "10px",
+          "fontWeight": "500",
+          "color": "#f59e0b",
+          "background": "#fef3c7",
+          "borderWidth": "1px",
+          "borderStyle": "solid",
+          "borderColor": "#fde68a",
+          "borderRadius": "12px",
+          "textTransform": "uppercase",
+          "letterSpacing": "0.5px",
+          "display": "flex",
+          "alignItems": "center",
+          "gap": "4px"
+        },
+        "icon": {
+          "fontSize": "12px",
+          "color": "#f59e0b"
+        }
+      },
+      "errorMessage": {
+        "marginTop": "8px",
+        "padding": "8px 12px",
+        "background": "#fef2f2",
+        "borderLeft": "3px solid #ef4444",
+        "borderRadius": "4px",
+        "fontSize": "12px",
+        "color": "#b91c1c"
+      },
       "breakdown": {
+        "_comment": "Optional calculation breakdown section",
+        "marginTop": "24px",
+        "paddingTop": "20px",
+        "borderTop": "1px solid #f3f4f6",
         "item": {
           "display": "flex",
           "justifyContent": "space-between",
-          "padding": "12px 0",
+          "alignItems": "center",
+          "padding": "8px 0",
           "borderBottom": "1px solid #f9fafb"
+        },
+        "itemLast": {
+          "borderBottom": "none"
         },
         "label": {
           "fontSize": "13px",
           "color": "#6b7280",
-          "textTransform": "uppercase",
-          "letterSpacing": "0.3px"
+          "fontWeight": "400"
         },
         "value": {
-          "fontSize": "16px",
-          "fontWeight": "300",
+          "fontSize": "14px",
+          "fontWeight": "500",
           "color": "#1f2937"
         },
         "highlight": {
           "color": "#10b981",
-          "fontWeight": "500"
+          "fontWeight": "600"
+        }
+      },
+      "responsive": {
+        "mobile": {
+          "_comment": "Mobile styles for screens ≤768px",
+          "container": {
+            "padding": "24px"
+          },
+          "metricValue": {
+            "fontSize": "36px"
+          },
+          "metricUnit": {
+            "fontSize": "16px"
+          },
+          "resultSection": {
+            "flexDirection": "column",
+            "alignItems": "flex-start",
+            "gap": "12px"
+          },
+          "editButton": {
+            "alignSelf": "flex-end"
+          },
+          "editMode": {
+            "inputGroup": {
+              "flexDirection": "column",
+              "alignItems": "stretch",
+              "gap": "16px"
+            },
+            "inputWrapper": {
+              "maxWidth": "none"
+            },
+            "actionButtons": {
+              "width": "100%",
+              "justifyContent": "stretch"
+            },
+            "saveButton": {
+              "flex": "1"
+            },
+            "cancelButton": {
+              "flex": "1"
+            }
+          }
         }
       }
     },
-    
     "infoCard": {
       "_comment": "Information/notification card styling",
-      
       "background": "#f3f4f6",
       "borderLeftColor": "#6b7280",
-      
       "icon": {
         "fontSize": "24px",
         "color": "#10b981",
         "marginBottom": "12px"
       },
-      
       "content": {
         "fontSize": "14px",
         "color": "#4b5563",
         "lineHeight": "1.6"
       },
-      
       "list": {
         "gap": "16px",
         "marginTop": "16px"
       },
-      
       "listItem": {
         "display": "grid",
         "gridTemplateColumns": "24px 1fr",
         "gap": "12px"
       }
     },
-    
     "actionCard": {
       "_comment": "CTA/Submit button card styling",
-      
       "textAlign": "center",
       "padding": "40px 32px",
-      
       "button": {
         "width": "100%",
         "padding": "14px 28px",
@@ -447,17 +816,14 @@
         "letterSpacing": "0.5px",
         "cursor": "pointer",
         "transition": "all 200ms ease",
-        
         "hover": {
           "background": "#10b981",
           "color": "#ffffff",
           "transform": "translateY(-1px)"
         },
-        
         "active": {
           "transform": "translateY(0)"
         },
-        
         "disabled": {
           "opacity": "0.5",
           "cursor": "not-allowed",
@@ -465,16 +831,119 @@
         }
       }
     },
-    
+    "submitButton": {
+      "_comment": "Submit button styling for form submissions",
+      "wrapper": {
+        "marginTop": "40px",
+        "paddingTop": "32px",
+        "borderTop": "1px solid #f3f4f6"
+      },
+      "button": {
+        "width": "100%",
+        "padding": "18px 32px",
+        "fontSize": "16px",
+        "fontWeight": "500",
+        "color": "#ffffff",
+        "background": "#10b981",
+        "border": "none",
+        "borderRadius": "8px",
+        "textTransform": "uppercase",
+        "letterSpacing": "1px",
+        "cursor": "pointer",
+        "transition": "all 300ms cubic-bezier(0.4, 0, 0.2, 1)",
+        "position": "relative",
+        "overflow": "hidden"
+      },
+      "buttonHover": {
+        "background": "#059669",
+        "transform": "translateY(-2px)",
+        "boxShadow": "0 8px 20px rgba(16, 185, 129, 0.3)"
+      },
+      "buttonActive": {
+        "transform": "translateY(0)",
+        "boxShadow": "0 4px 12px rgba(16, 185, 129, 0.2)"
+      },
+      "buttonDisabled": {
+        "opacity": "0.5",
+        "cursor": "not-allowed",
+        "background": "#9ca3af",
+        "transform": "none",
+        "pointerEvents": "none"
+      },
+      "buttonLoading": {
+        "_comment": "Loading state with spinner",
+        "spinner": {
+          "display": "inline-block",
+          "width": "14px",
+          "height": "14px",
+          "borderWidth": "2px",
+          "borderStyle": "solid",
+          "borderColor": "#ffffff",
+          "borderRadius": "50%",
+          "borderTopColor": "transparent",
+          "animation": "spin 1s linear infinite",
+          "marginLeft": "8px"
+        }
+      },
+      "buttonSuccess": {
+        "_comment": "Success state after submission",
+        "background": "#10b981",
+        "icon": "✓",
+        "text": "Onnistui!"
+      },
+      "rippleEffect": {
+        "_comment": "Ripple animation on click",
+        "enabled": true,
+        "color": "rgba(255, 255, 255, 0.2)",
+        "duration": "600ms",
+        "size": "300px"
+      },
+      "alternativeStyle": {
+        "_comment": "Alternative minimal style with bottom border only",
+        "width": "100%",
+        "padding": "14px 28px",
+        "fontSize": "14px",
+        "fontWeight": "500",
+        "color": "#10b981",
+        "background": "transparent",
+        "border": "none",
+        "borderBottom": "2px solid #10b981",
+        "borderRadius": "0",
+        "textTransform": "uppercase",
+        "letterSpacing": "0.5px",
+        "cursor": "pointer",
+        "transition": "all 200ms ease",
+        "hover": {
+          "background": "#10b981",
+          "color": "#ffffff",
+          "transform": "translateY(-1px)"
+        },
+        "active": {
+          "transform": "translateY(0)"
+        }
+      },
+      "responsive": {
+        "_comment": "Mobile responsive adjustments",
+        "mobile": {
+          "wrapper": {
+            "marginTop": "32px",
+            "paddingTop": "24px"
+          },
+          "button": {
+            "padding": "16px 24px",
+            "fontSize": "14px",
+            "letterSpacing": "0.5px"
+          }
+        }
+      }
+    },
     "responsive": {
       "_comment": "Responsive breakpoints and behavior",
-      
       "breakpoints": {
         "mobile": "768px",
         "tablet": "1024px",
         "desktop": "1280px"
       },
-      
       "mobile": {
         "_comment": "Settings for screens ≤768px",
         "layout": {
@@ -508,7 +977,6 @@
           "gap": "0"
         }
       },
-      
       "tablet": {
         "_comment": "Settings for screens 768px-1024px",
         "visualSupport": {
@@ -519,10 +987,8 @@
         }
       }
     },
-    
     "animations": {
       "_comment": "Animation configurations",
-      
       "cardReveal": {
         "enabled": true,
         "duration": "500ms",
@@ -537,27 +1003,23 @@
           "transform": "translateY(0)"
         }
       },
-      
       "transitions": {
         "fast": "150ms",
         "default": "200ms",
         "slow": "300ms",
         "slower": "500ms"
       },
-      
       "hover": {
         "lift": "-2px",
         "scale": "1.02",
         "shadowIncrease": true
       },
-      
       "float": {
         "enabled": true,
         "duration": "3s",
         "distance": "20px"
       }
     },
-    
     "colors": {
       "_comment": "Global color palette - Minimal theme",
       "brand": {
@@ -591,7 +1053,6 @@
         "info": "#3b82f6"
       }
     },
-    
     "typography": {
       "_comment": "Global typography settings",
       "fontFamily": "system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif",
@@ -602,12 +1063,11 @@
       "fontWeightMedium": "500",
       "fontWeightSemibold": "600"
     },
-    
     "features": {
       "_comment": "Feature flags and settings",
       "progressiveDisclosure": true,
-      "autoScroll": true,
-      "smoothScrolling": true,
+      "autoScroll": false,
+      "smoothScrolling": false,
       "cardClickable": true,
       "showStepIndicators": true,
       "validateOnBlur": true,
@@ -621,7 +1081,6 @@
         "trackCompletion": true
       }
     },
-    
     "accessibility": {
       "_comment": "Accessibility settings",
       "focusOutline": "3px solid #10b981",

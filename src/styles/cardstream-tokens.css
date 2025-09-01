@@ -1,38 +1,33 @@
-/**
- * CardStream Design System - CSS Custom Properties
- * Generated from cardstream-complete-config.json
- * This file provides a complete token-based approach using the single configuration file
- * 
- * NOTE: These are default fallback values. The actual values are applied dynamically
- * via the cardstream-theme-applier.ts at runtime from the JSON configuration.
- */
+/* CardStream Design System - Clean Slate */
 
+/* === BASIC STRUCTURE === */
 :root {
-  /* === CONTAINER STYLES === */
+  /* Container */
   --cs-container-width: 100%;
   --cs-container-max-width: 1400px;
-  --cs-container-padding: 0;
   --cs-container-background: transparent;
-  --cs-container-border-radius: 12px;
-  --cs-container-box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+  --cs-container-border-radius: 0;
+  --cs-container-box-shadow: none;
+  --cs-container-padding: 0;
 
-  /* === LAYOUT PROPORTIONS === */
+  /* Layout */
   --cs-visual-support-ratio: 45%;
   --cs-card-stream-ratio: 55%;
   --cs-panels-gap: 0;
+  --cs-layout-display: flex;
+  --cs-layout-flex-direction: row;
+  --cs-layout-align-items: stretch;
 
-  /* === VISUAL SUPPORT PANEL === */
+  /* Visual Support */
   --cs-visual-support-background: #ffffff;
   --cs-visual-support-border-right: 1px solid #e5e7eb;
-  --cs-visual-support-content-background: linear-gradient(135deg, #059669 0%, #34d399 100%);
-  --cs-visual-support-content-padding: 40px;
 
-  /* === CARD STREAM PANEL === */
+  /* Card Stream */
   --cs-card-stream-background: #f7f8f9;
   --cs-card-stream-padding: 30px;
   --cs-card-spacing: 20px;
 
-  /* === CARD BASE STYLES === */
+  /* Cards */
   --cs-card-background: #ffffff;
   --cs-card-border-radius: 12px;
   --cs-card-border-left: 4px solid #10b981;
@@ -41,182 +36,54 @@
   --cs-card-box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
   --cs-card-transition: all 200ms cubic-bezier(0.4, 0, 0.2, 1);
 
-  /* === CARD HOVER STATES === */
-  --cs-card-hover-box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-  --cs-card-hover-transform: translateY(-2px);
-
-  /* === TYPOGRAPHY === */
+  /* Typography */
   --cs-font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
   --cs-font-size-base: 14px;
+  --cs-font-size-lg: 16px;
+  --cs-font-size-xl: 18px;
+  --cs-font-size-2xl: 24px;
+  --cs-font-size-3xl: 28px;
+  --cs-font-size-4xl: 48px;
   --cs-line-height-base: 1.5;
-  --cs-font-weight-light: 300;
   --cs-font-weight-normal: 400;
   --cs-font-weight-medium: 500;
   --cs-font-weight-semibold: 600;
 
-  /* === CARD TEXT STYLES === */
-  --cs-card-title-font-size: 24px;
-  --cs-card-title-font-weight: 300;
-  --cs-card-title-color: #1f2937;
-  --cs-card-title-line-height: 1.2;
-  --cs-card-title-margin-bottom: 8px;
-
-  --cs-card-description-font-size: 14px;
-  --cs-card-description-color: #6b7280;
-  --cs-card-description-line-height: 1.5;
-  --cs-card-description-margin-bottom: 24px;
-
-  /* === STEP INDICATORS === */
-  --cs-step-indicator-font-size: 12px;
-  --cs-step-indicator-font-weight: 600;
-  --cs-step-indicator-color: #10b981;
-  --cs-step-indicator-text-transform: uppercase;
-  --cs-step-indicator-letter-spacing: 1px;
-  --cs-step-indicator-margin-bottom: 8px;
-
-  /* === FORM ELEMENTS === */
-  --cs-form-group-margin-bottom: 20px;
-  --cs-field-row-gap: 16px;
-  --cs-field-row-margin-bottom: 20px;
-
-  /* === LABEL STYLES === */
-  --cs-label-font-size: 11px;
-  --cs-label-font-weight: 500;
-  --cs-label-color: #9ca3af;
-  --cs-label-text-transform: uppercase;
-  --cs-label-letter-spacing: 0.5px;
-  --cs-label-margin-bottom: 8px;
-
-  /* === INPUT STYLES (Minimal Theme - Borderless) === */
-  --cs-input-padding: 8px 0;
-  --cs-input-font-size: 14px;
-  --cs-input-font-weight: 400;
-  --cs-input-color: #1f2937;
-  --cs-input-background: transparent;
-  --cs-input-border: none;
-  --cs-input-border-bottom: 2px solid #e5e7eb;
-  --cs-input-border-radius: 0;
-  --cs-input-transition: border-color 200ms ease;
-  --cs-input-placeholder-color: #d1d5db;
-  --cs-input-hover-border-color: #d1d5db;
-  --cs-input-focus-border-color: #10b981;
-  --cs-input-error-border-color: #ef4444;
-
-  /* === COLOR PALETTE === */
+  /* Colors */
   --cs-color-brand-primary: #10b981;
-  --cs-color-brand-primary-hover: #059669;
-  --cs-color-brand-primary-light: #ecfdf5;
-
   --cs-color-text-primary: #1f2937;
   --cs-color-text-secondary: #6b7280;
-  --cs-color-text-tertiary: #9ca3af;
-  --cs-color-text-placeholder: #d1d5db;
-  --cs-color-text-inverse: #ffffff;
-
+  --cs-color-border-default: #e5e7eb;
   --cs-color-background-primary: #ffffff;
   --cs-color-background-secondary: #f7f8f9;
-  --cs-color-background-tertiary: #f3f4f6;
-  --cs-color-background-disabled: #f9fafb;
-
-  --cs-color-border-default: #e5e7eb;
-  --cs-color-border-hover: #d1d5db;
-  --cs-color-border-focus: #10b981;
-  --cs-color-border-subtle: #f9fafb;
-
-  --cs-color-state-error: #ef4444;
-  --cs-color-state-warning: #f59e0b;
-  --cs-color-state-success: #10b981;
-  --cs-color-state-info: #3b82f6;
-
-  /* === CALCULATION CARD STYLES === */
-  --cs-calculation-card-background: linear-gradient(135deg, #ecfdf5, #ffffff);
-  --cs-calculation-card-border-left-color: #10b981;
-  --cs-metric-value-font-size: 48px;
-  --cs-metric-value-font-weight: 200;
-  --cs-metric-value-color: #10b981;
-  --cs-metric-value-line-height: 1.1;
-  --cs-metric-value-margin-bottom: 8px;
-
-  /* === ACTION CARD BUTTON STYLES === */
-  --cs-action-card-text-align: center;
-  --cs-action-card-padding: 40px 32px;
-  --cs-action-button-padding: 14px 28px;
-  --cs-action-button-font-size: 14px;
-  --cs-action-button-font-weight: 500;
-  --cs-action-button-color: #10b981;
-  --cs-action-button-background: transparent;
-  --cs-action-button-border: none;
-  --cs-action-button-border-bottom: 2px solid #10b981;
-  --cs-action-button-border-radius: 0;
-  --cs-action-button-text-transform: uppercase;
-  --cs-action-button-letter-spacing: 0.5px;
-  --cs-action-button-transition: all 200ms ease;
-  --cs-action-button-hover-background: #10b981;
-  --cs-action-button-hover-color: #ffffff;
-  --cs-action-button-hover-transform: translateY(-1px);
-
-  /* === ANIMATION DURATIONS === */
-  --cs-animation-duration-fast: 150ms;
-  --cs-animation-duration-default: 200ms;
-  --cs-animation-duration-slow: 300ms;
-  --cs-animation-duration-slower: 500ms;
-  --cs-card-reveal-duration: 500ms;
-  --cs-card-reveal-easing: cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* ===== COMPONENT STYLES ===== */
-
-/* CardStream Container */
+/* === BASIC COMPONENTS === */
 .cs-container {
-  font-family: var(--cs-font-family);
-  display: flex;
-  width: var(--cs-container-width);
   max-width: var(--cs-container-max-width);
-  min-height: 600px;
-  margin: 0 auto;
-  padding: var(--cs-container-padding);
   background: var(--cs-container-background);
   border-radius: var(--cs-container-border-radius);
   box-shadow: var(--cs-container-box-shadow);
   overflow: hidden;
 }
 
-.cs-visual-panel {
-  width: var(--cs-visual-support-ratio);
-  background: var(--cs-visual-support-background);
-  border-right: var(--cs-visual-support-border-right);
-  display: flex;
-  flex-direction: column;
+.cs-layout {
+  display: var(--cs-layout-display);
+  flex-direction: var(--cs-layout-flex-direction);
+  align-items: var(--cs-layout-align-items);
+  gap: var(--cs-panels-gap);
 }
 
-.cs-visual-panel-content {
-  background: var(--cs-visual-support-content-background);
-  padding: var(--cs-visual-support-content-padding);
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
+.cs-visual-support {
+  background: var(--cs-visual-support-background);
+  border-right: var(--cs-visual-support-border-right);
 }
 
 .cs-card-stream {
-  width: var(--cs-card-stream-ratio);
   background: var(--cs-card-stream-background);
   padding: var(--cs-card-stream-padding);
-  padding-bottom: 100px;
-  overflow-y: auto;
-  overflow-x: hidden;
-  max-height: 100vh;
-  scroll-behavior: smooth;
 }
 
-.cs-card-stream-content {
-  max-width: 600px;
-  margin: 0 auto;
-  width: 100%;
-}
-
-/* ===== BASE CARD STYLES ===== */
 .cs-card {
   background: var(--cs-card-background);
   border-radius: var(--cs-card-border-radius);
@@ -225,388 +92,40 @@
   margin-bottom: var(--cs-card-margin-bottom);
   box-shadow: var(--cs-card-box-shadow);
   transition: var(--cs-card-transition);
-  position: relative;
-  overflow: hidden;
 }
 
-.cs-card:hover {
-  box-shadow: var(--cs-card-hover-box-shadow);
-  transform: var(--cs-card-hover-transform);
+/* === UTILITY CLASSES === */
+.cs-text-primary {
+  color: var(--cs-color-text-primary);
 }
 
-/* ===== CARD STATES ===== */
-.cs-card--locked {
-  opacity: 0.6;
-  filter: blur(8px);
-  pointer-events: none;
-  transform: scale(0.98);
-  transition: all 500ms ease;
-}
-
-.cs-card--active {
-  border-left-color: var(--cs-color-brand-primary);
-  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2);
-  transform: scale(1.02);
-}
-
-.cs-card--complete {
-  border-left-color: var(--cs-color-state-success);
-  opacity: 1;
-}
-
-/* ===== CARD VARIANTS ===== */
-.cs-card--form {
-  border-left-color: var(--cs-color-brand-primary);
-}
-
-.cs-card--calculation {
-  background: var(--cs-calculation-card-background);
-  border-left-color: var(--cs-calculation-card-border-left-color);
-}
-
-.cs-card--info {
-  background: var(--cs-color-background-tertiary);
-  border-left-color: var(--cs-color-text-secondary);
-}
-
-.cs-card--action {
-  text-align: var(--cs-action-card-text-align);
-  padding: var(--cs-action-card-padding);
-}
-
-.cs-card--progress {
-  border-left-color: var(--cs-color-brand-primary);
-}
-
-/* ===== TYPOGRAPHY COMPONENTS ===== */
-.cs-step-indicator {
-  font-size: var(--cs-step-indicator-font-size);
-  font-weight: var(--cs-step-indicator-font-weight);
-  color: var(--cs-step-indicator-color);
-  text-transform: var(--cs-step-indicator-text-transform);
-  letter-spacing: var(--cs-step-indicator-letter-spacing);
-  margin-bottom: var(--cs-step-indicator-margin-bottom);
-  display: block;
-}
-
-.cs-card-title {
-  font-size: var(--cs-card-title-font-size);
-  font-weight: var(--cs-card-title-font-weight);
-  color: var(--cs-card-title-color);
-  line-height: var(--cs-card-title-line-height);
-  margin: 0 0 var(--cs-card-title-margin-bottom) 0;
-}
-
-.cs-card-description {
-  font-size: var(--cs-card-description-font-size);
-  color: var(--cs-card-description-color);
-  line-height: var(--cs-card-description-line-height);
-  margin: 0 0 var(--cs-card-description-margin-bottom) 0;
-  max-width: 100%;
-}
-
-.cs-label {
-  font-size: var(--cs-label-font-size);
-  font-weight: var(--cs-label-font-weight);
-  color: var(--cs-label-color);
-  text-transform: var(--cs-label-text-transform);
-  letter-spacing: var(--cs-label-letter-spacing);
-  margin-bottom: var(--cs-label-margin-bottom);
-  display: block;
-  transition: color 200ms ease;
-}
-
-.cs-metric-value {
-  font-size: var(--cs-metric-value-font-size);
-  font-weight: var(--cs-metric-value-font-weight);
-  color: var(--cs-metric-value-color);
-  line-height: var(--cs-metric-value-line-height);
-  margin: 0 0 var(--cs-metric-value-margin-bottom) 0;
-}
-
-.cs-metric-unit {
-  font-size: 18px;
-  font-weight: 300;
-  color: var(--cs-color-text-secondary);
-  margin-left: 8px;
-}
-
-/* ===== FORM COMPONENTS ===== */
-.cs-form-group {
-  margin-bottom: var(--cs-form-group-margin-bottom);
-  width: 100%;
-}
-
-.cs-field-row {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: var(--cs-field-row-gap);
-  margin-bottom: var(--cs-field-row-margin-bottom);
-}
-
-/* Borderless Input with Bottom Border Only (Minimal Theme) */
-.cs-input {
-  width: 100%;
-  padding: var(--cs-input-padding);
-  font-size: var(--cs-input-font-size);
-  font-weight: var(--cs-input-font-weight);
-  color: var(--cs-input-color);
-  background: var(--cs-input-background);
-  border: var(--cs-input-border);
-  border-bottom: var(--cs-input-border-bottom);
-  border-radius: var(--cs-input-border-radius);
-  outline: none;
-  transition: var(--cs-input-transition);
-  appearance: none;
-  font-family: var(--cs-font-family);
-}
-
-.cs-input::placeholder {
-  color: var(--cs-input-placeholder-color);
-  font-weight: 400;
-}
-
-.cs-input:hover:not(:focus) {
-  border-bottom-color: var(--cs-input-hover-border-color);
-}
-
-.cs-input:focus {
-  border-bottom-color: var(--cs-input-focus-border-color);
-  box-shadow: none;
-}
-
-.cs-input--error {
-  border-bottom-color: var(--cs-input-error-border-color);
-}
-
-.cs-input:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-  border-bottom-color: var(--cs-color-background-tertiary);
-}
-
-/* Select Field */
-.cs-select {
-  padding-right: 32px;
-  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%239ca3af' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
-  background-position: right 0 center;
-  background-repeat: no-repeat;
-  background-size: 20px;
-  cursor: pointer;
-}
-
-.cs-textarea {
-  resize: vertical;
-  min-height: 80px;
-}
-
-/* ===== BUTTON COMPONENTS ===== */
-.cs-button {
-  padding: 12px 24px;
-  font-size: var(--cs-font-size-base);
-  font-weight: var(--cs-font-weight-medium);
-  border-radius: 8px;
-  transition: all var(--cs-animation-duration-default) ease;
-  cursor: pointer;
-  border: none;
-  outline: none;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  font-family: var(--cs-font-family);
-  text-decoration: none;
-}
-
-.cs-button--primary {
-  background: var(--cs-color-brand-primary);
-  color: var(--cs-color-text-inverse);
-}
-
-.cs-button--primary:hover {
-  background: var(--cs-color-brand-primary-hover);
-  transform: translateY(-1px);
-}
-
-.cs-button--minimal {
-  background: var(--cs-action-button-background);
-  color: var(--cs-action-button-color);
-  border: var(--cs-action-button-border);
-  border-bottom: var(--cs-action-button-border-bottom);
-  border-radius: var(--cs-action-button-border-radius);
-  text-transform: var(--cs-action-button-text-transform);
-  letter-spacing: var(--cs-action-button-letter-spacing);
-  padding: var(--cs-action-button-padding);
-  font-size: var(--cs-action-button-font-size);
-  font-weight: var(--cs-action-button-font-weight);
-  transition: var(--cs-action-button-transition);
-}
-
-.cs-button--minimal:hover {
-  background: var(--cs-action-button-hover-background);
-  color: var(--cs-action-button-hover-color);
-  transform: var(--cs-action-button-hover-transform);
-}
-
-.cs-button--ghost {
-  background: transparent;
+.cs-text-secondary {
   color: var(--cs-color-text-secondary);
 }
 
-.cs-button--ghost:hover {
-  background: var(--cs-color-background-tertiary);
+.cs-bg-primary {
+  background: var(--cs-color-background-primary);
 }
 
-.cs-button:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-  pointer-events: none;
+.cs-bg-secondary {
+  background: var(--cs-color-background-secondary);
 }
 
-/* ===== BADGE COMPONENTS ===== */
-.cs-badge {
-  display: inline-block;
-  padding: 4px 12px;
-  background: rgba(16, 185, 129, 0.1);
-  color: var(--cs-color-brand-primary);
-  border-radius: 100px;
-  font-size: 11px;
-  font-weight: 500;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
+.cs-border {
+  border: 1px solid var(--cs-color-border-default);
 }
 
-.cs-badge--default {
-  background: var(--cs-color-background-tertiary);
-  color: var(--cs-color-text-secondary);
-}
-
-.cs-badge--primary {
-  background: rgba(16, 185, 129, 0.1);
-  color: var(--cs-color-brand-primary);
-}
-
-.cs-badge--success {
-  background: rgba(16, 185, 129, 0.1);
-  color: var(--cs-color-state-success);
-}
-
-/* ===== PROGRESS BAR ===== */
-.cs-progress {
-  width: 100%;
-  height: 2px;
-  background: var(--cs-color-background-tertiary);
-  border-radius: 100px;
-  overflow: hidden;
-}
-
-.cs-progress-fill {
-  height: 100%;
-  background: var(--cs-color-brand-primary);
-  transition: width var(--cs-animation-duration-slower) ease;
-}
-
-/* ===== ANIMATIONS ===== */
-@keyframes cs-card-reveal {
-  from {
-    opacity: 0;
-    transform: translateY(40px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes cs-fade-in {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-
-@keyframes cs-slide-up {
-  from { transform: translateY(100%); }
-  to { transform: translateY(0); }
-}
-
-.cs-animate-reveal {
-  animation: cs-card-reveal var(--cs-card-reveal-duration) var(--cs-card-reveal-easing);
-}
-
-.cs-animate-fade-in {
-  animation: cs-fade-in var(--cs-animation-duration-default) ease;
-}
-
-.cs-animate-slide-up {
-  animation: cs-slide-up var(--cs-animation-duration-slow) ease;
-}
-
-/* ===== RESPONSIVE DESIGN ===== */
-@media (max-width: 768px) {
-  .cs-container {
+/* === RESPONSIVE === */
+@media (max-width: 1024px) {
+  .cs-layout {
     flex-direction: column;
-    gap: 0;
   }
   
-  .cs-visual-panel {
+  .cs-visual-support {
     display: none;
-    width: 100%;
-    height: auto;
-    position: relative;
   }
   
   .cs-card-stream {
     width: 100%;
-    padding: 20px;
-    max-height: none;
-  }
-  
-  .cs-card {
-    padding: 24px;
-    border-radius: 8px;
-    margin-bottom: 16px;
-  }
-  
-  .cs-card-title {
-    font-size: 20px;
-  }
-  
-  .cs-metric-value {
-    font-size: 36px;
-  }
-  
-  .cs-field-row {
-    grid-template-columns: 1fr;
-    gap: 0;
-  }
-}
-
-/* ===== ACCESSIBILITY ===== */
-@media (prefers-reduced-motion: reduce) {
-  .cs-card,
-  .cs-button,
-  .cs-input,
-  .cs-progress-fill,
-  .cs-animate-reveal,
-  .cs-animate-fade-in,
-  .cs-animate-slide-up {
-    animation: none;
-    transition: none;
-  }
-}
-
-/* Focus indicators for accessibility */
-.cs-input:focus-visible,
-.cs-button:focus-visible {
-  outline: 3px solid var(--cs-color-brand-primary);
-  outline-offset: 2px;
-}
-
-/* High contrast mode support */
-@media (prefers-contrast: high) {
-  .cs-card {
-    border: 1px solid var(--cs-color-border-default);
-  }
-  
-  .cs-input {
-    border: 1px solid var(--cs-color-border-default);
   }
 }

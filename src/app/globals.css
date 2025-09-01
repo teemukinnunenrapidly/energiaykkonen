@@ -1,6 +1,19 @@
+/* Import Tailwind CSS for admin panel */
 @import 'tailwindcss';
 @import 'tw-animate-css';
+
+/* Import our design system styles for widgets */
 @import '../styles/cardstream-tokens.css';
+
+/* Animations */
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
 
 @custom-variant dark (&:is(.dark *));
 
@@ -77,7 +90,7 @@ body {
   --sidebar-primary: oklch(0.208 0.042 265.755);
   --sidebar-primary-foreground: oklch(0.984 0.003 247.858);
   --sidebar-accent: oklch(0.968 0.007 247.896);
-  --sidebar-accent-foreground: oklch(0.208 0.042 265.755);
+  --sidebar-accent-foreground: var(--sidebar-accent-foreground);
   --sidebar-border: oklch(0.929 0.013 255.508);
   --sidebar-ring: oklch(0.704 0.04 256.788);
 }
@@ -111,11 +124,12 @@ body {
   --sidebar-primary: oklch(0.488 0.243 264.376);
   --sidebar-primary-foreground: oklch(0.984 0.003 247.858);
   --sidebar-accent: oklch(0.279 0.041 260.031);
-  --sidebar-accent-foreground: oklch(0.984 0.003 247.858);
+  --sidebar-accent-foreground: var(--sidebar-accent-foreground);
   --sidebar-border: oklch(1 0 0 / 10%);
   --sidebar-ring: oklch(0.551 0.027 264.364);
 }
 
+/* Base styles for admin panel - using Tailwind */
 @layer base {
   * {
     @apply border-border outline-ring/50;

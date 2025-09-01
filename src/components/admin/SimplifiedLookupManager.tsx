@@ -20,27 +20,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import {
-  Plus,
-  Edit2,
-  Trash2,
-  Save,
-  X,
-  Settings,
-  Copy,
-  TestTube,
-} from 'lucide-react';
+import { Plus, Trash2, Save, X, Settings, Copy, TestTube } from 'lucide-react';
 import {
   getEnhancedLookups,
   createEnhancedLookup,
-  updateEnhancedLookup,
   deleteEnhancedLookup,
   getLookupRules,
   createLookupRule,
-  deleteLookupRule,
-  getLookupDefault,
   createLookupDefault,
-  updateLookupDefault,
   testLookup,
 } from '@/lib/enhanced-lookup-service';
 import type {
@@ -77,9 +64,6 @@ export function SimplifiedLookupManager() {
 
   // Form states
   const [showCreateLookup, setShowCreateLookup] = useState(false);
-  const [editingLookup, setEditingLookup] = useState<EnhancedLookup | null>(
-    null
-  );
   const [lookupForm, setLookupForm] = useState({
     name: '',
     title: '',

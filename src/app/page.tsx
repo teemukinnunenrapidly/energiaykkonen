@@ -125,7 +125,6 @@ export default function HomePage() {
             <CardSystemContainer
               maxWidth={1200}
               showVisualSupport={true}
-              visualWidth="50%"
               height={700}
               showBlurredCards={true}
             />

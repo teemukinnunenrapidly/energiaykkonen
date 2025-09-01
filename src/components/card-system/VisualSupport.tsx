@@ -1,318 +1,341 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
-import {
-  getSafeImageUrl,
-  getVisualObjectById,
-} from '@/lib/visual-assets-service';
-import { useCardContext } from './CardContext';
+import React, { useState, useEffect } from 'react';
+import { useCardStyles, cssValue } from '@/hooks/useCardStyles';
+import type { CardTemplate } from '@/lib/supabase';
+import { supabase } from '@/lib/supabase';
 
-interface VisualObject {
-  id: string;
-  title: string;
-  description?: string;
-  images: {
-    id: string;
-    cloudflare_image_id: string;
-    display_order: number;
-  }[];
+interface VisualSupportProps {
+  activeCard?: CardTemplate;
+  visualConfig?: any;
+  compact?: boolean;
+  // Keep objectId for backward compatibility
+  objectId?: string;
 }
 
-export const VisualSupport: React.FC<{
-  objectId?: string;
-  compact?: boolean;
-}> = ({ objectId, compact = false }) => {
-  const { cards } = useCardContext();
-  const [object, setObject] = useState<VisualObject | null>(null);
-  const [previousObject, setPreviousObject] = useState<VisualObject | null>(
-    null
-  );
-  const [currentImageIndex, setCurrentImageIndex] = useState(0);
-  const [isAutoPlaying, setIsAutoPlaying] = useState(true);
-  const [loading, setLoading] = useState(false);
-  const [isTransitioning, setIsTransitioning] = useState(false);
-  const [fadeState, setFadeState] = useState<
-    'idle' | 'fading-out' | 'fading-in'
-  >('idle');
-  const intervalRef = useRef<NodeJS.Timeout | null>(null);
-  const lastFetchedIdRef = useRef<string | null>(null);
+export function VisualSupport({
+  activeCard,
+  visualConfig,
+  compact = false,
+  objectId,
+}: VisualSupportProps) {
+  const styles = useCardStyles();
+  const [visualImages, setVisualImages] = useState<any[]>([]);
+  const [loadingImages, setLoadingImages] = useState(false);
 
-  const handleImageChange = (newIndex: number) => {
-    if (isTransitioning || newIndex === currentImageIndex) {
-      return;
-    }
+  // Get the visual object from activeCard or visualConfig
+  const visualObject = visualConfig || activeCard?.visual_objects;
 
-    setIsTransitioning(true);
-    setCurrentImageIndex(newIndex);
+  // Debug logging
+  console.log('🖼️ VisualSupport render:', {
+    activeCardId: activeCard?.id,
+    activeCardName: activeCard?.name,
+    hasVisualObjects: !!activeCard?.visual_objects,
+    visualObjectId: visualObject?.id,
+    visualObjectTitle: visualObject?.title,
+  });
 
-    // Reset transition state after animation completes
-    setTimeout(() => {
-      setIsTransitioning(false);
-    }, 300);
-  };
-
-  // Handle visual object change with proper crossfade transition
-  const handleVisualObjectChange = async (newObject: VisualObject | null) => {
-    console.log('VisualSupport: handleVisualObjectChange called:', {
-      currentObjectId: object?.id,
-      newObjectId: newObject?.id,
-      willTransition: object && newObject && object.id !== newObject.id,
-    });
-
-    if (object && newObject && object.id !== newObject.id) {
-      // Start crossfade transition
-      console.log('VisualSupport: Starting crossfade transition');
-      setIsTransitioning(true);
-      setFadeState('fading-out');
-      setPreviousObject(object);
-
-      // After fade out completes, swap images and fade in
-      setTimeout(() => {
-        console.log('VisualSupport: Swapping to new object');
-        setObject(newObject);
-        setCurrentImageIndex(0);
-        setFadeState('fading-in');
-
-        // Complete the transition after fade in
-        setTimeout(() => {
-          console.log('VisualSupport: Transition complete');
-          setPreviousObject(null);
-          setIsTransitioning(false);
-          setFadeState('idle');
-        }, 300);
-      }, 300);
-    } else {
-      // Direct change (no transition needed)
-      console.log('VisualSupport: Direct object change (no transition)');
-      setObject(newObject);
-      setCurrentImageIndex(0);
-      setPreviousObject(null);
-      setFadeState('idle');
-    }
-  };
-
+  // Fetch visual object images when visual object changes
   useEffect(() => {
-    if (object && object.images.length > 1 && isAutoPlaying) {
-      intervalRef.current = setInterval(() => {
-        const newIndex =
-          currentImageIndex === object.images.length - 1
-            ? 0
-            : currentImageIndex + 1;
-        handleImageChange(newIndex);
-      }, 5000);
-    }
-    return () => {
-      if (intervalRef.current) {
-        clearInterval(intervalRef.current);
+    const fetchVisualImages = async () => {
+      if (!visualObject?.id) {
+        setVisualImages([]);
+        return;
       }
-    };
-  }, [object, isAutoPlaying, currentImageIndex]);
 
-  const handlePrevious = () => {
-    setIsAutoPlaying(false);
-    const newIndex =
-      currentImageIndex === 0
-        ? object!.images.length - 1
-        : currentImageIndex - 1;
-    handleImageChange(newIndex);
-  };
-
-  const handleNext = () => {
-    setIsAutoPlaying(false);
-    const newIndex =
-      currentImageIndex === object!.images.length - 1
-        ? 0
-        : currentImageIndex + 1;
-    handleImageChange(newIndex);
-  };
-
-  // Fetch linked visual object from the active card
-  useEffect(() => {
-    const fetchLinkedVisualObject = async () => {
-      setLoading(true);
+      setLoadingImages(true);
       try {
-        // Find the active card (first revealed card)
-        const activeCard = cards.find(card => card.id === objectId) || cards[0];
+        console.log('🖼️ Fetching images for visual object:', visualObject.id);
+        const { data: images, error } = await supabase
+          .from('visual_object_images')
+          .select('*')
+          .eq('visual_object_id', visualObject.id)
+          .order('display_order');
 
-        console.log('VisualSupport: Active card changed:', {
-          objectId,
-          cardId: activeCard?.id,
-          linkedVisualObjectId: activeCard?.config?.linked_visual_object_id,
-          currentObjectId: object?.id,
-        });
-
-        if (activeCard?.config?.linked_visual_object_id) {
-          const targetId = activeCard.config.linked_visual_object_id;
-
-          // Check if we already fetched this object
-          if (lastFetchedIdRef.current === targetId) {
-            console.log(
-              'VisualSupport: Already fetched this visual object, skipping'
-            );
-            setLoading(false);
-            return;
-          }
-
-          // Fetch the linked visual object
-          const visualObject = await getVisualObjectById(targetId);
-          if (visualObject) {
-            console.log(
-              'VisualSupport: Fetched new visual object:',
-              visualObject.id
-            );
-            lastFetchedIdRef.current = targetId;
-            await handleVisualObjectChange(visualObject);
-            return;
-          }
-        }
-
-        // Fallback to mock object if no linked visual object (only if we don't have one)
-        if (!object) {
-          console.log('VisualSupport: Using fallback mock object');
-          await handleVisualObjectChange({
-            id: 'mock',
-            title: 'Sample House',
-            description: 'Modern energy-efficient house',
-            images: [
-              {
-                id: '1',
-                cloudflare_image_id: 'public',
-                display_order: 1,
-              },
-            ],
-          });
+        if (error) {
+          console.error('❌ Error fetching visual images:', error);
+          setVisualImages([]);
+        } else {
+          console.log('✅ Loaded visual images:', images?.length || 0);
+          setVisualImages(images || []);
         }
       } catch (error) {
-        console.error('Error fetching visual object:', error);
+        console.error('❌ Error fetching visual images:', error);
+        setVisualImages([]);
       } finally {
-        setLoading(false);
+        setLoadingImages(false);
       }
     };
 
-    fetchLinkedVisualObject();
-  }, [objectId, cards]); // Removed object?.id to prevent loops
+    fetchVisualImages();
+  }, [visualObject?.id]);
 
-  if (loading) {
-    return (
-      <div
-        className={`flex flex-col h-full bg-white ${!compact && 'border border-gray-200 rounded-lg shadow-sm'}`}
-      >
-        <div
-          className={`flex-1 bg-gray-100 flex items-center justify-center ${!compact && 'rounded-t-lg'}`}
-        >
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-2"></div>
-            <p className={`text-gray-500 ${compact ? 'text-sm' : ''}`}>
-              Loading visual content...
-            </p>
-          </div>
-        </div>
-      </div>
-    );
-  }
+  // Helper function to generate Cloudflare image URL
+  const getCloudflareImageUrl = (
+    cloudflareImageId: string,
+    variant: string = 'public'
+  ) => {
+    const accountHash = process.env.NEXT_PUBLIC_CLOUDFLARE_ACCOUNT_HASH;
+    console.log('🔧 Cloudflare config:', {
+      accountHash: accountHash
+        ? `${accountHash.substring(0, 8)}...`
+        : 'MISSING',
+      cloudflareImageId,
+      variant,
+    });
 
-  if (!object || object.images.length === 0) {
-    return (
-      <div
-        className={`flex flex-col h-full bg-white ${!compact && 'border border-gray-200 rounded-lg shadow-sm'}`}
-      >
-        <div
-          className={`flex-1 bg-gray-100 flex items-center justify-center ${!compact && 'rounded-t-lg'}`}
-        >
-          <p className={`text-gray-500 ${compact ? 'text-sm' : ''}`}>
-            No visual content available
-          </p>
-        </div>
-      </div>
-    );
-  }
-
-  // Use our safe image URL function
-  const getImageUrl = (cloudflareId: string) => {
-    return getSafeImageUrl(cloudflareId, 'public');
+    if (!accountHash) {
+      console.error('❌ Missing NEXT_PUBLIC_CLOUDFLARE_ACCOUNT_HASH');
+      return null;
+    }
+    const url = `https://imagedelivery.net/${accountHash}/${cloudflareImageId}/${variant}`;
+    console.log('🔗 Generated image URL:', url);
+    return url;
   };
 
+  // Determine content based on visual object
+  const getVisualContent = () => {
+    if (visualObject) {
+      return {
+        title: visualObject.title,
+        description: visualObject.description,
+        hasImages: visualImages.length > 0,
+      };
+    }
+
+    // Fallback to card data if no visual object
+    if (activeCard) {
+      return {
+        title: activeCard.name,
+        description: activeCard.config?.description,
+        hasImages: false,
+      };
+    }
+
+    // No content available
+    return {
+      title: null,
+      description: null,
+      hasImages: false,
+    };
+  };
+
+  const content = getVisualContent();
+
+  if (compact) {
+    // Mobile version - compact banner with optional image
+    return (
+      <div
+        style={{
+          background: styles.visualSupport.content.background,
+          padding: styles.visualSupport.content.padding,
+          display: 'flex',
+          alignItems: 'center',
+          gap: '16px',
+          textAlign: 'left',
+          position: 'relative',
+          overflow: 'hidden',
+        }}
+      >
+        {/* Background image on mobile if available */}
+        {content.hasImages &&
+          visualImages.length > 0 &&
+          !loadingImages &&
+          (() => {
+            const imageUrl = getCloudflareImageUrl(
+              visualImages[0].cloudflare_image_id
+            );
+            return imageUrl ? (
+              <div
+                style={{
+                  position: 'absolute',
+                  top: 0,
+                  left: 0,
+                  right: 0,
+                  bottom: 0,
+                  backgroundImage: `url(${imageUrl})`,
+                  backgroundSize: 'cover',
+                  backgroundPosition: 'center',
+                  opacity: 0.3, // Semi-transparent background
+                  zIndex: 0,
+                }}
+              />
+            ) : null;
+          })()}
+
+        {/* Text content */}
+        <div style={{ flex: 1, minWidth: 0, position: 'relative', zIndex: 1 }}>
+          {content.title && (
+            <h2
+              style={{
+                fontSize: '18px', // Smaller for mobile
+                fontWeight: styles.visualSupport.title.fontWeight,
+                color: styles.visualSupport.title.color,
+                marginBottom: '4px',
+                letterSpacing: styles.visualSupport.title.letterSpacing,
+              }}
+            >
+              {content.title}
+            </h2>
+          )}
+          {content.description && (
+            <p
+              style={{
+                fontSize: '14px', // Smaller for mobile
+                fontWeight: styles.visualSupport.subtitle.fontWeight,
+                color: styles.visualSupport.subtitle.color,
+                lineHeight: styles.visualSupport.subtitle.lineHeight,
+                margin: 0,
+              }}
+            >
+              {content.description}
+            </p>
+          )}
+        </div>
+      </div>
+    );
+  }
+
+  // Desktop-versio - täysi paneeli
   return (
     <div
-      className={`flex flex-col h-full bg-white ${!compact && 'border border-gray-200 rounded-lg shadow-sm'}`}
+      style={{
+        height: '100%',
+        display: 'flex',
+        flexDirection: 'column',
+      }}
     >
+      {/* Gradient content area */}
       <div
-        className={`flex-1 relative group overflow-hidden ${!compact && 'rounded-lg'}`}
+        style={{
+          background: styles.visualSupport.content.background,
+          padding:
+            content.hasImages && visualImages.length > 0
+              ? '0'
+              : styles.visualSupport.content.padding, // No padding when image fills
+          display: styles.visualSupport.content.display,
+          flexDirection: cssValue(styles.visualSupport.content.flexDirection),
+          alignItems: styles.visualSupport.content.alignItems,
+          justifyContent: styles.visualSupport.content.justifyContent,
+          flex: styles.visualSupport.content.flex,
+          position: 'relative', // Enable absolute positioning for full-screen image
+          overflow: 'hidden', // Clip image to container bounds
+        }}
       >
-        {/* Previous visual object (for crossfade) */}
-        {isTransitioning &&
-          previousObject &&
-          previousObject.images.length > 0 && (
-            <img
-              src={getImageUrl(previousObject.images[0].cloudflare_image_id)}
-              alt={previousObject.title}
-              className="absolute inset-0 w-full h-full object-cover rounded-lg transition-opacity duration-300 ease-in-out"
-              style={{
-                opacity: fadeState === 'fading-out' ? 0 : 1,
-                zIndex: fadeState === 'fading-in' ? 1 : 2,
-              }}
-            />
-          )}
-
-        {/* Current visual object */}
-        {object && object.images.length > 0 && (
-          <img
-            src={getImageUrl(
-              object.images[currentImageIndex].cloudflare_image_id
-            )}
-            alt={object.title}
-            className="absolute inset-0 w-full h-full object-cover rounded-lg transition-opacity duration-300 ease-in-out"
+        {/* Visual Content */}
+        {loadingImages ? (
+          <div style={{ textAlign: 'center', color: '#ffffff' }}>
+            Loading visual content...
+          </div>
+        ) : content.hasImages && visualImages.length > 0 ? (
+          /* Display actual visual object images - fill entire panel */
+          <div
             style={{
-              opacity:
-                fadeState === 'fading-in'
-                  ? 1
-                  : fadeState === 'fading-out'
-                    ? 0
-                    : 1,
-              zIndex: fadeState === 'fading-in' ? 2 : 1,
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
             }}
-          />
-        )}
-
-        {/* Navigation controls - only show if current object has multiple images and not compact */}
-        {!compact && object && object.images.length > 1 && (
-          <>
-            <button
-              onClick={handlePrevious}
-              className="absolute left-4 top-1/2 -translate-y-1/2 bg-black/50 text-white p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity z-10"
+          >
+            {visualImages.map((image, index) => {
+              const imageUrl = getCloudflareImageUrl(image.cloudflare_image_id);
+              return imageUrl ? (
+                <img
+                  key={image.id}
+                  src={imageUrl}
+                  alt={content.title || 'Visual content'}
+                  style={{
+                    width: '100%',
+                    height: '100%',
+                    objectFit: cssValue(styles.visualSupport.image.objectFit),
+                    borderRadius: styles.visualSupport.image.borderRadius,
+                  }}
+                  onLoad={() => {
+                    console.log('✅ Image loaded successfully:', imageUrl);
+                  }}
+                  onError={e => {
+                    console.error('❌ Failed to load image:', imageUrl);
+                    console.error('❌ Image error details:', e);
+                    e.currentTarget.style.display = 'none';
+                  }}
+                />
+              ) : null;
+            })}
+          </div>
+        ) : (
+          /* Fallback content when no images */
+          <div style={{ textAlign: 'center' }}>
+            <div
+              style={{
+                fontSize: '64px',
+                marginBottom: '16px',
+                opacity: '0.8',
+              }}
             >
-              <ChevronLeft className="w-6 h-6" />
-            </button>
-            <button
-              onClick={handleNext}
-              className="absolute right-4 top-1/2 -translate-y-1/2 bg-black/50 text-white p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity z-10"
-            >
-              <ChevronRight className="w-6 h-6" />
-            </button>
-          </>
-        )}
+              📋
+            </div>
 
-        {/* Image indicators - only show if current object has multiple images and not compact */}
-        {!compact && object && object.images.length > 1 && (
-          <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex justify-center space-x-2 z-10">
-            {object.images.map((_, index) => (
-              <button
-                key={index}
-                onClick={() => handleImageChange(index)}
-                className={`w-2 h-2 rounded-full transition-colors ${
-                  index === currentImageIndex ? 'bg-blue-600' : 'bg-gray-300'
-                }`}
-              />
-            ))}
+            {content.title && (
+              <h2
+                style={{
+                  fontSize: styles.visualSupport.title.fontSize,
+                  fontWeight: styles.visualSupport.title.fontWeight,
+                  color: styles.visualSupport.title.color,
+                  marginBottom: styles.visualSupport.title.marginBottom,
+                  textAlign: cssValue(styles.visualSupport.title.textAlign),
+                  letterSpacing: styles.visualSupport.title.letterSpacing,
+                }}
+              >
+                {content.title}
+              </h2>
+            )}
+
+            <p
+              style={{
+                fontSize: styles.visualSupport.subtitle.fontSize,
+                fontWeight: styles.visualSupport.subtitle.fontWeight,
+                color: styles.visualSupport.subtitle.color,
+                textAlign: cssValue(styles.visualSupport.subtitle.textAlign),
+                lineHeight: styles.visualSupport.subtitle.lineHeight,
+              }}
+            >
+              {content.description || 'No visual content available'}
+            </p>
           </div>
         )}
+      </div>
 
-        {/* Compact mode indicator for multiple images */}
-        {compact && object && object.images.length > 1 && (
-          <div className="absolute top-2 right-2 bg-black/50 text-white px-2 py-1 rounded text-xs">
-            {currentImageIndex + 1} / {object.images.length}
-          </div>
-        )}
+      {/* Info section bottom */}
+      <div
+        style={{
+          background: styles.visualSupport.infoSection.background,
+          padding: styles.visualSupport.infoSection.padding,
+          borderTop: styles.visualSupport.infoSection.borderTop,
+        }}
+      >
+        <div
+          style={{
+            marginTop: styles.visualSupport.infoSection.tip.marginTop,
+            padding: styles.visualSupport.infoSection.tip.padding,
+            background: styles.visualSupport.infoSection.tip.background,
+            borderLeft: styles.visualSupport.infoSection.tip.borderLeft,
+            borderRadius: styles.visualSupport.infoSection.tip.borderRadius,
+            fontSize: styles.visualSupport.infoSection.tip.fontSize,
+            color: styles.visualSupport.infoSection.tip.color,
+            display: styles.visualSupport.infoSection.tip.display,
+          }}
+        >
+          💡{' '}
+          {visualObject && content.title
+            ? `${content.title}${content.description ? ` - ${content.description}` : ''}`
+            : activeCard
+              ? `Vinkki: ${activeCard.name} - Täytä kentät huolellisesti`
+              : 'Vinkki: Täytä kentät huolellisesti parhaan arvion saamiseksi'}
+        </div>
       </div>
     </div>
   );
-};
+}

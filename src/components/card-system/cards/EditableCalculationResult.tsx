@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Edit2, Check, X, RotateCcw } from 'lucide-react';
+import { useCardStyles } from '../../../hooks/useCardStyles';
 
 interface EditableCalculationResultProps {
   value: string;
@@ -24,6 +25,7 @@ export function EditableCalculationResult({
   validationMax,
   isCalculating = false,
 }: EditableCalculationResultProps) {
+  const styles = useCardStyles();
   const [isEditing, setIsEditing] = useState(false);
   const [editValue, setEditValue] = useState('');
   const [error, setError] = useState<string | null>(null);
@@ -121,8 +123,24 @@ export function EditableCalculationResult({
 
   if (isCalculating) {
     return (
-      <div className="text-4xl font-bold text-blue-600 flex items-center gap-3">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+      <div
+        style={{
+          color: styles.colors.state.info,
+          display: 'flex',
+          alignItems: 'center',
+          gap: '12px',
+        }}
+      >
+        <div
+          style={{
+            animation: 'spin 1s linear infinite',
+            borderRadius: '50%',
+            height: '32px',
+            width: '32px',
+            border: '2px solid transparent',
+            borderBottom: `2px solid ${styles.colors.state.info}`,
+          }}
+        ></div>
         Lasketaan...
       </div>
     );
@@ -130,78 +148,279 @@ export function EditableCalculationResult({
 
   if (isEditing) {
     return (
-      <div className="space-y-2">
-        <div className="flex items-center gap-2">
-          <input
-            ref={inputRef}
-            type="text"
-            value={editValue}
-            onChange={e => setEditValue(e.target.value)}
-            onKeyDown={handleKeyDown}
-            className={`
-              text-2xl font-bold px-3 py-1 border-2 rounded
-              ${error ? 'border-red-500' : 'border-blue-500'}
-              focus:outline-none focus:ring-2 focus:ring-blue-500
-            `}
-            placeholder="0"
-          />
-          {unit && (
-            <span className="text-2xl font-bold text-gray-600">{unit}</span>
-          )}
-          <button
-            onClick={handleSave}
-            className="p-2 bg-green-500 text-white rounded hover:bg-green-600 transition-colors"
-            title="Tallenna"
+      <div>
+        <div
+          style={
+            styles.calculationCard.editMode.inputGroup as React.CSSProperties
+          }
+        >
+          <div
+            style={{
+              ...(styles.calculationCard.editMode
+                .inputWrapper as React.CSSProperties),
+              ...(error
+                ? {
+                    borderColor:
+                      styles.calculationCard.editMode.inputError.borderColor,
+                  }
+                : {}),
+            }}
           >
-            <Check className="w-5 h-5" />
-          </button>
-          <button
-            onClick={handleCancel}
-            className="p-2 bg-red-500 text-white rounded hover:bg-red-600 transition-colors"
-            title="Peruuta"
+            <input
+              ref={inputRef}
+              type="text"
+              value={editValue}
+              onChange={e => setEditValue(e.target.value)}
+              onKeyDown={handleKeyDown}
+              style={{
+                ...(styles.calculationCard.editMode
+                  .input as React.CSSProperties),
+                paddingRight: unit ? '60px' : '12px', // Make room for unit label
+              }}
+              onFocus={e => {
+                const wrapper = e.currentTarget.parentElement;
+                if (wrapper) {
+                  Object.assign(
+                    wrapper.style,
+                    styles.calculationCard.editMode.inputWrapperFocus
+                  );
+                }
+              }}
+              onBlur={e => {
+                const wrapper = e.currentTarget.parentElement;
+                if (wrapper && !error) {
+                  wrapper.style.borderColor =
+                    styles.calculationCard.editMode.inputWrapper.borderColor;
+                  wrapper.style.boxShadow = 'none';
+                }
+              }}
+            />
+            {unit && (
+              <span
+                style={{
+                  ...(styles.calculationCard.editMode
+                    .unitLabel as React.CSSProperties),
+                  position: 'absolute',
+                  right: '1px',
+                  top: '50%',
+                  transform: 'translateY(-50%)',
+                  padding: '6px 12px',
+                  background: '#f3f4f6',
+                  borderLeft: '1px solid #e5e7eb',
+                  borderRadius: '0 6px 6px 0',
+                  color: '#6b7280',
+                  fontSize: '14px',
+                  pointerEvents: 'none',
+                }}
+              >
+                {unit}
+              </span>
+            )}
+          </div>
+          <div
+            style={
+              styles.calculationCard.editMode
+                .actionButtons as React.CSSProperties
+            }
           >
-            <X className="w-5 h-5" />
-          </button>
+            <button
+              onClick={handleSave}
+              style={
+                styles.calculationCard.editMode
+                  .saveButton as React.CSSProperties
+              }
+              onMouseEnter={e => {
+                Object.assign(
+                  e.currentTarget.style,
+                  styles.calculationCard.editMode.saveButtonHover
+                );
+              }}
+              onMouseLeave={e => {
+                Object.assign(
+                  e.currentTarget.style,
+                  styles.calculationCard.editMode.saveButton
+                );
+              }}
+            >
+              <Check
+                style={{
+                  width: '14px',
+                  height: '14px',
+                  marginRight: '4px',
+                  display: 'inline',
+                }}
+              />
+              Tallenna
+            </button>
+            <button
+              onClick={handleCancel}
+              style={
+                styles.calculationCard.editMode
+                  .cancelButton as React.CSSProperties
+              }
+              onMouseEnter={e => {
+                Object.assign(
+                  e.currentTarget.style,
+                  styles.calculationCard.editMode.cancelButtonHover
+                );
+              }}
+              onMouseLeave={e => {
+                Object.assign(
+                  e.currentTarget.style,
+                  styles.calculationCard.editMode.cancelButton
+                );
+              }}
+            >
+              <X
+                style={{
+                  width: '14px',
+                  height: '14px',
+                  marginRight: '4px',
+                  display: 'inline',
+                }}
+              />
+              Peruuta
+            </button>
+          </div>
         </div>
-        {editPrompt && <p className="text-sm text-gray-600">{editPrompt}</p>}
-        {error && <p className="text-sm text-red-600">{error}</p>}
+        {editPrompt && (
+          <p
+            style={{
+              fontSize: styles.typography.fontSizeBase,
+              color: styles.colors.text.secondary,
+              marginTop: '8px',
+            }}
+          >
+            {editPrompt}
+          </p>
+        )}
+        {error && (
+          <div
+            style={styles.calculationCard.errorMessage as React.CSSProperties}
+          >
+            {error}
+          </div>
+        )}
       </div>
     );
   }
 
   return (
-    <div className="space-y-2">
-      <div className="flex items-center gap-3">
-        <div className="flex items-center gap-2">
-          <div className="text-4xl font-bold text-green-600">{value}</div>
+    <div style={{ position: 'relative' }}>
+      {/* Edited indicator badge */}
+      {isOverridden && (
+        <div
+          style={
+            styles.calculationCard.editedIndicator.badge as React.CSSProperties
+          }
+        >
+          <span
+            style={
+              styles.calculationCard.editedIndicator.icon as React.CSSProperties
+            }
+          >
+            ✏️
+          </span>
+          Muokattu
+        </div>
+      )}
 
-          {isOverridden && (
-            <span
-              className="inline-flex items-center px-1.5 py-0.5 text-xs font-medium bg-gray-100 text-gray-600 rounded"
-              title={`Alkuperäinen laskettu arvo: ${originalValue}`}
-            >
-              muokattu
-            </span>
-          )}
+      {/* Result display */}
+      <div>
+        <div
+          style={styles.calculationCard.resultSection as React.CSSProperties}
+        >
+          <div
+            style={styles.calculationCard.resultDisplay as React.CSSProperties}
+          >
+            <div>
+              <span
+                style={
+                  styles.calculationCard.metricValue as React.CSSProperties
+                }
+              >
+                {value.split(' ')[0]}
+              </span>
+              {value.includes(' ') && (
+                <span
+                  style={
+                    styles.calculationCard.metricUnit as React.CSSProperties
+                  }
+                >
+                  {value.split(' ').slice(1).join(' ')}
+                </span>
+              )}
+            </div>
+          </div>
         </div>
 
-        {isOverridden && (
+        {/* Edit/Revert buttons on separate row below */}
+        <div style={{ display: 'flex', gap: '8px', marginTop: '12px' }}>
+          {isOverridden && (
+            <button
+              onClick={handleRevert}
+              style={styles.calculationCard.editButton as React.CSSProperties}
+              onMouseEnter={e => {
+                Object.assign(
+                  e.currentTarget.style,
+                  styles.calculationCard.editButtonHover
+                );
+              }}
+              onMouseLeave={e => {
+                Object.assign(
+                  e.currentTarget.style,
+                  styles.calculationCard.editButton
+                );
+              }}
+              title={`Palauta alkuperäinen arvo: ${originalValue}`}
+            >
+              <RotateCcw
+                style={{
+                  ...(styles.calculationCard.editIcon as React.CSSProperties),
+                  width: '14px',
+                  height: '14px',
+                }}
+              />
+              Palauta
+            </button>
+          )}
           <button
-            onClick={handleRevert}
-            className="p-1 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded transition-colors"
-            title="Palauta laskettu arvo"
+            onClick={handleEdit}
+            style={styles.calculationCard.editButton as React.CSSProperties}
+            onMouseEnter={e => {
+              Object.assign(
+                e.currentTarget.style,
+                styles.calculationCard.editButtonHover
+              );
+            }}
+            onMouseLeave={e => {
+              Object.assign(
+                e.currentTarget.style,
+                styles.calculationCard.editButton
+              );
+            }}
+            onFocus={e => {
+              Object.assign(
+                e.currentTarget.style,
+                styles.calculationCard.editButtonFocus
+              );
+            }}
+            onBlur={e => {
+              e.currentTarget.style.outline = 'none';
+              e.currentTarget.style.outlineOffset = '0';
+            }}
+            title={editButtonText}
           >
-            <RotateCcw className="w-4 h-4" />
+            <Edit2
+              style={{
+                ...(styles.calculationCard.editIcon as React.CSSProperties),
+                width: '14px',
+                height: '14px',
+              }}
+            />
+            {editButtonText}
           </button>
-        )}
-
-        <button
-          onClick={handleEdit}
-          className="inline-flex items-center gap-1 px-3 py-1.5 text-sm font-medium text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded transition-colors"
-        >
-          <Edit2 className="w-4 h-4" />
-          {editButtonText}
-        </button>
+        </div>
       </div>
     </div>
   );

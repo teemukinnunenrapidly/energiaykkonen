@@ -178,10 +178,10 @@ export default function PreviewPage() {
             <CardSystemContainer
               maxWidth="100%"
               showVisualSupport={true}
-              visualWidth="50%"
               fullWidth={true}
               className={viewMode === 'mobile' ? 'pt-12' : ''}
               forceMode={viewMode}
+              height={containerHeight}
             />
           </div>
         </div>

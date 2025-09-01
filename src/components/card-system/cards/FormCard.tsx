@@ -1,228 +1,96 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { useCardContext } from '../CardContext';
-import { supabase, type CardTemplate, type CardField } from '@/lib/supabase';
-// Removed theme import - using CardStream configuration system instead
+import type { CardTemplate } from '@/lib/supabase';
+import { useCardStyles, cssValue } from '@/hooks/useCardStyles';
 
 interface FormCardProps {
   card: CardTemplate;
-  onFieldFocus?: (cardId: string, fieldId: string, value: any) => void;
-  stepNumber?: number;
+  onFieldFocus?: (cardId: string, fieldId: string, value?: string) => void;
 }
 
-export function FormCard({ card, onFieldFocus, stepNumber }: FormCardProps) {
-  const [fields, setFields] = useState<CardField[]>([]);
-  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
+export function FormCard({ card, onFieldFocus }: FormCardProps) {
+  const styles = useCardStyles();
+  const {
+    formData,
+    updateField,
+    cardStates,
+    submitData,
+    completeCard,
+    uncompleteCard,
+  } = useCardContext();
+  const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitSuccess, setSubmitSuccess] = useState(false);
-  const { formData, updateField, completeCard, submitData } = useCardContext();
+  const [focusedField, setFocusedField] = useState<string | null>(null);
 
-  useEffect(() => {
-    loadFields();
-  }, [card.id]);
+  // Check if this card is completed - removed auto-disable for completed cards
+  // const isCardCompleted = cardStates[card.id]?.status === 'complete';
+  const isCardCompleted = false; // Cards remain editable even when marked as complete
 
-  // Database-driven completion - no longer need to check on every formData change
-  // Completion is now handled in CardContext.updateField()
-
-  const loadFields = async () => {
-    const { data } = await supabase
-      .from('card_fields')
-      .select('*')
-      .eq('card_id', card.id)
-      .order('display_order');
-
-    setFields(data || []);
-
-    // Initialize formData with any existing values from the database
-    // This ensures that pre-filled values are properly stored in formData
-    if (data && data.length > 0) {
-      const initialFormData: Record<string, any> = {};
-
-      data.forEach(field => {
-        // Check if there's a default value or if the field already has a value
-        if (field.default_value) {
-          initialFormData[field.field_name] = field.default_value;
-        } else if (
-          field.field_type === 'radio' &&
-          field.options &&
-          field.options.length > 0
-        ) {
-          // For radio buttons, set the first option as default if no default is specified
-          initialFormData[field.field_name] = field.options[0].value;
-        }
-      });
-
-      // Update formData with initial values
-      if (Object.keys(initialFormData).length > 0) {
-        Object.entries(initialFormData).forEach(([fieldName, value]) => {
-          updateField(fieldName, value);
-        });
-      }
-    }
-  };
-
-  const validateField = (field: CardField, value: any): boolean => {
-    const rules = field.validation_rules;
-
-    // Required field validation
-    if (field.required && (!value || value.toString().trim() === '')) {
-      return false;
-    }
-
-    // Skip further validation if no value and not required
-    if (!value || value.toString().trim() === '') {
-      return true;
-    }
-
-    // Email validation
-    if (field.field_type === 'email') {
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      if (!emailRegex.test(value)) {
-        return false;
-      }
-    }
-
-    // Number validation for numeric fields
-    if (field.field_type === 'number') {
-      const numValue = parseFloat(value);
-      if (isNaN(numValue)) {
-        return false;
-      }
-
-      if (rules?.min !== undefined && numValue < rules.min) {
-        return false;
-      }
-      if (rules?.max !== undefined && numValue > rules.max) {
-        return false;
-      }
-    }
-
-    // Text length validation
-    if (
-      rules?.minLength !== undefined &&
-      value.toString().length < rules.minLength
-    ) {
-      return false;
-    }
-    if (
-      rules?.maxLength !== undefined &&
-      value.toString().length > rules.maxLength
-    ) {
-      return false;
-    }
-
-    // Pattern validation
-    if (rules?.pattern && !new RegExp(rules.pattern).test(value)) {
-      return false;
-    }
-
-    return true;
-  };
-
-  const getFieldError = (field: CardField, value: any): string | null => {
-    const rules = field.validation_rules;
-
-    // Required field error
-    if (field.required && (!value || value.toString().trim() === '')) {
-      return 'This field is required';
-    }
-
-    // Skip further validation if no value and not required
-    if (!value || value.toString().trim() === '') {
-      return null;
-    }
-
-    // Email validation error
-    if (field.field_type === 'email') {
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      if (!emailRegex.test(value)) {
-        return 'Please enter a valid email address';
-      }
-    }
-
-    // Number validation errors
-    if (field.field_type === 'number') {
-      const numValue = parseFloat(value);
-      if (isNaN(numValue)) {
-        return 'Please enter a valid number';
-      }
-
-      if (rules?.min !== undefined && numValue < rules.min) {
-        return `Value must be at least ${rules.min}`;
-      }
-      if (rules?.max !== undefined && numValue > rules.max) {
-        return `Value must be no more than ${rules.max}`;
-      }
-    }
-
-    // Text length validation errors
-    if (
-      rules?.minLength !== undefined &&
-      value.toString().length < rules.minLength
-    ) {
-      return `Must be at least ${rules.minLength} characters`;
-    }
-    if (
-      rules?.maxLength !== undefined &&
-      value.toString().length > rules.maxLength
-    ) {
-      return `Must be no more than ${rules.maxLength} characters`;
-    }
-
-    // Pattern validation error
-    if (rules?.pattern && !new RegExp(rules.pattern).test(value)) {
-      return 'Please enter a valid value';
-    }
-
-    return null;
-  };
+  // Common label style used across all field types
+  const getLabelStyle = (fieldName: string) => ({
+    display: styles.formElements.label.display,
+    fontSize: styles.formElements.label.fontSize,
+    fontWeight: styles.formElements.label.fontWeight,
+    color:
+      focusedField === fieldName
+        ? styles.colors.brand.primary
+        : styles.formElements.label.color,
+    textTransform: cssValue(styles.formElements.label.textTransform),
+    letterSpacing: styles.formElements.label.letterSpacing,
+    marginBottom: styles.formElements.label.marginBottom,
+    transition: styles.formElements.label.transition,
+  });
 
   const handleFieldChange = (fieldName: string, value: any) => {
-    updateField(fieldName, value); // This now handles completion in database
+    updateField(fieldName, value);
 
     // Clear error when user starts typing
-    if (fieldErrors[fieldName]) {
-      setFieldErrors(prev => ({ ...prev, [fieldName]: '' }));
+    if (errors[fieldName]) {
+      setErrors(prev => ({ ...prev, [fieldName]: '' }));
+    }
+
+    // Check if this card only has button fields
+    const onlyHasButtons = card.fields?.every(f => f.field_type === 'buttons');
+
+    // If card only has button fields and card is currently completed
+    if (onlyHasButtons && cardStates[card.id]?.status === 'complete') {
+      // Check if all button fields are now empty/deselected
+      const allButtonsDeselected = card.fields?.every(f => {
+        const fieldValue =
+          f.field_name === fieldName ? value : formData[f.field_name];
+        return (
+          !fieldValue || (Array.isArray(fieldValue) && fieldValue.length === 0)
+        );
+      });
+
+      // If all buttons are deselected, uncomplete the card
+      if (allButtonsDeselected) {
+        uncompleteCard(card.id);
+      }
     }
   };
 
-  const handleFieldBlur = (field: CardField) => {
-    const value = formData[field.field_name];
-    const error = getFieldError(field, value);
-
-    if (error) {
-      setFieldErrors(prev => ({ ...prev, [field.field_name]: error }));
-    } else {
-      setFieldErrors(prev => ({ ...prev, [field.field_name]: '' }));
-    }
-    // No need to check completion here - handled in updateField
-  };
-
-  const handleFieldFocus = (field: CardField) => {
+  const handleFieldFocus = (field: any) => {
+    setFocusedField(field.field_name);
     if (onFieldFocus) {
       onFieldFocus(card.id, field.field_name, formData[field.field_name]);
     }
   };
 
+  const handleFieldBlur = (field: any) => {
+    setFocusedField(null);
+    // Validate required fields on blur
+    if (field.required && !formData[field.field_name]) {
+      setErrors(prev => ({
+        ...prev,
+        [field.field_name]: 'This field is required',
+      }));
+    }
+  };
+
   const handleSubmit = async () => {
     if (isSubmitting) {
-      return;
-    }
-
-    // Validate all required fields before submission
-    const validationErrors: Record<string, string> = {};
-    for (const field of fields) {
-      if (field.required && !formData[field.field_name]) {
-        validationErrors[field.field_name] = 'This field is required';
-      } else {
-        const error = getFieldError(field, formData[field.field_name]);
-        if (error) {
-          validationErrors[field.field_name] = error;
-        }
-      }
-    }
-
-    if (Object.keys(validationErrors).length > 0) {
-      setFieldErrors(validationErrors);
       return;
     }
 
@@ -249,60 +117,24 @@ export function FormCard({ card, onFieldFocus, stepNumber }: FormCardProps) {
     }
   };
 
-  // checkCompletion function removed - now handled by database-driven system in CardContext
-
-  const isFieldCompleted = (field: CardField, value: any): boolean => {
-    // Only show completion indicators for fields where users type something
-    const typingFields = ['text', 'email', 'number', 'textarea'];
-    if (!typingFields.includes(field.field_type)) {
-      return false;
-    }
-
-    // Field is completed if it has a valid value and passes validation
-    if (
-      !value ||
-      value === '' ||
-      (Array.isArray(value) && value.length === 0)
-    ) {
-      return false;
-    }
-    return validateField(field, value);
-  };
-
-  const renderField = (field: CardField) => {
+  const renderField = (field: any) => {
     const value = formData[field.field_name] || '';
-    const error = fieldErrors[field.field_name];
-    const isCompleted = isFieldCompleted(field, value);
-
-    // Always allow editing - completion is just for navigation tracking
-    const isFieldEditable = true;
-
-    const inputClasses = `
-      w-full px-4 py-2 border rounded-lg focus:ring-2 transition-colors
-      ${
-        error
-          ? 'border-red-300 focus:ring-red-500 focus:border-red-500'
-          : isCompleted
-            ? 'border-green-300 focus:ring-green-500 focus:border-green-500'
-            : 'border-gray-300'
-      }
-      ${!isFieldEditable ? 'bg-gray-100 cursor-not-allowed' : ''}
-    `;
-
-    const inputStyle =
-      !error && !isCompleted
-        ? ({
-            borderColor: 'var(--theme-primary)',
-            outlineColor: 'var(--theme-primary)',
-          } as React.CSSProperties)
-        : {};
+    const error = errors[field.field_name];
 
     switch (field.field_type) {
       case 'text':
       case 'email':
       case 'number':
         return (
-          <div>
+          <div
+            style={{ marginBottom: styles.formElements.formGroup.marginBottom }}
+          >
+            <label style={getLabelStyle(field.field_name)}>
+              {field.label}
+              {field.required && (
+                <span style={{ color: styles.colors.state.error }}>*</span>
+              )}
+            </label>
             <input
               type={field.field_type}
               value={value}
@@ -311,47 +143,52 @@ export function FormCard({ card, onFieldFocus, stepNumber }: FormCardProps) {
               }
               onFocus={() => handleFieldFocus(field)}
               onBlur={() => handleFieldBlur(field)}
-              placeholder={field.placeholder}
-              disabled={!isFieldEditable}
-              className={inputClasses}
-              style={inputStyle}
-              min={
-                field.field_type === 'number'
-                  ? field.validation_rules?.min
-                  : undefined
-              }
-              max={
-                field.field_type === 'number'
-                  ? field.validation_rules?.max
-                  : undefined
-              }
-              minLength={field.validation_rules?.minLength}
-              maxLength={field.validation_rules?.maxLength}
+              disabled={isCardCompleted}
+              style={{
+                ...(styles.formElements.input as React.CSSProperties),
+                ...(focusedField === field.field_name &&
+                  styles.formElements.input.focus),
+                ...(error && styles.formElements.input.error),
+                ...(isCardCompleted && styles.formElements.input.disabled),
+              }}
             />
             {field.help_text && (
-              <p className="text-xs text-gray-500 mt-1">{field.help_text}</p>
+              <p
+                style={{
+                  fontSize: styles.typography.fontSizeBase,
+                  color: styles.colors.text.tertiary,
+                  marginTop: '4px',
+                }}
+              >
+                {field.help_text}
+              </p>
             )}
             {error && (
-              <p className="text-xs text-red-600 font-medium mt-1 flex items-center gap-1">
-                <svg
-                  className="w-3 h-3"
-                  fill="currentColor"
-                  viewBox="0 0 20 20"
-                >
-                  <path
-                    fillRule="evenodd"
-                    d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
-                    clipRule="evenodd"
-                  />
-                </svg>
+              <p
+                style={{
+                  fontSize: styles.formElements.errorMessage.fontSize,
+                  color: styles.formElements.errorMessage.color,
+                  marginTop: styles.formElements.errorMessage.marginTop,
+                  display: styles.formElements.errorMessage.display,
+                }}
+              >
                 {error}
               </p>
             )}
           </div>
         );
+
       case 'select':
         return (
-          <div>
+          <div
+            style={{ marginBottom: styles.formElements.formGroup.marginBottom }}
+          >
+            <label style={getLabelStyle(field.field_name)}>
+              {field.label}
+              {field.required && (
+                <span style={{ color: styles.colors.state.error }}>*</span>
+              )}
+            </label>
             <select
               value={value}
               onChange={e =>
@@ -359,224 +196,207 @@ export function FormCard({ card, onFieldFocus, stepNumber }: FormCardProps) {
               }
               onFocus={() => handleFieldFocus(field)}
               onBlur={() => handleFieldBlur(field)}
-              disabled={!isFieldEditable}
-              className={inputClasses}
-              style={inputStyle}
+              disabled={isCardCompleted}
+              style={{
+                ...(styles.formElements.input as React.CSSProperties),
+                ...(styles.formElements.select as React.CSSProperties),
+                ...(focusedField === field.field_name &&
+                  styles.formElements.input.focus),
+                ...(error && styles.formElements.input.error),
+                ...(isCardCompleted && styles.formElements.input.disabled),
+              }}
             >
               <option value="">Select...</option>
-              {field.options?.map(opt => (
+              {field.options?.map((opt: any) => (
                 <option key={opt.value} value={opt.value}>
                   {opt.label}
                 </option>
               ))}
             </select>
             {field.help_text && (
-              <p className="text-xs text-gray-500 mt-1">{field.help_text}</p>
+              <p
+                style={{
+                  fontSize: styles.typography.fontSizeBase,
+                  color: styles.colors.text.tertiary,
+                  marginTop: '4px',
+                }}
+              >
+                {field.help_text}
+              </p>
             )}
             {error && (
-              <p className="text-xs text-red-600 font-medium mt-1 flex items-center gap-1">
-                <svg
-                  className="w-3 h-3"
-                  fill="currentColor"
-                  viewBox="0 0 20 20"
-                >
-                  <path
-                    fillRule="evenodd"
-                    d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
-                    clipRule="evenodd"
-                  />
-                </svg>
+              <p
+                style={{
+                  fontSize: styles.formElements.errorMessage.fontSize,
+                  color: styles.formElements.errorMessage.color,
+                  marginTop: styles.formElements.errorMessage.marginTop,
+                  display: styles.formElements.errorMessage.display,
+                }}
+              >
                 {error}
               </p>
             )}
           </div>
         );
+
       case 'radio':
         return (
-          <div>
-            <div className="space-y-2">
-              {field.options?.map(opt => (
-                <label
+          <div
+            style={{ marginBottom: styles.formElements.formGroup.marginBottom }}
+          >
+            <label style={getLabelStyle(field.field_name)}>{field.label}</label>
+            <div
+              style={{
+                display: styles.formElements.fieldRow.display,
+                gridTemplateColumns:
+                  styles.formElements.fieldRow.gridTemplateColumns,
+                gap: styles.formElements.fieldRow.gap,
+                marginBottom: styles.formElements.fieldRow.marginBottom,
+                marginTop: '8px',
+              }}
+            >
+              {field.options?.map((opt: any) => (
+                <div
                   key={opt.value}
-                  className="flex items-center space-x-2 cursor-pointer"
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '8px',
+                    opacity: isCardCompleted ? 0.5 : 1,
+                  }}
                 >
-                  <input
-                    type="radio"
-                    name={field.field_name}
-                    value={opt.value}
-                    checked={value === opt.value}
-                    onChange={e =>
-                      handleFieldChange(field.field_name, e.target.value)
-                    }
-                    onFocus={() => handleFieldFocus(field)}
-                    onBlur={() => handleFieldBlur(field)}
-                    disabled={!isFieldEditable}
-                    className="w-4 h-4 border-gray-300"
+                  <label
                     style={{
-                      accentColor: 'var(--theme-primary)',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '8px',
+                      cursor: isCardCompleted ? 'not-allowed' : 'pointer',
+                      fontSize: styles.typography.fontSizeBase,
+                      color: styles.colors.text.primary,
                     }}
-                  />
-                  <span className="text-sm text-gray-700">{opt.label}</span>
-                </label>
+                  >
+                    <input
+                      type="radio"
+                      name={field.field_name}
+                      value={opt.value}
+                      checked={value === opt.value}
+                      onChange={e =>
+                        handleFieldChange(field.field_name, e.target.value)
+                      }
+                      onFocus={() => handleFieldFocus(field)}
+                      onBlur={() => handleFieldBlur(field)}
+                      disabled={isCardCompleted}
+                      style={{
+                        accentColor: styles.colors.brand.primary,
+                      }}
+                    />
+                    {opt.label}
+                  </label>
+                </div>
               ))}
             </div>
             {field.help_text && (
-              <p className="text-xs text-gray-500 mt-1">{field.help_text}</p>
+              <p
+                style={{
+                  fontSize: styles.typography.fontSizeBase,
+                  color: styles.colors.text.tertiary,
+                  marginTop: '4px',
+                }}
+              >
+                {field.help_text}
+              </p>
             )}
             {error && (
-              <p className="text-xs text-red-600 font-medium mt-1 flex items-center gap-1">
-                <svg
-                  className="w-3 h-3"
-                  fill="currentColor"
-                  viewBox="0 0 20 20"
-                >
-                  <path
-                    fillRule="evenodd"
-                    d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
-                    clipRule="evenodd"
-                  />
-                </svg>
+              <p
+                style={{
+                  fontSize: styles.formElements.errorMessage.fontSize,
+                  color: styles.formElements.errorMessage.color,
+                  marginTop: styles.formElements.errorMessage.marginTop,
+                  display: styles.formElements.errorMessage.display,
+                }}
+              >
                 {error}
               </p>
             )}
           </div>
         );
-      case 'buttons':
-        const selectOnlyOne = field.validation_rules?.selectOnlyOne || false;
-        const selectedValues = selectOnlyOne
-          ? value
-            ? [value]
-            : []
-          : Array.isArray(value)
-            ? value
-            : value
-              ? [value]
-              : [];
 
-        return (
-          <div>
-            <div className="space-y-2">
-              {field.options?.map(opt => {
-                const isSelected = selectedValues.includes(opt.value);
-                return (
-                  <button
-                    key={opt.value}
-                    type="button"
-                    onClick={() => {
-                      if (selectOnlyOne) {
-                        // Single selection mode - set just this value
-                        handleFieldChange(
-                          field.field_name,
-                          isSelected ? null : opt.value
-                        );
-                      } else {
-                        // Multiple selection mode - toggle this value in array
-                        if (isSelected) {
-                          const newValues = selectedValues.filter(
-                            v => v !== opt.value
-                          );
-                          handleFieldChange(
-                            field.field_name,
-                            newValues.length > 0 ? newValues : null
-                          );
-                        } else {
-                          const newValues = [...selectedValues, opt.value];
-                          handleFieldChange(field.field_name, newValues);
-                        }
-                      }
-                    }}
-                    onFocus={() => handleFieldFocus(field)}
-                    onBlur={() => handleFieldBlur(field)}
-                    disabled={!isFieldEditable}
-                    className={`
-                      w-full px-4 py-3 text-center border rounded-lg transition-all duration-200 font-medium
-                      ${
-                        isSelected
-                          ? 'text-white shadow-md transform scale-[0.98]'
-                          : 'bg-white text-gray-700 border-gray-300'
-                      }
-                      ${!isFieldEditable ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}
-                      focus:ring-2 focus:ring-offset-2
-                    `}
-                    style={
-                      isSelected
-                        ? {
-                            backgroundColor: 'var(--theme-primary)',
-                            borderColor: 'var(--theme-primary)',
-                          }
-                        : {}
-                    }
-                  >
-                    {opt.label}
-                  </button>
-                );
-              })}
-            </div>
-            {field.help_text && (
-              <p className="text-xs text-gray-500 mt-1">{field.help_text}</p>
-            )}
-            {error && (
-              <p className="text-xs text-red-600 font-medium mt-1 flex items-center gap-1">
-                <svg
-                  className="w-3 h-3"
-                  fill="currentColor"
-                  viewBox="0 0 20 20"
-                >
-                  <path
-                    fillRule="evenodd"
-                    d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
-                    clipRule="evenodd"
-                  />
-                </svg>
-                {error}
-              </p>
-            )}
-          </div>
-        );
       case 'checkbox':
         return (
-          <div>
-            <label className="flex items-center space-x-2 cursor-pointer">
-              <input
-                type="checkbox"
-                checked={value === true || value === 'true'}
-                onChange={e =>
-                  handleFieldChange(field.field_name, e.target.checked)
-                }
-                onFocus={() => handleFieldFocus(field)}
-                onBlur={() => handleFieldBlur(field)}
-                disabled={!isFieldEditable}
-                className="w-4 h-4 border-gray-300 rounded"
+          <div
+            style={{ marginBottom: styles.formElements.formGroup.marginBottom }}
+          >
+            <div
+              style={{
+                display: 'flex',
+                gap: '8px',
+                opacity: isCardCompleted ? 0.5 : 1,
+              }}
+            >
+              <label
                 style={{
-                  accentColor: 'var(--theme-primary)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                  cursor: isCardCompleted ? 'not-allowed' : 'pointer',
+                  fontSize: styles.typography.fontSizeBase,
+                  fontWeight: styles.formElements.label.fontWeight,
+                  color: styles.colors.text.primary,
                 }}
-              />
-              <span className="text-sm text-gray-700">{field.label}</span>
-            </label>
+              >
+                <input
+                  type="checkbox"
+                  checked={Boolean(value)}
+                  onChange={e =>
+                    handleFieldChange(field.field_name, e.target.checked)
+                  }
+                  onFocus={() => handleFieldFocus(field)}
+                  onBlur={() => handleFieldBlur(field)}
+                  disabled={isCardCompleted}
+                  style={{
+                    accentColor: styles.colors.brand.primary,
+                  }}
+                />
+                {field.label}
+              </label>
+            </div>
             {field.help_text && (
-              <p className="text-xs text-gray-500 mt-1">{field.help_text}</p>
+              <p
+                style={{
+                  fontSize: styles.typography.fontSizeBase,
+                  color: styles.colors.text.tertiary,
+                  marginTop: '4px',
+                }}
+              >
+                {field.help_text}
+              </p>
             )}
             {error && (
-              <p className="text-xs text-red-600 font-medium mt-1 flex items-center gap-1">
-                <svg
-                  className="w-3 h-3"
-                  fill="currentColor"
-                  viewBox="0 0 20 20"
-                >
-                  <path
-                    fillRule="evenodd"
-                    d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
-                    clipRule="evenodd"
-                  />
-                </svg>
+              <p
+                style={{
+                  fontSize: styles.formElements.errorMessage.fontSize,
+                  color: styles.formElements.errorMessage.color,
+                  marginTop: styles.formElements.errorMessage.marginTop,
+                  display: styles.formElements.errorMessage.display,
+                }}
+              >
                 {error}
               </p>
             )}
           </div>
         );
+
       case 'textarea':
         return (
-          <div>
+          <div
+            style={{ marginBottom: styles.formElements.formGroup.marginBottom }}
+          >
+            <label style={getLabelStyle(field.field_name)}>
+              {field.label}
+              {field.required && (
+                <span style={{ color: styles.colors.state.error }}>*</span>
+              )}
+            </label>
             <textarea
               value={value}
               onChange={e =>
@@ -584,187 +404,357 @@ export function FormCard({ card, onFieldFocus, stepNumber }: FormCardProps) {
               }
               onFocus={() => handleFieldFocus(field)}
               onBlur={() => handleFieldBlur(field)}
-              placeholder={field.placeholder}
-              disabled={!isFieldEditable}
-              rows={4}
-              className={inputClasses}
-              style={inputStyle}
-              minLength={field.validation_rules?.minLength}
-              maxLength={field.validation_rules?.maxLength}
+              disabled={isCardCompleted}
+              style={{
+                ...(styles.formElements.input as React.CSSProperties),
+                ...(focusedField === field.field_name &&
+                  styles.formElements.input.focus),
+                ...(error && styles.formElements.input.error),
+                ...(isCardCompleted && styles.formElements.input.disabled),
+                minHeight: '80px',
+                resize: 'vertical' as any,
+              }}
             />
             {field.help_text && (
-              <p className="text-xs text-gray-500 mt-1">{field.help_text}</p>
+              <p
+                style={{
+                  fontSize: styles.typography.fontSizeBase,
+                  color: styles.colors.text.tertiary,
+                  marginTop: '4px',
+                }}
+              >
+                {field.help_text}
+              </p>
             )}
             {error && (
-              <p className="text-xs text-red-600 font-medium mt-1 flex items-center gap-1">
-                <svg
-                  className="w-3 h-3"
-                  fill="currentColor"
-                  viewBox="0 0 20 20"
-                >
-                  <path
-                    fillRule="evenodd"
-                    d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
-                    clipRule="evenodd"
-                  />
-                </svg>
+              <p
+                style={{
+                  fontSize: styles.formElements.errorMessage.fontSize,
+                  color: styles.formElements.errorMessage.color,
+                  marginTop: styles.formElements.errorMessage.marginTop,
+                  display: styles.formElements.errorMessage.display,
+                }}
+              >
                 {error}
               </p>
             )}
           </div>
         );
+
+      case 'buttons':
+        const selectOnlyOne = field.validation_rules?.selectOnlyOne !== false;
+        const selectedValues = Array.isArray(value)
+          ? value
+          : value
+            ? [value]
+            : [];
+
+        return (
+          <div
+            style={{ marginBottom: styles.formElements.formGroup.marginBottom }}
+          >
+            <label style={getLabelStyle(field.field_name)}>
+              {field.label}
+              {field.required && (
+                <span style={{ color: styles.colors.state.error }}>*</span>
+              )}
+            </label>
+            {field.help_text && (
+              <p
+                style={{
+                  fontSize: styles.typography.fontSizeBase,
+                  color: styles.colors.text.tertiary,
+                  marginTop: '4px',
+                  marginBottom: '8px',
+                }}
+              >
+                {field.help_text}
+              </p>
+            )}
+            <div
+              style={
+                styles.formElements.buttons.container as React.CSSProperties
+              }
+            >
+              {field.options?.map((opt: any) => {
+                const isSelected = selectedValues.includes(opt.value);
+
+                return (
+                  <button
+                    key={opt.value}
+                    type="button"
+                    onClick={() => {
+                      if (isCardCompleted) {
+                        return;
+                      }
+
+                      if (selectOnlyOne) {
+                        // Single selection mode
+                        handleFieldChange(
+                          field.field_name,
+                          isSelected ? '' : opt.value
+                        );
+                      } else {
+                        // Multi-selection mode
+                        const newValues = isSelected
+                          ? selectedValues.filter(
+                              (v: string) => v !== opt.value
+                            )
+                          : [...selectedValues, opt.value];
+                        handleFieldChange(field.field_name, newValues);
+                      }
+                    }}
+                    onFocus={e => {
+                      handleFieldFocus(field);
+                      if (!isCardCompleted) {
+                        Object.assign(
+                          e.currentTarget.style,
+                          styles.formElements.buttons.buttonFocus
+                        );
+                      }
+                    }}
+                    onBlur={e => {
+                      handleFieldBlur(field);
+                      e.currentTarget.style.outline = 'none';
+                      e.currentTarget.style.outlineOffset = '0';
+                    }}
+                    disabled={isCardCompleted}
+                    style={{
+                      ...(styles.formElements.buttons
+                        .button as React.CSSProperties),
+                      ...(isSelected && {
+                        ...styles.formElements.buttons.buttonSelected,
+                        ...(isCardCompleted && {
+                          background:
+                            styles.formElements.buttons.buttonDisabled
+                              .background,
+                        }), // Use disabled background when completed
+                      }),
+                      ...(isCardCompleted &&
+                        !isSelected && {
+                          ...styles.formElements.buttons.buttonDisabled,
+                        }),
+                    }}
+                    onMouseEnter={e => {
+                      if (!isCardCompleted && !isSelected) {
+                        // Apply hover styles
+                        Object.assign(
+                          e.currentTarget.style,
+                          styles.formElements.buttons.buttonHover
+                        );
+                      }
+                    }}
+                    onMouseLeave={e => {
+                      if (!isCardCompleted && !isSelected) {
+                        // Reset to base styles
+                        Object.assign(
+                          e.currentTarget.style,
+                          styles.formElements.buttons.button
+                        );
+                      }
+                    }}
+                  >
+                    <span
+                      style={
+                        styles.formElements.buttons
+                          .buttonContent as React.CSSProperties
+                      }
+                    >
+                      {!selectOnlyOne && (
+                        <input
+                          type="checkbox"
+                          checked={isSelected}
+                          onChange={() => {}} // Handled by button click
+                          style={{
+                            ...(styles.formElements.buttons.multiSelect
+                              .checkbox as React.CSSProperties),
+                            ...(isSelected &&
+                              styles.formElements.buttons.multiSelect
+                                .checkboxChecked),
+                          }}
+                          disabled={isCardCompleted}
+                          onClick={e => e.stopPropagation()}
+                        />
+                      )}
+                      <span
+                        style={
+                          styles.formElements.buttons
+                            .buttonText as React.CSSProperties
+                        }
+                      >
+                        {opt.label}
+                      </span>
+                    </span>
+                    {isSelected && selectOnlyOne && (
+                      <span
+                        style={{
+                          ...(styles.formElements.buttons
+                            .buttonIndicator as React.CSSProperties),
+                          ...styles.formElements.buttons
+                            .buttonIndicatorSelected,
+                        }}
+                      >
+                        ✓
+                      </span>
+                    )}
+                  </button>
+                );
+              })}
+            </div>
+            {error && (
+              <p
+                style={{
+                  fontSize: styles.formElements.errorMessage.fontSize,
+                  color: styles.formElements.errorMessage.color,
+                  marginTop: styles.formElements.errorMessage.marginTop,
+                  display: styles.formElements.errorMessage.display,
+                }}
+              >
+                {error}
+              </p>
+            )}
+          </div>
+        );
+
       default:
-        return null;
+        return <p>Unsupported field type: {field.field_type}</p>;
     }
   };
 
-  // Theme is now handled by CardStream configuration system
-
-  // Get border radius class based on theme settings
-  const getBorderRadiusClass = (radius: string): string => {
-    switch (radius) {
-      case 'none':
-        return 'rounded-none';
-      case 'sm':
-        return 'rounded-sm';
-      case 'md':
-        return 'rounded-md';
-      case 'lg':
-        return 'rounded-lg';
-      case 'xl':
-        return 'rounded-xl';
-      case 'full':
-        return 'rounded-full';
-      default:
-        return 'rounded-lg'; // fallback
-    }
-  };
+  if (!card.card_fields || card.card_fields.length === 0) {
+    return (
+      <div
+        style={{
+          padding: '20px',
+          color: styles.colors.text.tertiary,
+          fontSize: styles.typography.fontSizeBase,
+          textAlign: 'center',
+        }}
+      >
+        No fields defined for this card
+      </div>
+    );
+  }
 
   return (
-    <div className="bg-white p-6">
-      <div className="mb-4">
-        <div className="flex items-center gap-3">
-          {stepNumber && (
-            <div
-              className={`flex items-center justify-center min-w-8 h-8 px-2 text-sm font-bold shadow-sm ${getBorderRadiusClass('lg')}`}
+    <div
+      style={{
+        padding: styles.card.base.padding,
+        position: cssValue(styles.card.base.position),
+        overflow: styles.card.base.overflow,
+      }}
+    >
+      {/* Header section with separator */}
+      <div style={styles.card.header as React.CSSProperties}>
+        <div style={{ flex: 1 }}>
+          <h2
+            style={{
+              fontSize: styles.card.title.fontSize,
+              fontWeight: styles.card.title.fontWeight,
+              color: styles.card.title.color,
+              lineHeight: styles.card.title.lineHeight,
+              marginBottom: styles.card.title.marginBottom,
+              letterSpacing: styles.card.title.letterSpacing,
+            }}
+          >
+            {card.title || card.name}
+          </h2>
+          {card.config?.description && (
+            <p
               style={{
-                backgroundColor: 'var(--theme-primary)',
-                color: 'var(--theme-primary-text)',
+                fontSize: styles.card.description.fontSize,
+                fontWeight: styles.card.description.fontWeight,
+                color: styles.card.description.color,
+                lineHeight: styles.card.description.lineHeight,
+                marginBottom: styles.card.description.marginBottom,
               }}
             >
-              {stepNumber}
-            </div>
+              {card.config.description}
+            </p>
           )}
-          <h2 className="text-xl font-semibold">{card.title}</h2>
         </div>
       </div>
 
-      <div className="grid grid-cols-12 gap-4">
-        {fields.map(field => (
-          <div
-            key={field.id}
-            className={`
-              col-span-12
-              ${field.width === 'full' ? 'md:col-span-12' : ''}
-              ${field.width === 'half' ? 'md:col-span-6' : ''}
-              ${field.width === 'third' ? 'md:col-span-4' : ''}
-            `}
-          >
-            <label className="block text-sm font-medium mb-2 flex items-center gap-2">
-              {field.icon && (
-                <span className="material-icons text-gray-600 text-lg">
-                  {field.icon}
-                </span>
-              )}
-              <span>{field.label}</span>
-              {field.required && <span className="text-red-500 ml-1">*</span>}
-              {isFieldCompleted(field, formData[field.field_name]) && (
-                <svg
-                  className="w-4 h-4 text-green-600"
-                  fill="currentColor"
-                  viewBox="0 0 20 20"
-                >
-                  <path
-                    fillRule="evenodd"
-                    d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                    clipRule="evenodd"
-                  />
-                </svg>
-              )}
-            </label>
-            {renderField(field)}
-          </div>
-        ))}
-      </div>
+      {/* Form Fields */}
+      {card.card_fields.map(field => (
+        <div key={field.field_name}>{renderField(field)}</div>
+      ))}
 
       {/* Submit Button Section */}
       {card.config?.has_submit_button && (
-        <div className="mt-6 pt-4 border-t border-gray-200">
+        <div style={styles.submitButton.wrapper as React.CSSProperties}>
           {submitSuccess ? (
-            <div className="text-center p-4 bg-green-50 border border-green-200 rounded-lg">
-              <svg
-                className="w-8 h-8 text-green-600 mx-auto mb-2"
-                fill="currentColor"
-                viewBox="0 0 20 20"
-              >
-                <path
-                  fillRule="evenodd"
-                  d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                  clipRule="evenodd"
-                />
-              </svg>
-              <p className="text-green-800 font-medium">
-                {card.config?.submit_success_message ||
-                  'Thank you! Your submission has been received.'}
-              </p>
+            <div
+              style={{
+                textAlign: 'center',
+                padding: '20px',
+                color: styles.colors.state.success,
+                fontSize: '16px',
+                fontWeight: '500',
+              }}
+            >
+              <span style={{ fontSize: '24px', marginRight: '8px' }}>✓</span>
+              {card.config?.submit_success_message ||
+                'Lomake lähetetty onnistuneesti!'}
             </div>
           ) : (
-            <div className="text-center">
-              <button
-                onClick={handleSubmit}
-                disabled={isSubmitting}
-                className={`
-                  inline-flex items-center gap-2 px-6 py-3 text-white font-medium rounded-lg
-                  ${isSubmitting ? 'bg-gray-400 cursor-not-allowed' : ''}
-                  transition-colors duration-200
-                `}
-                style={
-                  !isSubmitting
-                    ? {
-                        backgroundColor: 'var(--theme-primary)',
-                      }
-                    : {}
+            <button
+              onClick={handleSubmit}
+              disabled={isSubmitting}
+              style={{
+                ...(styles.submitButton.button as React.CSSProperties),
+                ...(isSubmitting ? styles.submitButton.buttonDisabled : {}),
+              }}
+              onMouseEnter={e => {
+                if (!isSubmitting) {
+                  Object.assign(
+                    e.currentTarget.style,
+                    styles.submitButton.buttonHover
+                  );
                 }
-              >
-                {isSubmitting ? (
-                  <>
-                    <svg
-                      className="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
-                      xmlns="http://www.w3.org/2000/svg"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                    >
-                      <circle
-                        className="opacity-25"
-                        cx="12"
-                        cy="12"
-                        r="10"
-                        stroke="currentColor"
-                        strokeWidth="4"
-                      ></circle>
-                      <path
-                        className="opacity-75"
-                        fill="currentColor"
-                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                      ></path>
-                    </svg>
-                    Submitting...
-                  </>
-                ) : (
-                  card.config?.submit_button_text || 'Submit'
-                )}
-              </button>
-            </div>
+              }}
+              onMouseLeave={e => {
+                if (!isSubmitting) {
+                  Object.assign(e.currentTarget.style, {
+                    ...styles.submitButton.button,
+                    transform: 'none',
+                    boxShadow: 'none',
+                  });
+                }
+              }}
+              onMouseDown={e => {
+                if (!isSubmitting) {
+                  Object.assign(
+                    e.currentTarget.style,
+                    styles.submitButton.buttonActive
+                  );
+                }
+              }}
+              onMouseUp={e => {
+                if (!isSubmitting) {
+                  Object.assign(
+                    e.currentTarget.style,
+                    styles.submitButton.buttonHover
+                  );
+                }
+              }}
+            >
+              {isSubmitting ? (
+                <>
+                  {card.config?.submit_button_text || 'Lähetä'}
+                  <span
+                    style={{
+                      ...(styles.submitButton.buttonLoading
+                        .spinner as React.CSSProperties),
+                      display: 'inline-block',
+                      marginLeft: '8px',
+                    }}
+                  />
+                </>
+              ) : (
+                card.config?.submit_button_text || 'Lähetä'
+              )}
+            </button>
           )}
         </div>
       )}
