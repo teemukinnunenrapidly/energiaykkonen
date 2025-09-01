@@ -51,12 +51,12 @@ export function FormCard({ card, onFieldFocus }: FormCardProps) {
     }
 
     // Check if this card only has button fields
-    const onlyHasButtons = card.fields?.every(f => f.field_type === 'buttons');
+    const onlyHasButtons = card.card_fields?.every((f: any) => f.field_type === 'buttons');
 
     // If card only has button fields and card is currently completed
     if (onlyHasButtons && cardStates[card.id]?.status === 'complete') {
       // Check if all button fields are now empty/deselected
-      const allButtonsDeselected = card.fields?.every(f => {
+      const allButtonsDeselected = card.card_fields?.every((f: any) => {
         const fieldValue =
           f.field_name === fieldName ? value : formData[f.field_name];
         return (
@@ -715,11 +715,9 @@ export function FormCard({ card, onFieldFocus }: FormCardProps) {
               }}
               onMouseLeave={e => {
                 if (!isSubmitting) {
-                  Object.assign(e.currentTarget.style, {
-                    ...styles.submitButton.button,
-                    transform: 'none',
-                    boxShadow: 'none',
-                  });
+                  Object.assign(e.currentTarget.style, 
+                    styles.submitButton.button,
+                    { transform: 'none', boxShadow: 'none' });
                 }
               }}
               onMouseDown={e => {

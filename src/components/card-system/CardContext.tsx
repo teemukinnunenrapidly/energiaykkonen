@@ -639,7 +639,9 @@ export function CardProvider({ children }: { children: React.ReactNode }) {
         setCardStates(newStates);
       } catch (error) {
         console.error('❌ CardContext: Failed to load cards:', error);
-        console.error('Stack trace:', error.stack);
+        if (error instanceof Error) {
+          console.error('Stack trace:', error.stack);
+        }
       }
     };
 
