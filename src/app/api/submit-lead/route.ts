@@ -88,16 +88,17 @@ export async function POST(request: NextRequest) {
     const leadData = {
       // Critical fixed columns (matching actual database column names)
       first_name: body.first_name || body.nimi?.split(' ')[0] || '',
-      last_name: body.last_name || body.nimi?.split(' ').slice(1).join(' ') || '',
-      s_hk_posti: body.sahkoposti || body.s_hk_posti || '',  // Map to actual column name
+      last_name:
+        body.last_name || body.nimi?.split(' ').slice(1).join(' ') || '',
+      s_hk_posti: body.sahkoposti || body.s_hk_posti || '', // Map to actual column name
       puhelinnumero: body.puhelinnumero || '',
       status: 'new' as const,
-      
+
       // All dynamic form fields go into JSONB
       form_data: {
         // Store email in JSONB too for consistency
         sahkoposti: body.sahkoposti || '',
-        
+
         // Property details
         neliot: parseFloat(body.neliot) || 0,
         huonekorkeus: parseFloat(body.huonekorkeus || '2.5'),
@@ -105,17 +106,17 @@ export async function POST(request: NextRequest) {
         floors: parseInt(body.floors || '1'),
         henkilomaara: parseInt(body.henkilomaara || '2'),
         hot_water_usage: body.hot_water_usage || '',
-        
+
         // Address details
         osoite: body.osoite || '',
         paikkakunta: body.paikkakunta || '',
         postcode: body.postcode || '',
-        
+
         // Current heating
         lammitysmuoto: body.lammitysmuoto || '',
         vesikiertoinen: parseFloat(body.vesikiertoinen) || 0,
         current_energy_consumption: body.current_energy_consumption,
-        
+
         // Heat pump calculations
         annual_energy_need: calculations.annualEnergyNeed,
         heat_pump_consumption: calculations.heatPumpConsumption,
@@ -125,21 +126,21 @@ export async function POST(request: NextRequest) {
         ten_year_savings: calculations.tenYearSavings,
         payback_period: calculations.paybackPeriod,
         co2_reduction: calculations.co2Reduction,
-        
+
         // Other preferences
         valittutukimuoto: body.valittutukimuoto || '',
         message: body.message || '',
-        
+
         // Metadata
         source_page: sourcePage,
         user_agent: userAgent,
         ip_address: clientIp,
         consent_timestamp: new Date().toISOString(),
-        
+
         // Store ALL fields from Card Builder dynamically
         ...Object.fromEntries(
-          Object.entries(body).filter(([key]) => 
-            !['first_name', 'last_name', 'nimi'].includes(key)
+          Object.entries(body).filter(
+            ([key]) => !['first_name', 'last_name', 'nimi'].includes(key)
           )
         ),
       },
@@ -171,12 +172,14 @@ export async function POST(request: NextRequest) {
     let pdfUrl: string | null = null;
     try {
       console.log('📄 Generating PDF savings report...');
-      
+
       // Process data for PDF using the new lead-based approach
       const pdfData = await processPDFData(insertedLead);
-      
+
       // Generate PDF
-      const component = React.createElement(SavingsReportPDF, { data: pdfData });
+      const component = React.createElement(SavingsReportPDF, {
+        data: pdfData,
+      });
       // The pdf() function expects the Document element directly
       const asPdf = pdf(component as any);
       const bufferStream = await asPdf.toBuffer();
@@ -186,10 +189,10 @@ export async function POST(request: NextRequest) {
         chunks.push(chunk);
       }
       const pdfBuffer = Buffer.concat(chunks);
-      
+
       // Save PDF to Supabase Storage
       const pdfFileName = `${insertedLead.id}/saastolaskelma-${pdfData.calculationNumber || Date.now()}.pdf`;
-      
+
       try {
         const { data: uploadData, error: uploadError } = await supabase.storage
           .from('lead-pdfs')
@@ -203,23 +206,23 @@ export async function POST(request: NextRequest) {
           console.error('Failed to upload PDF to storage:', uploadError);
         } else {
           console.log('✅ PDF uploaded to storage:', uploadData.path);
-          
+
           // Get the public URL for the PDF
           const { data: urlData } = supabase.storage
             .from('lead-pdfs')
             .getPublicUrl(pdfFileName);
-          
+
           pdfUrl = urlData.publicUrl;
-          
+
           // Update the lead with PDF URL
           const { error: updateError } = await supabase
             .from('leads')
-            .update({ 
+            .update({
               pdf_url: pdfUrl,
-              pdf_generated_at: new Date().toISOString()
+              pdf_generated_at: new Date().toISOString(),
             })
             .eq('id', insertedLead.id);
-          
+
           if (updateError) {
             console.error('Failed to update lead with PDF URL:', updateError);
           }
@@ -227,17 +230,20 @@ export async function POST(request: NextRequest) {
       } catch (storageError) {
         console.error('Storage operation failed:', storageError);
       }
-      
+
       // Create attachment object for email
       pdfAttachment = {
         filename: `saastolaskelma-${pdfData.calculationNumber || Date.now()}.pdf`,
         content: pdfBuffer,
         contentType: 'application/pdf',
       };
-      
+
       console.log('✅ PDF generated successfully');
     } catch (pdfError) {
-      console.error('⚠️ PDF generation failed (continuing without PDF):', pdfError);
+      console.error(
+        '⚠️ PDF generation failed (continuing without PDF):',
+        pdfError
+      );
       // Continue without PDF attachment if generation fails
     }
 

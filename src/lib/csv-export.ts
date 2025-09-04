@@ -1,4 +1,5 @@
 import { Lead } from './supabase';
+import { flattenLeadData } from './lead-helpers';
 
 /**
  * CSV Export utility for leads data
@@ -127,50 +128,52 @@ function leadToCSVRow(
   lead: Lead,
   dateFormat: 'ISO' | 'Finnish' = 'Finnish'
 ): string[] {
+  // Flatten lead data to access JSONB fields
+  const flatLead = flattenLeadData(lead);
   return [
     // Contact Information
-    lead.first_name || '',
-    lead.last_name || '',
-    lead.sahkoposti || '',
-    lead.puhelinnumero || '',
-    lead.osoite || '',
-    lead.paikkakunta || '',
-    lead.valittutukimuoto || '',
+    flatLead.first_name || '',
+    flatLead.last_name || '',
+    flatLead.sahkoposti || '',
+    flatLead.puhelinnumero || '',
+    flatLead.osoite || '',
+    flatLead.paikkakunta || '',
+    flatLead.valittutukimuoto || '',
 
     // Property Details
-    lead.neliot?.toString() || '',
-    lead.huonekorkeus?.toString() || '',
-    lead.rakennusvuosi || '',
-    lead.floors?.toString() || '',
-    lead.henkilomaara?.toString() || '',
-    lead.hot_water_usage || '',
+    flatLead.neliot?.toString() || '',
+    flatLead.huonekorkeus?.toString() || '',
+    flatLead.rakennusvuosi || '',
+    flatLead.floors?.toString() || '',
+    flatLead.henkilomaara?.toString() || '',
+    flatLead.hot_water_usage || '',
 
     // Current Heating
-    lead.lammitysmuoto || '',
-    formatCurrencyForCSV(lead.vesikiertoinen || 0),
-    lead.current_energy_consumption?.toLocaleString('fi-FI') || '',
+    flatLead.lammitysmuoto || '',
+    formatCurrencyForCSV(flatLead.vesikiertoinen || 0),
+    flatLead.current_energy_consumption?.toLocaleString('fi-FI') || '',
 
     // Heat Pump Calculations
-    lead.annual_energy_need?.toLocaleString('fi-FI') || '',
-    lead.heat_pump_consumption?.toLocaleString('fi-FI') || '',
-    formatCurrencyForCSV(lead.heat_pump_cost_annual || 0),
-    formatCurrencyForCSV(lead.annual_savings || 0),
-    formatCurrencyForCSV(lead.five_year_savings || 0),
-    formatCurrencyForCSV(lead.ten_year_savings || 0),
-    lead.payback_period?.toFixed(1) || '',
-    lead.co2_reduction?.toLocaleString('fi-FI') || '',
+    flatLead.annual_energy_need?.toLocaleString('fi-FI') || '',
+    flatLead.heat_pump_consumption?.toLocaleString('fi-FI') || '',
+    formatCurrencyForCSV(flatLead.heat_pump_cost_annual || 0),
+    formatCurrencyForCSV(flatLead.annual_savings || 0),
+    formatCurrencyForCSV(flatLead.five_year_savings || 0),
+    formatCurrencyForCSV(flatLead.ten_year_savings || 0),
+    flatLead.payback_period?.toFixed(1) || '',
+    flatLead.co2_reduction?.toLocaleString('fi-FI') || '',
 
     // Lead Management
-    lead.status || '',
-    lead.notes || '',
-    lead.message || '',
+    flatLead.status || '',
+    flatLead.notes || '',
+    flatLead.message || '',
 
     // Metadata
-    formatDateForCSV(lead.created_at, dateFormat),
-    formatDateForCSV(lead.updated_at, dateFormat),
-    lead.ip_address || '',
-    lead.user_agent || '',
-    lead.source_page || '',
+    formatDateForCSV(flatLead.created_at, dateFormat),
+    formatDateForCSV(flatLead.updated_at, dateFormat),
+    flatLead.ip_address || '',
+    flatLead.user_agent || '',
+    flatLead.source_page || '',
   ];
 }
 

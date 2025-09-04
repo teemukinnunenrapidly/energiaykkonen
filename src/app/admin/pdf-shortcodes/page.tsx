@@ -1,7 +1,13 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Plus, FileCode, Eye, Settings, TestTube } from 'lucide-react';
@@ -14,7 +20,8 @@ import type { PDFShortcode } from '@/lib/pdf/database-pdf-processor';
 
 export default function PDFShortcodesPage() {
   const [shortcodes, setShortcodes] = useState<PDFShortcode[]>([]);
-  const [selectedShortcode, setSelectedShortcode] = useState<PDFShortcode | null>(null);
+  const [selectedShortcode, setSelectedShortcode] =
+    useState<PDFShortcode | null>(null);
   const [isCreating, setIsCreating] = useState(false);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('list');
@@ -32,7 +39,9 @@ export default function PDFShortcodesPage() {
         .order('category')
         .order('name');
 
-      if (error) throw error;
+      if (error) {
+        throw error;
+      }
       setShortcodes(data || []);
     } catch (error) {
       console.error('Error loading shortcodes:', error);
@@ -64,15 +73,19 @@ export default function PDFShortcodesPage() {
         const { error } = await supabase
           .from('pdf_shortcodes')
           .insert([shortcode]);
-        if (error) throw error;
+        if (error) {
+          throw error;
+        }
       } else {
         const { error } = await supabase
           .from('pdf_shortcodes')
           .update(shortcode)
           .eq('id', shortcode.id);
-        if (error) throw error;
+        if (error) {
+          throw error;
+        }
       }
-      
+
       await loadShortcodes();
       setSelectedShortcode(null);
       setIsCreating(false);
@@ -83,15 +96,19 @@ export default function PDFShortcodesPage() {
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm('Haluatko varmasti poistaa taman shortcoden?')) return;
-    
+    if (!confirm('Haluatko varmasti poistaa taman shortcoden?')) {
+      return;
+    }
+
     try {
       const { error } = await supabase
         .from('pdf_shortcodes')
         .delete()
         .eq('id', id);
-      
-      if (error) throw error;
+
+      if (error) {
+        throw error;
+      }
       await loadShortcodes();
       setSelectedShortcode(null);
     } catch (error) {
@@ -104,11 +121,16 @@ export default function PDFShortcodesPage() {
       <div className="mb-6">
         <h1 className="text-3xl font-bold mb-2">PDF Shortcodes</h1>
         <p className="text-muted-foreground">
-          Hallitse PDF-dokumenteissa kaytettavia shortcodeja. Voit lisata uusia kenttia, kaavoja ja muotoiluja ilman koodimuutoksia.
+          Hallitse PDF-dokumenteissa kaytettavia shortcodeja. Voit lisata uusia
+          kenttia, kaavoja ja muotoiluja ilman koodimuutoksia.
         </p>
       </div>
 
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
+      <Tabs
+        value={activeTab}
+        onValueChange={setActiveTab}
+        className="space-y-4"
+      >
         <div className="flex justify-between items-center">
           <TabsList>
             <TabsTrigger value="list" className="flex items-center gap-2">
@@ -128,7 +150,7 @@ export default function PDFShortcodesPage() {
               Kaytettavissa olevat kentat
             </TabsTrigger>
           </TabsList>
-          
+
           <Button onClick={handleCreateNew} className="flex items-center gap-2">
             <Plus className="w-4 h-4" />
             Uusi Shortcode
@@ -138,7 +160,7 @@ export default function PDFShortcodesPage() {
         <TabsContent value="list" className="space-y-4">
           <ShortcodeList
             shortcodes={shortcodes}
-            onSelect={(sc) => {
+            onSelect={sc => {
               setSelectedShortcode(sc);
               setIsCreating(false);
               setActiveTab('editor');
@@ -180,10 +202,12 @@ export default function PDFShortcodesPage() {
               </CardHeader>
               <CardContent>
                 <div className="space-y-2">
-                  {shortcodes.map((sc) => (
+                  {shortcodes.map(sc => (
                     <Button
                       key={sc.id}
-                      variant={selectedShortcode?.id === sc.id ? 'default' : 'outline'}
+                      variant={
+                        selectedShortcode?.id === sc.id ? 'default' : 'outline'
+                      }
                       className="w-full justify-start"
                       onClick={() => setSelectedShortcode(sc)}
                     >
@@ -194,7 +218,7 @@ export default function PDFShortcodesPage() {
                 </div>
               </CardContent>
             </Card>
-            
+
             {selectedShortcode && (
               <ShortcodePreview shortcode={selectedShortcode} />
             )}

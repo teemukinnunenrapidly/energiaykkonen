@@ -1,5 +1,6 @@
 import React from 'react';
 import { Lead } from '@/lib/supabase';
+import { flattenLeadData } from '@/lib/lead-helpers';
 
 interface SalesEmailData {
   lead: Lead;
@@ -12,14 +13,16 @@ export const SalesNotificationTemplate = ({
   leadScore,
   adminUrl,
 }: SalesEmailData) => {
+  // Flatten lead data to access JSONB fields
+  const flatLead = flattenLeadData(lead);
   return (
     <html>
       <head>
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <meta httpEquiv="Content-Type" content="text/html; charset=UTF-8" />
         <title>
-          New Lead: {lead.first_name} {lead.last_name} - {lead.paikkakunta} - Savings:{' '}
-          {lead.annual_savings.toLocaleString('fi-FI')}€/year
+          New Lead: {flatLead.first_name} {flatLead.last_name} - {flatLead.paikkakunta} -
+          Savings: {flatLead.annual_savings?.toLocaleString('fi-FI') || '0'}€/year
         </title>
         <style>{`
           body {
@@ -197,8 +200,9 @@ export const SalesNotificationTemplate = ({
               </span>
             </h1>
             <p style={{ margin: '8px 0 0 0', opacity: '0.9' }}>
-              {lead.first_name} {lead.last_name} - {lead.paikkakunta || 'Ei kaupunkia'}{' '}
-              - Säästöt: {lead.annual_savings.toLocaleString('fi-FI')}€/vuosi
+              {flatLead.first_name} {flatLead.last_name} -{' '}
+              {flatLead.paikkakunta || 'Ei kaupunkia'} - Säästöt:{' '}
+              {flatLead.annual_savings?.toLocaleString('fi-FI') || '0'}€/vuosi
             </p>
           </div>
 
@@ -213,7 +217,7 @@ export const SalesNotificationTemplate = ({
             {/* Savings Highlight */}
             <div className="savings-highlight">
               <h2 className="savings-amount">
-                {lead.annual_savings.toLocaleString('fi-FI')}€
+                {flatLead.annual_savings?.toLocaleString('fi-FI') || '0'}€
               </h2>
               <p style={{ margin: '4px 0 0 0', opacity: '0.9' }}>
                 vuosittaiset säästöt
@@ -227,42 +231,45 @@ export const SalesNotificationTemplate = ({
                 <div className="data-item">
                   <span className="data-label">Nimi:</span>
                   <span className="data-value">
-                    {lead.first_name} {lead.last_name}
+                    {flatLead.first_name} {flatLead.last_name}
                   </span>
                 </div>
                 <div className="data-item">
                   <span className="data-label">Sähköposti:</span>
                   <span className="data-value">
                     <a
-                      href={`mailto:${lead.sahkoposti}`}
+                      href={`mailto:${flatLead.sahkoposti}`}
                       style={{ color: '#22c55e' }}
                     >
-                      {lead.sahkoposti}
+                      {flatLead.sahkoposti}
                     </a>
                   </span>
                 </div>
                 <div className="data-item">
                   <span className="data-label">Puhelin:</span>
                   <span className="data-value">
-                    <a href={`tel:${lead.puhelinnumero}`} style={{ color: '#22c55e' }}>
-                      {lead.puhelinnumero}
+                    <a
+                      href={`tel:${flatLead.puhelinnumero}`}
+                      style={{ color: '#22c55e' }}
+                    >
+                      {flatLead.puhelinnumero}
                     </a>
                   </span>
                 </div>
                 <div className="data-item">
                   <span className="data-label">Yhteydenotto:</span>
-                  <span className="data-value">{lead.valittutukimuoto}</span>
+                  <span className="data-value">{flatLead.valittutukimuoto}</span>
                 </div>
               </div>
-              {lead.osoite && (
+              {flatLead.osoite && (
                 <div className="data-item">
                   <span className="data-label">Osoite:</span>
                   <span className="data-value">
-                    {lead.osoite}, {lead.paikkakunta}
+                    {flatLead.osoite}, {flatLead.paikkakunta}
                   </span>
                 </div>
               )}
-              {lead.message && (
+              {flatLead.message && (
                 <div className="data-item" style={{ marginTop: '16px' }}>
                   <span className="data-label">Viesti:</span>
                   <div
@@ -273,7 +280,7 @@ export const SalesNotificationTemplate = ({
                       marginTop: '8px',
                     }}
                   >
-                    &quot;{lead.message}&quot;
+                    &quot;{flatLead.message}&quot;
                   </div>
                 </div>
               )}
@@ -285,37 +292,39 @@ export const SalesNotificationTemplate = ({
               <div className="data-grid">
                 <div className="data-item">
                   <span className="data-label">Koko:</span>
-                  <span className="data-value">{lead.neliot}m²</span>
+                  <span className="data-value">{flatLead.neliot}m²</span>
                 </div>
                 <div className="data-item">
                   <span className="data-label">Korkeus:</span>
-                  <span className="data-value">{lead.huonekorkeus}m</span>
+                  <span className="data-value">{flatLead.huonekorkeus}m</span>
                 </div>
                 <div className="data-item">
                   <span className="data-label">Kerrokset:</span>
-                  <span className="data-value">{lead.floors} krs</span>
+                  <span className="data-value">{flatLead.floors} krs</span>
                 </div>
                 <div className="data-item">
                   <span className="data-label">Rakennusvuosi:</span>
-                  <span className="data-value">{lead.rakennusvuosi}</span>
+                  <span className="data-value">{flatLead.rakennusvuosi}</span>
                 </div>
                 <div className="data-item">
                   <span className="data-label">Nykyinen lämmitys:</span>
-                  <span className="data-value">{lead.lammitysmuoto}</span>
+                  <span className="data-value">{flatLead.lammitysmuoto}</span>
                 </div>
                 <div className="data-item">
                   <span className="data-label">Lämmityskustannus:</span>
                   <span className="data-value">
-                    {lead.vesikiertoinen.toLocaleString('fi-FI')}€/vuosi
+                    {flatLead.vesikiertoinen?.toLocaleString('fi-FI') || '0'}€/vuosi
                   </span>
                 </div>
                 <div className="data-item">
                   <span className="data-label">Asukkaat:</span>
-                  <span className="data-value">{lead.henkilomaara} henkilöä</span>
+                  <span className="data-value">
+                    {flatLead.henkilomaara} henkilöä
+                  </span>
                 </div>
                 <div className="data-item">
                   <span className="data-label">LKV käyttö:</span>
-                  <span className="data-value">{lead.hot_water_usage}</span>
+                  <span className="data-value">{flatLead.hot_water_usage}</span>
                 </div>
               </div>
             </div>
@@ -327,19 +336,19 @@ export const SalesNotificationTemplate = ({
                 <div className="data-item">
                   <span className="data-label">Energiantarve:</span>
                   <span className="data-value">
-                    {lead.annual_energy_need.toLocaleString('fi-FI')} kWh/v
+                    {flatLead.annual_energy_need?.toLocaleString('fi-FI') || '0'} kWh/v
                   </span>
                 </div>
                 <div className="data-item">
                   <span className="data-label">LP kulutus:</span>
                   <span className="data-value">
-                    {lead.heat_pump_consumption.toLocaleString('fi-FI')} kWh/v
+                    {flatLead.heat_pump_consumption?.toLocaleString('fi-FI') || '0'} kWh/v
                   </span>
                 </div>
                 <div className="data-item">
                   <span className="data-label">LP kustannus:</span>
                   <span className="data-value">
-                    {lead.heat_pump_cost_annual.toLocaleString('fi-FI')}€/v
+                    {flatLead.heat_pump_cost_annual?.toLocaleString('fi-FI') || '0'}€/v
                   </span>
                 </div>
                 <div className="data-item">
@@ -348,31 +357,31 @@ export const SalesNotificationTemplate = ({
                     className="data-value"
                     style={{ fontWeight: '600', color: '#22c55e' }}
                   >
-                    {lead.annual_savings.toLocaleString('fi-FI')}€
+                    {flatLead.annual_savings?.toLocaleString('fi-FI') || '0'}€
                   </span>
                 </div>
                 <div className="data-item">
                   <span className="data-label">5v säästöt:</span>
                   <span className="data-value">
-                    {lead.five_year_savings.toLocaleString('fi-FI')}€
+                    {flatLead.five_year_savings?.toLocaleString('fi-FI') || '0'}€
                   </span>
                 </div>
                 <div className="data-item">
                   <span className="data-label">10v säästöt:</span>
                   <span className="data-value">
-                    {lead.ten_year_savings.toLocaleString('fi-FI')}€
+                    {flatLead.ten_year_savings?.toLocaleString('fi-FI') || '0'}€
                   </span>
                 </div>
                 <div className="data-item">
                   <span className="data-label">Takaisinmaksu:</span>
                   <span className="data-value">
-                    {lead.payback_period.toFixed(1)} vuotta
+                    {flatLead.payback_period?.toFixed(1) || '0'} vuotta
                   </span>
                 </div>
                 <div className="data-item">
                   <span className="data-label">CO2 säästö:</span>
                   <span className="data-value">
-                    {lead.co2_reduction.toLocaleString('fi-FI')} kg/v
+                    {flatLead.co2_reduction?.toLocaleString('fi-FI') || '0'} kg/v
                   </span>
                 </div>
               </div>
@@ -380,10 +389,13 @@ export const SalesNotificationTemplate = ({
 
             {/* Action Buttons */}
             <div className="cta-buttons">
-              <a href={`tel:${lead.puhelinnumero}`} className="btn btn-primary">
+              <a href={`tel:${flatLead.puhelinnumero}`} className="btn btn-primary">
                 📞 Soita asiakkaalle
               </a>
-              <a href={`mailto:${lead.sahkoposti}`} className="btn btn-secondary">
+              <a
+                href={`mailto:${flatLead.sahkoposti}`}
+                className="btn btn-secondary"
+              >
                 ✉️ Lähetä sähköposti
               </a>
               <a href={adminUrl} className="btn btn-secondary">
@@ -429,6 +441,8 @@ export const SalesNotificationTemplate = ({
 // Export template as string function for Resend
 export const generateSalesEmailHtml = (data: SalesEmailData): string => {
   const { lead, leadScore, adminUrl } = data;
+  // Flatten lead data to access JSONB fields
+  const flatLead = flattenLeadData(lead);
 
   const scoreClass = `score-${leadScore}`;
   const priorityAlert =
@@ -442,7 +456,7 @@ export const generateSalesEmailHtml = (data: SalesEmailData): string => {
       <head>
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-        <title>New Lead: ${lead.first_name} ${lead.last_name} - ${lead.paikkakunta || 'Ei kaupunkia'} - Savings: ${lead.annual_savings.toLocaleString('fi-FI')}€/year</title>
+        <title>New Lead: ${flatLead.first_name} ${flatLead.last_name} - ${flatLead.paikkakunta || 'Ei kaupunkia'} - Savings: ${flatLead.annual_savings?.toLocaleString('fi-FI') || '0'}€/year</title>
         <style>
           body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
@@ -533,7 +547,7 @@ export const generateSalesEmailHtml = (data: SalesEmailData): string => {
               <span class="lead-score ${scoreClass}">${leadScore.toUpperCase()} PRIORITY</span>
             </h1>
             <p style="margin: 8px 0 0 0; opacity: 0.9;">
-              ${lead.first_name} ${lead.last_name} - ${lead.paikkakunta || 'Ei kaupunkia'} - Säästöt: ${lead.annual_savings.toLocaleString('fi-FI')}€/vuosi
+              ${flatLead.first_name} ${flatLead.last_name} - ${flatLead.paikkakunta || 'Ei kaupunkia'} - Säästöt: ${flatLead.annual_savings?.toLocaleString('fi-FI') || '0'}€/vuosi
             </p>
           </div>
           
@@ -541,64 +555,64 @@ export const generateSalesEmailHtml = (data: SalesEmailData): string => {
             ${priorityAlert}
             
             <div class="savings-highlight">
-              <h2 style="font-size: 28px; font-weight: 700; margin: 0;">${lead.annual_savings.toLocaleString('fi-FI')}€</h2>
+              <h2 style="font-size: 28px; font-weight: 700; margin: 0;">${flatLead.annual_savings?.toLocaleString('fi-FI') || '0'}€</h2>
               <p style="margin: 4px 0 0 0; opacity: 0.9;">vuosittaiset säästöt</p>
             </div>
             
             <div class="section">
               <h3 style="margin: 0 0 12px 0; font-size: 16px; color: #1f2937;">📞 Yhteystiedot</h3>
               <div class="data-grid">
-                <div><strong>Nimi:</strong> ${lead.first_name} ${lead.last_name}</div>
-                <div><strong>Sähköposti:</strong> <a href="mailto:${lead.sahkoposti}" style="color: #22c55e;">${lead.sahkoposti}</a></div>
-                <div><strong>Puhelin:</strong> <a href="tel:${lead.puhelinnumero}" style="color: #22c55e;">${lead.puhelinnumero}</a></div>
-                <div><strong>Yhteydenotto:</strong> ${lead.valittutukimuoto}</div>
+                <div><strong>Nimi:</strong> ${flatLead.first_name} ${flatLead.last_name}</div>
+                <div><strong>Sähköposti:</strong> <a href="mailto:${flatLead.sahkoposti}" style="color: #22c55e;">${flatLead.sahkoposti}</a></div>
+                <div><strong>Puhelin:</strong> <a href="tel:${flatLead.puhelinnumero}" style="color: #22c55e;">${flatLead.puhelinnumero}</a></div>
+                <div><strong>Yhteydenotto:</strong> ${flatLead.valittutukimuoto}</div>
               </div>
-              ${lead.osoite ? `<div style="margin-top: 12px;"><strong>Osoite:</strong> ${lead.osoite}, ${lead.paikkakunta}</div>` : ''}
-              ${lead.message ? `<div style="margin-top: 16px;"><strong>Viesti:</strong><div style="background: #ffffff; padding: 12px; border-radius: 4px; margin-top: 8px;">"${lead.message}"</div></div>` : ''}
+              ${flatLead.osoite ? `<div style="margin-top: 12px;"><strong>Osoite:</strong> ${flatLead.osoite}, ${flatLead.paikkakunta}</div>` : ''}
+              ${flatLead.message ? `<div style="margin-top: 16px;"><strong>Viesti:</strong><div style="background: #ffffff; padding: 12px; border-radius: 4px; margin-top: 8px;">"${flatLead.message}"</div></div>` : ''}
             </div>
             
             <div class="section">
               <h3 style="margin: 0 0 12px 0; font-size: 16px; color: #1f2937;">🏠 Talon tiedot</h3>
               <div class="data-grid">
-                <div><strong>Koko:</strong> ${lead.neliot}m²</div>
-                <div><strong>Korkeus:</strong> ${lead.huonekorkeus}m</div>
-                <div><strong>Kerrokset:</strong> ${lead.floors} krs</div>
-                <div><strong>Rakennusvuosi:</strong> ${lead.rakennusvuosi}</div>
-                <div><strong>Nykyinen lämmitys:</strong> ${lead.lammitysmuoto}</div>
-                <div><strong>Lämmityskustannus:</strong> ${lead.vesikiertoinen.toLocaleString('fi-FI')}€/vuosi</div>
-                <div><strong>Asukkaat:</strong> ${lead.henkilomaara} henkilöä</div>
-                <div><strong>LKV käyttö:</strong> ${lead.hot_water_usage}</div>
+                <div><strong>Koko:</strong> ${flatLead.neliot}m²</div>
+                <div><strong>Korkeus:</strong> ${flatLead.huonekorkeus}m</div>
+                <div><strong>Kerrokset:</strong> ${flatLead.floors} krs</div>
+                <div><strong>Rakennusvuosi:</strong> ${flatLead.rakennusvuosi}</div>
+                <div><strong>Nykyinen lämmitys:</strong> ${flatLead.lammitysmuoto}</div>
+                <div><strong>Lämmityskustannus:</strong> ${flatLead.vesikiertoinen?.toLocaleString('fi-FI') || '0'}€/vuosi</div>
+                <div><strong>Asukkaat:</strong> ${flatLead.henkilomaara} henkilöä</div>
+                <div><strong>LKV käyttö:</strong> ${flatLead.hot_water_usage}</div>
               </div>
             </div>
             
             <div class="section">
               <h3 style="margin: 0 0 12px 0; font-size: 16px; color: #1f2937;">📊 Laskelman tulokset</h3>
               <div class="data-grid">
-                <div><strong>Energiantarve:</strong> ${lead.annual_energy_need.toLocaleString('fi-FI')} kWh/v</div>
-                <div><strong>LP kulutus:</strong> ${lead.heat_pump_consumption.toLocaleString('fi-FI')} kWh/v</div>
-                <div><strong>LP kustannus:</strong> ${lead.heat_pump_cost_annual.toLocaleString('fi-FI')}€/v</div>
-                <div><strong>Vuosisäästö:</strong> <span style="font-weight: 600; color: #22c55e;">${lead.annual_savings.toLocaleString('fi-FI')}€</span></div>
-                <div><strong>5v säästöt:</strong> ${lead.five_year_savings.toLocaleString('fi-FI')}€</div>
-                <div><strong>10v säästöt:</strong> ${lead.ten_year_savings.toLocaleString('fi-FI')}€</div>
-                <div><strong>Takaisinmaksu:</strong> ${lead.payback_period.toFixed(1)} vuotta</div>
-                <div><strong>CO2 säästö:</strong> ${lead.co2_reduction.toLocaleString('fi-FI')} kg/v</div>
+                <div><strong>Energiantarve:</strong> ${flatLead.annual_energy_need?.toLocaleString('fi-FI') || '0'} kWh/v</div>
+                <div><strong>LP kulutus:</strong> ${flatLead.heat_pump_consumption?.toLocaleString('fi-FI') || '0'} kWh/v</div>
+                <div><strong>LP kustannus:</strong> ${flatLead.heat_pump_cost_annual?.toLocaleString('fi-FI') || '0'}€/v</div>
+                <div><strong>Vuosisäästö:</strong> <span style="font-weight: 600; color: #22c55e;">${flatLead.annual_savings?.toLocaleString('fi-FI') || '0'}€</span></div>
+                <div><strong>5v säästöt:</strong> ${flatLead.five_year_savings?.toLocaleString('fi-FI') || '0'}€</div>
+                <div><strong>10v säästöt:</strong> ${flatLead.ten_year_savings?.toLocaleString('fi-FI') || '0'}€</div>
+                <div><strong>Takaisinmaksu:</strong> ${flatLead.payback_period?.toFixed(1) || '0'} vuotta</div>
+                <div><strong>CO2 säästö:</strong> ${flatLead.co2_reduction?.toLocaleString('fi-FI') || '0'} kg/v</div>
               </div>
             </div>
             
             <div style="text-align: center; margin: 24px 0;">
-              <a href="tel:${lead.puhelinnumero}" class="btn btn-primary">📞 Soita asiakkaalle</a>
-              <a href="mailto:${lead.sahkoposti}" class="btn btn-secondary">✉️ Lähetä sähköposti</a>
+              <a href="tel:${flatLead.puhelinnumero}" class="btn btn-primary">📞 Soita asiakkaalle</a>
+              <a href="mailto:${flatLead.sahkoposti}" class="btn btn-secondary">✉️ Lähetä sähköposti</a>
               <a href="${adminUrl}" class="btn btn-secondary">👤 Avaa CRM</a>
             </div>
             
             <div style="background: #f3f4f6; padding: 16px; border-radius: 6px; font-size: 14px; color: #6b7280;">
               <h4 style="margin: 0 0 8px 0; color: #374151;">Metatiedot</h4>
               <div style="font-size: 13px;">
-                <div><strong>Lead ID:</strong> ${lead.id}</div>
-                <div><strong>Aikaleima:</strong> ${new Date(lead.created_at).toLocaleString('fi-FI')}</div>
-                <div><strong>IP-osoite:</strong> ${lead.ip_address || 'Ei saatavilla'}</div>
-                <div><strong>Lähde:</strong> ${lead.source_page || 'Suora'}</div>
-                <div><strong>Selain:</strong> ${lead.user_agent ? lead.user_agent.substring(0, 100) + '...' : 'Ei saatavilla'}</div>
+                <div><strong>Lead ID:</strong> ${flatLead.id}</div>
+                <div><strong>Aikaleima:</strong> ${new Date(flatLead.created_at).toLocaleString('fi-FI')}</div>
+                <div><strong>IP-osoite:</strong> ${flatLead.ip_address || 'Ei saatavilla'}</div>
+                <div><strong>Lähde:</strong> ${flatLead.source_page || 'Suora'}</div>
+                <div><strong>Selain:</strong> ${flatLead.user_agent ? flatLead.user_agent.substring(0, 100) + '...' : 'Ei saatavilla'}</div>
               </div>
             </div>
           </div>

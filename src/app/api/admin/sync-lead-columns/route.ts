@@ -68,18 +68,24 @@ export async function POST(request: NextRequest) {
       if (createRpcError) {
         // Fallback: Use a different approach to check columns
         console.log('Using fallback column check method');
-        
+
         // Try to select the old column to see if it exists
         const { error: selectError } = await supabase
           .from('leads')
           .select(sanitizedOldName)
           .limit(1);
 
-        if (selectError?.message?.includes('column') && 
-            selectError?.message?.includes('does not exist')) {
-          console.log(`Column ${sanitizedOldName} does not exist in leads table`);
+        if (
+          selectError?.message?.includes('column') &&
+          selectError?.message?.includes('does not exist')
+        ) {
+          console.log(
+            `Column ${sanitizedOldName} does not exist in leads table`
+          );
           return NextResponse.json(
-            { message: `Column ${sanitizedOldName} does not exist in leads table, no update needed` },
+            {
+              message: `Column ${sanitizedOldName} does not exist in leads table, no update needed`,
+            },
             { status: 200 }
           );
         }
@@ -101,7 +107,9 @@ export async function POST(request: NextRequest) {
       if (selectError?.message?.includes('does not exist')) {
         console.log(`Column ${sanitizedOldName} does not exist in leads table`);
         return NextResponse.json(
-          { message: `Column ${sanitizedOldName} does not exist in leads table, skipping` },
+          {
+            message: `Column ${sanitizedOldName} does not exist in leads table, skipping`,
+          },
           { status: 200 }
         );
       }

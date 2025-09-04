@@ -11,6 +11,7 @@ import {
 } from './email-templates';
 import { getEmailTemplatesByCategory } from './email-templates-service';
 import { UnifiedCalculationEngine } from './unified-calculation-engine';
+import { flattenLeadData } from './lead-helpers';
 
 /**
  * Send customer results email with calculation details
@@ -20,89 +21,97 @@ export async function sendCustomerResultsEmail(
   pdfAttachment?: EmailAttachment
 ) {
   try {
-    console.log(`Sending customer results email to ${lead.sahkoposti}`);
+    // Flatten lead data to access JSONB fields
+    const flatLead = flattenLeadData(lead);
+    console.log(`Sending customer results email to ${flatLead.sahkoposti}`);
 
     // Try to fetch template from database first
     let html: string;
     let subject: string = emailSubjects.customer();
-    
+
     try {
       // Fetch customer results template from database
       const templates = await getEmailTemplatesByCategory('results');
-      
+
       if (templates && templates.length > 0) {
         // Use the first active template
         const template = templates[0];
-        
+
         // Prepare data for shortcode processing
         const templateData = {
           // Lead data
-          first_name: lead.first_name,
-          last_name: lead.last_name,
-          sahkoposti: lead.sahkoposti,
-          puhelinnumero: lead.puhelinnumero,
-          osoite: lead.osoite,
-          paikkakunta: lead.paikkakunta,
-          
+          first_name: flatLead.first_name,
+          last_name: flatLead.last_name,
+          sahkoposti: flatLead.sahkoposti,
+          puhelinnumero: flatLead.puhelinnumero,
+          osoite: flatLead.osoite,
+          paikkakunta: flatLead.paikkakunta,
+
           // House data
-          neliot: lead.neliot,
-          huonekorkeus: lead.huonekorkeus,
-          rakennusvuosi: lead.rakennusvuosi,
-          floors: lead.floors,
-          lammitysmuoto: lead.lammitysmuoto,
-          vesikiertoinen: lead.vesikiertoinen,
-          current_energy_consumption: lead.current_energy_consumption,
-          henkilomaara: lead.henkilomaara,
-          hot_water_usage: lead.hot_water_usage,
-          
+          neliot: flatLead.neliot,
+          huonekorkeus: flatLead.huonekorkeus,
+          rakennusvuosi: flatLead.rakennusvuosi,
+          floors: flatLead.floors,
+          lammitysmuoto: flatLead.lammitysmuoto,
+          vesikiertoinen: flatLead.vesikiertoinen,
+          current_energy_consumption: flatLead.current_energy_consumption,
+          henkilomaara: flatLead.henkilomaara,
+          hot_water_usage: flatLead.hot_water_usage,
+
           // Calculations
-          annual_energy_need: lead.annual_energy_need,
-          heat_pump_consumption: lead.heat_pump_consumption,
-          heat_pump_cost_annual: lead.heat_pump_cost_annual,
-          annual_savings: lead.annual_savings,
-          five_year_savings: lead.five_year_savings,
-          ten_year_savings: lead.ten_year_savings,
-          payback_period: lead.payback_period,
-          co2_reduction: lead.co2_reduction,
-          
+          annual_energy_need: flatLead.annual_energy_need,
+          heat_pump_consumption: flatLead.heat_pump_consumption,
+          heat_pump_cost_annual: flatLead.heat_pump_cost_annual,
+          annual_savings: flatLead.annual_savings,
+          five_year_savings: flatLead.five_year_savings,
+          ten_year_savings: flatLead.ten_year_savings,
+          payback_period: flatLead.payback_period,
+          co2_reduction: flatLead.co2_reduction,
+
           // Add PDF attachment note if PDF is attached
-          pdf_attachment_note: pdfAttachment 
+          pdf_attachment_note: pdfAttachment
             ? '<p style="background-color: #f0f9ff; padding: 12px; border-radius: 6px; margin: 16px 0;">📎 <strong>Liite:</strong> Yksityiskohtainen säästöraportti PDF-muodossa on liitteenä tässä sähköpostissa.</p>'
-            : ''
+            : '',
         };
-        
+
         // Process shortcodes in template
         const engine = new UnifiedCalculationEngine(
           supabase,
           `email-${Date.now()}`,
           templateData
         );
-        
+
         // Process subject
         const subjectResult = await engine.process(template.subject);
-        subject = subjectResult.success && subjectResult.result ? subjectResult.result : template.subject;
-        
+        subject =
+          subjectResult.success && subjectResult.result
+            ? subjectResult.result
+            : template.subject;
+
         // Process content
         const contentResult = await engine.process(template.content);
-        html = contentResult.success && contentResult.result ? contentResult.result : template.content;
-        
+        html =
+          contentResult.success && contentResult.result
+            ? contentResult.result
+            : template.content;
+
         console.log('✅ Using database template for customer email');
       } else {
         // Fall back to hardcoded template
         console.log('⚠️ No database template found, using hardcoded template');
         const emailData: CustomerEmailData = {
-          firstName: lead.first_name,
-          lastName: lead.last_name,
+          firstName: flatLead.first_name,
+          lastName: flatLead.last_name,
           calculations: {
-            annualSavings: lead.annual_savings,
-            fiveYearSavings: lead.five_year_savings,
-            tenYearSavings: lead.ten_year_savings,
-            paybackPeriod: lead.payback_period,
-            co2Reduction: lead.co2_reduction,
+            annualSavings: flatLead.annual_savings || 0,
+            fiveYearSavings: flatLead.five_year_savings || 0,
+            tenYearSavings: flatLead.ten_year_savings || 0,
+            paybackPeriod: flatLead.payback_period || 0,
+            co2Reduction: flatLead.co2_reduction || 0,
           },
           houseInfo: {
-            squareMeters: lead.neliot,
-            heatingType: lead.lammitysmuoto,
+            squareMeters: flatLead.neliot || 0,
+            heatingType: flatLead.lammitysmuoto || '',
           },
         };
         html = generateCustomerEmailHtml(emailData);
@@ -111,20 +120,20 @@ export async function sendCustomerResultsEmail(
       // If database fetch fails, fall back to hardcoded template
       console.error('Failed to fetch database template:', templateError);
       console.log('⚠️ Falling back to hardcoded template');
-      
+
       const emailData: CustomerEmailData = {
-        firstName: lead.first_name,
-        lastName: lead.last_name,
+        firstName: flatLead.first_name,
+        lastName: flatLead.last_name,
         calculations: {
-          annualSavings: lead.annual_savings,
-          fiveYearSavings: lead.five_year_savings,
-          tenYearSavings: lead.ten_year_savings,
-          paybackPeriod: lead.payback_period,
-          co2Reduction: lead.co2_reduction,
+          annualSavings: flatLead.annual_savings || 0,
+          fiveYearSavings: flatLead.five_year_savings || 0,
+          tenYearSavings: flatLead.ten_year_savings || 0,
+          paybackPeriod: flatLead.payback_period || 0,
+          co2Reduction: flatLead.co2_reduction || 0,
         },
         houseInfo: {
-          squareMeters: lead.neliot,
-          heatingType: lead.lammitysmuoto,
+          squareMeters: flatLead.neliot || 0,
+          heatingType: flatLead.lammitysmuoto || '',
         },
       };
       html = generateCustomerEmailHtml(emailData);
@@ -132,7 +141,7 @@ export async function sendCustomerResultsEmail(
 
     // Send email with optional PDF attachment
     const result = await sendEmail({
-      to: lead.sahkoposti,
+      to: flatLead.sahkoposti,
       subject,
       html,
       attachments: pdfAttachment ? [pdfAttachment] : undefined,

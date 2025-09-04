@@ -24,8 +24,12 @@ export const SavingsReportPDF: React.FC<{ data: PDFData }> = ({ data }) => (
           <Text style={styles.documentTitle}>SÄÄSTÖLASKELMA</Text>
         </View>
         <View style={styles.headerRight}>
-          <Text style={styles.documentDate}>{data.calculationDate || new Date().toLocaleDateString('fi-FI')}</Text>
-          <Text style={styles.documentNumber}>Laskelma #{data.calculationNumber || '2025-001'}</Text>
+          <Text style={styles.documentDate}>
+            {data.calculationDate || new Date().toLocaleDateString('fi-FI')}
+          </Text>
+          <Text style={styles.documentNumber}>
+            Laskelma #{data.calculationNumber || '2025-001'}
+          </Text>
         </View>
       </View>
 
@@ -36,45 +40,89 @@ export const SavingsReportPDF: React.FC<{ data: PDFData }> = ({ data }) => (
           <View style={styles.customerColumn}>
             <View style={styles.customerRow}>
               <Text style={styles.customerLabel}>Nimi:</Text>
-              <Text style={styles.customerValue}>{data.customerName || `${data.first_name} ${data.last_name}` || 'Matti Meikäläinen'}</Text>
+              <Text style={styles.customerValue}>
+                {data.customerName ||
+                  `${data.first_name} ${data.last_name}` ||
+                  'Matti Meikäläinen'}
+              </Text>
             </View>
             <View style={styles.customerRow}>
               <Text style={styles.customerLabel}>Sähköposti:</Text>
-              <Text style={styles.customerValue}>{data.customerEmail || data.sahkoposti || 'matti.meikalainen@email.fi'}</Text>
+              <Text style={styles.customerValue}>
+                {data.customerEmail ||
+                  data.sahkoposti ||
+                  'matti.meikalainen@email.fi'}
+              </Text>
             </View>
             <View style={styles.customerRow}>
               <Text style={styles.customerLabel}>Puhelinnumero:</Text>
-              <Text style={styles.customerValue}>{data.customerPhone || data.puhelinnumero || '040 123 4567'}</Text>
+              <Text style={styles.customerValue}>
+                {data.customerPhone || data.puhelinnumero || '040 123 4567'}
+              </Text>
             </View>
             <View style={styles.customerRow}>
               <Text style={styles.customerLabel}>Osoite:</Text>
-              <Text style={styles.customerValue}>{data.customerAddress || data.osoite || data.address || 'Kotikatu 123'}</Text>
+              <Text style={styles.customerValue}>
+                {data.customerAddress ||
+                  data.osoite ||
+                  data.address ||
+                  'Kotikatu 123'}
+              </Text>
             </View>
             <View style={styles.customerRow}>
               <Text style={styles.customerLabel}>Paikkakunta:</Text>
-              <Text style={styles.customerValue}>{data.customerCity || `${data.postcode} ${data.paikkakunta}` || '00100 Helsinki'}</Text>
+              <Text style={styles.customerValue}>
+                {data.customerCity ||
+                  `${data.postcode} ${data.paikkakunta}` ||
+                  '00100 Helsinki'}
+              </Text>
             </View>
           </View>
           <View style={styles.customerColumn}>
             <View style={styles.customerRow}>
               <Text style={styles.customerLabel}>Henkilömäärä:</Text>
-              <Text style={styles.customerValue}>{data.peopleCount || data.people_count || data.henkilomaara || '4'} henkilöä</Text>
+              <Text style={styles.customerValue}>
+                {data.peopleCount ||
+                  data.people_count ||
+                  data.henkilomaara ||
+                  '4'}{' '}
+                henkilöä
+              </Text>
             </View>
             <View style={styles.customerRow}>
               <Text style={styles.customerLabel}>Rakennusvuosi:</Text>
-              <Text style={styles.customerValue}>{data.buildingYear || data.building_year || data.rakennusvuosi || '1987'}</Text>
+              <Text style={styles.customerValue}>
+                {data.buildingYear ||
+                  data.building_year ||
+                  data.rakennusvuosi ||
+                  '1987'}
+              </Text>
             </View>
             <View style={styles.customerRow}>
               <Text style={styles.customerLabel}>Pinta-ala:</Text>
-              <Text style={styles.customerValue}>{data.buildingArea || data.building_area || data.neliot || '120'} m²</Text>
+              <Text style={styles.customerValue}>
+                {data.buildingArea ||
+                  data.building_area ||
+                  data.neliot ||
+                  '120'}{' '}
+                m²
+              </Text>
             </View>
             <View style={styles.customerRow}>
               <Text style={styles.customerLabel}>Kerroksia:</Text>
-              <Text style={styles.customerValue}>{data.floors || '2'} kerrosta</Text>
+              <Text style={styles.customerValue}>
+                {data.floors || '2'} kerrosta
+              </Text>
             </View>
             <View style={styles.customerRow}>
               <Text style={styles.customerLabel}>Energiantarve:</Text>
-              <Text style={styles.customerValue}>{data.energyNeed || data.total_energy_need || data.annual_energy_need || '22 000'} kWh/vuosi</Text>
+              <Text style={styles.customerValue}>
+                {data.energyNeed ||
+                  data.total_energy_need ||
+                  data.annual_energy_need ||
+                  '22 000'}{' '}
+                kWh/vuosi
+              </Text>
             </View>
           </View>
         </View>
@@ -84,13 +132,19 @@ export const SavingsReportPDF: React.FC<{ data: PDFData }> = ({ data }) => (
       <View style={styles.comparisonSection}>
         <Text style={styles.sectionTitle}>Lämmityskustannusten vertailu</Text>
         <View style={styles.twoColumns}>
-          
           {/* Nykyinen järjestelmä */}
           <View style={styles.column}>
             <View style={[styles.systemBox, styles.systemBoxCurrent]}>
-              <Text style={styles.systemTitle}>Nykyinen lämmitysjärjestelmä</Text>
-              <Text style={styles.systemSubtitle}>{data.currentSystem || data.current_heating || data.lammitysmuoto || 'Öljylämmitys'}</Text>
-              
+              <Text style={styles.systemTitle}>
+                Nykyinen lämmitysjärjestelmä
+              </Text>
+              <Text style={styles.systemSubtitle}>
+                {data.currentSystem ||
+                  data.current_heating ||
+                  data.lammitysmuoto ||
+                  'Öljylämmitys'}
+              </Text>
+
               <View style={styles.costSummary}>
                 <View style={styles.costHeader}>
                   <Text style={styles.costHeaderLabel}>Aikaväli</Text>
@@ -98,34 +152,59 @@ export const SavingsReportPDF: React.FC<{ data: PDFData }> = ({ data }) => (
                 </View>
                 <View style={styles.costRow}>
                   <Text style={styles.costLabel}>1 vuosi</Text>
-                  <Text style={[styles.costValue, styles.negative]}>{data.currentYear1Cost || data.current_yearly_cost || data.vesikiertoinen || '2 600'} €</Text>
+                  <Text style={[styles.costValue, styles.negative]}>
+                    {data.currentYear1Cost ||
+                      data.current_yearly_cost ||
+                      data.vesikiertoinen ||
+                      '2 600'}{' '}
+                    €
+                  </Text>
                 </View>
                 <View style={[styles.costRow, styles.costRowHighlight]}>
                   <Text style={styles.costLabel}>5 vuotta</Text>
-                  <Text style={[styles.costValue, styles.negative]}>{data.currentYear5Cost || data.current_5year_cost || '13 000'} €</Text>
+                  <Text style={[styles.costValue, styles.negative]}>
+                    {data.currentYear5Cost ||
+                      data.current_5year_cost ||
+                      '13 000'}{' '}
+                    €
+                  </Text>
                 </View>
                 <View style={styles.costRow}>
                   <Text style={styles.costLabel}>10 vuotta</Text>
-                  <Text style={[styles.costValue, styles.negative]}>{data.currentYear10Cost || data.current_10year_cost || '26 000'} €</Text>
+                  <Text style={[styles.costValue, styles.negative]}>
+                    {data.currentYear10Cost ||
+                      data.current_10year_cost ||
+                      '26 000'}{' '}
+                    €
+                  </Text>
                 </View>
               </View>
 
               <View style={styles.systemDetails}>
                 <View style={styles.detailRow}>
                   <Text style={styles.detailLabel}>Öljyn kulutus:</Text>
-                  <Text style={styles.detailValue}>{data.oilConsumption || data.oil_consumption || '2 000'} L/vuosi</Text>
+                  <Text style={styles.detailValue}>
+                    {data.oilConsumption || data.oil_consumption || '2 000'}{' '}
+                    L/vuosi
+                  </Text>
                 </View>
                 <View style={styles.detailRow}>
                   <Text style={styles.detailLabel}>Öljyn hinta:</Text>
-                  <Text style={styles.detailValue}>{data.oilPrice || data.oil_price || '1,30'} €/litra</Text>
+                  <Text style={styles.detailValue}>
+                    {data.oilPrice || data.oil_price || '1,30'} €/litra
+                  </Text>
                 </View>
                 <View style={styles.detailRow}>
                   <Text style={styles.detailLabel}>Huoltokustannus:</Text>
-                  <Text style={styles.detailValue}>{data.currentMaintenance || '200'} €/vuosi</Text>
+                  <Text style={styles.detailValue}>
+                    {data.currentMaintenance || '200'} €/vuosi
+                  </Text>
                 </View>
                 <View style={styles.detailRow}>
                   <Text style={styles.detailLabel}>CO₂-päästöt:</Text>
-                  <Text style={styles.detailValue}>{data.currentCO2 || data.current_co2 || '5 320'} kg/vuosi</Text>
+                  <Text style={styles.detailValue}>
+                    {data.currentCO2 || data.current_co2 || '5 320'} kg/vuosi
+                  </Text>
                 </View>
               </View>
             </View>
@@ -135,8 +214,10 @@ export const SavingsReportPDF: React.FC<{ data: PDFData }> = ({ data }) => (
           <View style={styles.column}>
             <View style={[styles.systemBox, styles.systemBoxNew]}>
               <Text style={styles.systemTitle}>Ilmavesilämpöpumppu</Text>
-              <Text style={styles.systemSubtitle}>Moderni VILP-järjestelmä</Text>
-              
+              <Text style={styles.systemSubtitle}>
+                Moderni VILP-järjestelmä
+              </Text>
+
               <View style={styles.costSummary}>
                 <View style={styles.costHeaderWithSavings}>
                   <Text style={styles.costHeaderLabel}>Aikaväli</Text>
@@ -145,50 +226,95 @@ export const SavingsReportPDF: React.FC<{ data: PDFData }> = ({ data }) => (
                 </View>
                 <View style={styles.costRowWithSavings}>
                   <Text style={styles.costLabel}>1 vuosi</Text>
-                  <Text style={styles.costCenter}>{data.newYear1Cost || data.new_yearly_cost || data.heat_pump_cost_annual || '975'} €</Text>
+                  <Text style={styles.costCenter}>
+                    {data.newYear1Cost ||
+                      data.new_yearly_cost ||
+                      data.heat_pump_cost_annual ||
+                      '975'}{' '}
+                    €
+                  </Text>
                   <View style={styles.savingsColumn}>
-                    <Text style={[styles.costValue, styles.positive]}>{data.savings1Year || data.yearly_savings || data.annual_savings || '1 625'} €</Text>
+                    <Text style={[styles.costValue, styles.positive]}>
+                      {data.savings1Year ||
+                        data.yearly_savings ||
+                        data.annual_savings ||
+                        '1 625'}{' '}
+                      €
+                    </Text>
                     <Text style={styles.elyNote}>+4 000€*</Text>
                   </View>
                 </View>
-                <View style={[styles.costRowWithSavings, styles.costRowHighlight]}>
+                <View
+                  style={[styles.costRowWithSavings, styles.costRowHighlight]}
+                >
                   <Text style={styles.costLabel}>5 vuotta</Text>
-                  <Text style={styles.costCenter}>{data.newYear5Cost || data.new_5year_cost || '4 875'} €</Text>
-                  <Text style={[styles.costValue, styles.positive]}>{data.savings5Year || data.five_year_savings || '8 125'} €</Text>
+                  <Text style={styles.costCenter}>
+                    {data.newYear5Cost || data.new_5year_cost || '4 875'} €
+                  </Text>
+                  <Text style={[styles.costValue, styles.positive]}>
+                    {data.savings5Year || data.five_year_savings || '8 125'} €
+                  </Text>
                 </View>
                 <View style={styles.costRowWithSavings}>
                   <Text style={styles.costLabel}>10 vuotta</Text>
-                  <Text style={styles.costCenter}>{data.newYear10Cost || data.new_10year_cost || '9 750'} €</Text>
-                  <Text style={[styles.costValue, styles.positive]}>{data.savings10Year || data.ten_year_savings || '16 250'} €</Text>
+                  <Text style={styles.costCenter}>
+                    {data.newYear10Cost || data.new_10year_cost || '9 750'} €
+                  </Text>
+                  <Text style={[styles.costValue, styles.positive]}>
+                    {data.savings10Year || data.ten_year_savings || '16 250'} €
+                  </Text>
                 </View>
               </View>
 
               <View style={styles.systemDetails}>
                 <View style={styles.detailRow}>
                   <Text style={styles.detailLabel}>Sähkön kulutus:</Text>
-                  <Text style={styles.detailValue}>{data.electricityConsumption || data.heat_pump_consumption || '6 500'} kWh/vuosi</Text>
+                  <Text style={styles.detailValue}>
+                    {data.electricityConsumption ||
+                      data.heat_pump_consumption ||
+                      '6 500'}{' '}
+                    kWh/vuosi
+                  </Text>
                 </View>
                 <Text style={styles.detailNote}>
-                  Arvio energiamäärästä, joka tarvitaan täyttämään laskennallinen energiantarve. Laskelmassa käytetty maltillista 3.8 hyötysuhdetta.
+                  Arvio energiamäärästä, joka tarvitaan täyttämään
+                  laskennallinen energiantarve. Laskelmassa käytetty maltillista
+                  3.8 hyötysuhdetta.
                 </Text>
                 <View style={styles.detailRow}>
                   <Text style={styles.detailLabel}>Sähkön hinta:</Text>
-                  <Text style={styles.detailValue}>{data.electricityPrice || data.electricity_price || '0,15'} €/kWh</Text>
+                  <Text style={styles.detailValue}>
+                    {data.electricityPrice || data.electricity_price || '0,15'}{' '}
+                    €/kWh
+                  </Text>
                 </View>
                 <View style={styles.detailRow}>
-                  <Text style={styles.detailLabel}>Huoltokustannus ensimmäiset 5v:</Text>
+                  <Text style={styles.detailLabel}>
+                    Huoltokustannus ensimmäiset 5v:
+                  </Text>
                   <Text style={styles.detailValue}>0 €/vuosi</Text>
                 </View>
                 <View style={styles.detailRow}>
-                  <Text style={styles.detailLabel}>Huoltokustannus seuraavat 5v:</Text>
-                  <Text style={styles.detailValue}>{data.newMaintenance10Years || data.heat_pump_maintenance_10y || '30'} €/vuosi</Text>
+                  <Text style={styles.detailLabel}>
+                    Huoltokustannus seuraavat 5v:
+                  </Text>
+                  <Text style={styles.detailValue}>
+                    {data.newMaintenance10Years ||
+                      data.heat_pump_maintenance_10y ||
+                      '30'}{' '}
+                    €/vuosi
+                  </Text>
                 </View>
                 <View style={styles.detailRow}>
                   <Text style={styles.detailLabel}>CO₂-päästöt:</Text>
-                  <Text style={styles.detailValue}>{data.newCO2 || data.new_co2 || '0'} kg/vuosi</Text>
+                  <Text style={styles.detailValue}>
+                    {data.newCO2 || data.new_co2 || '0'} kg/vuosi
+                  </Text>
                 </View>
                 <Text style={styles.elyNoteDescription}>
-                  * ELY-keskuksen energiatuki öljylämmityksestä luopumiseen. Tuki on 4 000 € pientaloille. Edellyttää hakemuksen tekemistä ennen töiden aloittamista.
+                  * ELY-keskuksen energiatuki öljylämmityksestä luopumiseen.
+                  Tuki on 4 000 € pientaloille. Edellyttää hakemuksen tekemistä
+                  ennen töiden aloittamista.
                 </Text>
               </View>
             </View>
@@ -198,30 +324,42 @@ export const SavingsReportPDF: React.FC<{ data: PDFData }> = ({ data }) => (
 
       {/* EDUT */}
       <View style={styles.listContainer}>
-        <Text style={styles.sectionTitle}>Moderni ilmavesilämpöpumppu Energiaykköseltä</Text>
+        <Text style={styles.sectionTitle}>
+          Moderni ilmavesilämpöpumppu Energiaykköseltä
+        </Text>
         <View style={styles.twoColumns}>
           <View style={styles.column}>
             <View style={styles.listItem}>
               <Text style={styles.listIcon}>✓</Text>
-              <Text style={styles.listText}>10 vuoden huoltovapaat laitteet modernilla tekniikalla</Text>
+              <Text style={styles.listText}>
+                10 vuoden huoltovapaat laitteet modernilla tekniikalla
+              </Text>
             </View>
             <View style={styles.listItem}>
               <Text style={styles.listIcon}>✓</Text>
-              <Text style={styles.listText}>5 vuoden täystakuu kaikille komponenteille</Text>
+              <Text style={styles.listText}>
+                5 vuoden täystakuu kaikille komponenteille
+              </Text>
             </View>
             <View style={styles.listItem}>
               <Text style={styles.listIcon}>✓</Text>
-              <Text style={styles.listText}>Kotitalousvähennys 40% työn osuudesta (max 3 200 €)</Text>
+              <Text style={styles.listText}>
+                Kotitalousvähennys 40% työn osuudesta (max 3 200 €)
+              </Text>
             </View>
           </View>
           <View style={styles.column}>
             <View style={styles.listItem}>
               <Text style={styles.listIcon}>✓</Text>
-              <Text style={styles.listText}>Kiinteistön arvon nousu ja parempi energialuokka</Text>
+              <Text style={styles.listText}>
+                Kiinteistön arvon nousu ja parempi energialuokka
+              </Text>
             </View>
             <View style={styles.listItem}>
               <Text style={styles.listIcon}>✓</Text>
-              <Text style={styles.listText}>Älykäs etäohjaus mobiilisovelluksella</Text>
+              <Text style={styles.listText}>
+                Älykäs etäohjaus mobiilisovelluksella
+              </Text>
             </View>
           </View>
         </View>
@@ -231,7 +369,10 @@ export const SavingsReportPDF: React.FC<{ data: PDFData }> = ({ data }) => (
       <View style={styles.infoBox}>
         <Text style={styles.infoBoxTitle}>Visiomme</Text>
         <Text style={styles.infoBoxContent}>
-          Visiomme uusiutuvan energian tuottamisesta ydinvoimalan verran (4 TWh vuodessa) on kunnianhimoinen. Tämä vastaa 380 000 polttomoottoriauton vuosittaisia päästöjä. Vision taustalla on paljon laskelmia, ja siksi pidämmekin sen toteuttamista täysin mahdollisena.
+          Visiomme uusiutuvan energian tuottamisesta ydinvoimalan verran (4 TWh
+          vuodessa) on kunnianhimoinen. Tämä vastaa 380 000 polttomoottoriauton
+          vuosittaisia päästöjä. Vision taustalla on paljon laskelmia, ja siksi
+          pidämmekin sen toteuttamista täysin mahdollisena.
         </Text>
       </View>
 

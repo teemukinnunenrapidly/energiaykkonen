@@ -24,7 +24,7 @@ export default function TestPDF() {
     address: 'Kotikatu 123', // For PDF mapping
     postcode: '00100',
     city: 'Helsinki',
-    
+
     // Building Information
     square_meters: 150,
     building_area: 150, // For PDF mapping
@@ -32,24 +32,24 @@ export default function TestPDF() {
     construction_year: '1991-2010',
     building_year: 1995, // For PDF mapping
     floors: 2,
-    
+
     // Household
     residents: 4,
     people_count: 4, // For PDF mapping
     hot_water_usage: 'Normal',
-    
+
     // Current Heating System
     heating_type: 'Oil',
     current_heating: 'Öljylämmitys', // For PDF mapping
     current_heating_cost: 3200,
     current_energy_consumption: 25000,
-    
+
     // Calculated Values (normally from calculation engine)
     annual_energy_need: 22000,
     total_energy_need: 22000, // For PDF mapping
     heat_pump_consumption: 6600,
     heat_pump_cost_annual: 792,
-    
+
     // Savings calculations
     annual_savings: 2408,
     yearly_savings: 2408, // For PDF mapping
@@ -57,7 +57,7 @@ export default function TestPDF() {
     ten_year_savings: 24080,
     payback_period: 7.5,
     co2_reduction: 4400,
-    
+
     // Additional calculated values for PDF
     current_yearly_cost: 3200,
     current_5year_cost: 16000,
@@ -65,7 +65,7 @@ export default function TestPDF() {
     new_yearly_cost: 792,
     new_5year_cost: 3960,
     new_10year_cost: 7920,
-    
+
     // Lookup values (normally from database)
     oil_consumption: 2500,
     oil_price: 1.28,
@@ -85,10 +85,10 @@ export default function TestPDF() {
     setError('');
     setSuccess(false);
     setPdfUrl('');
-    
+
     try {
       console.log('🚀 Sending test data for PDF generation...');
-      
+
       const response = await fetch('/api/generate-pdf', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -102,12 +102,11 @@ export default function TestPDF() {
 
       const blob = await response.blob();
       console.log('✅ PDF generated successfully, size:', blob.size, 'bytes');
-      
+
       // Create URL for the PDF
       const url = URL.createObjectURL(blob);
       setPdfUrl(url);
       setSuccess(true);
-      
     } catch (err) {
       console.error('❌ PDF generation error:', err);
       setError(err instanceof Error ? err.message : 'Unknown error occurred');
@@ -148,13 +147,18 @@ export default function TestPDF() {
               <Card className="p-4 bg-muted/30">
                 <h4 className="font-medium mb-2">Customer Info</h4>
                 <div className="text-sm space-y-1">
-                  <div>Name: {testData.first_name} {testData.last_name}</div>
+                  <div>
+                    Name: {testData.first_name} {testData.last_name}
+                  </div>
                   <div>Email: {testData.email}</div>
                   <div>Phone: {testData.phone}</div>
-                  <div>Address: {testData.street_address}, {testData.postcode} {testData.city}</div>
+                  <div>
+                    Address: {testData.street_address}, {testData.postcode}{' '}
+                    {testData.city}
+                  </div>
                 </div>
               </Card>
-              
+
               <Card className="p-4 bg-muted/30">
                 <h4 className="font-medium mb-2">Building Info</h4>
                 <div className="text-sm space-y-1">
@@ -164,21 +168,25 @@ export default function TestPDF() {
                   <div>Residents: {testData.residents}</div>
                 </div>
               </Card>
-              
+
               <Card className="p-4 bg-muted/30">
                 <h4 className="font-medium mb-2">Current Heating</h4>
                 <div className="text-sm space-y-1">
                   <div>Type: {testData.current_heating}</div>
                   <div>Annual Cost: €{testData.current_yearly_cost}</div>
-                  <div>Energy Use: {testData.current_energy_consumption} kWh</div>
+                  <div>
+                    Energy Use: {testData.current_energy_consumption} kWh
+                  </div>
                   <div>CO2: {testData.current_co2} kg/year</div>
                 </div>
               </Card>
-              
+
               <Card className="p-4 bg-muted/30">
                 <h4 className="font-medium mb-2">Savings</h4>
                 <div className="text-sm space-y-1">
-                  <div className="text-green-600 font-semibold">Annual: €{testData.annual_savings}</div>
+                  <div className="text-green-600 font-semibold">
+                    Annual: €{testData.annual_savings}
+                  </div>
                   <div>5 Years: €{testData.five_year_savings}</div>
                   <div>10 Years: €{testData.ten_year_savings}</div>
                   <div>CO2 Reduction: {testData.co2_reduction} kg/year</div>
@@ -189,7 +197,7 @@ export default function TestPDF() {
 
           {/* Action Buttons */}
           <div className="flex flex-wrap gap-4">
-            <Button 
+            <Button
               onClick={generatePDF}
               disabled={loading}
               size="lg"
@@ -210,20 +218,12 @@ export default function TestPDF() {
 
             {success && pdfUrl && (
               <>
-                <Button 
-                  onClick={viewPDF}
-                  variant="outline"
-                  size="lg"
-                >
+                <Button onClick={viewPDF} variant="outline" size="lg">
                   <Eye className="mr-2 h-4 w-4" />
                   View PDF
                 </Button>
-                
-                <Button 
-                  onClick={downloadPDF}
-                  variant="outline"
-                  size="lg"
-                >
+
+                <Button onClick={downloadPDF} variant="outline" size="lg">
                   <Download className="mr-2 h-4 w-4" />
                   Download PDF
                 </Button>
@@ -263,11 +263,20 @@ export default function TestPDF() {
           <Card className="p-4 bg-blue-50 border-blue-200">
             <h4 className="font-medium mb-2">Testing Instructions</h4>
             <ol className="text-sm space-y-1 list-decimal list-inside">
-              <li>Click "Generate Test PDF" to create a PDF with the test data</li>
-              <li>Once generated, you can view it in a new tab or download it</li>
-              <li>Check that all shortcodes are properly replaced with values</li>
+              <li>
+                Click "Generate Test PDF" to create a PDF with the test data
+              </li>
+              <li>
+                Once generated, you can view it in a new tab or download it
+              </li>
+              <li>
+                Check that all shortcodes are properly replaced with values
+              </li>
               <li>Verify the PDF layout and formatting looks correct</li>
-              <li>Test data includes all fields mapped in /src/config/pdf-field-mappings.ts</li>
+              <li>
+                Test data includes all fields mapped in
+                /src/config/pdf-field-mappings.ts
+              </li>
             </ol>
           </Card>
         </CardContent>

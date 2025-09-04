@@ -56,7 +56,7 @@ const filesToUpdate = [
 
 filesToUpdate.forEach(filePath => {
   const fullPath = path.join(process.cwd(), filePath);
-  
+
   if (!fs.existsSync(fullPath)) {
     console.log(`File not found: ${filePath}`);
     return;

@@ -380,7 +380,7 @@ export function CardEditor({
 
           <div>
             <h3 className="font-semibold mb-4">Calculation Configuration</h3>
-            
+
             {/* Database Field Name */}
             <div className="mb-4">
               <label className="block text-sm font-medium mb-1">
@@ -399,7 +399,7 @@ export function CardEditor({
                     .replace(/[^a-z0-9_]/g, '_')
                     .replace(/^_+|_+$/g, '')
                     .replace(/_+/g, '_');
-                  
+
                   onUpdateCard({
                     config: { ...card.config, field_name: sanitized },
                   });
@@ -418,8 +418,8 @@ export function CardEditor({
                 Calculation Result Shortcode
               </label>
               <p className="text-xs text-gray-500 mb-2">
-                The shortcode that will display the actual calculation result with
-                units
+                The shortcode that will display the actual calculation result
+                with units
               </p>
               <input
                 type="text"

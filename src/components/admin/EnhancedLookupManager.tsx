@@ -361,13 +361,13 @@ export function EnhancedLookupManager() {
   const handleDuplicateLookup = async (lookup: EnhancedLookup) => {
     try {
       setLoading(true);
-      
+
       // Create new lookup with copied data
       const newName = prompt(
         'Enter name for the duplicated lookup (shortcode):',
         `${lookup.name}-copy`
       );
-      
+
       if (!newName) {
         return;
       }
@@ -388,7 +388,7 @@ export function EnhancedLookupManager() {
 
       // Load the rules from the original lookup
       const originalRules = await getLookupRules(lookup.id);
-      
+
       // Copy each rule to the new lookup
       for (const rule of originalRules) {
         await createLookupRule({
@@ -416,7 +416,7 @@ export function EnhancedLookupManager() {
       // Refresh and select the new lookup
       await loadLookups();
       setSelectedLookup(newLookup);
-      
+
       alert(`Successfully duplicated lookup as "${newName}"`);
     } catch (error) {
       console.error('Failed to duplicate lookup:', error);

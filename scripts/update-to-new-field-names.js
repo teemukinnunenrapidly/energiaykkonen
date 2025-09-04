@@ -6,26 +6,26 @@ const path = require('path');
 // Field name mappings (old -> new)
 const fieldMappings = {
   // Direct field references
-  'henkil_m_r': 'henkilomaara',
-  'l_mmitysmuoto': 'lammitysmuoto',
-  'valitse_jompi_kumpi': 'vesikiertoinen',
-  's_hk_posti': 'sahkoposti',
-  'valitse_yksi_tukimuoto': 'valittutukimuoto',
-  
+  henkil_m_r: 'henkilomaara',
+  l_mmitysmuoto: 'lammitysmuoto',
+  valitse_jompi_kumpi: 'vesikiertoinen',
+  s_hk_posti: 'sahkoposti',
+  valitse_yksi_tukimuoto: 'valittutukimuoto',
+
   // With lead. prefix
   'lead.henkil_m_r': 'lead.henkilomaara',
   'lead.l_mmitysmuoto': 'lead.lammitysmuoto',
   'lead.valitse_jompi_kumpi': 'lead.vesikiertoinen',
   'lead.s_hk_posti': 'lead.sahkoposti',
   'lead.valitse_yksi_tukimuoto': 'lead.valittutukimuoto',
-  
+
   // With dot prefix
   '.henkil_m_r': '.henkilomaara',
   '.l_mmitysmuoto': '.lammitysmuoto',
   '.valitse_jompi_kumpi': '.vesikiertoinen',
   '.s_hk_posti': '.sahkoposti',
   '.valitse_yksi_tukimuoto': '.valittutukimuoto',
-  
+
   // Object literal keys
   'henkil_m_r:': 'henkilomaara:',
   'l_mmitysmuoto:': 'lammitysmuoto:',
@@ -54,7 +54,7 @@ let totalReplacements = 0;
 
 filesToUpdate.forEach(filePath => {
   const fullPath = path.join(process.cwd(), filePath);
-  
+
   if (!fs.existsSync(fullPath)) {
     console.log(`⚠️  File not found: ${filePath}`);
     return;
@@ -65,7 +65,10 @@ filesToUpdate.forEach(filePath => {
   let fileReplacements = 0;
 
   Object.entries(fieldMappings).forEach(([oldName, newName]) => {
-    const regex = new RegExp(oldName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g');
+    const regex = new RegExp(
+      oldName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'),
+      'g'
+    );
     const matches = content.match(regex);
     if (matches) {
       content = content.replace(regex, newName);
@@ -83,4 +86,6 @@ filesToUpdate.forEach(filePath => {
   }
 });
 
-console.log(`\n✨ Field name update complete! Total replacements: ${totalReplacements}`);
+console.log(
+  `\n✨ Field name update complete! Total replacements: ${totalReplacements}`
+);

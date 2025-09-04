@@ -9,7 +9,7 @@ export const styles = StyleSheet.create({
     color: '#1f2937',
     backgroundColor: '#ffffff',
   },
-  
+
   // HEADER SECTION
   header: {
     flexDirection: 'row',
@@ -63,7 +63,7 @@ export const styles = StyleSheet.create({
     color: '#9ca3af',
     marginTop: 3,
   },
-  
+
   // CUSTOMER INFO SECTION
   customerSection: {
     backgroundColor: '#f9fafb',
@@ -106,7 +106,7 @@ export const styles = StyleSheet.create({
     fontWeight: 500,
     flex: 1,
   },
-  
+
   // COMPARISON SECTION
   comparisonSection: {
     marginBottom: 25,
@@ -286,7 +286,7 @@ export const styles = StyleSheet.create({
     paddingVertical: 4,
     marginBottom: 4,
   },
-  
+
   // LIST ITEMS
   listContainer: {
     marginBottom: 20,
@@ -307,7 +307,7 @@ export const styles = StyleSheet.create({
     lineHeight: 1.4,
     fontSize: 9,
   },
-  
+
   // INFO BOX
   infoBox: {
     backgroundColor: '#f3f4f6',
@@ -328,7 +328,7 @@ export const styles = StyleSheet.create({
     color: '#4b5563',
     lineHeight: 1.4,
   },
-  
+
   // FOOTER
   footer: {
     position: 'absolute',
@@ -355,7 +355,7 @@ export const styles = StyleSheet.create({
     flex: 1,
     textAlign: 'right',
   },
-  
+
   // Legacy styles kept for compatibility
   section: {
     marginBottom: 20,

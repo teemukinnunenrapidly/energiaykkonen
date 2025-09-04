@@ -50,11 +50,11 @@ export interface LeadFormData {
 export interface Lead {
   // Primary key
   id: string;
-  
+
   // Timestamps
   created_at: string;
   updated_at: string;
-  
+
   // Critical fixed columns (not in JSONB)
   status: 'new' | 'contacted' | 'qualified' | 'converted';
   notes?: string;
@@ -62,24 +62,24 @@ export interface Lead {
   last_name: string;
   sahkoposti: string;
   puhelinnumero: string;
-  
+
   // Key metrics (kept as columns for sorting/filtering)
   annual_savings: number;
   five_year_savings: number;
   ten_year_savings: number;
-  
+
   // Document management
   pdf_url?: string;
   pdf_generated_at?: string;
-  
+
   // Tracking metadata
   ip_address?: string;
   user_agent?: string;
   source_page?: string;
-  
+
   // JSONB field containing all dynamic form data
   form_data?: LeadFormData;
-  
+
   // Virtual fields for backward compatibility
   // These are extracted from form_data by views or application logic
   neliot?: number;

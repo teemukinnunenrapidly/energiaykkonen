@@ -8,10 +8,10 @@ import { processPDFData } from '@/lib/pdf/pdf-data-processor';
 export async function POST(request: NextRequest) {
   try {
     const formData = await request.json();
-    
+
     // Prosessoi data mappingien mukaan
     const pdfData = await processPDFData(formData);
-    
+
     // Generoi PDF
     // Render the component to get the Document element
     const component = React.createElement(SavingsReportPDF, { data: pdfData });
@@ -25,7 +25,7 @@ export async function POST(request: NextRequest) {
       chunks.push(chunk);
     }
     const buffer = Buffer.concat(chunks);
-    
+
     // Palauta PDF
     return new NextResponse(buffer as any, {
       headers: {
@@ -35,6 +35,9 @@ export async function POST(request: NextRequest) {
     });
   } catch (error) {
     console.error('PDF generation failed:', error);
-    return NextResponse.json({ error: 'PDF generation failed' }, { status: 500 });
+    return NextResponse.json(
+      { error: 'PDF generation failed' },
+      { status: 500 }
+    );
   }
 }

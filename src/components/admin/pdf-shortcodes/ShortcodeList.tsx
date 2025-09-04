@@ -4,7 +4,16 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Search, Code, Hash, Type, Calendar, DollarSign, Percent, Edit } from 'lucide-react';
+import {
+  Search,
+  Code,
+  Hash,
+  Type,
+  Calendar,
+  DollarSign,
+  Percent,
+  Edit,
+} from 'lucide-react';
 import type { PDFShortcode } from '@/lib/pdf/database-pdf-processor';
 
 interface ShortcodeListProps {
@@ -13,9 +22,15 @@ interface ShortcodeListProps {
   loading?: boolean;
 }
 
-export function ShortcodeList({ shortcodes, onSelect, loading }: ShortcodeListProps) {
+export function ShortcodeList({
+  shortcodes,
+  onSelect,
+  loading,
+}: ShortcodeListProps) {
   const [search, setSearch] = React.useState('');
-  const [selectedCategory, setSelectedCategory] = React.useState<string | null>(null);
+  const [selectedCategory, setSelectedCategory] = React.useState<string | null>(
+    null
+  );
 
   // Get unique categories
   const categories = React.useMemo(() => {
@@ -26,13 +41,15 @@ export function ShortcodeList({ shortcodes, onSelect, loading }: ShortcodeListPr
   // Filter shortcodes
   const filteredShortcodes = React.useMemo(() => {
     return shortcodes.filter(sc => {
-      const matchesSearch = !search || 
+      const matchesSearch =
+        !search ||
         sc.code.toLowerCase().includes(search.toLowerCase()) ||
         sc.name.toLowerCase().includes(search.toLowerCase()) ||
         sc.description?.toLowerCase().includes(search.toLowerCase());
-      
-      const matchesCategory = !selectedCategory || sc.category === selectedCategory;
-      
+
+      const matchesCategory =
+        !selectedCategory || sc.category === selectedCategory;
+
       return matchesSearch && matchesCategory;
     });
   }, [shortcodes, search, selectedCategory]);
@@ -51,19 +68,27 @@ export function ShortcodeList({ shortcodes, onSelect, loading }: ShortcodeListPr
 
   const getTypeIcon = (type: string) => {
     switch (type) {
-      case 'field': return <Hash className="w-4 h-4" />;
-      case 'formula': return <Code className="w-4 h-4" />;
-      case 'static': return <Type className="w-4 h-4" />;
-      default: return null;
+      case 'field':
+        return <Hash className="w-4 h-4" />;
+      case 'formula':
+        return <Code className="w-4 h-4" />;
+      case 'static':
+        return <Type className="w-4 h-4" />;
+      default:
+        return null;
     }
   };
 
   const getFormatIcon = (format?: string) => {
     switch (format) {
-      case 'currency': return <DollarSign className="w-3 h-3" />;
-      case 'percentage': return <Percent className="w-3 h-3" />;
-      case 'date': return <Calendar className="w-3 h-3" />;
-      default: return null;
+      case 'currency':
+        return <DollarSign className="w-3 h-3" />;
+      case 'percentage':
+        return <Percent className="w-3 h-3" />;
+      case 'date':
+        return <Calendar className="w-3 h-3" />;
+      default:
+        return null;
     }
   };
 
@@ -101,11 +126,11 @@ export function ShortcodeList({ shortcodes, onSelect, loading }: ShortcodeListPr
           <Input
             placeholder="Hae shortcodea..."
             value={search}
-            onChange={(e) => setSearch(e.target.value)}
+            onChange={e => setSearch(e.target.value)}
             className="pl-10"
           />
         </div>
-        
+
         <div className="flex gap-2">
           <Button
             variant={selectedCategory === null ? 'default' : 'outline'}
@@ -151,7 +176,7 @@ export function ShortcodeList({ shortcodes, onSelect, loading }: ShortcodeListPr
                       {getTypeIcon(sc.source_type)}
                       {getFormatIcon(sc.format_type)}
                     </div>
-                    
+
                     <div>
                       <div className="flex items-center gap-2">
                         <code className="text-sm font-mono bg-muted px-2 py-0.5 rounded">
@@ -171,7 +196,7 @@ export function ShortcodeList({ shortcodes, onSelect, loading }: ShortcodeListPr
                       )}
                     </div>
                   </div>
-                  
+
                   <Button size="sm" variant="ghost">
                     <Edit className="w-4 h-4" />
                   </Button>
@@ -185,7 +210,7 @@ export function ShortcodeList({ shortcodes, onSelect, loading }: ShortcodeListPr
       {filteredShortcodes.length === 0 && (
         <Card>
           <CardContent className="py-8 text-center text-muted-foreground">
-            {search || selectedCategory 
+            {search || selectedCategory
               ? 'Ei hakutuloksia. Kokeile eri hakuehtoja.'
               : 'Ei shortcodeja. Luo uusi shortcode aloittaaksesi.'}
           </CardContent>

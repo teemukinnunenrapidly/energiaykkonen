@@ -51,7 +51,9 @@ export function FormCard({ card, onFieldFocus }: FormCardProps) {
     }
 
     // Check if this card only has button fields
-    const onlyHasButtons = card.card_fields?.every((f: any) => f.field_type === 'buttons');
+    const onlyHasButtons = card.card_fields?.every(
+      (f: any) => f.field_type === 'buttons'
+    );
 
     // If card only has button fields and card is currently completed
     if (onlyHasButtons && cardStates[card.id]?.status === 'complete') {
@@ -525,10 +527,10 @@ export function FormCard({ card, onFieldFocus }: FormCardProps) {
                     style={{
                       ...(styles.formElements.buttons
                         .button as React.CSSProperties),
-                      ...(isSelected 
+                      ...(isSelected
                         ? {
                             ...styles.formElements.buttons.buttonSelected,
-                            ...(isCardCompleted 
+                            ...(isCardCompleted
                               ? {
                                   background:
                                     styles.formElements.buttons.buttonDisabled
@@ -537,7 +539,7 @@ export function FormCard({ card, onFieldFocus }: FormCardProps) {
                               : {}), // Use disabled background when completed
                           }
                         : {}),
-                      ...(isCardCompleted && !isSelected 
+                      ...(isCardCompleted && !isSelected
                         ? styles.formElements.buttons.buttonDisabled
                         : {}),
                     }}
@@ -574,7 +576,7 @@ export function FormCard({ card, onFieldFocus }: FormCardProps) {
                           style={{
                             ...(styles.formElements.buttons.multiSelect
                               .checkbox as React.CSSProperties),
-                            ...(isSelected 
+                            ...(isSelected
                               ? styles.formElements.buttons.multiSelect
                                   .checkboxChecked
                               : {}),
@@ -710,7 +712,9 @@ export function FormCard({ card, onFieldFocus }: FormCardProps) {
               disabled={isSubmitting}
               style={{
                 ...(styles.submitButton.button as React.CSSProperties),
-                ...(isSubmitting ? (styles.submitButton.buttonDisabled as React.CSSProperties) : {}),
+                ...(isSubmitting
+                  ? (styles.submitButton.buttonDisabled as React.CSSProperties)
+                  : {}),
               }}
               onMouseEnter={e => {
                 if (!isSubmitting) {
@@ -722,9 +726,11 @@ export function FormCard({ card, onFieldFocus }: FormCardProps) {
               }}
               onMouseLeave={e => {
                 if (!isSubmitting) {
-                  Object.assign(e.currentTarget.style, 
+                  Object.assign(
+                    e.currentTarget.style,
                     styles.submitButton.button,
-                    { transform: 'none', boxShadow: 'none' });
+                    { transform: 'none', boxShadow: 'none' }
+                  );
                 }
               }}
               onMouseDown={e => {

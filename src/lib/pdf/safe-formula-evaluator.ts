@@ -8,19 +8,25 @@ import { create, all } from 'mathjs';
 
 export class SafeFormulaEvaluator {
   private math: any;
-  
+
   constructor() {
     // Create a mathjs instance with limited functionality for safety
     this.math = create(all);
-    
+
     // Remove potentially dangerous functions
-    const dangerousFunctions = ['import', 'createUnit', 'evaluate', 'parse', 'compile'];
+    const dangerousFunctions = [
+      'import',
+      'createUnit',
+      'evaluate',
+      'parse',
+      'compile',
+    ];
     dangerousFunctions.forEach(fn => {
       if (this.math[fn]) {
         delete this.math[fn];
       }
     });
-    
+
     // Add custom safe functions
     this.math.import({
       concat: (...args: any[]) => args.map(String).join(''),
@@ -29,7 +35,7 @@ export class SafeFormulaEvaluator {
       trim: (str: string) => String(str).trim(),
     });
   }
-  
+
   /**
    * Safely evaluate a formula with given context
    * @param formula - The formula to evaluate (e.g., "annual_savings / current_heating_cost * 100")
@@ -40,12 +46,16 @@ export class SafeFormulaEvaluator {
     try {
       // Create a safe scope with only primitive values
       const safeScope: Record<string, any> = {};
-      
+
       for (const [key, value] of Object.entries(context)) {
         // Only allow primitive types and sanitize them
         if (typeof value === 'string') {
           safeScope[key] = value;
-        } else if (typeof value === 'number' && !isNaN(value) && isFinite(value)) {
+        } else if (
+          typeof value === 'number' &&
+          !isNaN(value) &&
+          isFinite(value)
+        ) {
           safeScope[key] = value;
         } else if (typeof value === 'boolean') {
           safeScope[key] = value;
@@ -55,12 +65,12 @@ export class SafeFormulaEvaluator {
           safeScope[key] = 0; // Treat undefined as 0 for calculations
         }
       }
-      
+
       // Parse and evaluate the expression safely
       const node = this.math.parse(formula);
       const code = node.compile();
       const result = code.evaluate(safeScope);
-      
+
       return result;
     } catch (error) {
       console.error('Formula evaluation error:', error);
@@ -69,16 +79,20 @@ export class SafeFormulaEvaluator {
       return null;
     }
   }
-  
+
   /**
    * Validate a formula without evaluating it
    * @param formula - The formula to validate
    * @returns Object with validation result
    */
-  validate(formula: string): { valid: boolean; error?: string; variables?: string[] } {
+  validate(formula: string): {
+    valid: boolean;
+    error?: string;
+    variables?: string[];
+  } {
     try {
       const node = this.math.parse(formula);
-      
+
       // Extract variables from the parsed expression
       const variables: string[] = [];
       node.traverse((node: any) => {
@@ -88,19 +102,19 @@ export class SafeFormulaEvaluator {
           }
         }
       });
-      
+
       return {
         valid: true,
-        variables
+        variables,
       };
     } catch (error) {
       return {
         valid: false,
-        error: error instanceof Error ? error.message : 'Invalid formula'
+        error: error instanceof Error ? error.message : 'Invalid formula',
       };
     }
   }
-  
+
   /**
    * Get all variables used in a formula
    * @param formula - The formula to analyze
@@ -114,14 +128,17 @@ export class SafeFormulaEvaluator {
       return [];
     }
   }
-  
+
   /**
    * Test a formula with sample data
    * @param formula - The formula to test
    * @param sampleData - Sample data for testing
    * @returns Test result
    */
-  test(formula: string, sampleData: Record<string, any>): {
+  test(
+    formula: string,
+    sampleData: Record<string, any>
+  ): {
     success: boolean;
     result?: any;
     error?: string;
@@ -133,41 +150,40 @@ export class SafeFormulaEvaluator {
       if (!validation.valid) {
         return {
           success: false,
-          error: validation.error
+          error: validation.error,
         };
       }
-      
+
       // Check for missing variables
-      const missingVars = validation.variables?.filter(
-        v => !(v in sampleData)
-      ) || [];
-      
+      const missingVars =
+        validation.variables?.filter(v => !(v in sampleData)) || [];
+
       if (missingVars.length > 0) {
         return {
           success: false,
           error: 'Missing variables in sample data',
-          missingVariables: missingVars
+          missingVariables: missingVars,
         };
       }
-      
+
       // Evaluate the formula
       const result = this.evaluate(formula, sampleData);
-      
+
       if (result === null) {
         return {
           success: false,
-          error: 'Evaluation returned null'
+          error: 'Evaluation returned null',
         };
       }
-      
+
       return {
         success: true,
-        result
+        result,
       };
     } catch (error) {
       return {
         success: false,
-        error: error instanceof Error ? error.message : 'Test failed'
+        error: error instanceof Error ? error.message : 'Test failed',
       };
     }
   }
@@ -189,13 +205,19 @@ export function getEvaluator(): SafeFormulaEvaluator {
 /**
  * Quick helper to evaluate a formula
  */
-export function evaluateFormula(formula: string, context: Record<string, any>): any {
+export function evaluateFormula(
+  formula: string,
+  context: Record<string, any>
+): any {
   return getEvaluator().evaluate(formula, context);
 }
 
 /**
  * Quick helper to validate a formula
  */
-export function validateFormula(formula: string): { valid: boolean; error?: string } {
+export function validateFormula(formula: string): {
+  valid: boolean;
+  error?: string;
+} {
   return getEvaluator().validate(formula);
 }

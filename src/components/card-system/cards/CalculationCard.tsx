@@ -114,10 +114,14 @@ export function CalculationCard({ card }: CalculationCardProps) {
 
           // Store the calculated result in formData using the configured field_name
           if (card.config?.field_name && result.result) {
-            const numericResult = parseFloat(String(result.result).replace(/[^\d.-]/g, ''));
+            const numericResult = parseFloat(
+              String(result.result).replace(/[^\d.-]/g, '')
+            );
             if (!isNaN(numericResult)) {
               updateField(card.config.field_name, numericResult);
-              console.log(`💾 Stored calculation result in field "${card.config.field_name}": ${numericResult}`);
+              console.log(
+                `💾 Stored calculation result in field "${card.config.field_name}": ${numericResult}`
+              );
             }
           }
 
@@ -364,9 +368,11 @@ export function CalculationCard({ card }: CalculationCardProps) {
                 if (card.config?.field_name) {
                   // Store the user-edited value in the configured field
                   updateField(card.config.field_name, newValue);
-                  console.log(`💾 Stored user-edited value in field "${card.config.field_name}": ${newValue}`);
+                  console.log(
+                    `💾 Stored user-edited value in field "${card.config.field_name}": ${newValue}`
+                  );
                 }
-                
+
                 // Also store as override for tracking purposes
                 const overrideKey = `override_${formulaName || 'calc'}`;
                 updateField(overrideKey, newValue);

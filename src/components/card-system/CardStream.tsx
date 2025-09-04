@@ -296,16 +296,18 @@ export function CardStream({
                       // Apply locked state styles from design tokens
                       opacity: styles.card.states.locked?.opacity || '0.6',
                       filter: styles.card.states.locked?.filter || 'blur(8px)',
-                      pointerEvents: styles.card.states.locked?.pointerEvents as any || 'none',
-                      transform: styles.card.states.locked?.transform || 'scale(0.98)',
-                      transition: styles.card.states.locked?.transition || 'all 500ms ease',
+                      pointerEvents:
+                        (styles.card.states.locked?.pointerEvents as any) ||
+                        'none',
+                      transform:
+                        styles.card.states.locked?.transform || 'scale(0.98)',
+                      transition:
+                        styles.card.states.locked?.transition ||
+                        'all 500ms ease',
                       position: 'relative',
                     }}
                   >
-                    <CardRenderer 
-                      card={nextCard} 
-                      onFieldFocus={onFieldFocus}
-                    />
+                    <CardRenderer card={nextCard} onFieldFocus={onFieldFocus} />
                   </div>
                 );
               })()}

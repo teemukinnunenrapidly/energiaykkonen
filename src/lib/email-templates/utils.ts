@@ -1,57 +1,63 @@
 import { Lead } from '@/lib/supabase';
+import { flattenLeadData, getLeadValue } from '@/lib/lead-helpers';
 
 /**
  * Calculate lead score based on savings potential and other factors
  */
 export function calculateLeadScore(lead: Lead): 'high' | 'medium' | 'low' {
+  // Flatten lead data to access JSONB fields
+  const flatLead = flattenLeadData(lead);
   let score = 0;
 
   // Annual savings weight (40%)
-  if (lead.annual_savings >= 2000) {
+  const annualSavings = flatLead.annual_savings || 0;
+  if (annualSavings >= 2000) {
     score += 40;
-  } else if (lead.annual_savings >= 1000) {
+  } else if (annualSavings >= 1000) {
     score += 25;
-  } else if (lead.annual_savings >= 500) {
+  } else if (annualSavings >= 500) {
     score += 15;
   }
 
   // House size weight (20%)
-  if (lead.neliot >= 150) {
+  const neliot = flatLead.neliot || 0;
+  if (neliot >= 150) {
     score += 20;
-  } else if (lead.neliot >= 100) {
+  } else if (neliot >= 100) {
     score += 15;
-  } else if (lead.neliot >= 50) {
+  } else if (neliot >= 50) {
     score += 10;
   }
 
   // Payback period weight (20%)
-  if (lead.payback_period <= 8) {
+  const paybackPeriod = flatLead.payback_period || 0;
+  if (paybackPeriod <= 8 && paybackPeriod > 0) {
     score += 20;
-  } else if (lead.payback_period <= 12) {
+  } else if (paybackPeriod <= 12) {
     score += 15;
-  } else if (lead.payback_period <= 15) {
+  } else if (paybackPeriod <= 15) {
     score += 10;
   }
 
   // Current heating type weight (10%)
-  if (lead.lammitysmuoto === 'Oil') {
+  const lammitysmuoto = flatLead.lammitysmuoto;
+  if (lammitysmuoto === 'Oil') {
     score += 10;
-  } else if (lead.lammitysmuoto === 'Electric') {
+  } else if (lammitysmuoto === 'Electric') {
     score += 8;
-  } else if (lead.lammitysmuoto === 'District') {
+  } else if (lammitysmuoto === 'District') {
     score += 5;
   }
 
   // Contact preference weight (5%)
-  if (
-    lead.valittutukimuoto === 'Phone' ||
-    lead.valittutukimuoto === 'Both'
-  ) {
+  const valittutukimuoto = flatLead.valittutukimuoto;
+  if (valittutukimuoto === 'Phone' || valittutukimuoto === 'Both') {
     score += 5;
   }
 
   // Additional message indicates higher interest (5%)
-  if (lead.message && lead.message.trim().length > 0) {
+  const message = flatLead.message;
+  if (message && message.trim().length > 0) {
     score += 5;
   }
 
@@ -71,8 +77,10 @@ export function calculateLeadScore(lead: Lead): 'high' | 'medium' | 'low' {
 export const emailSubjects = {
   customer: () => `Your Heat Pump Savings Calculation - Energiaykkönen`,
 
-  sales: (lead: Lead) =>
-    `New Lead: ${lead.first_name} ${lead.last_name} - ${lead.paikkakunta || 'Ei kaupunkia'} - Savings: ${lead.annual_savings.toLocaleString('fi-FI')}€/year`,
+  sales: (lead: Lead) => {
+    const flatLead = flattenLeadData(lead);
+    return `New Lead: ${flatLead.first_name} ${flatLead.last_name} - ${flatLead.paikkakunta || 'Ei kaupunkia'} - Savings: ${flatLead.annual_savings?.toLocaleString('fi-FI') || '0'}€/year`;
+  },
 };
 
 /**

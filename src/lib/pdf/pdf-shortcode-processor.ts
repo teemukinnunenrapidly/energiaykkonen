@@ -14,7 +14,7 @@ import { DatabasePDFProcessor } from './database-pdf-processor';
  * @returns Processed template with all shortcodes replaced
  */
 export async function processShortcodes(
-  template: string, 
+  template: string,
   lead: Lead,
   customValues?: Record<string, any>
 ): Promise<string> {
@@ -36,8 +36,8 @@ export { validatePDFTemplate } from './database-pdf-processor';
 /**
  * Export safe formula evaluator utilities
  */
-export { 
-  evaluateFormula, 
+export {
+  evaluateFormula,
   validateFormula,
-  getEvaluator 
+  getEvaluator,
 } from './safe-formula-evaluator';

@@ -64,6 +64,8 @@ function getStatusBadgeVariant(status: string) {
 }
 
 function LeadExpandedDetails({ lead }: { lead: Lead }) {
+  // Flatten lead data to access JSONB fields
+  const flatLead = flattenLeadData(lead);
   return (
     <div className="px-6 py-4 bg-muted/30 border-t">
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -72,8 +74,8 @@ function LeadExpandedDetails({ lead }: { lead: Lead }) {
           <h4 className="font-medium text-foreground mb-3">Property Details</h4>
           <div className="space-y-2 text-sm">
             <div>
-              <span className="text-muted-foreground">Size:</span>{' '}
-              {lead.neliot} m²
+              <span className="text-muted-foreground">Size:</span> {lead.neliot}{' '}
+              m²
             </div>
             <div>
               <span className="text-muted-foreground">Ceiling:</span>{' '}
@@ -165,19 +167,19 @@ function LeadExpandedDetails({ lead }: { lead: Lead }) {
             <div className="flex items-center gap-2">
               <Mail className="w-4 h-4 text-muted-foreground" />
               <a
-                href={`mailto:${lead.sahkoposti}`}
+                href={`mailto:${flatLead.sahkoposti}`}
                 className="text-primary hover:underline"
               >
-                {lead.sahkoposti}
+                {flatLead.sahkoposti}
               </a>
             </div>
             <div className="flex items-center gap-2">
               <Phone className="w-4 h-4 text-muted-foreground" />
               <a
-                href={`tel:${lead.puhelinnumero}`}
+                href={`tel:${flatLead.puhelinnumero}`}
                 className="text-primary hover:underline"
               >
-                {lead.puhelinnumero}
+                {flatLead.puhelinnumero}
               </a>
             </div>
             {lead.pdf_url && (
@@ -193,21 +195,21 @@ function LeadExpandedDetails({ lead }: { lead: Lead }) {
                 </a>
               </div>
             )}
-            {lead.osoite && (
+            {flatLead.osoite && (
               <div>
                 <span className="text-muted-foreground">Address:</span>{' '}
-                {lead.osoite}
+                {flatLead.osoite}
               </div>
             )}
             <div>
               <span className="text-muted-foreground">Prefers:</span>{' '}
-              {lead.valittutukimuoto}
+              {flatLead.valittutukimuoto}
             </div>
-            {lead.message && (
+            {flatLead.message && (
               <div>
                 <span className="text-muted-foreground">Message:</span>
                 <p className="mt-1 text-foreground italic">
-                  &ldquo;{lead.message}&rdquo;
+                  &ldquo;{flatLead.message}&rdquo;
                 </p>
               </div>
             )}
@@ -262,7 +264,7 @@ export default function LeadsTable({
   onPageChange,
 }: LeadsTableProps) {
   const [expandedRows, setExpandedRows] = useState<ExpandedRows>({});
-  
+
   // Flatten leads data for backward compatibility
   const flattenedLeads = leads.map(flattenLeadData);
 

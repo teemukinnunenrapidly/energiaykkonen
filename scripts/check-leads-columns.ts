@@ -13,18 +13,15 @@ const supabase = createClient(supabaseUrl, supabaseAnonKey);
 async function fetchLeadsColumns() {
   try {
     console.log('Fetching leads table structure from Supabase...\n');
-    
+
     // Fetch one row to see the actual columns
-    const { data, error } = await supabase
-      .from('leads')
-      .select('*')
-      .limit(1);
-    
+    const { data, error } = await supabase.from('leads').select('*').limit(1);
+
     if (error) {
       console.error('Error fetching leads:', error);
       return;
     }
-    
+
     if (data && data.length > 0) {
       const columns = Object.keys(data[0]);
       console.log('Current columns in leads table:');
@@ -38,13 +35,13 @@ async function fetchLeadsColumns() {
     } else {
       // If no data, try to get schema information through a different approach
       console.log('No data in leads table. Attempting to fetch schema...');
-      
+
       // Try to insert and rollback to get column info
       const { error: schemaError } = await supabase
         .from('leads')
         .insert({})
         .select();
-      
+
       if (schemaError) {
         // Parse the error message to extract required fields
         const errorMessage = schemaError.message;
@@ -52,7 +49,6 @@ async function fetchLeadsColumns() {
         console.log(errorMessage);
       }
     }
-    
   } catch (err) {
     console.error('Unexpected error:', err);
   }
