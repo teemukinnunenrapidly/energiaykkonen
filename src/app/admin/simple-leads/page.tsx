@@ -13,7 +13,7 @@ import {
   TableRow 
 } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-import { FileText, Mail, Phone, MapPin, Calendar, TrendingUp, Users, UserCheck, Target } from 'lucide-react';
+import { FileText, Mail, Phone, MapPin, Calendar } from 'lucide-react';
 import AdminNavigation from '@/components/admin/AdminNavigation';
 import LogoutButton from '@/components/admin/LogoutButton';
 
@@ -114,25 +114,6 @@ const SAMPLE_LEADS: Lead[] = [
       five_year_savings: 10500,
     },
   },
-  {
-    id: 'lead-006',
-    created_at: new Date('2024-01-12T13:20:00').toISOString(),
-    updated_at: new Date('2024-01-12T13:20:00').toISOString(),
-    first_name: 'Liisa',
-    last_name: 'Hakkarainen',
-    sahkoposti: 'liisa.hakkarainen@example.com',
-    puhelinnumero: '+358 40 999 8888',
-    status: 'contacted',
-    pdf_url: '/api/admin/lead-pdf/lead-006',
-    form_data: {
-      osoite: 'Keskuskatu 45',
-      paikkakunta: 'Lahti',
-      neliot: 130,
-      lammitysmuoto: 'Sähkölämmitys',
-      annual_savings: 2800,
-      five_year_savings: 14000,
-    },
-  },
 ];
 
 function formatDate(dateString: string): string {
@@ -169,7 +150,7 @@ function getStatusColor(status: string) {
   }
 }
 
-export default function AdminDashboard() {
+export default function SimpleLeadsPage() {
   const [leads, setLeads] = useState<Lead[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -181,30 +162,12 @@ export default function AdminDashboard() {
     }, 500);
   }, []);
 
-  // Calculate statistics
-  const totalLeads = leads.length;
-  const newLeads = leads.filter(l => l.status === 'new').length;
-  const contactedLeads = leads.filter(l => l.status === 'contacted').length;
-  const qualifiedLeads = leads.filter(l => l.status === 'qualified').length;
-  const convertedLeads = leads.filter(l => l.status === 'converted').length;
-
-  // Calculate today's leads
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-  const todayLeads = leads.filter(l => new Date(l.created_at) >= today).length;
-
-  // Calculate average savings
-  const totalSavings = leads.reduce((sum, lead) => 
-    sum + (lead.form_data?.annual_savings || 0), 0
-  );
-  const avgSavings = totalLeads > 0 ? totalSavings / totalLeads : 0;
-
   return (
     <div className="min-h-screen bg-background">
       <div className="border-b">
         <div className="container mx-auto px-4 py-4">
           <div className="flex justify-between items-center">
-            <h1 className="text-2xl font-bold">Admin Dashboard</h1>
+            <h1 className="text-2xl font-bold">Admin Panel - Leads</h1>
             <LogoutButton />
           </div>
         </div>
@@ -213,119 +176,54 @@ export default function AdminDashboard() {
       <AdminNavigation />
 
       <div className="container mx-auto px-4 py-8">
-        {/* Statistics Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+        {/* Summary Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
           <Card>
             <CardHeader className="pb-3">
-              <CardTitle className="flex items-center justify-between">
-                <span className="text-sm font-medium text-muted-foreground">Total Leads</span>
-                <Users className="w-4 h-4 text-muted-foreground" />
+              <CardTitle className="text-sm font-medium text-muted-foreground">
+                Total Leads
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{totalLeads}</div>
-              <p className="text-xs text-muted-foreground mt-1">
-                {todayLeads} new today
-              </p>
+              <div className="text-2xl font-bold">{leads.length}</div>
             </CardContent>
           </Card>
           
           <Card>
             <CardHeader className="pb-3">
-              <CardTitle className="flex items-center justify-between">
-                <span className="text-sm font-medium text-muted-foreground">New Leads</span>
-                <Target className="w-4 h-4 text-blue-600" />
+              <CardTitle className="text-sm font-medium text-muted-foreground">
+                New Leads
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-blue-600">{newLeads}</div>
-              <p className="text-xs text-muted-foreground mt-1">
-                Ready to contact
-              </p>
+              <div className="text-2xl font-bold text-blue-600">
+                {leads.filter(l => l.status === 'new').length}
+              </div>
             </CardContent>
           </Card>
 
           <Card>
             <CardHeader className="pb-3">
-              <CardTitle className="flex items-center justify-between">
-                <span className="text-sm font-medium text-muted-foreground">Conversion Rate</span>
-                <UserCheck className="w-4 h-4 text-green-600" />
+              <CardTitle className="text-sm font-medium text-muted-foreground">
+                Contacted
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-yellow-600">
+                {leads.filter(l => l.status === 'contacted').length}
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-sm font-medium text-muted-foreground">
+                Converted
               </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold text-green-600">
-                {totalLeads > 0 ? Math.round((convertedLeads / totalLeads) * 100) : 0}%
-              </div>
-              <p className="text-xs text-muted-foreground mt-1">
-                {convertedLeads} converted
-              </p>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="pb-3">
-              <CardTitle className="flex items-center justify-between">
-                <span className="text-sm font-medium text-muted-foreground">Avg Savings</span>
-                <TrendingUp className="w-4 h-4 text-purple-600" />
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-purple-600">
-                {formatCurrency(avgSavings)}
-              </div>
-              <p className="text-xs text-muted-foreground mt-1">
-                per year
-              </p>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Lead Status Overview */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-          <Card className="border-l-4 border-blue-500">
-            <CardContent className="p-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground">New</p>
-                  <p className="text-xl font-bold">{newLeads}</p>
-                </div>
-                <Badge className="bg-blue-100 text-blue-800">New</Badge>
-              </div>
-            </CardContent>
-          </Card>
-          
-          <Card className="border-l-4 border-yellow-500">
-            <CardContent className="p-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground">Contacted</p>
-                  <p className="text-xl font-bold">{contactedLeads}</p>
-                </div>
-                <Badge className="bg-yellow-100 text-yellow-800">In Progress</Badge>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="border-l-4 border-green-500">
-            <CardContent className="p-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground">Qualified</p>
-                  <p className="text-xl font-bold">{qualifiedLeads}</p>
-                </div>
-                <Badge className="bg-green-100 text-green-800">Ready</Badge>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="border-l-4 border-purple-500">
-            <CardContent className="p-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground">Converted</p>
-                  <p className="text-xl font-bold">{convertedLeads}</p>
-                </div>
-                <Badge className="bg-purple-100 text-purple-800">Success</Badge>
+                {leads.filter(l => l.status === 'converted').length}
               </div>
             </CardContent>
           </Card>
@@ -334,12 +232,7 @@ export default function AdminDashboard() {
         {/* Leads Table */}
         <Card>
           <CardHeader>
-            <div className="flex items-center justify-between">
-              <CardTitle>Recent Leads</CardTitle>
-              <Button variant="outline" size="sm">
-                Export CSV
-              </Button>
-            </div>
+            <CardTitle>Leads List</CardTitle>
           </CardHeader>
           <CardContent>
             {loading ? (
@@ -354,7 +247,7 @@ export default function AdminDashboard() {
                       <TableHead>Contact</TableHead>
                       <TableHead>Location</TableHead>
                       <TableHead>Status</TableHead>
-                      <TableHead>Savings</TableHead>
+                      <TableHead>Annual Savings</TableHead>
                       <TableHead>Actions</TableHead>
                     </TableRow>
                   </TableHeader>
@@ -444,7 +337,7 @@ export default function AdminDashboard() {
                                 disabled
                               >
                                 <FileText className="w-4 h-4 mr-1" />
-                                No PDF
+                                Generate PDF
                               </Button>
                             )}
                           </div>

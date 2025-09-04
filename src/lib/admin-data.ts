@@ -1,5 +1,5 @@
 import { supabase, Lead } from '@/lib/supabase';
-import { flattenLeadsData } from '@/lib/lead-helpers';
+import { flattenLeadsData, flattenLeadData } from '@/lib/lead-helpers';
 
 export interface LeadsResponse {
   leads: Lead[];
@@ -23,6 +23,7 @@ interface GetLeadsOptions {
 
 /**
  * Fetch leads with pagination for admin panel
+ * Now works with JSONB structure
  */
 export async function getLeadsWithPagination(
   options: GetLeadsOptions = {}
@@ -41,16 +42,17 @@ export async function getLeadsWithPagination(
   } = options;
 
   try {
-    // Build query with filters
+    // Build query - fetch all data including form_data JSONB
     let countQuery = supabase
       .from('leads')
       .select('*', { count: 'exact', head: true });
     let dataQuery = supabase.from('leads').select('*');
 
-    // Apply search filter (name, email, city)
+    // Apply search filter (using fixed columns only)
     if (search.trim()) {
       const searchTerm = `%${search.trim()}%`;
-      const searchFilter = `first_name.ilike.${searchTerm},last_name.ilike.${searchTerm},email.ilike.${searchTerm},city.ilike.${searchTerm}`;
+      // Search in fixed columns only (first_name, last_name, sahkoposti)
+      const searchFilter = `first_name.ilike.${searchTerm},last_name.ilike.${searchTerm},sahkoposti.ilike.${searchTerm}`;
       countQuery = countQuery.or(searchFilter);
       dataQuery = dataQuery.or(searchFilter);
     }
@@ -74,40 +76,49 @@ export async function getLeadsWithPagination(
       dataQuery = dataQuery.lte('created_at', dateToWithTime.toISOString());
     }
 
-    // Apply savings range filter
-    if (savingsMin !== undefined && savingsMin >= 0) {
-      countQuery = countQuery.gte('annual_savings', savingsMin);
-      dataQuery = dataQuery.gte('annual_savings', savingsMin);
-    }
-    if (savingsMax !== undefined && savingsMax >= 0) {
-      countQuery = countQuery.lte('annual_savings', savingsMax);
-      dataQuery = dataQuery.lte('annual_savings', savingsMax);
-    }
-
-    // Get filtered count
+    // Get all data first, then filter by savings if needed
     const { count, error: countError } = await countQuery;
 
     if (countError) {
       throw new Error(`Error counting leads: ${countError.message}`);
     }
 
-    const totalCount = count || 0;
-    const totalPages = Math.ceil(totalCount / limit);
+    let totalCount = count || 0;
 
-    // Get paginated and filtered leads
-    const from = (page - 1) * limit;
-    const to = from + limit - 1;
+    // Get all matching leads first
+    const { data: allLeads, error: allError } = await dataQuery
+      .order(sortBy, { ascending: sortOrder === 'asc' });
 
-    const { data: leads, error: dataError } = await dataQuery
-      .order(sortBy, { ascending: sortOrder === 'asc' })
-      .range(from, to);
-
-    if (dataError) {
-      throw new Error(`Error fetching leads: ${dataError.message}`);
+    if (allError) {
+      throw new Error(`Error fetching leads: ${allError.message}`);
     }
 
+    // Flatten the leads to access JSONB fields
+    let processedLeads = flattenLeadsData(allLeads || []);
+
+    // Apply savings filter on flattened data
+    if (savingsMin !== undefined && savingsMin >= 0) {
+      processedLeads = processedLeads.filter(
+        lead => (lead.annual_savings || 0) >= savingsMin
+      );
+    }
+    if (savingsMax !== undefined && savingsMax >= 0) {
+      processedLeads = processedLeads.filter(
+        lead => (lead.annual_savings || 0) <= savingsMax
+      );
+    }
+
+    // Update total count after filtering
+    totalCount = processedLeads.length;
+    const totalPages = Math.ceil(totalCount / limit);
+
+    // Apply pagination
+    const from = (page - 1) * limit;
+    const to = from + limit;
+    const paginatedLeads = processedLeads.slice(from, to);
+
     return {
-      leads: flattenLeadsData(leads || []),
+      leads: paginatedLeads,
       totalCount,
       currentPage: page,
       totalPages,
@@ -120,19 +131,19 @@ export async function getLeadsWithPagination(
 
 /**
  * Get essential lead statistics for dashboard
+ * Now works with JSONB structure
  */
 export async function getLeadStats() {
   try {
-    const { data, error } = await supabase.from('leads').select(`
-        created_at,
-        annual_savings
-      `);
+    // Fetch all leads with their form_data
+    const { data, error } = await supabase.from('leads').select('*');
 
     if (error) {
       throw new Error(`Error fetching lead stats: ${error.message}`);
     }
 
-    const leads = data || [];
+    // Flatten the leads to access JSONB fields
+    const leads = flattenLeadsData(data || []);
     const now = new Date();
 
     // Time periods
@@ -159,7 +170,7 @@ export async function getLeadStats() {
       return date >= lastMonth && date < thisMonth;
     });
 
-    // Financial metrics
+    // Financial metrics - now using flattened data
     const totalAnnualSavings = leads.reduce(
       (sum, lead) => sum + (lead.annual_savings || 0),
       0
@@ -225,7 +236,8 @@ export async function updateLeadStatus(leadId: string, status: Lead['status']) {
       throw new Error(`Error updating lead status: ${error.message}`);
     }
 
-    return data;
+    // Return flattened lead
+    return flattenLeadData(data);
   } catch (error) {
     console.error('Error in updateLeadStatus:', error);
     throw error;
@@ -251,9 +263,74 @@ export async function updateLeadNotes(leadId: string, notes: string) {
       throw new Error(`Error updating lead notes: ${error.message}`);
     }
 
-    return data;
+    // Return flattened lead
+    return flattenLeadData(data);
   } catch (error) {
     console.error('Error in updateLeadNotes:', error);
+    throw error;
+  }
+}
+
+/**
+ * Get a single lead by ID
+ */
+export async function getLeadById(leadId: string): Promise<Lead | null> {
+  try {
+    const { data, error } = await supabase
+      .from('leads')
+      .select('*')
+      .eq('id', leadId)
+      .single();
+
+    if (error) {
+      if (error.code === 'PGRST116') {
+        // No rows returned
+        return null;
+      }
+      throw new Error(`Error fetching lead: ${error.message}`);
+    }
+
+    // Return flattened lead
+    return flattenLeadData(data);
+  } catch (error) {
+    console.error('Error in getLeadById:', error);
+    throw error;
+  }
+}
+
+/**
+ * Delete a lead
+ */
+export async function deleteLead(leadId: string): Promise<boolean> {
+  try {
+    const { error } = await supabase.from('leads').delete().eq('id', leadId);
+
+    if (error) {
+      throw new Error(`Error deleting lead: ${error.message}`);
+    }
+
+    return true;
+  } catch (error) {
+    console.error('Error in deleteLead:', error);
+    throw error;
+  }
+}
+
+/**
+ * Get leads summary for export
+ */
+export async function getLeadsForExport(filters: GetLeadsOptions = {}) {
+  try {
+    // Get all leads with current filters (no pagination)
+    const allLeadsResponse = await getLeadsWithPagination({
+      ...filters,
+      page: 1,
+      limit: 10000, // Get all records
+    });
+
+    return allLeadsResponse.leads;
+  } catch (error) {
+    console.error('Error in getLeadsForExport:', error);
     throw error;
   }
 }
