@@ -131,23 +131,23 @@ function leadToCSVRow(
     // Contact Information
     lead.first_name || '',
     lead.last_name || '',
-    lead.email || '',
-    lead.phone || '',
-    lead.street_address || '',
-    lead.city || '',
-    lead.contact_preference || '',
+    lead.sahkoposti || '',
+    lead.puhelinnumero || '',
+    lead.osoite || '',
+    lead.paikkakunta || '',
+    lead.valittutukimuoto || '',
 
     // Property Details
-    lead.square_meters?.toString() || '',
-    lead.ceiling_height?.toString() || '',
-    lead.construction_year || '',
+    lead.neliot?.toString() || '',
+    lead.huonekorkeus?.toString() || '',
+    lead.rakennusvuosi || '',
     lead.floors?.toString() || '',
-    lead.residents?.toString() || '',
+    lead.henkilomaara?.toString() || '',
     lead.hot_water_usage || '',
 
     // Current Heating
-    lead.heating_type || '',
-    formatCurrencyForCSV(lead.current_heating_cost || 0),
+    lead.lammitysmuoto || '',
+    formatCurrencyForCSV(lead.vesikiertoinen || 0),
     lead.current_energy_consumption?.toLocaleString('fi-FI') || '',
 
     // Heat Pump Calculations

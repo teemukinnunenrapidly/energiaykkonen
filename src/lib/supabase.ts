@@ -10,56 +10,96 @@ if (!supabaseUrl || !supabaseAnonKey) {
 // Create Supabase client with basic configuration
 export const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
-// Database types for our leads table (matches PRD schema)
+// Dynamic field data stored in JSONB
+export interface LeadFormData {
+  // Property Details
+  neliot?: number;
+  huonekorkeus?: number;
+  rakennusvuosi?: string;
+  floors?: number;
+  henkilomaara?: number;
+  hot_water_usage?: string;
+
+  // Property Address
+  osoite?: string;
+  paikkakunta?: string;
+  postcode?: string;
+
+  // Current Heating
+  lammitysmuoto?: string;
+  vesikiertoinen?: number;
+  current_energy_consumption?: number;
+
+  // Heat Pump Calculations
+  annual_energy_need?: number;
+  heat_pump_consumption?: number;
+  heat_pump_cost_annual?: number;
+  payback_period?: number;
+  co2_reduction?: number;
+
+  // Contact preferences
+  valittutukimuoto?: string;
+  message?: string;
+  consent_timestamp?: string;
+
+  // Any other dynamic fields from Card Builder
+  [key: string]: any;
+}
+
+// Database types for leads table with JSONB support
 export interface Lead {
   // Primary key
   id: string;
-
-  // Form inputs: House Information (Step 1)
-  square_meters: number;
-  ceiling_height: number; // 2.5, 3.0, or 3.5
-  construction_year: string; // '<1970' | '1970-1990' | '1991-2010' | '>2010'
-  floors: number;
-
-  // Form inputs: Current Heating (Step 2)
-  heating_type: string; // 'Oil' | 'Electric' | 'District' | 'Other'
-  current_heating_cost: number;
-  current_energy_consumption?: number; // Optional
-
-  // Form inputs: Household (Step 3)
-  residents: number;
-  hot_water_usage: string; // 'Low' | 'Normal' | 'High'
-
-  // Contact info (Step 4)
+  
+  // Timestamps
+  created_at: string;
+  updated_at: string;
+  
+  // Critical fixed columns (not in JSONB)
+  status: 'new' | 'contacted' | 'qualified' | 'converted';
+  notes?: string;
   first_name: string;
   last_name: string;
-  email: string;
-  phone: string;
-  street_address?: string;
-  city?: string;
-  contact_preference: string; // 'Email' | 'Phone' | 'Both'
-  message?: string;
-
-  // Calculated values
-  annual_energy_need: number;
-  heat_pump_consumption: number;
-  heat_pump_cost_annual: number;
+  sahkoposti: string;
+  puhelinnumero: string;
+  
+  // Key metrics (kept as columns for sorting/filtering)
   annual_savings: number;
   five_year_savings: number;
   ten_year_savings: number;
-  payback_period: number;
-  co2_reduction: number;
-
-  // Lead management
-  status: 'new' | 'contacted' | 'qualified' | 'converted';
-  notes?: string;
-
-  // Metadata
-  created_at: string;
-  updated_at: string;
+  
+  // Document management
+  pdf_url?: string;
+  pdf_generated_at?: string;
+  
+  // Tracking metadata
   ip_address?: string;
   user_agent?: string;
   source_page?: string;
+  
+  // JSONB field containing all dynamic form data
+  form_data?: LeadFormData;
+  
+  // Virtual fields for backward compatibility
+  // These are extracted from form_data by views or application logic
+  neliot?: number;
+  huonekorkeus?: number;
+  rakennusvuosi?: string;
+  floors?: number;
+  lammitysmuoto?: string;
+  vesikiertoinen?: number;
+  current_energy_consumption?: number;
+  henkilomaara?: number;
+  hot_water_usage?: string;
+  annual_energy_need?: number;
+  heat_pump_consumption?: number;
+  heat_pump_cost_annual?: number;
+  payback_period?: number;
+  co2_reduction?: number;
+  osoite?: string;
+  paikkakunta?: string;
+  valittutukimuoto?: string;
+  message?: string;
 }
 
 // Helper function to insert a new lead

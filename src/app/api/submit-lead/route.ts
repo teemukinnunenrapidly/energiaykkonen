@@ -1,10 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { headers } from 'next/headers';
+import React from 'react';
 import { supabase } from '@/lib/supabase';
 import { calculateHeatPumpSavings } from '@/lib/calculations';
-import { calculatorFormSchema } from '@/lib/validation';
 import { sendLeadEmails } from '@/lib/email-service';
 import { defaultRateLimiter, securityLogger } from '@/lib/input-sanitizer';
+import { pdf } from '@react-pdf/renderer';
+import { SavingsReportPDF } from '@/lib/pdf/SavingsReportPDF';
+import { processPDFData } from '@/lib/pdf/pdf-data-processor';
+import { EmailAttachment } from '@/lib/resend';
 
 // Enhanced rate limiting with security logging
 const RATE_LIMIT = 10;
@@ -52,109 +56,93 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Parse and validate request body
+    // Parse request body
     const body = await request.json();
 
-    // Validate form data using enhanced Zod schema with sanitization
-    const validationResult = calculatorFormSchema.safeParse(body);
-
-    if (!validationResult.success) {
-      // Log validation failure for security monitoring
-      securityLogger.log({
-        type: 'validation_failed',
-        severity: 'low',
-        ip: clientIp,
-        userAgent,
-        details: {
-          errors: validationResult.error.issues.map(issue => ({
-            path: issue.path,
-            message: issue.message,
-          })),
-          bodyKeys: Object.keys(body || {}),
-        },
-      });
-
+    // Minimal validation - just check essential fields exist
+    if (!body.neliot || !body.sahkoposti) {
       return NextResponse.json(
         {
-          message: 'Invalid form data',
+          message: 'Missing required fields',
           status: 'error',
           code: 'VALIDATION_ERROR',
-          errors: validationResult.error.issues,
         },
         { status: 400 }
       );
     }
 
-    const formData = validationResult.data;
-
-    // Calculate heat pump savings
+    // Calculate heat pump savings using Card Builder field names
     const calculations = calculateHeatPumpSavings({
-      squareMeters: formData.squareMeters,
-      ceilingHeight: parseFloat(formData.ceilingHeight),
-      residents: parseInt(formData.residents),
-      currentHeatingCost: formData.annualHeatingCost,
-      currentHeatingType: formData.heatingType,
+      squareMeters: body.neliot,
+      ceilingHeight: parseFloat(body.huonekorkeus || '2.5'),
+      residents: parseInt(body.henkilomaara || '2'),
+      currentHeatingCost: body.vesikiertoinen,
+      currentHeatingType: body.lammitysmuoto,
     });
 
     // Get additional metadata (userAgent already retrieved above)
     const referer = headersList.get('referer') || '';
     const sourcePage = referer || request.nextUrl.origin;
 
-    // Prepare data for database insertion
+    // Prepare data for database insertion - using JSONB for dynamic fields
     const leadData = {
-      // House Information
-      square_meters: formData.squareMeters,
-      ceiling_height: parseFloat(formData.ceilingHeight),
-      construction_year: formData.constructionYear,
-      floors: parseInt(formData.floors),
-
-      // Current Heating
-      heating_type:
-        formData.heatingType.charAt(0).toUpperCase() +
-        formData.heatingType.slice(1), // Capitalize first letter
-      current_heating_cost: formData.annualHeatingCost,
-      current_energy_consumption: formData.currentEnergyConsumption || null,
-
-      // Household
-      residents: parseInt(formData.residents),
-      hot_water_usage:
-        formData.hotWaterUsage.charAt(0).toUpperCase() +
-        formData.hotWaterUsage.slice(1),
-
-      // Contact Information
-      first_name: formData.firstName,
-      last_name: formData.lastName,
-      email: formData.email.toLowerCase(),
-      phone: formData.phone,
-      street_address: formData.streetAddress || null,
-      city: formData.city || null,
-      contact_preference:
-        formData.contactPreference.charAt(0).toUpperCase() +
-        formData.contactPreference.slice(1),
-      message: formData.message || null,
-
-      // GDPR Compliance
-      gdpr_consent: formData.gdprConsent,
-      marketing_consent: formData.marketingConsent || false,
-      consent_timestamp: new Date().toISOString(),
-
-      // Calculated Values
-      annual_energy_need: calculations.annualEnergyNeed,
-      heat_pump_consumption: calculations.heatPumpConsumption,
-      heat_pump_cost_annual: calculations.heatPumpCostAnnual,
-      annual_savings: calculations.annualSavings,
-      five_year_savings: calculations.fiveYearSavings,
-      ten_year_savings: calculations.tenYearSavings,
-      payback_period: calculations.paybackPeriod,
-      co2_reduction: calculations.co2Reduction,
-
-      // Lead Management
+      // Critical fixed columns (matching actual database column names)
+      first_name: body.first_name || body.nimi?.split(' ')[0] || '',
+      last_name: body.last_name || body.nimi?.split(' ').slice(1).join(' ') || '',
+      s_hk_posti: body.sahkoposti || body.s_hk_posti || '',  // Map to actual column name
+      puhelinnumero: body.puhelinnumero || '',
       status: 'new' as const,
-
-      // Metadata
-      ip_address: clientIp,
-      user_agent: userAgent,
-      source_page: sourcePage,
+      
+      // All dynamic form fields go into JSONB
+      form_data: {
+        // Store email in JSONB too for consistency
+        sahkoposti: body.sahkoposti || '',
+        
+        // Property details
+        neliot: parseFloat(body.neliot) || 0,
+        huonekorkeus: parseFloat(body.huonekorkeus || '2.5'),
+        rakennusvuosi: body.rakennusvuosi || '',
+        floors: parseInt(body.floors || '1'),
+        henkilomaara: parseInt(body.henkilomaara || '2'),
+        hot_water_usage: body.hot_water_usage || '',
+        
+        // Address details
+        osoite: body.osoite || '',
+        paikkakunta: body.paikkakunta || '',
+        postcode: body.postcode || '',
+        
+        // Current heating
+        lammitysmuoto: body.lammitysmuoto || '',
+        vesikiertoinen: parseFloat(body.vesikiertoinen) || 0,
+        current_energy_consumption: body.current_energy_consumption,
+        
+        // Heat pump calculations
+        annual_energy_need: calculations.annualEnergyNeed,
+        heat_pump_consumption: calculations.heatPumpConsumption,
+        heat_pump_cost_annual: calculations.heatPumpCostAnnual,
+        annual_savings: calculations.annualSavings,
+        five_year_savings: calculations.fiveYearSavings,
+        ten_year_savings: calculations.tenYearSavings,
+        payback_period: calculations.paybackPeriod,
+        co2_reduction: calculations.co2Reduction,
+        
+        // Other preferences
+        valittutukimuoto: body.valittutukimuoto || '',
+        message: body.message || '',
+        
+        // Metadata
+        source_page: sourcePage,
+        user_agent: userAgent,
+        ip_address: clientIp,
+        consent_timestamp: new Date().toISOString(),
+        
+        // Store ALL fields from Card Builder dynamically
+        ...Object.fromEntries(
+          Object.entries(body).filter(([key]) => 
+            !['first_name', 'last_name', 'nimi'].includes(key)
+          )
+        ),
+      },
     };
 
     // Insert lead into Supabase
@@ -178,11 +166,86 @@ export async function POST(request: NextRequest) {
 
     console.log('✅ Lead inserted successfully:', insertedLead.id);
 
+    // Generate PDF savings report
+    let pdfAttachment: EmailAttachment | undefined;
+    let pdfUrl: string | null = null;
+    try {
+      console.log('📄 Generating PDF savings report...');
+      
+      // Process data for PDF using the new lead-based approach
+      const pdfData = await processPDFData(insertedLead);
+      
+      // Generate PDF
+      const component = React.createElement(SavingsReportPDF, { data: pdfData });
+      // The pdf() function expects the Document element directly
+      const asPdf = pdf(component as any);
+      const bufferStream = await asPdf.toBuffer();
+      // Convert ReadableStream to Buffer
+      const chunks = [];
+      for await (const chunk of bufferStream as any) {
+        chunks.push(chunk);
+      }
+      const pdfBuffer = Buffer.concat(chunks);
+      
+      // Save PDF to Supabase Storage
+      const pdfFileName = `${insertedLead.id}/saastolaskelma-${pdfData.calculationNumber || Date.now()}.pdf`;
+      
+      try {
+        const { data: uploadData, error: uploadError } = await supabase.storage
+          .from('lead-pdfs')
+          .upload(pdfFileName, pdfBuffer, {
+            contentType: 'application/pdf',
+            cacheControl: '3600',
+            upsert: true,
+          });
+
+        if (uploadError) {
+          console.error('Failed to upload PDF to storage:', uploadError);
+        } else {
+          console.log('✅ PDF uploaded to storage:', uploadData.path);
+          
+          // Get the public URL for the PDF
+          const { data: urlData } = supabase.storage
+            .from('lead-pdfs')
+            .getPublicUrl(pdfFileName);
+          
+          pdfUrl = urlData.publicUrl;
+          
+          // Update the lead with PDF URL
+          const { error: updateError } = await supabase
+            .from('leads')
+            .update({ 
+              pdf_url: pdfUrl,
+              pdf_generated_at: new Date().toISOString()
+            })
+            .eq('id', insertedLead.id);
+          
+          if (updateError) {
+            console.error('Failed to update lead with PDF URL:', updateError);
+          }
+        }
+      } catch (storageError) {
+        console.error('Storage operation failed:', storageError);
+      }
+      
+      // Create attachment object for email
+      pdfAttachment = {
+        filename: `saastolaskelma-${pdfData.calculationNumber || Date.now()}.pdf`,
+        content: pdfBuffer,
+        contentType: 'application/pdf',
+      };
+      
+      console.log('✅ PDF generated successfully');
+    } catch (pdfError) {
+      console.error('⚠️ PDF generation failed (continuing without PDF):', pdfError);
+      // Continue without PDF attachment if generation fails
+    }
+
     // Send emails (don't block response on email failures)
     let emailResults = null;
     try {
       const baseUrl = request.nextUrl.origin;
-      emailResults = await sendLeadEmails(insertedLead, baseUrl);
+      emailResults = await sendLeadEmails(insertedLead, baseUrl, pdfAttachment);
 
       if (emailResults.errors.length === 0) {
         console.log('✅ All emails sent successfully');

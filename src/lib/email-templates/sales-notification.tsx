@@ -18,7 +18,7 @@ export const SalesNotificationTemplate = ({
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <meta httpEquiv="Content-Type" content="text/html; charset=UTF-8" />
         <title>
-          New Lead: {lead.first_name} {lead.last_name} - {lead.city} - Savings:{' '}
+          New Lead: {lead.first_name} {lead.last_name} - {lead.paikkakunta} - Savings:{' '}
           {lead.annual_savings.toLocaleString('fi-FI')}€/year
         </title>
         <style>{`
@@ -197,7 +197,7 @@ export const SalesNotificationTemplate = ({
               </span>
             </h1>
             <p style={{ margin: '8px 0 0 0', opacity: '0.9' }}>
-              {lead.first_name} {lead.last_name} - {lead.city || 'Ei kaupunkia'}{' '}
+              {lead.first_name} {lead.last_name} - {lead.paikkakunta || 'Ei kaupunkia'}{' '}
               - Säästöt: {lead.annual_savings.toLocaleString('fi-FI')}€/vuosi
             </p>
           </div>
@@ -234,31 +234,31 @@ export const SalesNotificationTemplate = ({
                   <span className="data-label">Sähköposti:</span>
                   <span className="data-value">
                     <a
-                      href={`mailto:${lead.email}`}
+                      href={`mailto:${lead.sahkoposti}`}
                       style={{ color: '#22c55e' }}
                     >
-                      {lead.email}
+                      {lead.sahkoposti}
                     </a>
                   </span>
                 </div>
                 <div className="data-item">
                   <span className="data-label">Puhelin:</span>
                   <span className="data-value">
-                    <a href={`tel:${lead.phone}`} style={{ color: '#22c55e' }}>
-                      {lead.phone}
+                    <a href={`tel:${lead.puhelinnumero}`} style={{ color: '#22c55e' }}>
+                      {lead.puhelinnumero}
                     </a>
                   </span>
                 </div>
                 <div className="data-item">
                   <span className="data-label">Yhteydenotto:</span>
-                  <span className="data-value">{lead.contact_preference}</span>
+                  <span className="data-value">{lead.valittutukimuoto}</span>
                 </div>
               </div>
-              {lead.street_address && (
+              {lead.osoite && (
                 <div className="data-item">
                   <span className="data-label">Osoite:</span>
                   <span className="data-value">
-                    {lead.street_address}, {lead.city}
+                    {lead.osoite}, {lead.paikkakunta}
                   </span>
                 </div>
               )}
@@ -285,11 +285,11 @@ export const SalesNotificationTemplate = ({
               <div className="data-grid">
                 <div className="data-item">
                   <span className="data-label">Koko:</span>
-                  <span className="data-value">{lead.square_meters}m²</span>
+                  <span className="data-value">{lead.neliot}m²</span>
                 </div>
                 <div className="data-item">
                   <span className="data-label">Korkeus:</span>
-                  <span className="data-value">{lead.ceiling_height}m</span>
+                  <span className="data-value">{lead.huonekorkeus}m</span>
                 </div>
                 <div className="data-item">
                   <span className="data-label">Kerrokset:</span>
@@ -297,21 +297,21 @@ export const SalesNotificationTemplate = ({
                 </div>
                 <div className="data-item">
                   <span className="data-label">Rakennusvuosi:</span>
-                  <span className="data-value">{lead.construction_year}</span>
+                  <span className="data-value">{lead.rakennusvuosi}</span>
                 </div>
                 <div className="data-item">
                   <span className="data-label">Nykyinen lämmitys:</span>
-                  <span className="data-value">{lead.heating_type}</span>
+                  <span className="data-value">{lead.lammitysmuoto}</span>
                 </div>
                 <div className="data-item">
                   <span className="data-label">Lämmityskustannus:</span>
                   <span className="data-value">
-                    {lead.current_heating_cost.toLocaleString('fi-FI')}€/vuosi
+                    {lead.vesikiertoinen.toLocaleString('fi-FI')}€/vuosi
                   </span>
                 </div>
                 <div className="data-item">
                   <span className="data-label">Asukkaat:</span>
-                  <span className="data-value">{lead.residents} henkilöä</span>
+                  <span className="data-value">{lead.henkilomaara} henkilöä</span>
                 </div>
                 <div className="data-item">
                   <span className="data-label">LKV käyttö:</span>
@@ -380,10 +380,10 @@ export const SalesNotificationTemplate = ({
 
             {/* Action Buttons */}
             <div className="cta-buttons">
-              <a href={`tel:${lead.phone}`} className="btn btn-primary">
+              <a href={`tel:${lead.puhelinnumero}`} className="btn btn-primary">
                 📞 Soita asiakkaalle
               </a>
-              <a href={`mailto:${lead.email}`} className="btn btn-secondary">
+              <a href={`mailto:${lead.sahkoposti}`} className="btn btn-secondary">
                 ✉️ Lähetä sähköposti
               </a>
               <a href={adminUrl} className="btn btn-secondary">
@@ -442,7 +442,7 @@ export const generateSalesEmailHtml = (data: SalesEmailData): string => {
       <head>
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-        <title>New Lead: ${lead.first_name} ${lead.last_name} - ${lead.city || 'Ei kaupunkia'} - Savings: ${lead.annual_savings.toLocaleString('fi-FI')}€/year</title>
+        <title>New Lead: ${lead.first_name} ${lead.last_name} - ${lead.paikkakunta || 'Ei kaupunkia'} - Savings: ${lead.annual_savings.toLocaleString('fi-FI')}€/year</title>
         <style>
           body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
@@ -533,7 +533,7 @@ export const generateSalesEmailHtml = (data: SalesEmailData): string => {
               <span class="lead-score ${scoreClass}">${leadScore.toUpperCase()} PRIORITY</span>
             </h1>
             <p style="margin: 8px 0 0 0; opacity: 0.9;">
-              ${lead.first_name} ${lead.last_name} - ${lead.city || 'Ei kaupunkia'} - Säästöt: ${lead.annual_savings.toLocaleString('fi-FI')}€/vuosi
+              ${lead.first_name} ${lead.last_name} - ${lead.paikkakunta || 'Ei kaupunkia'} - Säästöt: ${lead.annual_savings.toLocaleString('fi-FI')}€/vuosi
             </p>
           </div>
           
@@ -549,24 +549,24 @@ export const generateSalesEmailHtml = (data: SalesEmailData): string => {
               <h3 style="margin: 0 0 12px 0; font-size: 16px; color: #1f2937;">📞 Yhteystiedot</h3>
               <div class="data-grid">
                 <div><strong>Nimi:</strong> ${lead.first_name} ${lead.last_name}</div>
-                <div><strong>Sähköposti:</strong> <a href="mailto:${lead.email}" style="color: #22c55e;">${lead.email}</a></div>
-                <div><strong>Puhelin:</strong> <a href="tel:${lead.phone}" style="color: #22c55e;">${lead.phone}</a></div>
-                <div><strong>Yhteydenotto:</strong> ${lead.contact_preference}</div>
+                <div><strong>Sähköposti:</strong> <a href="mailto:${lead.sahkoposti}" style="color: #22c55e;">${lead.sahkoposti}</a></div>
+                <div><strong>Puhelin:</strong> <a href="tel:${lead.puhelinnumero}" style="color: #22c55e;">${lead.puhelinnumero}</a></div>
+                <div><strong>Yhteydenotto:</strong> ${lead.valittutukimuoto}</div>
               </div>
-              ${lead.street_address ? `<div style="margin-top: 12px;"><strong>Osoite:</strong> ${lead.street_address}, ${lead.city}</div>` : ''}
+              ${lead.osoite ? `<div style="margin-top: 12px;"><strong>Osoite:</strong> ${lead.osoite}, ${lead.paikkakunta}</div>` : ''}
               ${lead.message ? `<div style="margin-top: 16px;"><strong>Viesti:</strong><div style="background: #ffffff; padding: 12px; border-radius: 4px; margin-top: 8px;">"${lead.message}"</div></div>` : ''}
             </div>
             
             <div class="section">
               <h3 style="margin: 0 0 12px 0; font-size: 16px; color: #1f2937;">🏠 Talon tiedot</h3>
               <div class="data-grid">
-                <div><strong>Koko:</strong> ${lead.square_meters}m²</div>
-                <div><strong>Korkeus:</strong> ${lead.ceiling_height}m</div>
+                <div><strong>Koko:</strong> ${lead.neliot}m²</div>
+                <div><strong>Korkeus:</strong> ${lead.huonekorkeus}m</div>
                 <div><strong>Kerrokset:</strong> ${lead.floors} krs</div>
-                <div><strong>Rakennusvuosi:</strong> ${lead.construction_year}</div>
-                <div><strong>Nykyinen lämmitys:</strong> ${lead.heating_type}</div>
-                <div><strong>Lämmityskustannus:</strong> ${lead.current_heating_cost.toLocaleString('fi-FI')}€/vuosi</div>
-                <div><strong>Asukkaat:</strong> ${lead.residents} henkilöä</div>
+                <div><strong>Rakennusvuosi:</strong> ${lead.rakennusvuosi}</div>
+                <div><strong>Nykyinen lämmitys:</strong> ${lead.lammitysmuoto}</div>
+                <div><strong>Lämmityskustannus:</strong> ${lead.vesikiertoinen.toLocaleString('fi-FI')}€/vuosi</div>
+                <div><strong>Asukkaat:</strong> ${lead.henkilomaara} henkilöä</div>
                 <div><strong>LKV käyttö:</strong> ${lead.hot_water_usage}</div>
               </div>
             </div>
@@ -586,8 +586,8 @@ export const generateSalesEmailHtml = (data: SalesEmailData): string => {
             </div>
             
             <div style="text-align: center; margin: 24px 0;">
-              <a href="tel:${lead.phone}" class="btn btn-primary">📞 Soita asiakkaalle</a>
-              <a href="mailto:${lead.email}" class="btn btn-secondary">✉️ Lähetä sähköposti</a>
+              <a href="tel:${lead.puhelinnumero}" class="btn btn-primary">📞 Soita asiakkaalle</a>
+              <a href="mailto:${lead.sahkoposti}" class="btn btn-secondary">✉️ Lähetä sähköposti</a>
               <a href="${adminUrl}" class="btn btn-secondary">👤 Avaa CRM</a>
             </div>
             

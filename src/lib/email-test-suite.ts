@@ -56,28 +56,28 @@ export function createTestLead(
       return {
         ...baseData,
         // House Information
-        square_meters: 180,
-        ceiling_height: 3.0,
-        construction_year: '<1970',
+        neliot: 180,
+        huonekorkeus: 3.0,
+        rakennusvuosi: '<1970',
         floors: 2,
 
         // Current Heating
-        heating_type: 'Oil',
-        current_heating_cost: 3500,
+        lammitysmuoto: 'Oil',
+        vesikiertoinen: 3500,
         current_energy_consumption: 20000,
 
         // Household
-        residents: 5,
+        henkilomaara: 5,
         hot_water_usage: 'High',
 
         // Contact Info
         first_name: 'Matti',
         last_name: 'Meikäläinen',
-        email: testEmail,
-        phone: '+358401234567',
-        street_address: 'Iso-Roobertinkatu 20',
-        city: 'Helsinki',
-        contact_preference: 'Both',
+        sahkoposti: testEmail,
+        puhelinnumero: '+358401234567',
+        osoite: 'Iso-Roobertinkatu 20',
+        paikkakunta: 'Helsinki',
+        valittutukimuoto: 'Both',
         message:
           'Kiinnostaa todella paljon! Voitteko ottaa yhteyttä mahdollisimman pian?',
 
@@ -96,28 +96,28 @@ export function createTestLead(
       return {
         ...baseData,
         // House Information
-        square_meters: 120,
-        ceiling_height: 2.5,
-        construction_year: '1991-2010',
+        neliot: 120,
+        huonekorkeus: 2.5,
+        rakennusvuosi: '1991-2010',
         floors: 1,
 
         // Current Heating
-        heating_type: 'Electric',
-        current_heating_cost: 2200,
+        lammitysmuoto: 'Electric',
+        vesikiertoinen: 2200,
         current_energy_consumption: 15000,
 
         // Household
-        residents: 3,
+        henkilomaara: 3,
         hot_water_usage: 'Normal',
 
         // Contact Info
         first_name: 'Anna',
         last_name: 'Virtanen',
-        email: testEmail,
-        phone: '+358501234567',
-        street_address: 'Puistokatu 15',
-        city: 'Tampere',
-        contact_preference: 'Email',
+        sahkoposti: testEmail,
+        puhelinnumero: '+358501234567',
+        osoite: 'Puistokatu 15',
+        paikkakunta: 'Tampere',
+        valittutukimuoto: 'Email',
         message: undefined,
 
         // Medium-value calculations
@@ -135,28 +135,28 @@ export function createTestLead(
       return {
         ...baseData,
         // House Information
-        square_meters: 80,
-        ceiling_height: 2.5,
-        construction_year: '>2010',
+        neliot: 80,
+        huonekorkeus: 2.5,
+        rakennusvuosi: '>2010',
         floors: 1,
 
         // Current Heating
-        heating_type: 'District',
-        current_heating_cost: 1400,
+        lammitysmuoto: 'District',
+        vesikiertoinen: 1400,
         current_energy_consumption: 12000,
 
         // Household
-        residents: 2,
+        henkilomaara: 2,
         hot_water_usage: 'Low',
 
         // Contact Info
         first_name: 'Pekka',
         last_name: 'Korhonen',
-        email: testEmail,
-        phone: '+358401234567',
-        street_address: undefined,
-        city: 'Oulu',
-        contact_preference: 'Phone',
+        sahkoposti: testEmail,
+        puhelinnumero: '+358401234567',
+        osoite: undefined,
+        paikkakunta: 'Oulu',
+        valittutukimuoto: 'Phone',
         message: undefined,
 
         // Low-value calculations
@@ -174,28 +174,28 @@ export function createTestLead(
       return {
         ...baseData,
         // House Information
-        square_meters: 100,
-        ceiling_height: 2.5,
-        construction_year: '1970-1990',
+        neliot: 100,
+        huonekorkeus: 2.5,
+        rakennusvuosi: '1970-1990',
         floors: 1,
 
         // Current Heating
-        heating_type: 'Other',
-        current_heating_cost: 1800,
+        lammitysmuoto: 'Other',
+        vesikiertoinen: 1800,
         current_energy_consumption: undefined,
 
         // Household
-        residents: 1,
+        henkilomaara: 1,
         hot_water_usage: 'Normal',
 
         // Contact Info - minimal required data
         first_name: 'Test',
         last_name: 'User',
-        email: testEmail,
-        phone: '+358401234567',
-        street_address: undefined,
-        city: undefined,
-        contact_preference: 'Email',
+        sahkoposti: testEmail,
+        puhelinnumero: '+358401234567',
+        osoite: undefined,
+        paikkakunta: undefined,
+        valittutukimuoto: 'Email',
         message: undefined,
 
         // Basic calculations

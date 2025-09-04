@@ -14,6 +14,7 @@ import {
   ChevronDown,
   MoreHorizontal,
   Palette,
+  FileCode,
 } from 'lucide-react';
 import {
   DropdownMenu,
@@ -47,6 +48,12 @@ const primaryNavigation = [
 
 // Secondary navigation items (in dropdown)
 const secondaryNavigation = [
+  {
+    name: 'PDF Shortcodes',
+    href: '/admin/pdf-shortcodes',
+    icon: FileCode,
+    description: 'PDF Template Variables',
+  },
   {
     name: 'Visual Assets',
     href: '/admin/visual-assets',

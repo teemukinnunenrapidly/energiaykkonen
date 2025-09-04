@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { Lead } from '@/lib/supabase';
+import { flattenLeadData } from '@/lib/lead-helpers';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -13,7 +14,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { ChevronDown, ChevronRight, Mail, Phone } from 'lucide-react';
+import { ChevronDown, ChevronRight, Mail, Phone, FileText } from 'lucide-react';
 
 interface LeadsTableProps {
   leads: Lead[];
@@ -72,15 +73,15 @@ function LeadExpandedDetails({ lead }: { lead: Lead }) {
           <div className="space-y-2 text-sm">
             <div>
               <span className="text-muted-foreground">Size:</span>{' '}
-              {lead.square_meters} m²
+              {lead.neliot} m²
             </div>
             <div>
               <span className="text-muted-foreground">Ceiling:</span>{' '}
-              {lead.ceiling_height}m
+              {lead.huonekorkeus}m
             </div>
             <div>
               <span className="text-muted-foreground">Built:</span>{' '}
-              {lead.construction_year}
+              {lead.rakennusvuosi}
             </div>
             <div>
               <span className="text-muted-foreground">Floors:</span>{' '}
@@ -88,7 +89,7 @@ function LeadExpandedDetails({ lead }: { lead: Lead }) {
             </div>
             <div>
               <span className="text-muted-foreground">Residents:</span>{' '}
-              {lead.residents}
+              {lead.henkilomaara}
             </div>
           </div>
         </div>
@@ -99,11 +100,11 @@ function LeadExpandedDetails({ lead }: { lead: Lead }) {
           <div className="space-y-2 text-sm">
             <div>
               <span className="text-muted-foreground">Type:</span>{' '}
-              {lead.heating_type}
+              {lead.lammitysmuoto}
             </div>
             <div>
               <span className="text-muted-foreground">Annual Cost:</span>{' '}
-              {formatCurrency(lead.current_heating_cost)}
+              {formatCurrency(lead.vesikiertoinen || 0)}
             </div>
             {lead.current_energy_consumption && (
               <div>
@@ -126,15 +127,15 @@ function LeadExpandedDetails({ lead }: { lead: Lead }) {
           <div className="space-y-2 text-sm">
             <div>
               <span className="text-muted-foreground">Energy Need:</span>{' '}
-              {lead.annual_energy_need.toLocaleString()} kWh/year
+              {(lead.annual_energy_need || 0).toLocaleString()} kWh/year
             </div>
             <div>
               <span className="text-muted-foreground">HP Consumption:</span>{' '}
-              {lead.heat_pump_consumption.toLocaleString()} kWh/year
+              {(lead.heat_pump_consumption || 0).toLocaleString()} kWh/year
             </div>
             <div>
               <span className="text-muted-foreground">HP Annual Cost:</span>{' '}
-              {formatCurrency(lead.heat_pump_cost_annual)}
+              {formatCurrency(lead.heat_pump_cost_annual || 0)}
             </div>
             <div className="font-medium text-green-600">
               <span className="text-muted-foreground">5-Year Savings:</span>{' '}
@@ -146,11 +147,11 @@ function LeadExpandedDetails({ lead }: { lead: Lead }) {
             </div>
             <div>
               <span className="text-muted-foreground">Payback:</span>{' '}
-              {lead.payback_period.toFixed(1)} years
+              {(lead.payback_period || 0).toFixed(1)} years
             </div>
             <div>
               <span className="text-muted-foreground">CO₂ Reduction:</span>{' '}
-              {lead.co2_reduction.toLocaleString()} kg/year
+              {(lead.co2_reduction || 0).toLocaleString()} kg/year
             </div>
           </div>
         </div>
@@ -164,30 +165,43 @@ function LeadExpandedDetails({ lead }: { lead: Lead }) {
             <div className="flex items-center gap-2">
               <Mail className="w-4 h-4 text-muted-foreground" />
               <a
-                href={`mailto:${lead.email}`}
+                href={`mailto:${lead.sahkoposti}`}
                 className="text-primary hover:underline"
               >
-                {lead.email}
+                {lead.sahkoposti}
               </a>
             </div>
             <div className="flex items-center gap-2">
               <Phone className="w-4 h-4 text-muted-foreground" />
               <a
-                href={`tel:${lead.phone}`}
+                href={`tel:${lead.puhelinnumero}`}
                 className="text-primary hover:underline"
               >
-                {lead.phone}
+                {lead.puhelinnumero}
               </a>
             </div>
-            {lead.street_address && (
+            {lead.pdf_url && (
+              <div className="flex items-center gap-2 mt-2">
+                <FileText className="w-4 h-4 text-muted-foreground" />
+                <a
+                  href={`/api/admin/lead-pdf/${lead.id}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-primary hover:underline"
+                >
+                  View Savings Report PDF
+                </a>
+              </div>
+            )}
+            {lead.osoite && (
               <div>
                 <span className="text-muted-foreground">Address:</span>{' '}
-                {lead.street_address}
+                {lead.osoite}
               </div>
             )}
             <div>
               <span className="text-muted-foreground">Prefers:</span>{' '}
-              {lead.contact_preference}
+              {lead.valittutukimuoto}
             </div>
             {lead.message && (
               <div>
@@ -248,6 +262,9 @@ export default function LeadsTable({
   onPageChange,
 }: LeadsTableProps) {
   const [expandedRows, setExpandedRows] = useState<ExpandedRows>({});
+  
+  // Flatten leads data for backward compatibility
+  const flattenedLeads = leads.map(flattenLeadData);
 
   const toggleRowExpansion = (leadId: string) => {
     setExpandedRows(prev => ({
@@ -258,7 +275,7 @@ export default function LeadsTable({
 
   const totalPages = Math.ceil(totalCount / LEADS_PER_PAGE);
 
-  if (leads.length === 0) {
+  if (flattenedLeads.length === 0) {
     return (
       <Card>
         <CardContent className="p-8">
@@ -298,7 +315,7 @@ export default function LeadsTable({
               </TableRow>
             </TableHeader>
             <TableBody>
-              {leads.map(lead => (
+              {flattenedLeads.map(lead => (
                 <React.Fragment key={lead.id}>
                   <TableRow className="hover:bg-muted/50">
                     <TableCell>
@@ -318,19 +335,19 @@ export default function LeadsTable({
                     </TableCell>
                     <TableCell>
                       <a
-                        href={`mailto:${lead.email}`}
+                        href={`mailto:${lead.sahkoposti}`}
                         className="text-primary hover:underline"
                       >
-                        {lead.email}
+                        {lead.sahkoposti}
                       </a>
                     </TableCell>
-                    <TableCell>{lead.city || '-'}</TableCell>
+                    <TableCell>{lead.paikkakunta || '-'}</TableCell>
                     <TableCell>
                       <div className="font-medium text-green-600">
-                        {formatCurrency(lead.annual_savings)}
+                        {formatCurrency(lead.annual_savings || 0)}
                       </div>
                       <div className="text-xs text-muted-foreground">
-                        {lead.square_meters}m² • {lead.heating_type}
+                        {lead.neliot}m² • {lead.lammitysmuoto}
                       </div>
                     </TableCell>
                     <TableCell>
@@ -358,7 +375,7 @@ export default function LeadsTable({
 
       {/* Mobile Cards */}
       <div className="md:hidden space-y-4">
-        {leads.map(lead => (
+        {flattenedLeads.map(lead => (
           <Card key={lead.id}>
             <CardContent className="p-4">
               <div className="flex justify-between items-start mb-3">
@@ -367,7 +384,7 @@ export default function LeadsTable({
                     {lead.first_name} {lead.last_name}
                   </h3>
                   <p className="text-sm text-muted-foreground">
-                    {lead.city || 'No city'}
+                    {lead.paikkakunta || 'No city'}
                   </p>
                 </div>
                 <Badge variant={getStatusBadgeVariant(lead.status)}>
@@ -379,13 +396,13 @@ export default function LeadsTable({
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Annual Savings:</span>
                   <span className="font-medium text-green-600">
-                    {formatCurrency(lead.annual_savings)}
+                    {formatCurrency(lead.annual_savings || 0)}
                   </span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Property:</span>
                   <span>
-                    {lead.square_meters}m² • {lead.heating_type}
+                    {lead.neliot}m² • {lead.lammitysmuoto}
                   </span>
                 </div>
                 <div className="flex justify-between">
@@ -397,17 +414,27 @@ export default function LeadsTable({
               <div className="mt-3 pt-3 border-t flex justify-between items-center">
                 <div className="flex gap-2">
                   <a
-                    href={`mailto:${lead.email}`}
+                    href={`mailto:${lead.sahkoposti}`}
                     className="text-primary hover:underline text-sm"
                   >
                     Email
                   </a>
                   <a
-                    href={`tel:${lead.phone}`}
+                    href={`tel:${lead.puhelinnumero}`}
                     className="text-primary hover:underline text-sm"
                   >
                     Call
                   </a>
+                  {lead.pdf_url && (
+                    <a
+                      href={`/api/admin/lead-pdf/${lead.id}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-primary hover:underline text-sm"
+                    >
+                      PDF
+                    </a>
+                  )}
                 </div>
                 <button
                   onClick={() => toggleRowExpansion(lead.id)}

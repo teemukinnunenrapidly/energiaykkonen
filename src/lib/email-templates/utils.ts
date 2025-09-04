@@ -16,11 +16,11 @@ export function calculateLeadScore(lead: Lead): 'high' | 'medium' | 'low' {
   }
 
   // House size weight (20%)
-  if (lead.square_meters >= 150) {
+  if (lead.neliot >= 150) {
     score += 20;
-  } else if (lead.square_meters >= 100) {
+  } else if (lead.neliot >= 100) {
     score += 15;
-  } else if (lead.square_meters >= 50) {
+  } else if (lead.neliot >= 50) {
     score += 10;
   }
 
@@ -34,18 +34,18 @@ export function calculateLeadScore(lead: Lead): 'high' | 'medium' | 'low' {
   }
 
   // Current heating type weight (10%)
-  if (lead.heating_type === 'Oil') {
+  if (lead.lammitysmuoto === 'Oil') {
     score += 10;
-  } else if (lead.heating_type === 'Electric') {
+  } else if (lead.lammitysmuoto === 'Electric') {
     score += 8;
-  } else if (lead.heating_type === 'District') {
+  } else if (lead.lammitysmuoto === 'District') {
     score += 5;
   }
 
   // Contact preference weight (5%)
   if (
-    lead.contact_preference === 'Phone' ||
-    lead.contact_preference === 'Both'
+    lead.valittutukimuoto === 'Phone' ||
+    lead.valittutukimuoto === 'Both'
   ) {
     score += 5;
   }
@@ -72,7 +72,7 @@ export const emailSubjects = {
   customer: () => `Your Heat Pump Savings Calculation - Energiaykkönen`,
 
   sales: (lead: Lead) =>
-    `New Lead: ${lead.first_name} ${lead.last_name} - ${lead.city || 'Ei kaupunkia'} - Savings: ${lead.annual_savings.toLocaleString('fi-FI')}€/year`,
+    `New Lead: ${lead.first_name} ${lead.last_name} - ${lead.paikkakunta || 'Ei kaupunkia'} - Savings: ${lead.annual_savings.toLocaleString('fi-FI')}€/year`,
 };
 
 /**

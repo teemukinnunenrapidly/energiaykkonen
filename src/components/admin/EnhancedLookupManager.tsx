@@ -358,6 +358,74 @@ export function EnhancedLookupManager() {
     }
   };
 
+  const handleDuplicateLookup = async (lookup: EnhancedLookup) => {
+    try {
+      setLoading(true);
+      
+      // Create new lookup with copied data
+      const newName = prompt(
+        'Enter name for the duplicated lookup (shortcode):',
+        `${lookup.name}-copy`
+      );
+      
+      if (!newName) {
+        return;
+      }
+
+      // Check if name already exists
+      if (lookups.some(l => l.name === newName)) {
+        alert('A lookup with this name already exists.');
+        return;
+      }
+
+      // Create the new lookup
+      const newLookup = await createEnhancedLookup({
+        name: newName,
+        title: `${lookup.title} (Copy)`,
+        description: lookup.description || '',
+        is_active: lookup.is_active,
+      });
+
+      // Load the rules from the original lookup
+      const originalRules = await getLookupRules(lookup.id);
+      
+      // Copy each rule to the new lookup
+      for (const rule of originalRules) {
+        await createLookupRule({
+          lookup_id: newLookup.id,
+          name: rule.name,
+          description: rule.description,
+          order_index: rule.order_index,
+          condition_logic: rule.condition_logic,
+          action_type: rule.action_type,
+          action_config: rule.action_config,
+          is_active: rule.is_active,
+        });
+      }
+
+      // Copy default action if exists
+      const originalDefault = await getLookupDefault(lookup.id);
+      if (originalDefault) {
+        await createLookupDefault({
+          lookup_id: newLookup.id,
+          action_type: originalDefault.action_type,
+          action_config: originalDefault.action_config,
+        });
+      }
+
+      // Refresh and select the new lookup
+      await loadLookups();
+      setSelectedLookup(newLookup);
+      
+      alert(`Successfully duplicated lookup as "${newName}"`);
+    } catch (error) {
+      console.error('Failed to duplicate lookup:', error);
+      alert('Failed to duplicate lookup. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleTestLookup = async () => {
     if (!selectedLookup) {
       return;
@@ -550,13 +618,25 @@ export function EnhancedLookupManager() {
                             `[lookup:${lookup.name}]`
                           );
                         }}
+                        title="Copy shortcode"
                       >
                         <Copy className="w-4 h-4" />
                       </Button>
                       <Button
                         size="sm"
                         variant="outline"
+                        onClick={() => handleDuplicateLookup(lookup)}
+                        disabled={loading}
+                        title="Duplicate lookup"
+                      >
+                        <Copy className="w-4 h-4" />
+                        <Plus className="w-3 h-3 -ml-1" />
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="outline"
                         onClick={() => handleDeleteLookup(lookup.id)}
+                        title="Delete lookup"
                       >
                         <Trash2 className="w-4 h-4" />
                       </Button>

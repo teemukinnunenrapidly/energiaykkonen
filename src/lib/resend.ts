@@ -16,6 +16,13 @@ export const emailConfig = {
   replyTo: 'info@energiaykkonen.fi',
 } as const;
 
+// Email attachment type
+export interface EmailAttachment {
+  filename: string;
+  content: Buffer | string;
+  contentType?: string;
+}
+
 // Email sending wrapper with error handling
 export async function sendEmail({
   to,
@@ -23,12 +30,14 @@ export async function sendEmail({
   html,
   from = emailConfig.from,
   replyTo = emailConfig.replyTo,
+  attachments,
 }: {
   to: string | string[];
   subject: string;
   html: string;
   from?: string;
   replyTo?: string;
+  attachments?: EmailAttachment[];
 }) {
   try {
     const { data, error } = await resend.emails.send({
@@ -37,6 +46,11 @@ export async function sendEmail({
       subject,
       html,
       replyTo,
+      attachments: attachments?.map(att => ({
+        filename: att.filename,
+        content: att.content,
+        content_type: att.contentType,
+      })),
     });
 
     if (error) {

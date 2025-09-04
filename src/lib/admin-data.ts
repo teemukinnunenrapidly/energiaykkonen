@@ -1,4 +1,5 @@
 import { supabase, Lead } from '@/lib/supabase';
+import { flattenLeadsData } from '@/lib/lead-helpers';
 
 export interface LeadsResponse {
   leads: Lead[];
@@ -106,7 +107,7 @@ export async function getLeadsWithPagination(
     }
 
     return {
-      leads: leads || [],
+      leads: flattenLeadsData(leads || []),
       totalCount,
       currentPage: page,
       totalPages,

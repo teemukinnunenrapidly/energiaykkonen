@@ -112,6 +112,15 @@ export function CalculationCard({ card }: CalculationCardProps) {
           setResultUnit(''); // Remove unit reference as it doesn't exist in ProcessingResult
           setFormulaName(null); // Remove formulaName reference as it doesn't exist in ProcessingResult
 
+          // Store the calculated result in formData using the configured field_name
+          if (card.config?.field_name && result.result) {
+            const numericResult = parseFloat(String(result.result).replace(/[^\d.-]/g, ''));
+            if (!isNaN(numericResult)) {
+              updateField(card.config.field_name, numericResult);
+              console.log(`💾 Stored calculation result in field "${card.config.field_name}": ${numericResult}`);
+            }
+          }
+
           // Auto-complete the card if calculation succeeds
           if (card.config?.auto_complete_on_success) {
             completeCard(card.id);
@@ -351,7 +360,14 @@ export function CalculationCard({ card }: CalculationCardProps) {
               originalValue={originalResult || calculatedResult}
               unit={resultUnit}
               onUpdate={newValue => {
-                // Store the override in formData
+                // Store the override in formData using field_name if configured
+                if (card.config?.field_name) {
+                  // Store the user-edited value in the configured field
+                  updateField(card.config.field_name, newValue);
+                  console.log(`💾 Stored user-edited value in field "${card.config.field_name}": ${newValue}`);
+                }
+                
+                // Also store as override for tracking purposes
                 const overrideKey = `override_${formulaName || 'calc'}`;
                 updateField(overrideKey, newValue);
 

@@ -1,5 +1,5 @@
-import { Lead } from './supabase';
-import { sendEmail, emailConfig } from './resend';
+import { Lead, supabase } from './supabase';
+import { sendEmail, emailConfig, EmailAttachment } from './resend';
 import {
   generateCustomerEmailHtml,
   generateSalesEmailHtml,
@@ -9,44 +9,138 @@ import {
   CustomerEmailData,
   SalesEmailData,
 } from './email-templates';
+import { getEmailTemplatesByCategory } from './email-templates-service';
+import { UnifiedCalculationEngine } from './unified-calculation-engine';
 
 /**
  * Send customer results email with calculation details
  */
-export async function sendCustomerResultsEmail(lead: Lead) {
+export async function sendCustomerResultsEmail(
+  lead: Lead,
+  pdfAttachment?: EmailAttachment
+) {
   try {
-    console.log(`Sending customer results email to ${lead.email}`);
+    console.log(`Sending customer results email to ${lead.sahkoposti}`);
 
-    // Prepare email data
-    const emailData: CustomerEmailData = {
-      firstName: lead.first_name,
-      lastName: lead.last_name,
-      calculations: {
-        annualSavings: lead.annual_savings,
-        fiveYearSavings: lead.five_year_savings,
-        tenYearSavings: lead.ten_year_savings,
-        paybackPeriod: lead.payback_period,
-        co2Reduction: lead.co2_reduction,
-      },
-      houseInfo: {
-        squareMeters: lead.square_meters,
-        heatingType: lead.heating_type,
-      },
-    };
+    // Try to fetch template from database first
+    let html: string;
+    let subject: string = emailSubjects.customer();
+    
+    try {
+      // Fetch customer results template from database
+      const templates = await getEmailTemplatesByCategory('results');
+      
+      if (templates && templates.length > 0) {
+        // Use the first active template
+        const template = templates[0];
+        
+        // Prepare data for shortcode processing
+        const templateData = {
+          // Lead data
+          first_name: lead.first_name,
+          last_name: lead.last_name,
+          sahkoposti: lead.sahkoposti,
+          puhelinnumero: lead.puhelinnumero,
+          osoite: lead.osoite,
+          paikkakunta: lead.paikkakunta,
+          
+          // House data
+          neliot: lead.neliot,
+          huonekorkeus: lead.huonekorkeus,
+          rakennusvuosi: lead.rakennusvuosi,
+          floors: lead.floors,
+          lammitysmuoto: lead.lammitysmuoto,
+          vesikiertoinen: lead.vesikiertoinen,
+          current_energy_consumption: lead.current_energy_consumption,
+          henkilomaara: lead.henkilomaara,
+          hot_water_usage: lead.hot_water_usage,
+          
+          // Calculations
+          annual_energy_need: lead.annual_energy_need,
+          heat_pump_consumption: lead.heat_pump_consumption,
+          heat_pump_cost_annual: lead.heat_pump_cost_annual,
+          annual_savings: lead.annual_savings,
+          five_year_savings: lead.five_year_savings,
+          ten_year_savings: lead.ten_year_savings,
+          payback_period: lead.payback_period,
+          co2_reduction: lead.co2_reduction,
+          
+          // Add PDF attachment note if PDF is attached
+          pdf_attachment_note: pdfAttachment 
+            ? '<p style="background-color: #f0f9ff; padding: 12px; border-radius: 6px; margin: 16px 0;">📎 <strong>Liite:</strong> Yksityiskohtainen säästöraportti PDF-muodossa on liitteenä tässä sähköpostissa.</p>'
+            : ''
+        };
+        
+        // Process shortcodes in template
+        const engine = new UnifiedCalculationEngine(
+          supabase,
+          `email-${Date.now()}`,
+          templateData
+        );
+        
+        // Process subject
+        const subjectResult = await engine.process(template.subject);
+        subject = subjectResult.success && subjectResult.result ? subjectResult.result : template.subject;
+        
+        // Process content
+        const contentResult = await engine.process(template.content);
+        html = contentResult.success && contentResult.result ? contentResult.result : template.content;
+        
+        console.log('✅ Using database template for customer email');
+      } else {
+        // Fall back to hardcoded template
+        console.log('⚠️ No database template found, using hardcoded template');
+        const emailData: CustomerEmailData = {
+          firstName: lead.first_name,
+          lastName: lead.last_name,
+          calculations: {
+            annualSavings: lead.annual_savings,
+            fiveYearSavings: lead.five_year_savings,
+            tenYearSavings: lead.ten_year_savings,
+            paybackPeriod: lead.payback_period,
+            co2Reduction: lead.co2_reduction,
+          },
+          houseInfo: {
+            squareMeters: lead.neliot,
+            heatingType: lead.lammitysmuoto,
+          },
+        };
+        html = generateCustomerEmailHtml(emailData);
+      }
+    } catch (templateError) {
+      // If database fetch fails, fall back to hardcoded template
+      console.error('Failed to fetch database template:', templateError);
+      console.log('⚠️ Falling back to hardcoded template');
+      
+      const emailData: CustomerEmailData = {
+        firstName: lead.first_name,
+        lastName: lead.last_name,
+        calculations: {
+          annualSavings: lead.annual_savings,
+          fiveYearSavings: lead.five_year_savings,
+          tenYearSavings: lead.ten_year_savings,
+          paybackPeriod: lead.payback_period,
+          co2Reduction: lead.co2_reduction,
+        },
+        houseInfo: {
+          squareMeters: lead.neliot,
+          heatingType: lead.lammitysmuoto,
+        },
+      };
+      html = generateCustomerEmailHtml(emailData);
+    }
 
-    // Generate HTML content
-    const html = generateCustomerEmailHtml(emailData);
-
-    // Send email
+    // Send email with optional PDF attachment
     const result = await sendEmail({
-      to: lead.email,
-      subject: emailSubjects.customer(),
+      to: lead.sahkoposti,
+      subject,
       html,
+      attachments: pdfAttachment ? [pdfAttachment] : undefined,
     });
 
     return result;
   } catch (error) {
-    console.error('Failed to send customer results email:', error);
+    console.error('Failed to send customer results sahkoposti:', error);
     throw new Error(
       `Customer email failed: ${error instanceof Error ? error.message : 'Unknown error'}`
     );
@@ -82,7 +176,7 @@ export async function sendSalesNotificationEmail(lead: Lead, baseUrl?: string) {
 
     return { ...result, leadScore };
   } catch (error) {
-    console.error('Failed to send sales notification email:', error);
+    console.error('Failed to send sales notification sahkoposti:', error);
     throw new Error(
       `Sales email failed: ${error instanceof Error ? error.message : 'Unknown error'}`
     );
@@ -93,16 +187,20 @@ export async function sendSalesNotificationEmail(lead: Lead, baseUrl?: string) {
  * Send both customer and sales emails
  * This is the main function to call after a lead is submitted
  */
-export async function sendLeadEmails(lead: Lead, baseUrl?: string) {
+export async function sendLeadEmails(
+  lead: Lead,
+  baseUrl?: string,
+  pdfAttachment?: EmailAttachment
+) {
   const results = {
     customerEmail: null as any,
     salesEmail: null as any,
     errors: [] as string[],
   };
 
-  // Send customer email
+  // Send customer email with optional PDF attachment
   try {
-    results.customerEmail = await sendCustomerResultsEmail(lead);
+    results.customerEmail = await sendCustomerResultsEmail(lead, pdfAttachment);
     console.log('✅ Customer email sent successfully');
   } catch (error) {
     const errorMessage = `Customer email failed: ${error instanceof Error ? error.message : 'Unknown error'}`;
@@ -136,28 +234,28 @@ export async function sendTestEmails(testEmail: string = 'test@example.com') {
     updated_at: new Date().toISOString(),
 
     // House Information
-    square_meters: 120,
-    ceiling_height: 2.5,
-    construction_year: '1991-2010',
+    neliot: 120,
+    huonekorkeus: 2.5,
+    rakennusvuosi: '1991-2010',
     floors: 2,
 
     // Current Heating
-    heating_type: 'Electric',
-    current_heating_cost: 2500,
+    lammitysmuoto: 'Electric',
+    vesikiertoinen: 2500,
     current_energy_consumption: 15000,
 
     // Household
-    residents: 4,
+    henkilomaara: 4,
     hot_water_usage: 'Normal',
 
     // Contact Info
     first_name: 'Testi',
     last_name: 'Käyttäjä',
-    email: testEmail,
-    phone: '+358401234567',
-    street_address: 'Testikatu 1',
-    city: 'Helsinki',
-    contact_preference: 'Both',
+    sahkoposti: testEmail,
+    puhelinnumero: '+358401234567',
+    osoite: 'Testikatu 1',
+    paikkakunta: 'Helsinki',
+    valittutukimuoto: 'Both',
     message: 'Kiinnostaa lämpöpumppu, ottakaa yhteyttä!',
 
     // Calculations

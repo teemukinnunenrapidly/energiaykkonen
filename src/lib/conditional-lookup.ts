@@ -261,20 +261,20 @@ async function evaluateCondition(
         // Try common field name variations for Finnish forms
         const fieldMappings: Record<string, string[]> = {
           valitse: [
-            'valitse_jompi_kumpi',
+            'vesikiertoinen',
             'valitse',
             'heating_type',
             'lämmitystyyppi',
           ],
           heating_type: [
-            'valitse_jompi_kumpi',
+            'vesikiertoinen',
             'valitse',
             'heating_type',
             'lämmitystyyppi',
           ],
           neliot: ['square_meters', 'neliot', 'm2'],
-          korkeus: ['ceiling_height', 'huonekorkeus_m', 'korkeus'],
-          henkilomaara: ['residents', 'henkil_m_r', 'henkilomaara'],
+          korkeus: ['ceiling_height', 'huonekorkeus', 'korkeus'],
+          henkilomaara: ['residents', 'henkilomaara', 'henkilomaara'],
           rakennusvuosi: ['construction_year', 'rakennusvuosi'],
         };
 
@@ -419,7 +419,7 @@ export function addLookupTable(table: LookupTable): void {
 //     const { fields } = getSessionSummary(sessionId);
 //
 //     // If we have heating type, return appropriate calculation
-//     const heatingType = fields.valitse_jompi_kumpi || fields.heating_type;
+//     const heatingType = fields.vesikiertoinen || fields.heating_type;
 //     if (heatingType) {
 //       if (
 //         heatingType.toLowerCase().includes('öljy') ||

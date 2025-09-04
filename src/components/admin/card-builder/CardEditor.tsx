@@ -379,26 +379,64 @@ export function CardEditor({
           </div>
 
           <div>
-            <h3 className="font-semibold mb-4">Calculation Result</h3>
-            <p className="text-xs text-gray-500 mb-2">
-              The shortcode that will display the actual calculation result with
-              units
-            </p>
-            <input
-              type="text"
-              value={card.config?.main_result || ''}
-              onChange={e =>
-                onUpdateCard({
-                  config: { ...card.config, main_result: e.target.value },
-                })
-              }
-              className="w-full p-3 border rounded font-mono"
-              placeholder="[calc:energy-consumption-kwh] or [calc:annual-savings-eur]"
-            />
-            <p className="text-xs text-gray-500 mt-2">
-              Include units in the shortcode name (e.g., kwh, eur, %) - the
-              shortcode will be replaced with the actual calculated value
-            </p>
+            <h3 className="font-semibold mb-4">Calculation Configuration</h3>
+            
+            {/* Database Field Name */}
+            <div className="mb-4">
+              <label className="block text-sm font-medium mb-1">
+                Database Field Name
+              </label>
+              <p className="text-xs text-gray-500 mb-2">
+                The field name to store this calculation result in the database
+              </p>
+              <input
+                type="text"
+                value={card.config?.field_name || ''}
+                onChange={e => {
+                  // Sanitize field name for database compatibility
+                  const sanitized = e.target.value
+                    .toLowerCase()
+                    .replace(/[^a-z0-9_]/g, '_')
+                    .replace(/^_+|_+$/g, '')
+                    .replace(/_+/g, '_');
+                  
+                  onUpdateCard({
+                    config: { ...card.config, field_name: sanitized },
+                  });
+                }}
+                className="w-full p-2 border rounded font-mono text-sm"
+                placeholder="e.g., annual_energy_consumption"
+              />
+              <p className="text-xs text-gray-500 mt-1">
+                Use lowercase, underscores, no spaces or special characters
+              </p>
+            </div>
+
+            {/* Calculation Result Shortcode */}
+            <div>
+              <label className="block text-sm font-medium mb-1">
+                Calculation Result Shortcode
+              </label>
+              <p className="text-xs text-gray-500 mb-2">
+                The shortcode that will display the actual calculation result with
+                units
+              </p>
+              <input
+                type="text"
+                value={card.config?.main_result || ''}
+                onChange={e =>
+                  onUpdateCard({
+                    config: { ...card.config, main_result: e.target.value },
+                  })
+                }
+                className="w-full p-3 border rounded font-mono"
+                placeholder="[calc:energy-consumption-kwh] or [calc:annual-savings-eur]"
+              />
+              <p className="text-xs text-gray-500 mt-2">
+                Include units in the shortcode name (e.g., kwh, eur, %) - the
+                shortcode will be replaced with the actual calculated value
+              </p>
+            </div>
           </div>
 
           <div className="border-t pt-4">
