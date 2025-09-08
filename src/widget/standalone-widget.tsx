@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import ReactDOM from 'react-dom/client';
 import { CardSystemContainer } from '../components/card-system/CardSystemContainer';
 import { createClient } from '@supabase/supabase-js';
-import type { Database } from '../lib/supabase';
 import designTokens from '../../cardstream-complete-config.json';
 import './widget-styles.css';
 
@@ -174,7 +173,7 @@ function initSupabase(config: WidgetConfig) {
     return null;
   }
   
-  return createClient<Database>(url, key);
+  return createClient(url, key);
 }
 
 // Widget wrapper component
