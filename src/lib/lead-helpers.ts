@@ -35,16 +35,22 @@ export function flattenLeadData(lead: Lead): any {
 
     // Calculations (check both form_data and calculation_results)
     annual_energy_need:
-      lead.form_data?.annual_energy_need || lead.calculation_results?.annual_energy_need,
+      lead.form_data?.annual_energy_need ||
+      lead.calculation_results?.annual_energy_need,
     heat_pump_consumption:
-      lead.form_data?.heat_pump_consumption || lead.calculation_results?.heat_pump_consumption,
+      lead.form_data?.heat_pump_consumption ||
+      lead.calculation_results?.heat_pump_consumption,
     heat_pump_cost_annual:
-      lead.form_data?.heat_pump_cost_annual || lead.calculation_results?.heat_pump_cost_annual,
+      lead.form_data?.heat_pump_cost_annual ||
+      lead.calculation_results?.heat_pump_cost_annual,
     annual_savings: lead.calculation_results?.annual_savings,
     five_year_savings: lead.calculation_results?.five_year_savings,
     ten_year_savings: lead.calculation_results?.ten_year_savings,
-    payback_period: lead.form_data?.payback_period || lead.calculation_results?.payback_period,
-    co2_reduction: lead.form_data?.co2_reduction || lead.calculation_results?.co2_reduction,
+    payback_period:
+      lead.form_data?.payback_period ||
+      lead.calculation_results?.payback_period,
+    co2_reduction:
+      lead.form_data?.co2_reduction || lead.calculation_results?.co2_reduction,
 
     // Preferences
     valittutukimuoto: lead.form_data?.valittutukimuoto,

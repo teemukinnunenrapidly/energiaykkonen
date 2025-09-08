@@ -14,7 +14,15 @@ import {
 } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { Checkbox } from '@/components/ui/checkbox';
-import { FileText, Mail, Phone, MapPin, Calendar, Trash2, Code } from 'lucide-react';
+import {
+  FileText,
+  Mail,
+  Phone,
+  MapPin,
+  Calendar,
+  Trash2,
+  Code,
+} from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -291,7 +299,10 @@ export default function AdminDashboard() {
                                 size="sm"
                                 variant="outline"
                                 onClick={() =>
-                                  window.open(lead.form_data?.pdf_url as string, '_blank')
+                                  window.open(
+                                    lead.form_data?.pdf_url as string,
+                                    '_blank'
+                                  )
                                 }
                               >
                                 <FileText className="w-4 h-4 mr-1" />

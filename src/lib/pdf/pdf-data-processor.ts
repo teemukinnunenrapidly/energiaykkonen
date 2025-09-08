@@ -12,51 +12,57 @@ import { flattenLeadData } from '@/lib/lead-helpers';
  */
 export async function processPDFData(lead: Lead): Promise<Record<string, any>> {
   // Use our PDF-specific calculations directly
-  const { generatePDFCalculations } = await import('../pdf-calculation-definitions');
-  
+  const { generatePDFCalculations } = await import(
+    '../pdf-calculation-definitions'
+  );
+
   // Generate all PDF calculations from the lead
   const pdfCalculations = generatePDFCalculations(lead);
-  
+
   // Flatten lead data to access JSONB fields
   const flatLead = flattenLeadData(lead);
-  
+
   // Build PDF data object with all necessary fields
   const pdfData: Record<string, any> = {
     // All calculated values from PDF calculations
     ...pdfCalculations,
-    
+
     // Customer information
-    customerName: flatLead.nimi || `${flatLead.first_name} ${flatLead.last_name}`.trim() || 'Asiakas',
+    customerName:
+      flatLead.nimi ||
+      `${flatLead.first_name} ${flatLead.last_name}`.trim() ||
+      'Asiakas',
     customerAddress: flatLead.osoite || '',
     customerEmail: flatLead.sahkoposti || '',
     customerPhone: flatLead.puhelinnumero || '',
     customerCity: flatLead.paikkakunta || '',
-    
+
     // Property information
     propertySize: `${flatLead.neliot || 0} m²`,
     buildingYear: flatLead.rakennusvuosi || '',
     buildingArea: flatLead.neliot || 0,
     peopleCount: flatLead.henkilomaara || 2,
-    
+
     // Current heating system
     currentSystem: flatLead.lammitysmuoto || 'Nykyinen lämmitys',
-    oilConsumption: Math.round((flatLead.laskennallinenenergiantarve || 0) / 10) || 2000,
+    oilConsumption:
+      Math.round((flatLead.laskennallinenenergiantarve || 0) / 10) || 2000,
     oilPrice: '1,30',
     currentMaintenance: 200,
-    
+
     // New system (heat pump) - using calculated values
     electricityConsumption: pdfCalculations.new_electricity_consumption,
     electricityPrice: pdfCalculations.electricity_price,
     newMaintenance10Years: 30,
-    
+
     // Cost comparisons - using calculated values
     currentYear1Cost: pdfCalculations.current_cost_1year,
-    currentYear5Cost: pdfCalculations.current_cost_5years, 
+    currentYear5Cost: pdfCalculations.current_cost_5years,
     currentYear10Cost: pdfCalculations.current_cost_10years,
     newYear1Cost: pdfCalculations.new_cost_1year,
     newYear5Cost: pdfCalculations.new_cost_5years,
     newYear10Cost: pdfCalculations.new_cost_10years,
-    
+
     // Savings - using calculated values
     savings1Year: pdfCalculations.savings_1year,
     savings5Year: pdfCalculations.savings_5years,
@@ -64,20 +70,22 @@ export async function processPDFData(lead: Lead): Promise<Record<string, any>> {
     annualSavings: pdfCalculations.annual_savings,
     fiveYearSavings: pdfCalculations.five_year_savings,
     tenYearSavings: pdfCalculations.ten_year_savings,
-    
+
     // Environmental impact
     currentCO2: pdfCalculations.current_co2_yearly,
     newCO2: pdfCalculations.new_co2_yearly,
     co2Reduction: pdfCalculations.co2_reduction_yearly,
-    
+
     // Heat pump details
     heat_pump_consumption: pdfCalculations.heat_pump_consumption,
     heat_pump_cost_annual: pdfCalculations.heat_pump_cost_annual,
-    
+
     // Document metadata
-    calculationNumber: flatLead.id?.slice(0, 8).toUpperCase() || Date.now().toString(36).toUpperCase(),
+    calculationNumber:
+      flatLead.id?.slice(0, 8).toUpperCase() ||
+      Date.now().toString(36).toUpperCase(),
     calculationDate: new Date().toLocaleDateString('fi-FI'),
-    
+
     // Energy calculations
     energyNeed: flatLead.laskennallinenenergiantarve || 0,
     annual_energy_need: flatLead.laskennallinenenergiantarve || 0,

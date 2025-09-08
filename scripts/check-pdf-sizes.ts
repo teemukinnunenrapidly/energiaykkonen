@@ -43,71 +43,87 @@ const testData = {
 
 async function analyzePDFSize() {
   console.log('📊 Analyzing PDF Storage Requirements\n');
-  console.log('=' .repeat(60));
-  
+  console.log('='.repeat(60));
+
   // Generate a sample PDF to check size
   const component = React.createElement(SavingsReportPDF, { data: testData });
   const asPdf = pdf(component as any);
   const bufferStream = await asPdf.toBuffer();
-  
+
   // Convert stream to buffer
   const chunks = [];
   for await (const chunk of bufferStream as any) {
     chunks.push(chunk);
   }
   const pdfBuffer = Buffer.concat(chunks);
-  
+
   const pdfSizeBytes = pdfBuffer.length;
   const pdfSizeKB = (pdfSizeBytes / 1024).toFixed(2);
   const pdfSizeMB = (pdfSizeBytes / (1024 * 1024)).toFixed(3);
-  
+
   console.log('📄 Single PDF Size:');
   console.log(`   Bytes: ${pdfSizeBytes.toLocaleString()}`);
   console.log(`   KB: ${pdfSizeKB}`);
   console.log(`   MB: ${pdfSizeMB}`);
   console.log();
-  
+
   // Calculate storage projections
   console.log('📈 Storage Projections:');
-  console.log('-' .repeat(40));
-  
+  console.log('-'.repeat(40));
+
   const scenarios = [
     { leads: 100, period: 'Month' },
     { leads: 1000, period: 'Year' },
     { leads: 5000, period: '5 Years' },
     { leads: 10000, period: '10 Years' },
   ];
-  
+
   scenarios.forEach(scenario => {
-    const totalSizeMB = (pdfSizeBytes * scenario.leads / (1024 * 1024)).toFixed(2);
-    const totalSizeGB = (pdfSizeBytes * scenario.leads / (1024 * 1024 * 1024)).toFixed(3);
-    console.log(`${scenario.leads.toLocaleString()} leads (${scenario.period}):`);
+    const totalSizeMB = (
+      (pdfSizeBytes * scenario.leads) /
+      (1024 * 1024)
+    ).toFixed(2);
+    const totalSizeGB = (
+      (pdfSizeBytes * scenario.leads) /
+      (1024 * 1024 * 1024)
+    ).toFixed(3);
+    console.log(
+      `${scenario.leads.toLocaleString()} leads (${scenario.period}):`
+    );
     console.log(`   Total: ${totalSizeMB} MB (${totalSizeGB} GB)`);
   });
-  
+
   console.log();
   console.log('💾 Current Storage Solution:');
-  console.log('-' .repeat(40));
+  console.log('-'.repeat(40));
   console.log('✅ Supabase Storage (Current)');
   console.log('   - PDFs stored in Supabase Storage bucket');
   console.log('   - NOT in database, only URL reference in JSONB');
   console.log('   - Free tier: 1 GB storage');
   console.log('   - Pro tier: 100 GB storage ($25/month)');
   console.log('   - Additional: $0.021 per GB');
-  
+
   console.log();
   console.log('🎯 Recommendations:');
-  console.log('-' .repeat(40));
-  
+  console.log('-'.repeat(40));
+
   const estimatedMonthlyLeads = 100;
-  const monthlyStorageMB = (pdfSizeBytes * estimatedMonthlyLeads / (1024 * 1024)).toFixed(2);
-  const yearlyStorageGB = (pdfSizeBytes * estimatedMonthlyLeads * 12 / (1024 * 1024 * 1024)).toFixed(3);
-  
+  const monthlyStorageMB = (
+    (pdfSizeBytes * estimatedMonthlyLeads) /
+    (1024 * 1024)
+  ).toFixed(2);
+  const yearlyStorageGB = (
+    (pdfSizeBytes * estimatedMonthlyLeads * 12) /
+    (1024 * 1024 * 1024)
+  ).toFixed(3);
+
   console.log(`With ~${pdfSizeKB} KB per PDF:`);
-  console.log(`- ${estimatedMonthlyLeads} leads/month = ${monthlyStorageMB} MB/month`);
+  console.log(
+    `- ${estimatedMonthlyLeads} leads/month = ${monthlyStorageMB} MB/month`
+  );
   console.log(`- Annual storage need: ${yearlyStorageGB} GB`);
   console.log();
-  
+
   if (parseFloat(yearlyStorageGB) < 1) {
     console.log('✅ CURRENT SETUP IS FINE');
     console.log('   Supabase free tier (1 GB) is sufficient for ~1 year');
@@ -121,10 +137,10 @@ async function analyzePDFSize() {
     console.log('   - Cloudflare R2');
     console.log('   - Google Cloud Storage');
   }
-  
+
   console.log();
   console.log('🔧 Optimization Options:');
-  console.log('-' .repeat(40));
+  console.log('-'.repeat(40));
   console.log('1. PDF Compression (current PDF is not compressed)');
   console.log('2. Implement PDF expiry (delete after 90 days)');
   console.log('3. Generate PDFs on-demand instead of storing');

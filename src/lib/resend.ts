@@ -12,9 +12,10 @@ export const resend = new Resend(resendApiKey);
 // Email configuration
 export const emailConfig = {
   // Use onboarding@resend.dev for testing until domain is verified
-  from: process.env.NODE_ENV === 'development' 
-    ? 'Energiaykkönen Test <onboarding@resend.dev>'
-    : 'Energiaykkönen Oy <noreply@energiaykkonen.fi>',
+  from:
+    process.env.NODE_ENV === 'development'
+      ? 'Energiaykkönen Test <onboarding@resend.dev>'
+      : 'Energiaykkönen Oy <noreply@energiaykkonen.fi>',
   salesTo: 'sales@energiaykkonen.fi', // Update with actual sales email
   replyTo: 'info@energiaykkonen.fi',
 } as const;

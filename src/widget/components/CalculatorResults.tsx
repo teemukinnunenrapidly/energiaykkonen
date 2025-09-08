@@ -5,7 +5,9 @@ interface CalculatorResultsProps {
   results: CalculationResults;
 }
 
-export const CalculatorResults: React.FC<CalculatorResultsProps> = ({ results }) => {
+export const CalculatorResults: React.FC<CalculatorResultsProps> = ({
+  results,
+}) => {
   const formatCurrency = (value: number): string => {
     return new Intl.NumberFormat('fi-FI', {
       style: 'currency',
@@ -22,30 +24,38 @@ export const CalculatorResults: React.FC<CalculatorResultsProps> = ({ results })
   return (
     <div className="e1w-results">
       <h3 className="e1w-results-title">Arvioidut säästöt lämpöpumpulla</h3>
-      
+
       <div className="e1w-results-grid">
         <div className="e1w-result-card e1w-result-primary">
           <div className="e1w-result-label">Vuosisäästö</div>
-          <div className="e1w-result-value">{formatCurrency(results.annualSavings)}</div>
+          <div className="e1w-result-value">
+            {formatCurrency(results.annualSavings)}
+          </div>
           <div className="e1w-result-detail">
-            Nykyinen: {formatCurrency(results.currentCost)} → 
-            Uusi: {formatCurrency(results.heatPumpCost)}
+            Nykyinen: {formatCurrency(results.currentCost)} → Uusi:{' '}
+            {formatCurrency(results.heatPumpCost)}
           </div>
         </div>
 
         <div className="e1w-result-card">
           <div className="e1w-result-label">5 vuoden säästö</div>
-          <div className="e1w-result-value">{formatCurrency(results.fiveYearSavings)}</div>
+          <div className="e1w-result-value">
+            {formatCurrency(results.fiveYearSavings)}
+          </div>
         </div>
 
         <div className="e1w-result-card">
           <div className="e1w-result-label">10 vuoden säästö</div>
-          <div className="e1w-result-value">{formatCurrency(results.tenYearSavings)}</div>
+          <div className="e1w-result-value">
+            {formatCurrency(results.tenYearSavings)}
+          </div>
         </div>
 
         <div className="e1w-result-card">
           <div className="e1w-result-label">CO₂-päästövähennys</div>
-          <div className="e1w-result-value">{formatNumber(results.co2Reduction)} kg/vuosi</div>
+          <div className="e1w-result-value">
+            {formatNumber(results.co2Reduction)} kg/vuosi
+          </div>
         </div>
       </div>
 
@@ -54,7 +64,10 @@ export const CalculatorResults: React.FC<CalculatorResultsProps> = ({ results })
         <ul className="e1w-details-list">
           <li>Lämpöpumpun COP-kerroin: {results.cop}</li>
           <li>Sähkön hinta: {results.electricityPrice} €/kWh</li>
-          <li>Lämpöpumpun kulutus: {formatNumber(results.heatPumpConsumption)} kWh/vuosi</li>
+          <li>
+            Lämpöpumpun kulutus: {formatNumber(results.heatPumpConsumption)}{' '}
+            kWh/vuosi
+          </li>
           {results.paybackTime && (
             <li>Arvioitu takaisinmaksuaika: {results.paybackTime} vuotta</li>
           )}
@@ -65,7 +78,7 @@ export const CalculatorResults: React.FC<CalculatorResultsProps> = ({ results })
         <p className="e1w-cta-text">
           Kiinnostuitko? Pyydä ilmainen arvio lämpöpumpun asennuksesta!
         </p>
-        <a 
+        <a
           href="https://energiaykkonen.fi/tarjouspyynto"
           target="_blank"
           rel="noopener noreferrer"

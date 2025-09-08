@@ -134,19 +134,23 @@ class Security {
      * Sanitize API URL
      */
     public function sanitize_api_url($url) {
-        $url = esc_url_raw($url);
+        // Trim whitespace
+        $url = trim($url);
         
-        // Ensure it's a valid URL
+        // Don't use esc_url_raw as it may truncate - just validate
         if (!filter_var($url, FILTER_VALIDATE_URL)) {
+            error_log('E1 Calculator: Invalid URL format: ' . $url);
             return '';
         }
         
         // Check for allowed protocols
         $parsed = parse_url($url);
         if (!in_array($parsed['scheme'] ?? '', ['http', 'https'])) {
+            error_log('E1 Calculator: Invalid URL scheme: ' . ($parsed['scheme'] ?? 'none'));
             return '';
         }
         
+        // Return the clean URL
         return $url;
     }
     

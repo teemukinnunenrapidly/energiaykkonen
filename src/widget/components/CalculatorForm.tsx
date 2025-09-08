@@ -7,49 +7,59 @@ interface CalculatorFormProps {
   initialData?: FormData | null;
 }
 
-export const CalculatorForm: React.FC<CalculatorFormProps> = ({ 
-  onSubmit, 
+export const CalculatorForm: React.FC<CalculatorFormProps> = ({
+  onSubmit,
   isLoading = false,
-  initialData 
+  initialData,
 }) => {
-  const [formData, setFormData] = useState<FormData>(initialData || {
-    energyConsumption: '',
-    currentHeatingCost: '',
-    heatingType: 'oil',
-    postalCode: '',
-    email: '',
-  });
+  const [formData, setFormData] = useState<FormData>(
+    initialData || {
+      energyConsumption: '',
+      currentHeatingCost: '',
+      heatingType: 'oil',
+      postalCode: '',
+      email: '',
+    }
+  );
 
   const [errors, setErrors] = useState<Partial<FormData>>({});
 
   const validate = (): boolean => {
     const newErrors: Partial<FormData> = {};
-    
-    if (!formData.energyConsumption || Number(formData.energyConsumption) <= 0) {
+
+    if (
+      !formData.energyConsumption ||
+      Number(formData.energyConsumption) <= 0
+    ) {
       newErrors.energyConsumption = 'Syötä vuosittainen energiantarve';
     }
-    
-    if (!formData.currentHeatingCost || Number(formData.currentHeatingCost) <= 0) {
+
+    if (
+      !formData.currentHeatingCost ||
+      Number(formData.currentHeatingCost) <= 0
+    ) {
       newErrors.currentHeatingCost = 'Syötä nykyiset lämmityskustannukset';
     }
-    
+
     if (formData.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
       newErrors.email = 'Virheellinen sähköpostiosoite';
     }
-    
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (validate()) {
       onSubmit(formData);
     }
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
     // Poista virhe kun kenttää muutetaan
@@ -163,8 +173,8 @@ export const CalculatorForm: React.FC<CalculatorFormProps> = ({
         </div>
       </div>
 
-      <button 
-        type="submit" 
+      <button
+        type="submit"
         className="e1w-btn e1w-btn-primary e1w-submit-btn"
         disabled={isLoading}
       >
@@ -179,7 +189,8 @@ export const CalculatorForm: React.FC<CalculatorFormProps> = ({
       </button>
 
       <p className="e1w-disclaimer">
-        * Pakolliset kentät. Laskenta perustuu keskimääräisiin arvoihin ja COP 3.8 hyötysuhteeseen.
+        * Pakolliset kentät. Laskenta perustuu keskimääräisiin arvoihin ja COP
+        3.8 hyötysuhteeseen.
       </p>
     </form>
   );

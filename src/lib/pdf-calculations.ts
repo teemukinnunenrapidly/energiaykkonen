@@ -7,10 +7,10 @@
 import { createUnifiedEngine } from './unified-calculation-engine';
 import { supabase } from './supabase';
 import type { CalculationResults } from './supabase';
-import { 
-  generatePDFCalculations, 
+import {
+  generatePDFCalculations,
   extractFormData,
-  PDF_CALCULATIONS 
+  PDF_CALCULATIONS,
 } from './pdf-calculation-definitions';
 
 /**
@@ -213,28 +213,26 @@ function getDefaultCalculations(
 ): CalculationResults {
   // Use PDF-specific calculations to ensure consistent results
   const pdfMetrics = generatePDFCalculations(formData) as any;
-  
+
   // Return calculated values with fallback to form_data if available
   return {
-    annual_energy_need: pdfMetrics.annual_energy_need || 
-      formData.annual_energy_need || 
+    annual_energy_need:
+      pdfMetrics.annual_energy_need ||
+      formData.annual_energy_need ||
       formData.laskennallinenenergiantarve,
-    heat_pump_consumption: pdfMetrics.heat_pump_consumption || 
-      formData.heat_pump_consumption,
-    heat_pump_cost_annual: pdfMetrics.heat_pump_cost_annual || 
-      formData.heat_pump_cost_annual,
-    current_heating_cost: pdfMetrics.current_heating_cost ||
-      formData.menekinhintavuosi || 
+    heat_pump_consumption:
+      pdfMetrics.heat_pump_consumption || formData.heat_pump_consumption,
+    heat_pump_cost_annual:
+      pdfMetrics.heat_pump_cost_annual || formData.heat_pump_cost_annual,
+    current_heating_cost:
+      pdfMetrics.current_heating_cost ||
+      formData.menekinhintavuosi ||
       formData.current_heating_cost,
-    annual_savings: pdfMetrics.annual_savings || 
-      formData.annual_savings,
-    five_year_savings: pdfMetrics.five_year_savings || 
-      formData.five_year_savings,
-    ten_year_savings: pdfMetrics.ten_year_savings || 
-      formData.ten_year_savings,
-    payback_period: pdfMetrics.payback_period || 
-      formData.payback_period,
-    co2_reduction: pdfMetrics.co2_reduction || 
-      formData.co2_reduction,
+    annual_savings: pdfMetrics.annual_savings || formData.annual_savings,
+    five_year_savings:
+      pdfMetrics.five_year_savings || formData.five_year_savings,
+    ten_year_savings: pdfMetrics.ten_year_savings || formData.ten_year_savings,
+    payback_period: pdfMetrics.payback_period || formData.payback_period,
+    co2_reduction: pdfMetrics.co2_reduction || formData.co2_reduction,
   };
 }

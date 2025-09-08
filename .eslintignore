@@ -1,0 +1,35 @@
+# Dependencies
+node_modules/
+
+# Production build
+dist/
+build/
+.next/
+out/
+
+# Minified files
+*.min.js
+*.min.css
+
+# Test files
+test-*.js
+webpack.*.js
+
+# WordPress plugin
+wordpress-plugin/dist/
+wordpress-plugin/**/*.min.js
+wordpress-plugin/**/*.min.css
+
+# IDE
+.vscode/
+.idea/
+
+# Cache
+.cache/
+.turbo/
+
+# Environment
+.env*
+
+# Logs
+*.log

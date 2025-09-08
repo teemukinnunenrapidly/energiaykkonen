@@ -12,12 +12,12 @@ export const CalculatorWidget: React.FC = () => {
   const handleSubmit = async (data: FormData) => {
     setIsCalculating(true);
     setFormData(data);
-    
+
     try {
       // Laske säästöt
       const calculationResults = calculateSavings(data);
       setResults(calculationResults);
-      
+
       // Lähetä data API:lle jos URL on konfiguroitu
       const config = (window as any).E1_WIDGET_CONFIG;
       if (config?.apiUrl) {
@@ -61,15 +61,15 @@ export const CalculatorWidget: React.FC = () => {
       </div>
 
       {!results ? (
-        <CalculatorForm 
-          onSubmit={handleSubmit} 
+        <CalculatorForm
+          onSubmit={handleSubmit}
           isLoading={isCalculating}
           initialData={formData}
         />
       ) : (
         <>
           <CalculatorResults results={results} />
-          <button 
+          <button
             onClick={handleReset}
             className="e1w-btn e1w-btn-secondary e1w-reset-btn"
           >

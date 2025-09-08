@@ -74,24 +74,24 @@ function LeadExpandedDetails({ lead }: { lead: Lead }) {
           <h4 className="font-medium text-foreground mb-3">Property Details</h4>
           <div className="space-y-2 text-sm">
             <div>
-              <span className="text-muted-foreground">Size:</span> {lead.form_data?.neliot || '-'}{' '}
-              m²
+              <span className="text-muted-foreground">Size:</span>{' '}
+              {lead.form_data?.neliot || '-'} m²
             </div>
             <div>
               <span className="text-muted-foreground">Ceiling:</span>{' '}
-              {lead.form_data?.huonekorkeus || "-"}m
+              {lead.form_data?.huonekorkeus || '-'}m
             </div>
             <div>
               <span className="text-muted-foreground">Built:</span>{' '}
-              {lead.form_data?.rakennusvuosi || "-"}
+              {lead.form_data?.rakennusvuosi || '-'}
             </div>
             <div>
               <span className="text-muted-foreground">Floors:</span>{' '}
-              {lead.form_data?.floors || "-"}
+              {lead.form_data?.floors || '-'}
             </div>
             <div>
               <span className="text-muted-foreground">Residents:</span>{' '}
-              {lead.form_data?.henkilomaara || "-"}
+              {lead.form_data?.henkilomaara || '-'}
             </div>
           </div>
         </div>
@@ -102,7 +102,7 @@ function LeadExpandedDetails({ lead }: { lead: Lead }) {
           <div className="space-y-2 text-sm">
             <div>
               <span className="text-muted-foreground">Type:</span>{' '}
-              {lead.form_data?.lammitysmuoto || "-"}
+              {lead.form_data?.lammitysmuoto || '-'}
             </div>
             <div>
               <span className="text-muted-foreground">Annual Cost:</span>{' '}
@@ -111,12 +111,13 @@ function LeadExpandedDetails({ lead }: { lead: Lead }) {
             {lead.form_data?.current_energy_consumption && (
               <div>
                 <span className="text-muted-foreground">Consumption:</span>{' '}
-                {lead.form_data.current_energy_consumption.toLocaleString()} kWh/year
+                {lead.form_data.current_energy_consumption.toLocaleString()}{' '}
+                kWh/year
               </div>
             )}
             <div>
               <span className="text-muted-foreground">Hot Water:</span>{' '}
-              {lead.form_data?.hot_water_usage || "-"}
+              {lead.form_data?.hot_water_usage || '-'}
             </div>
           </div>
         </div>
@@ -129,15 +130,25 @@ function LeadExpandedDetails({ lead }: { lead: Lead }) {
           <div className="space-y-2 text-sm">
             <div>
               <span className="text-muted-foreground">Energy Need:</span>{' '}
-              {(lead.calculation_results?.annual_energy_need || lead.form_data?.laskennallinenenergiantarve || 0).toLocaleString()} kWh/year
+              {(
+                lead.calculation_results?.annual_energy_need ||
+                lead.form_data?.laskennallinenenergiantarve ||
+                0
+              ).toLocaleString()}{' '}
+              kWh/year
             </div>
             <div>
               <span className="text-muted-foreground">HP Consumption:</span>{' '}
-              {(lead.calculation_results?.heat_pump_consumption || 0).toLocaleString()} kWh/year
+              {(
+                lead.calculation_results?.heat_pump_consumption || 0
+              ).toLocaleString()}{' '}
+              kWh/year
             </div>
             <div>
               <span className="text-muted-foreground">HP Annual Cost:</span>{' '}
-              {formatCurrency(lead.calculation_results?.heat_pump_cost_annual || 0)}
+              {formatCurrency(
+                lead.calculation_results?.heat_pump_cost_annual || 0
+              )}
             </div>
             <div className="font-medium text-green-600">
               <span className="text-muted-foreground">5-Year Savings:</span>{' '}
@@ -153,7 +164,8 @@ function LeadExpandedDetails({ lead }: { lead: Lead }) {
             </div>
             <div>
               <span className="text-muted-foreground">CO₂ Reduction:</span>{' '}
-              {(lead.calculation_results?.co2_reduction || 0).toLocaleString()} kg/year
+              {(lead.calculation_results?.co2_reduction || 0).toLocaleString()}{' '}
+              kg/year
             </div>
           </div>
         </div>
@@ -332,9 +344,7 @@ export default function LeadsTable({
                         )}
                       </button>
                     </TableCell>
-                    <TableCell className="font-medium">
-                      {lead.nimi}
-                    </TableCell>
+                    <TableCell className="font-medium">{lead.nimi}</TableCell>
                     <TableCell>
                       <a
                         href={`mailto:${lead.sahkoposti}`}
@@ -346,10 +356,13 @@ export default function LeadsTable({
                     <TableCell>{lead.paikkakunta || '-'}</TableCell>
                     <TableCell>
                       <div className="font-medium text-green-600">
-                        {formatCurrency(lead.calculation_results?.annual_savings || 0)}
+                        {formatCurrency(
+                          lead.calculation_results?.annual_savings || 0
+                        )}
                       </div>
                       <div className="text-xs text-muted-foreground">
-                        {lead.form_data?.neliot || 0}m² • {lead.form_data?.lammitysmuoto || "-"}
+                        {lead.form_data?.neliot || 0}m² •{' '}
+                        {lead.form_data?.lammitysmuoto || '-'}
                       </div>
                     </TableCell>
                     <TableCell>
@@ -382,9 +395,7 @@ export default function LeadsTable({
             <CardContent className="p-4">
               <div className="flex justify-between items-start mb-3">
                 <div>
-                  <h3 className="font-medium text-foreground">
-                    {lead.nimi}
-                  </h3>
+                  <h3 className="font-medium text-foreground">{lead.nimi}</h3>
                   <p className="text-sm text-muted-foreground">
                     {lead.paikkakunta || 'No city'}
                   </p>
@@ -398,13 +409,16 @@ export default function LeadsTable({
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Annual Savings:</span>
                   <span className="font-medium text-green-600">
-                    {formatCurrency(lead.calculation_results?.annual_savings || 0)}
+                    {formatCurrency(
+                      lead.calculation_results?.annual_savings || 0
+                    )}
                   </span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Property:</span>
                   <span>
-                    {lead.form_data?.neliot || 0}m² • {lead.form_data?.lammitysmuoto || "-"}
+                    {lead.form_data?.neliot || 0}m² •{' '}
+                    {lead.form_data?.lammitysmuoto || '-'}
                   </span>
                 </div>
                 <div className="flex justify-between">

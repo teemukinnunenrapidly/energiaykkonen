@@ -35,9 +35,42 @@ class Admin {
         add_action('admin_enqueue_scripts', [$this, 'enqueue_admin_scripts']);
         add_filter('plugin_action_links_' . plugin_basename(E1_CALC_PLUGIN_FILE), [$this, 'add_action_links']);
         
+        // Handle form submission directly before WordPress processes it
+        add_action('admin_init', [$this, 'handle_settings_update'], 5);
+        
         // AJAX handlers
         add_action('wp_ajax_e1_test_connection', [$this, 'ajax_test_connection']);
         add_action('wp_ajax_e1_restore_backup', [$this, 'ajax_restore_backup']);
+        add_action('wp_ajax_e1_debug_sync', [$this, 'ajax_debug_sync']);
+    }
+    
+    /**
+     * Handle settings update directly
+     */
+    public function handle_settings_update() {
+        // Check if we're on our settings page and saving
+        if (!isset($_POST['option_page']) || $_POST['option_page'] !== 'e1_calculator_settings') {
+            return;
+        }
+        
+        // Verify nonce
+        if (!isset($_POST['_wpnonce']) || !wp_verify_nonce($_POST['_wpnonce'], 'e1_calculator_settings-options')) {
+            return;
+        }
+        
+        // Save API URL directly if provided
+        if (isset($_POST['e1_calculator_api_url'])) {
+            $url = trim($_POST['e1_calculator_api_url']);
+            update_option('e1_calculator_api_url', $url);
+            error_log('E1 Calculator: Direct save API URL: ' . $url);
+        }
+        
+        // Save API key directly if provided
+        if (isset($_POST['e1_calculator_api_key']) && !empty($_POST['e1_calculator_api_key'])) {
+            $key = trim($_POST['e1_calculator_api_key']);
+            $this->security->save_api_key($key);
+            error_log('E1 Calculator: Direct save API key: Key saved');
+        }
     }
     
     /**
@@ -90,6 +123,11 @@ class Admin {
             'sanitize_callback' => [$this->security, 'sanitize_api_url'],
         ]);
         
+        // Register API key setting with custom save handler
+        register_setting('e1_calculator_settings', 'e1_calculator_api_key', [
+            'sanitize_callback' => [$this, 'save_api_key_handler'],
+        ]);
+        
         register_setting('e1_calculator_settings', 'e1_calculator_auto_sync');
         register_setting('e1_calculator_settings', 'e1_calculator_cache_duration');
         register_setting('e1_calculator_settings', 'e1_calculator_store_submissions');
@@ -97,6 +135,22 @@ class Admin {
         register_setting('e1_calculator_settings', 'e1_calculator_notification_email', [
             'sanitize_callback' => 'sanitize_email',
         ]);
+    }
+    
+    /**
+     * Handle API key save
+     */
+    public function save_api_key_handler($value) {
+        // Log for debugging
+        error_log('E1 Calculator: Attempting to save API key: ' . (!empty($value) ? 'Key provided' : 'No key'));
+        
+        if (!empty($value)) {
+            // Save encrypted API key
+            $saved = $this->security->save_api_key($value);
+            error_log('E1 Calculator: API key save result: ' . ($saved ? 'Success' : 'Failed'));
+        }
+        // Return empty string to avoid saving to the option directly
+        return '';
     }
     
     /**
@@ -212,10 +266,24 @@ class Admin {
                     <button type="button" id="clear-cache-btn" class="button">
                         <?php _e('Clear Cache', 'e1-calculator'); ?>
                     </button>
+                    <button type="button" id="debug-sync-btn" class="button" style="background: #ff9800; color: white;">
+                        <?php _e('Debug Sync', 'e1-calculator'); ?>
+                    </button>
                     <span class="spinner" style="float: none;"></span>
                 </p>
                 
                 <div id="action-result" style="margin-top: 10px;"></div>
+                
+                <!-- Help for 403 errors -->
+                <div class="notice notice-warning inline" style="margin-top: 20px;">
+                    <p><strong><?php _e('Troubleshooting 403 Forbidden Errors:', 'e1-calculator'); ?></strong></p>
+                    <p><?php _e('If widget CSS/JS files show 403 errors after syncing:', 'e1-calculator'); ?></p>
+                    <ol style="margin-left: 20px;">
+                        <li><?php _e('Deactivate and reactivate this plugin to regenerate cache permissions', 'e1-calculator'); ?></li>
+                        <li><?php _e('Or delete this file via FTP/hosting panel:', 'e1-calculator'); ?> <code><?php echo E1_CALC_CACHE_DIR; ?>.htaccess</code></li>
+                        <li><?php _e('Then click "Sync Widget" button again', 'e1-calculator'); ?></li>
+                    </ol>
+                </div>
             </div>
             
             <!-- Settings Form -->
@@ -231,13 +299,14 @@ class Admin {
                                 <label for="e1_calculator_api_url"><?php _e('API URL', 'e1-calculator'); ?></label>
                             </th>
                             <td>
-                                <input type="url" 
+                                <input type="text" 
                                        id="e1_calculator_api_url"
                                        name="e1_calculator_api_url" 
                                        value="<?php echo esc_attr(get_option('e1_calculator_api_url')); ?>" 
-                                       class="regular-text" />
+                                       class="large-text" 
+                                       placeholder="https://example.com/api/widget-bundle" />
                                 <p class="description">
-                                    <?php _e('Widget bundle API endpoint URL', 'e1-calculator'); ?>
+                                    <?php _e('Full widget bundle API endpoint URL (e.g. https://energiaykkonen-calculator.vercel.app/api/widget-bundle)', 'e1-calculator'); ?>
                                 </p>
                             </td>
                         </tr>
@@ -246,13 +315,21 @@ class Admin {
                                 <label for="e1_calculator_api_key"><?php _e('API Key', 'e1-calculator'); ?></label>
                             </th>
                             <td>
+                                <?php 
+                                $api_key = $this->security->get_api_key();
+                                $has_key = !empty($api_key);
+                                ?>
                                 <input type="password" 
                                        id="e1_calculator_api_key"
                                        name="e1_calculator_api_key" 
-                                       value="<?php echo esc_attr($this->security->get_api_key()); ?>" 
-                                       class="regular-text" />
+                                       value="<?php echo esc_attr($api_key); ?>" 
+                                       class="regular-text" 
+                                       placeholder="<?php echo $has_key ? __('API key is saved (hidden)', 'e1-calculator') : __('Enter your API key', 'e1-calculator'); ?>" />
                                 <p class="description">
-                                    <?php _e('API authentication key', 'e1-calculator'); ?>
+                                    <?php _e('API authentication key for widget bundle access', 'e1-calculator'); ?>
+                                    <?php if ($has_key): ?>
+                                        <br><span style="color: green;">✓ <?php _e('API key is currently saved', 'e1-calculator'); ?></span>
+                                    <?php endif; ?>
                                 </p>
                             </td>
                         </tr>
@@ -556,6 +633,120 @@ class Admin {
             error_log('E1 Calculator backup restore failed: ' . $e->getMessage());
             wp_send_json_error(['message' => $e->getMessage()]);
         }
+    }
+    
+    /**
+     * AJAX: Debug sync
+     */
+    public function ajax_debug_sync() {
+        if (!$this->security->validate_nonce($_POST['nonce'] ?? '')) {
+            wp_send_json_error(['message' => __('Security check failed', 'e1-calculator')]);
+        }
+        
+        if (!$this->security->check_admin_permissions()) {
+            wp_send_json_error(['message' => __('Unauthorized', 'e1-calculator')]);
+        }
+        
+        $debug_info = [];
+        
+        // Check API configuration
+        $api_url = get_option('e1_calculator_api_url');
+        $api_key = $this->security->get_api_key();
+        
+        $debug_info[] = "API URL: " . ($api_url ?: 'NOT SET');
+        $debug_info[] = "API Key: " . ($api_key ? 'SET' : 'NOT SET');
+        
+        // Check directories
+        $cache_dir = WP_CONTENT_DIR . '/cache/e1-calculator/';
+        $debug_info[] = "Cache dir exists: " . (file_exists($cache_dir) ? 'YES' : 'NO');
+        
+        if (!file_exists($cache_dir)) {
+            wp_mkdir_p($cache_dir);
+            $debug_info[] = "Created cache directory";
+        }
+        
+        $debug_info[] = "Cache dir writable: " . (is_writable($cache_dir) ? 'YES' : 'NO');
+        
+        // Try simple API call
+        if ($api_url && $api_key) {
+            $response = wp_remote_get($api_url, [
+                'timeout' => 30,
+                'headers' => [
+                    'Authorization' => 'Bearer ' . $api_key,
+                    'Accept' => 'application/json',
+                ],
+                'sslverify' => false
+            ]);
+            
+            if (is_wp_error($response)) {
+                $debug_info[] = "API Error: " . $response->get_error_message();
+            } else {
+                $status = wp_remote_retrieve_response_code($response);
+                $debug_info[] = "API Response: HTTP " . $status;
+                
+                if ($status === 200) {
+                    $body = wp_remote_retrieve_body($response);
+                    $data = json_decode($body, true);
+                    if ($data && isset($data['success'])) {
+                        $debug_info[] = "API Success: Version " . ($data['version'] ?? 'unknown');
+                        
+                        // Try to write files
+                        try {
+                            $test_file = $cache_dir . 'test.txt';
+                            if (file_put_contents($test_file, 'test')) {
+                                $debug_info[] = "File write: SUCCESS";
+                                unlink($test_file);
+                                
+                                // Actually write the widget files since everything works
+                                $js_written = file_put_contents($cache_dir . 'widget.js', $data['widget']['js'] ?? '');
+                                $css_written = file_put_contents($cache_dir . 'widget.css', $data['widget']['css'] ?? '');
+                                $config_written = file_put_contents($cache_dir . 'config.json', json_encode($data['config'] ?? []));
+                                
+                                if ($js_written && $css_written && $config_written) {
+                                    $debug_info[] = "Widget files written successfully!";
+                                    $debug_info[] = "- widget.js: " . number_format($js_written) . " bytes";
+                                    $debug_info[] = "- widget.css: " . number_format($css_written) . " bytes";
+                                    $debug_info[] = "- config.json: " . number_format($config_written) . " bytes";
+                                    
+                                    // Create meta.json for cache manager
+                                    $meta = [
+                                        'version' => $data['version'] ?? 'unknown',
+                                        'checksum' => $data['checksum'] ?? '',
+                                        'generated_at' => $data['generated_at'] ?? '',
+                                        'cached_at' => current_time('mysql'),
+                                        'cache_timestamp' => time(),
+                                    ];
+                                    file_put_contents($cache_dir . 'meta.json', json_encode($meta, JSON_PRETTY_PRINT));
+                                    
+                                    // Update metadata
+                                    update_option('e1_calculator_sync_metadata', [
+                                        'version' => $data['version'] ?? 'unknown',
+                                        'last_sync' => current_time('mysql'),
+                                        'synced_by' => wp_get_current_user()->user_login,
+                                        'file_sizes' => [
+                                            'js' => $js_written,
+                                            'css' => $css_written,
+                                            'config' => $config_written
+                                        ]
+                                    ]);
+                                    
+                                    $debug_info[] = "\n✅ SYNC COMPLETE! Widget is ready to use.";
+                                    $debug_info[] = "Add [e1_calculator] to any page.";
+                                }
+                            } else {
+                                $debug_info[] = "File write: FAILED";
+                            }
+                        } catch (\Exception $e) {
+                            $debug_info[] = "Write error: " . $e->getMessage();
+                        }
+                    }
+                }
+            }
+        }
+        
+        wp_send_json_success([
+            'message' => implode("\n", $debug_info)
+        ]);
     }
     
     /**

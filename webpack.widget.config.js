@@ -22,13 +22,19 @@ module.exports = {
           loader: 'babel-loader',
           options: {
             presets: [
-              ['@babel/preset-env', {
-                targets: '> 0.25%, not dead',
-                modules: false,
-              }],
-              ['@babel/preset-react', {
-                runtime: 'automatic',
-              }],
+              [
+                '@babel/preset-env',
+                {
+                  targets: '> 0.25%, not dead',
+                  modules: false,
+                },
+              ],
+              [
+                '@babel/preset-react',
+                {
+                  runtime: 'automatic',
+                },
+              ],
               '@babel/preset-typescript',
             ],
           },
@@ -46,13 +52,19 @@ module.exports = {
               postcssOptions: {
                 plugins: [
                   ['autoprefixer', {}],
-                  ['cssnano', {
-                    preset: ['default', {
-                      discardComments: {
-                        removeAll: true,
-                      },
-                    }],
-                  }],
+                  [
+                    'cssnano',
+                    {
+                      preset: [
+                        'default',
+                        {
+                          discardComments: {
+                            removeAll: true,
+                          },
+                        },
+                      ],
+                    },
+                  ],
                 ],
               },
             },

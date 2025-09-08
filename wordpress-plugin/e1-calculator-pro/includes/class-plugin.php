@@ -68,6 +68,7 @@ class Plugin {
         $this->widget = new Widget($this->cache_manager);
         $this->widget_loader = new Widget_Loader($this->cache_manager);
         
+        
         if (is_admin()) {
             $this->admin = new Admin($this->api_client, $this->cache_manager, $this->sync_manager, $this->security);
         }
@@ -134,19 +135,29 @@ class Plugin {
             wp_send_json_error(['message' => __('Unauthorized', 'e1-calculator')]);
         }
         
-        // Use new secure sync manager
-        $result = $this->sync_manager->sync_bundle($this->api_client);
-        
-        if ($result['success']) {
-            wp_send_json_success([
-                'message' => $result['message'],
-                'version' => $result['version'],
-                'timestamp' => current_time('mysql')
-            ]);
-        } else {
+        try {
+            // Use new secure sync manager
+            $result = $this->sync_manager->sync_bundle($this->api_client);
+            
+            if ($result['success']) {
+                wp_send_json_success([
+                    'message' => $result['message'],
+                    'version' => $result['version'],
+                    'timestamp' => current_time('mysql')
+                ]);
+            } else {
+                // Ensure we have a message
+                $message = !empty($result['message']) ? $result['message'] : __('Sync failed - check error log', 'e1-calculator');
+                wp_send_json_error([
+                    'message' => $message,
+                    'errors' => $result['errors'] ?? []
+                ]);
+            }
+        } catch (\Exception $e) {
+            error_log('E1 Calculator AJAX sync error: ' . $e->getMessage());
             wp_send_json_error([
-                'message' => $result['message'],
-                'errors' => $result['errors']
+                'message' => 'Sync failed: ' . $e->getMessage(),
+                'errors' => [$e->getMessage()]
             ]);
         }
     }
@@ -216,16 +227,14 @@ class Plugin {
         // Create cache directory
         if (!file_exists(E1_CALC_CACHE_DIR)) {
             wp_mkdir_p(E1_CALC_CACHE_DIR);
-            
-            // Add .htaccess for security
-            $htaccess = E1_CALC_CACHE_DIR . '.htaccess';
-            if (!file_exists($htaccess)) {
-                file_put_contents($htaccess, "Deny from all\n");
-            }
         }
         
+        // Setup proper .htaccess rules
+        require_once E1_CALC_PLUGIN_DIR . 'includes/class-widget-loader.php';
+        Widget_Loader::setup_cache_directory();
+        
         // Set default options
-        add_option('e1_calculator_api_url', 'https://energiaykkonen.fi/api/widget-bundle');
+        add_option('e1_calculator_api_url', 'https://energiaykkonen-calculator.vercel.app/api/widget-bundle');
         add_option('e1_calculator_api_key', '');
         add_option('e1_calculator_auto_sync', false);
         add_option('e1_calculator_cache_duration', 86400); // 24 hours

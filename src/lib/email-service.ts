@@ -26,11 +26,11 @@ export async function sendCustomerResultsEmail(
 
     // Use hardcoded template
     let html: string;
-    let subject: string = emailSubjects.customer();
+    const subject: string = emailSubjects.customer();
 
     // Always use hardcoded template
     console.log('Using hardcoded template for customer email');
-    
+
     const emailData: CustomerEmailData = {
       firstName: flatLead.nimi?.split(' ')[0] || '',
       lastName: flatLead.nimi?.split(' ').slice(1).join(' ') || '',
@@ -151,19 +151,19 @@ export async function sendTestEmails(testEmail: string = 'test@example.com') {
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
     status: 'new',
-    
+
     // Required fields
     nimi: 'Testi Käyttäjä',
     sahkoposti: testEmail,
     puhelinnumero: '+358401234567',
     osoite: 'Testikatu 1',
     paikkakunta: 'Helsinki',
-    
+
     // Tracking fields
     ip_address: '192.168.1.1',
     user_agent: 'Mozilla/5.0 (Test Browser)',
     source_page: 'https://test.energiaykkonen.fi/calculator',
-    
+
     // Form data
     form_data: {
       // House Information
@@ -171,25 +171,25 @@ export async function sendTestEmails(testEmail: string = 'test@example.com') {
       huonekorkeus: 2.5,
       rakennusvuosi: '1991-2010',
       floors: 2,
-      
+
       // Current Heating
       lammitysmuoto: 'Electric',
       vesikiertoinen: 2500,
       current_energy_consumption: 15000,
-      
+
       // Household
       henkilomaara: 4,
       hot_water_usage: 'Normal',
-      
+
       // Preferences
       valittutukimuoto: 'Both',
       message: 'Kiinnostaa lämpöpumppu, ottakaa yhteyttä!',
-      
+
       // Energy calculations (Finnish shortcodes)
       laskennallinenenergiantarve: 18720,
       menekinhintavuosi: 2500,
     },
-    
+
     // Calculation results
     calculation_results: {
       annual_energy_need: 18720,

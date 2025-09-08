@@ -8,7 +8,7 @@ import { headers } from 'next/headers';
 export async function GET(request: NextRequest) {
   try {
     const headersList = await headers();
-    
+
     // Allow CORS for widget requests
     const responseHeaders = {
       'Access-Control-Allow-Origin': '*',
@@ -93,24 +93,23 @@ export async function GET(request: NextRequest) {
       },
     };
 
-    return NextResponse.json(config, { 
+    return NextResponse.json(config, {
       status: 200,
-      headers: responseHeaders 
+      headers: responseHeaders,
     });
-
   } catch (error) {
     console.error('Widget config API error:', error);
-    
+
     return NextResponse.json(
-      { 
+      {
         error: 'Failed to fetch configuration',
-        status: 'error' 
+        status: 'error',
       },
-      { 
+      {
         status: 500,
         headers: {
           'Access-Control-Allow-Origin': '*',
-        }
+        },
       }
     );
   }

@@ -258,7 +258,8 @@ export const SavingsReportPDF: React.FC<{ data: PDFData }> = ({ data }) => (
                   </Text>
                   <View style={styles.savingsColumn}>
                     <Text style={[styles.costValue, styles.positive]}>
-                      {data.savings10Year || data.ten_year_savings || '16 250'} €
+                      {data.savings10Year || data.ten_year_savings || '16 250'}{' '}
+                      €
                     </Text>
                   </View>
                 </View>

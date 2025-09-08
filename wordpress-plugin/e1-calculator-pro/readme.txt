@@ -3,7 +3,7 @@ Contributors: energiaykkonen
 Tags: calculator, widget, heat pump, savings, energy
 Requires at least: 5.8
 Tested up to: 6.4
-Stable tag: 3.0.0
+Stable tag: 3.2.0
 Requires PHP: 7.4
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -12,13 +12,13 @@ Professional widget sync system for E1 Calculator with advanced caching and opti
 
 == Description ==
 
-E1 Calculator Pro is a professional WordPress plugin that syncs and embeds the E1 heat pump savings calculator widget directly on your WordPress site. The widget runs natively without iframes for better performance and SEO.
+E1 Calculator Pro is a professional WordPress plugin that syncs and embeds the E1 heat pump savings calculator widget directly on your WordPress site. The widget runs natively in the DOM for optimal performance, SEO benefits, and seamless user experience.
 
 **Key Features:**
 
 * **Widget Sync System** - Download and cache widget code from central API
 * **Advanced Caching** - Local storage for instant loading
-* **No iFrames** - Widget runs directly on your page
+* **Native DOM Integration** - Widget runs directly in your page for best performance
 * **Form Submissions** - Optional storage and email notifications
 * **Auto-sync** - Schedule daily automatic updates
 * **Secure API** - Encrypted API key storage
@@ -93,13 +93,22 @@ The widget comes with predefined styles, but you can add custom CSS to override 
 **With minimum height:**
 `[e1_calculator height="800"]`
 
-**Multiple calculators:**
+**Multiple calculators on same page:**
 ```
 [e1_calculator id="residential"]
 [e1_calculator id="commercial"]
 ```
 
 == Changelog ==
+
+= 3.2.0 =
+* Removed iframe embedding in favor of optimized widget bundle approach
+* Better performance with native DOM integration
+* Improved SEO with direct content rendering
+* Enhanced mobile experience without nested scrolling
+
+= 3.1.0 =
+* Temporary iframe embedding option (removed in 3.2.0)
 
 = 3.0.0 =
 * Complete rewrite with modular architecture

@@ -245,9 +245,7 @@ export default function SimpleLeadsPage() {
                           </div>
                         </TableCell>
                         <TableCell>
-                          <div className="font-medium">
-                            {lead.nimi}
-                          </div>
+                          <div className="font-medium">{lead.nimi}</div>
                         </TableCell>
                         <TableCell>
                           <div className="space-y-1">

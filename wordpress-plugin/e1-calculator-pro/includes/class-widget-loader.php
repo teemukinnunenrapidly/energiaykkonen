@@ -406,24 +406,35 @@ class Widget_Loader {
         
         // .htaccess joka sallii JS/CSS latauksen mutta estää muut
         $htaccess = $cache_dir . '.htaccess';
-        if (!file_exists($htaccess)) {
-            $rules = "# E1 Calculator Cache Directory\n";
-            $rules .= "# Allow access to JS, CSS and JSON files\n";
-            $rules .= "Options -Indexes\n\n";
-            
-            $rules .= "<FilesMatch \"\\.(js|css|json)$\">\n";
-            $rules .= "    Order Allow,Deny\n";
-            $rules .= "    Allow from all\n";
-            $rules .= "    Header set Cache-Control \"public, max-age=31536000\"\n";
-            $rules .= "</FilesMatch>\n\n";
-            
-            $rules .= "# Block everything else\n";
-            $rules .= "<FilesMatch \"^(?!.*\\.(js|css|json)$).*$\">\n";
-            $rules .= "    Order Deny,Allow\n";
-            $rules .= "    Deny from all\n";
-            $rules .= "</FilesMatch>\n";
-            
-            file_put_contents($htaccess, $rules);
-        }
+        // Always recreate to ensure correct rules
+        $rules = "# E1 Calculator Cache Directory\n";
+        $rules .= "# Allow access to JS, CSS and JSON files\n\n";
+        
+        // For Apache 2.4+
+        $rules .= "<IfModule mod_authz_core.c>\n";
+        $rules .= "    <FilesMatch \"\\.(js|css|json)$\">\n";
+        $rules .= "        Require all granted\n";
+        $rules .= "    </FilesMatch>\n";
+        $rules .= "    <FilesMatch \"\\.(php|html|htm|txt)$\">\n";
+        $rules .= "        Require all denied\n";
+        $rules .= "    </FilesMatch>\n";
+        $rules .= "</IfModule>\n\n";
+        
+        // For Apache 2.2 (fallback)
+        $rules .= "<IfModule !mod_authz_core.c>\n";
+        $rules .= "    <FilesMatch \"\\.(js|css|json)$\">\n";
+        $rules .= "        Order Allow,Deny\n";
+        $rules .= "        Allow from all\n";
+        $rules .= "    </FilesMatch>\n";
+        $rules .= "    <FilesMatch \"\\.(php|html|htm|txt)$\">\n";
+        $rules .= "        Order Deny,Allow\n";
+        $rules .= "        Deny from all\n";
+        $rules .= "    </FilesMatch>\n";
+        $rules .= "</IfModule>\n\n";
+        
+        $rules .= "# Disable directory browsing\n";
+        $rules .= "Options -Indexes\n";
+        
+        file_put_contents($htaccess, $rules);
     }
 }

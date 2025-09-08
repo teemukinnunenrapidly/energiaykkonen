@@ -6,17 +6,17 @@ import './styles.css';
 // Widget initialization function
 function initE1Widget(elementId: string, config?: any) {
   const container = document.getElementById(elementId);
-  
+
   if (!container) {
     console.error(`E1 Widget: Container with id "${elementId}" not found`);
     return null;
   }
-  
+
   // Store config globally
   if (config) {
     (window as any).E1_WIDGET_CONFIG = config;
   }
-  
+
   // Create React root and render widget
   const root = ReactDOM.createRoot(container);
   root.render(
@@ -24,7 +24,7 @@ function initE1Widget(elementId: string, config?: any) {
       <CalculatorWidget />
     </React.StrictMode>
   );
-  
+
   return root;
 }
 
@@ -36,7 +36,7 @@ if (typeof window !== 'undefined') {
     version: '2.0.0',
     config: (window as any).E1_WIDGET_CONFIG || {},
   };
-  
+
   // Auto-init on DOM ready
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', () => {

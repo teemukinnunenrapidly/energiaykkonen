@@ -21,8 +21,7 @@ export const SalesNotificationTemplate = ({
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <meta httpEquiv="Content-Type" content="text/html; charset=UTF-8" />
         <title>
-          New Lead: {flatLead.nimi} -{' '}
-          {flatLead.paikkakunta} - Savings:{' '}
+          New Lead: {flatLead.nimi} - {flatLead.paikkakunta} - Savings:{' '}
           {flatLead.annual_savings?.toLocaleString('fi-FI') || '0'}€/year
         </title>
         <style>{`
@@ -201,9 +200,9 @@ export const SalesNotificationTemplate = ({
               </span>
             </h1>
             <p style={{ margin: '8px 0 0 0', opacity: '0.9' }}>
-              {flatLead.nimi} -{' '}
-              {flatLead.paikkakunta || 'Ei kaupunkia'} - Säästöt:{' '}
-              {flatLead.annual_savings?.toLocaleString('fi-FI') || '0'}€/vuosi
+              {flatLead.nimi} - {flatLead.paikkakunta || 'Ei kaupunkia'} -
+              Säästöt: {flatLead.annual_savings?.toLocaleString('fi-FI') || '0'}
+              €/vuosi
             </p>
           </div>
 
@@ -231,9 +230,7 @@ export const SalesNotificationTemplate = ({
               <div className="data-grid">
                 <div className="data-item">
                   <span className="data-label">Nimi:</span>
-                  <span className="data-value">
-                    {flatLead.nimi}
-                  </span>
+                  <span className="data-value">{flatLead.nimi}</span>
                 </div>
                 <div className="data-item">
                   <span className="data-label">Sähköposti:</span>

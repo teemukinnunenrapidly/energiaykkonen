@@ -14,7 +14,9 @@ const VALID_API_KEYS = [
   process.env.WIDGET_API_KEY,
   process.env.WIDGET_API_KEY_SECONDARY, // Varavain
   // Fallback VAIN kehitysympäristössä
-  ...(process.env.NODE_ENV === 'development' ? ['e1-widget-key-2025-secure-token'] : [])
+  ...(process.env.NODE_ENV === 'development'
+    ? ['e1-widget-key-2025-secure-token']
+    : []),
 ].filter(Boolean); // Poista tyhjät arvot
 
 // Sallitut domainit CORS:lle
@@ -22,12 +24,14 @@ const ALLOWED_ORIGINS = [
   process.env.WORDPRESS_DOMAIN,
   process.env.WORDPRESS_STAGING_DOMAIN,
   // Kehitysympäristössä salli localhost
-  ...(process.env.NODE_ENV === 'development' ? [
-    'http://localhost',
-    'http://localhost:3000',
-    'http://localhost:3001',
-    'http://127.0.0.1'
-  ] : [])
+  ...(process.env.NODE_ENV === 'development'
+    ? [
+        'http://localhost',
+        'http://localhost:3000',
+        'http://localhost:3001',
+        'http://127.0.0.1',
+      ]
+    : []),
 ].filter(Boolean);
 
 /**
@@ -37,7 +41,7 @@ function validateApiKey(authHeader: string | null): boolean {
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
     return false;
   }
-  
+
   const apiKey = authHeader.substring(7);
   return VALID_API_KEYS.includes(apiKey);
 }
@@ -56,20 +60,30 @@ function generateChecksum(data: any): string {
  */
 async function buildWidgetBundle() {
   const version = `2.0.0-${Date.now()}`;
-  
+
   try {
     // Lue buildatut tiedostot dist-kansiosta
     const distPath = path.join(process.cwd(), 'dist');
-    
+
     let widgetJs: string;
     let widgetCss: string;
+
+    // For now, always use the simple fallback widget instead of the complex React bundle
+    // The React bundle requires proper initialization that's not compatible with WordPress inline execution
+    const useSimpleWidget = true;
     
-    try {
-      widgetJs = await fs.readFile(path.join(distPath, 'widget.min.js'), 'utf-8');
-      widgetCss = await fs.readFile(path.join(distPath, 'widget.min.css'), 'utf-8');
-    } catch (error) {
-      // Jos buildattuja tiedostoja ei löydy, käytä fallback-koodia
-      console.warn('Built widget files not found, using fallback code');
+    if (false && !useSimpleWidget) {
+      // This would use the React bundle (currently disabled)
+      widgetJs = await fs.readFile(
+        path.join(distPath, 'widget.min.js'),
+        'utf-8'
+      );
+      widgetCss = await fs.readFile(
+        path.join(distPath, 'widget.min.css'),
+        'utf-8'
+      );
+    } else {
+      // Use simple fallback widget that works better with WordPress
       widgetJs = `
     // E1 Calculator Widget v${version}
     (function() {
@@ -152,15 +166,24 @@ async function buildWidgetBundle() {
         config: config
       };
       
-      // Auto-init if container exists
-      document.addEventListener('DOMContentLoaded', function() {
-        if (document.getElementById('e1-calculator-widget')) {
+      // Auto-init if container exists (but only if not already initialized by WordPress)
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', function() {
+          if (document.getElementById('e1-calculator-widget') && !window.E1Widget._initialized) {
+            initE1Widget('e1-calculator-widget', {});
+            window.E1Widget._initialized = true;
+          }
+        });
+      } else {
+        // DOM already loaded
+        if (document.getElementById('e1-calculator-widget') && !window.E1Widget._initialized) {
           initE1Widget('e1-calculator-widget', {});
+          window.E1Widget._initialized = true;
         }
-      });
+      }
     })();
   `;
-      
+
       // Fallback CSS
       widgetCss = `
     /* E1 Calculator Widget Styles v${version} */
@@ -257,67 +280,67 @@ async function buildWidgetBundle() {
     }
   `;
     }
-    
+
     // Configuration (tämä tulisi normaalisti tietokannasta)
     const config = {
-    forms: [
-      {
-        id: 'main-calculator',
-        fields: [
-          {
-            name: 'energy',
-            type: 'number',
-            label: 'Vuosittainen energiantarve (kWh)',
-            required: true,
-            min: 0,
-            max: 100000,
-          },
-          {
-            name: 'currentCost',
-            type: 'number',
-            label: 'Nykyiset lämmityskustannukset (€/vuosi)',
-            required: true,
-            min: 0,
-            max: 50000,
-          },
-        ],
+      forms: [
+        {
+          id: 'main-calculator',
+          fields: [
+            {
+              name: 'energy',
+              type: 'number',
+              label: 'Vuosittainen energiantarve (kWh)',
+              required: true,
+              min: 0,
+              max: 100000,
+            },
+            {
+              name: 'currentCost',
+              type: 'number',
+              label: 'Nykyiset lämmityskustannukset (€/vuosi)',
+              required: true,
+              min: 0,
+              max: 50000,
+            },
+          ],
+        },
+      ],
+      calculations: {
+        cop: 3.8,
+        electricityPrice: 0.15,
       },
-    ],
-    calculations: {
-      cop: 3.8,
-      electricityPrice: 0.15,
-    },
-    design_tokens: {
-      colors: {
-        primary: '#10b981',
-        primaryHover: '#059669',
-        text: '#1f2937',
-        textSecondary: '#4b5563',
-        background: '#ffffff',
-        backgroundSecondary: '#f0fdf4',
-        border: '#d1d5db',
+      design_tokens: {
+        colors: {
+          primary: '#10b981',
+          primaryHover: '#059669',
+          text: '#1f2937',
+          textSecondary: '#4b5563',
+          background: '#ffffff',
+          backgroundSecondary: '#f0fdf4',
+          border: '#d1d5db',
+        },
+        typography: {
+          fontFamily: 'system-ui, -apple-system, sans-serif',
+          fontSizeBase: '16px',
+          fontSizeSmall: '14px',
+          fontSizeLarge: '18px',
+          fontSizeXLarge: '24px',
+        },
+        spacing: {
+          small: '8px',
+          medium: '12px',
+          large: '20px',
+          xLarge: '30px',
+        },
+        borderRadius: {
+          small: '6px',
+          medium: '8px',
+          large: '12px',
+        },
       },
-      typography: {
-        fontFamily: 'system-ui, -apple-system, sans-serif',
-        fontSizeBase: '16px',
-        fontSizeSmall: '14px',
-        fontSizeLarge: '18px',
-        fontSizeXLarge: '24px',
-      },
-      spacing: {
-        small: '8px',
-        medium: '12px',
-        large: '20px',
-        xLarge: '30px',
-      },
-      borderRadius: {
-        small: '6px',
-        medium: '8px',
-        large: '12px',
-      },
-    },
-  };
-  
+    };
+
     return {
       version,
       widget: {
@@ -335,58 +358,65 @@ async function buildWidgetBundle() {
 export async function GET(request: NextRequest) {
   try {
     // Rate limiting - käytä IP-osoitetta tai API-avainta tunnisteena
-    const clientIp = request.headers.get('x-forwarded-for') || 
-                     request.headers.get('x-real-ip') || 
-                     'unknown';
+    const clientIp =
+      request.headers.get('x-forwarded-for') ||
+      request.headers.get('x-real-ip') ||
+      'unknown';
     const authHeader = request.headers.get('authorization');
-    const apiKey = authHeader?.startsWith('Bearer ') ? authHeader.substring(7) : null;
+    const apiKey = authHeader?.startsWith('Bearer ')
+      ? authHeader.substring(7)
+      : null;
     const rateLimitId = apiKey || clientIp;
-    
+
     // Tarkista rate limit
     if (!widgetBundleRateLimiter.isAllowed(rateLimitId)) {
       return NextResponse.json(
-        { 
-          success: false, 
-          error: 'Too many requests. Please try again later.' 
+        {
+          success: false,
+          error: 'Too many requests. Please try again later.',
         },
-        { 
+        {
           status: 429,
           headers: {
             'X-RateLimit-Limit': '10',
             'X-RateLimit-Remaining': '0',
-            'X-RateLimit-Reset': new Date(widgetBundleRateLimiter.getResetTime(rateLimitId)).toISOString(),
-            'Retry-After': '60'
-          }
+            'X-RateLimit-Reset': new Date(
+              widgetBundleRateLimiter.getResetTime(rateLimitId)
+            ).toISOString(),
+            'Retry-After': '60',
+          },
         }
       );
     }
-    
+
     // Tarkista API-avain
-    
+
     if (!validateApiKey(authHeader)) {
       // Log failed attempts for security monitoring
-      console.warn(`[Widget Bundle API] Unauthorized access attempt from ${clientIp}`);
-      
+      console.warn(
+        `[Widget Bundle API] Unauthorized access attempt from ${clientIp}`
+      );
+
       return NextResponse.json(
-        { 
-          success: false, 
-          error: 'Unauthorized. Invalid or missing API key.' 
+        {
+          success: false,
+          error: 'Unauthorized. Invalid or missing API key.',
         },
-        { 
+        {
           status: 401,
           headers: {
-            'WWW-Authenticate': 'Bearer realm="Widget Bundle API"'
-          }
+            'WWW-Authenticate': 'Bearer realm="Widget Bundle API"',
+          },
         }
       );
     }
-    
+
     // Rakenna widget bundle
     const bundle = await buildWidgetBundle();
-    
+
     // Luo checksum
     const checksum = generateChecksum(bundle);
-    
+
     // Palauta bundle
     const response = {
       success: true,
@@ -396,15 +426,17 @@ export async function GET(request: NextRequest) {
       config: bundle.config,
       checksum,
     };
-    
+
     // Määritä CORS origin
     const origin = request.headers.get('origin');
-    const allowedOrigin = ALLOWED_ORIGINS.includes(origin || '') ? origin : ALLOWED_ORIGINS[0];
-    
+    const allowedOrigin = ALLOWED_ORIGINS.includes(origin || '')
+      ? origin
+      : ALLOWED_ORIGINS[0];
+
     // Rate limit headers
     const remaining = widgetBundleRateLimiter.getRemaining(rateLimitId);
     const resetTime = widgetBundleRateLimiter.getResetTime(rateLimitId);
-    
+
     return NextResponse.json(response, {
       status: 200,
       headers: {
@@ -420,21 +452,20 @@ export async function GET(request: NextRequest) {
         'X-Frame-Options': 'SAMEORIGIN',
       },
     });
-    
   } catch (error) {
     console.error('Widget bundle API error:', error);
-    
+
     return NextResponse.json(
-      { 
+      {
         success: false,
         error: 'Failed to generate widget bundle',
-        details: error instanceof Error ? error.message : 'Unknown error'
+        details: error instanceof Error ? error.message : 'Unknown error',
       },
-      { 
+      {
         status: 500,
         headers: {
           'Access-Control-Allow-Origin': '*',
-        }
+        },
       }
     );
   }
@@ -443,8 +474,10 @@ export async function GET(request: NextRequest) {
 // Handle OPTIONS request for CORS preflight
 export async function OPTIONS(request: NextRequest) {
   const origin = request.headers.get('origin');
-  const allowedOrigin = ALLOWED_ORIGINS.includes(origin || '') ? origin : ALLOWED_ORIGINS[0];
-  
+  const allowedOrigin = ALLOWED_ORIGINS.includes(origin || '')
+    ? origin
+    : ALLOWED_ORIGINS[0];
+
   return new NextResponse(null, {
     status: 200,
     headers: {

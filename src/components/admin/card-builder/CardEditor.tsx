@@ -598,7 +598,6 @@ export function CardEditor({
                   Message shown after successful submission
                 </p>
               </div>
-
             </div>
           )}
         </div>
