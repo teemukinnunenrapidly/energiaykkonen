@@ -2,6 +2,7 @@ const path = require('path');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const TerserPlugin = require('terser-webpack-plugin');
 const CssMinimizerPlugin = require('css-minimizer-webpack-plugin');
+const webpack = require('webpack');
 
 module.exports = {
   mode: 'production',
@@ -76,14 +77,37 @@ module.exports = {
   resolve: {
     extensions: ['.tsx', '.ts', '.jsx', '.js'],
     alias: {
+      '@': path.resolve(__dirname, 'src'),
       // Use preact for smaller bundle size (optional)
       // 'react': 'preact/compat',
       // 'react-dom': 'preact/compat',
+    },
+    fallback: {
+      'process': require.resolve('process/browser'),
+      'buffer': require.resolve('buffer'),
+      'util': require.resolve('util'),
+      'url': require.resolve('url'),
+      'path': require.resolve('path-browserify'),
+      'stream': require.resolve('stream-browserify'),
+      'crypto': require.resolve('crypto-browserify'),
+      'http': require.resolve('stream-http'),
+      'https': require.resolve('https-browserify'),
+      'os': require.resolve('os-browserify/browser'),
+      'fs': false,
+      'net': false,
+      'tls': false,
     },
   },
   plugins: [
     new MiniCssExtractPlugin({
       filename: 'widget.min.css',
+    }),
+    new webpack.DefinePlugin({
+      'process.env.NODE_ENV': JSON.stringify('production'),
+      'process.env': JSON.stringify({}),
+    }),
+    new webpack.ProvidePlugin({
+      process: 'process/browser',
     }),
   ],
   optimization: {
