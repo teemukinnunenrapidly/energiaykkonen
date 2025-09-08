@@ -108,15 +108,15 @@ function LeadExpandedDetails({ lead }: { lead: Lead }) {
               <span className="text-muted-foreground">Annual Cost:</span>{' '}
               {formatCurrency(lead.form_data?.vesikiertoinen || 0)}
             </div>
-            {lead.current_energy_consumption && (
+            {lead.form_data?.current_energy_consumption && (
               <div>
                 <span className="text-muted-foreground">Consumption:</span>{' '}
-                {lead.current_energy_consumption.toLocaleString()} kWh/year
+                {lead.form_data.current_energy_consumption.toLocaleString()} kWh/year
               </div>
             )}
             <div>
               <span className="text-muted-foreground">Hot Water:</span>{' '}
-              {lead.hot_water_usage}
+              {lead.form_data?.hot_water_usage || "-"}
             </div>
           </div>
         </div>
