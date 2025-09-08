@@ -68,12 +68,8 @@ async function buildWidgetBundle() {
     let widgetJs: string;
     let widgetCss: string;
 
-    // For now, always use the simple fallback widget instead of the complex React bundle
-    // The React bundle requires proper initialization that's not compatible with WordPress inline execution
-    const useSimpleWidget = true;
-    
-    if (false && !useSimpleWidget) {
-      // This would use the React bundle (currently disabled)
+    // Try to use the built widget bundle first
+    try {
       widgetJs = await fs.readFile(
         path.join(distPath, 'widget.min.js'),
         'utf-8'
@@ -82,7 +78,14 @@ async function buildWidgetBundle() {
         path.join(distPath, 'widget.min.css'),
         'utf-8'
       );
-    } else {
+      
+      console.log('Successfully loaded built widget files:', {
+        jsSize: widgetJs.length,
+        cssSize: widgetCss.length
+      });
+    } catch (error) {
+      // If built files don't exist, use simple fallback widget
+      console.warn('Built widget files not found, using fallback widget:', error instanceof Error ? error.message : String(error));
       // Use simple fallback widget that works better with WordPress
       widgetJs = `
     // E1 Calculator Widget v${version}
