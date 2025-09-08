@@ -1,14 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import ReactDOM from 'react-dom/client';
 import { CardSystemContainer } from '../components/card-system/CardSystemContainer';
-import { createClient } from '@supabase/supabase-js';
 import designTokens from '../../cardstream-complete-config.json';
 import './widget-styles.css';
 
 // Widget configuration interface
 interface WidgetConfig {
-  supabaseUrl?: string;
-  supabaseAnonKey?: string;
   cloudflareAccountHash?: string;
   theme?: string;
   maxWidth?: string | number;
@@ -18,6 +15,8 @@ interface WidgetConfig {
   showBlurredCards?: boolean;
   customTokens?: any; // Allow overriding design tokens
   progressiveImageLoading?: boolean;
+  configUrl?: string; // URL to load config.json from
+  data?: any; // Pre-loaded data (cards, visual objects, etc.)
 }
 
 // Global widget instance
@@ -165,23 +164,60 @@ function applyDesignTokens(tokens: any = designTokens.cardStreamConfig, customTo
   }
 }
 
-// Initialize Supabase client
-function initSupabase(config: WidgetConfig) {
-  const url = config.supabaseUrl || process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const key = config.supabaseAnonKey || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+// Load configuration and data from config.json
+async function loadConfigData(configUrl: string): Promise<any> {
+  try {
+    const response = await fetch(configUrl);
+    if (!response.ok) {
+      throw new Error(`Failed to load config: ${response.statusText}`);
+    }
+    const config = await response.json();
+    console.log('✅ Loaded widget config:', {
+      version: config.version,
+      cards: config.data?.cards?.length || 0,
+      visualObjects: Object.keys(config.data?.visualObjects || {}).length,
+      formulas: config.data?.formulas?.length || 0
+    });
+    return config;
+  } catch (error) {
+    console.error('❌ Failed to load config:', error);
+    throw error;
+  }
+}
+
+// Data adapter to ensure correct format
+function adaptDataFormat(data: any): any {
+  if (!data) return data;
   
-  if (!url || !key) {
-    console.error('E1 Widget: Supabase credentials not provided');
-    return null;
+  // Ensure cards have the correct structure
+  if (data.cards && Array.isArray(data.cards)) {
+    data.cards = data.cards.map((card: any) => {
+      // Ensure card_fields exists (handle both 'fields' and 'card_fields')
+      if (!card.card_fields && card.fields) {
+        card.card_fields = card.fields;
+        delete card.fields;
+      }
+      
+      // Ensure card_fields is always an array
+      if (!card.card_fields) {
+        card.card_fields = [];
+      }
+      
+      // Log to debug
+      console.log(`Card "${card.name}" has ${card.card_fields.length} fields`);
+      
+      return card;
+    });
   }
   
-  return createClient(url, key);
+  return data;
 }
 
 // Widget wrapper component
 const E1CalculatorWidget: React.FC<{ config: WidgetConfig }> = ({ config }) => {
   const [isReady, setIsReady] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [widgetData, setWidgetData] = useState<any>(null);
 
   useEffect(() => {
     // Apply design tokens first
@@ -194,23 +230,73 @@ const E1CalculatorWidget: React.FC<{ config: WidgetConfig }> = ({ config }) => {
       process.env.NEXT_PUBLIC_CLOUDFLARE_ACCOUNT_HASH = config.cloudflareAccountHash;
     }
     
-    // Initialize Supabase and other dependencies
-    const supabase = initSupabase(config);
+    // Load data either from provided data or from config URL
+    const loadData = async () => {
+      try {
+        let data = config.data;
+        
+        // If no data provided, try to load from config URL
+        if (!data && config.configUrl) {
+          try {
+            const loadedConfig = await loadConfigData(config.configUrl);
+            data = loadedConfig.data;
+            
+            // Also update Cloudflare hash if provided in config
+            if (loadedConfig.cloudflareAccountHash) {
+              (window as any).__E1_CLOUDFLARE_HASH = loadedConfig.cloudflareAccountHash;
+              process.env.NEXT_PUBLIC_CLOUDFLARE_ACCOUNT_HASH = loadedConfig.cloudflareAccountHash;
+            }
+          } catch (fetchError) {
+            console.warn('Failed to load config from URL, trying fallback...', fetchError);
+          }
+        }
+        
+        // If still no data, try default location
+        if (!data) {
+          try {
+            const defaultUrl = 'wordpress-plugin/e1-calculator-pro/cache/config.json';
+            const loadedConfig = await loadConfigData(defaultUrl);
+            data = loadedConfig.data;
+            
+            if (loadedConfig.cloudflareAccountHash) {
+              (window as any).__E1_CLOUDFLARE_HASH = loadedConfig.cloudflareAccountHash;
+              process.env.NEXT_PUBLIC_CLOUDFLARE_ACCOUNT_HASH = loadedConfig.cloudflareAccountHash;
+            }
+          } catch (fetchError) {
+            console.warn('Failed to load config from default location', fetchError);
+            // In development/testing, you might have inline data
+            // Check if there's mock data available
+            if ((window as any).__E1_MOCK_DATA) {
+              console.log('Using mock data for development');
+              data = (window as any).__E1_MOCK_DATA;
+            }
+          }
+        }
+        
+        if (!data) {
+          throw new Error('No data available for widget - please provide data prop or configUrl');
+        }
+        
+        // Adapt data format to ensure compatibility
+        data = adaptDataFormat(data);
+        
+        // Store widget data globally for CardSystem to use
+        (window as any).__E1_WIDGET_DATA = data;
+        setWidgetData(data);
+        
+        // Apply theme if provided
+        if (config.theme) {
+          document.documentElement.setAttribute('data-theme', config.theme);
+        }
+        
+        setIsReady(true);
+      } catch (err) {
+        console.error('Failed to load widget data:', err);
+        setError(err instanceof Error ? err.message : 'Failed to load widget data');
+      }
+    };
     
-    if (!supabase) {
-      setError('Failed to initialize database connection');
-      return;
-    }
-
-    // Store supabase instance globally for the card system to use
-    (window as any).__E1_SUPABASE = supabase;
-    
-    // Apply theme if provided
-    if (config.theme) {
-      document.documentElement.setAttribute('data-theme', config.theme);
-    }
-    
-    setIsReady(true);
+    loadData();
   }, [config]);
 
   if (error) {
@@ -221,7 +307,7 @@ const E1CalculatorWidget: React.FC<{ config: WidgetConfig }> = ({ config }) => {
     );
   }
 
-  if (!isReady) {
+  if (!isReady || !widgetData) {
     return (
       <div className="e1-widget-loading">
         <div className="loading-spinner"></div>
@@ -233,10 +319,12 @@ const E1CalculatorWidget: React.FC<{ config: WidgetConfig }> = ({ config }) => {
   return (
     <div className="e1-widget-container">
       <CardSystemContainer
+        initialData={widgetData}
         maxWidth={config.maxWidth}
         height={config.height}
         showVisualSupport={config.showVisualSupport !== false}
         showBlurredCards={config.showBlurredCards}
+        widgetMode={true}
       />
     </div>
   );
@@ -296,11 +384,8 @@ if (typeof window !== 'undefined') {
       const config: WidgetConfig = {};
       
       // Read config from data attributes
-      if (container.getAttribute('data-supabase-url')) {
-        config.supabaseUrl = container.getAttribute('data-supabase-url') || undefined;
-      }
-      if (container.getAttribute('data-supabase-key')) {
-        config.supabaseAnonKey = container.getAttribute('data-supabase-key') || undefined;
+      if (container.getAttribute('data-config-url')) {
+        config.configUrl = container.getAttribute('data-config-url') || undefined;
       }
       if (container.getAttribute('data-cloudflare-hash')) {
         config.cloudflareAccountHash = container.getAttribute('data-cloudflare-hash') || undefined;

@@ -211,11 +211,16 @@ export function FormCard({ card, onFieldFocus }: FormCardProps) {
               }}
             >
               <option value="">Select...</option>
-              {field.options?.map((opt: any) => (
-                <option key={opt.value} value={opt.value}>
-                  {opt.label}
-                </option>
-              ))}
+              {field.options?.map((opt: any) => {
+                // Handle both string and object options
+                const optValue = typeof opt === 'string' ? opt : opt.value;
+                const optLabel = typeof opt === 'string' ? opt : opt.label;
+                return (
+                  <option key={optValue} value={optValue}>
+                    {optLabel}
+                  </option>
+                );
+              })}
             </select>
             {field.help_text && (
               <p
@@ -259,9 +264,13 @@ export function FormCard({ card, onFieldFocus }: FormCardProps) {
                 marginTop: '8px',
               }}
             >
-              {field.options?.map((opt: any) => (
+              {field.options?.map((opt: any) => {
+                // Handle both string and object options
+                const optValue = typeof opt === 'string' ? opt : opt.value;
+                const optLabel = typeof opt === 'string' ? opt : opt.label;
+                return (
                 <div
-                  key={opt.value}
+                  key={optValue}
                   style={{
                     display: 'flex',
                     alignItems: 'center',
@@ -282,8 +291,8 @@ export function FormCard({ card, onFieldFocus }: FormCardProps) {
                     <input
                       type="radio"
                       name={field.field_name}
-                      value={opt.value}
-                      checked={value === opt.value}
+                      value={optValue}
+                      checked={value === optValue}
                       onChange={e =>
                         handleFieldChange(field.field_name, e.target.value)
                       }
@@ -294,10 +303,11 @@ export function FormCard({ card, onFieldFocus }: FormCardProps) {
                         accentColor: styles.colors.brand.primary,
                       }}
                     />
-                    {opt.label}
+                    {optLabel}
                   </label>
                 </div>
-              ))}
+                );
+              })}
             </div>
             {field.help_text && (
               <p
@@ -482,11 +492,14 @@ export function FormCard({ card, onFieldFocus }: FormCardProps) {
               }
             >
               {field.options?.map((opt: any) => {
-                const isSelected = selectedValues.includes(opt.value);
+                // Handle both string and object options
+                const optValue = typeof opt === 'string' ? opt : opt.value;
+                const optLabel = typeof opt === 'string' ? opt : opt.label;
+                const isSelected = selectedValues.includes(optValue);
 
                 return (
                   <button
-                    key={opt.value}
+                    key={optValue}
                     type="button"
                     onClick={() => {
                       if (isCardCompleted) {
@@ -497,15 +510,15 @@ export function FormCard({ card, onFieldFocus }: FormCardProps) {
                         // Single selection mode
                         handleFieldChange(
                           field.field_name,
-                          isSelected ? '' : opt.value
+                          isSelected ? '' : optValue
                         );
                       } else {
                         // Multi-selection mode
                         const newValues = isSelected
                           ? selectedValues.filter(
-                              (v: string) => v !== opt.value
+                              (v: string) => v !== optValue
                             )
-                          : [...selectedValues, opt.value];
+                          : [...selectedValues, optValue];
                         handleFieldChange(field.field_name, newValues);
                       }
                     }}
@@ -591,7 +604,7 @@ export function FormCard({ card, onFieldFocus }: FormCardProps) {
                             .buttonText as React.CSSProperties
                         }
                       >
-                        {opt.label}
+                        {optLabel}
                       </span>
                     </span>
                     {isSelected && selectOnlyOne && (

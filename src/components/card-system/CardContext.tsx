@@ -64,7 +64,15 @@ const getSessionId = (): string => {
   return sessionId;
 };
 
-export function CardProvider({ children }: { children: React.ReactNode }) {
+export function CardProvider({ 
+  children,
+  initialData,
+  widgetMode = false
+}: { 
+  children: React.ReactNode;
+  initialData?: any; // Initial data from config.json
+  widgetMode?: boolean; // When true, skip all Supabase operations
+}) {
   const [formData, setFormData] = useState<Record<string, any>>({});
   const [cardStates, setCardStates] = useState<Record<string, CardState>>({});
   const [cards, setCards] = useState<CardTemplate[]>([]);
@@ -78,15 +86,15 @@ export function CardProvider({ children }: { children: React.ReactNode }) {
       );
 
       // Update local formData immediately for UI responsiveness
-      setFormData(prev => {
-        const newData = { ...prev, [fieldName]: value };
-        console.log(`Updated formData for ${fieldName}:`, newData);
+      const newFormData = { ...formData, [fieldName]: value };
+      setFormData(newFormData);
+      console.log(`Updated formData for ${fieldName}:`, newFormData);
 
-        // Also update the session data table (like a waiter writing down the order)
-        updateSessionWithFormData(sessionId, newData);
-
-        return newData;
-      });
+      // Also update the session data table (like a waiter writing down the order)
+      // Skip in widget mode - no database connection
+      if (!widgetMode) {
+        updateSessionWithFormData(sessionId, newFormData);
+      }
 
       // Find which card this field belongs to
       const fieldCard = cards.find(card =>
@@ -98,22 +106,57 @@ export function CardProvider({ children }: { children: React.ReactNode }) {
           `🗃️ Updating field completion in database for card "${fieldCard.name}"`
         );
 
-        // Update field completion in database
-        await updateFieldCompletion(fieldCard.id, fieldName, value, sessionId);
+        // In widget mode, skip database operations and use local logic
+        let shouldBeComplete = false;
+        
+        if (!widgetMode) {
+          // Update field completion in database
+          await updateFieldCompletion(fieldCard.id, fieldName, value, sessionId);
 
-        // Check completion using database logic with proper session isolation
-        const shouldBeComplete = await checkCardCompletion(
-          fieldCard.id,
-          sessionId
-        );
+          // Check completion using database logic with proper session isolation
+          shouldBeComplete = await checkCardCompletion(
+            fieldCard.id,
+            sessionId
+          );
 
-        console.log(
-          `📋 Card "${fieldCard.name}" database completion check (session-isolated): ${shouldBeComplete}`
-        );
+          console.log(
+            `📋 Card "${fieldCard.name}" database completion check (session-isolated): ${shouldBeComplete}`
+          );
 
-        // Update card completion state based on database logic
+          // Update card completion state based on database logic
+          if (shouldBeComplete) {
+            await updateCardCompletion(fieldCard.id, sessionId, true, fieldName);
+          }
+        } else {
+          // Widget mode: Check completion locally using the newFormData
+          const allFields = fieldCard.card_fields || [];
+          const requiredFields = allFields.filter(f => f.required);
+          
+          // If there are required fields, check they are all filled
+          if (requiredFields.length > 0) {
+            shouldBeComplete = requiredFields.every(field => 
+              newFormData[field.field_name] && newFormData[field.field_name] !== ''
+            );
+          } else {
+            // If no required fields, consider complete if at least one field has a value
+            // This matches the database logic for cards with no required fields
+            shouldBeComplete = allFields.some(field => 
+              newFormData[field.field_name] && newFormData[field.field_name] !== ''
+            );
+          }
+          
+          console.log(
+            `📋 Card "${fieldCard.name}" local completion check: ${shouldBeComplete}`,
+            { 
+              requiredFields: requiredFields.length,
+              totalFields: allFields.length,
+              filledFields: allFields.filter(f => newFormData[f.field_name]).length,
+              formData: newFormData
+            }
+          );
+        }
+        
         if (shouldBeComplete) {
-          await updateCardCompletion(fieldCard.id, sessionId, true, fieldName);
 
           // Update local state to reflect completion
           setCardStates(prev => ({
@@ -126,7 +169,7 @@ export function CardProvider({ children }: { children: React.ReactNode }) {
         }
       }
     },
-    [cards, sessionId]
+    [cards, sessionId, formData, widgetMode]
   );
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -358,6 +401,16 @@ export function CardProvider({ children }: { children: React.ReactNode }) {
 
   const submitData = useCallback(
     async (emailTemplate?: string) => {
+      // In widget mode, skip actual submission but log success
+      if (widgetMode) {
+        console.log('📧 Widget mode: Form submission simulated', {
+          formData,
+          emailTemplate
+        });
+        // Simulate successful submission
+        return Promise.resolve();
+      }
+      
       const submitPayload = {
         ...formData,
         submit_email_template: emailTemplate,
@@ -373,7 +426,7 @@ export function CardProvider({ children }: { children: React.ReactNode }) {
         throw new Error('Failed to submit form data');
       }
     },
-    [formData]
+    [formData, widgetMode]
   );
 
   const completeCard = useCallback(
@@ -474,9 +527,12 @@ export function CardProvider({ children }: { children: React.ReactNode }) {
             `🟢 INIT: Card ${index} "${card?.name}" set to ACTIVE and REVEALED`
           );
         } else {
-          // Check if this card was previously completed
-          const completionState = await getCardCompletion();
-          const isComplete = completionState?.is_complete || false;
+          // Check if this card was previously completed (skip in widget mode)
+          let isComplete = false;
+          if (!widgetMode) {
+            const completionState = await getCardCompletion();
+            isComplete = completionState?.is_complete || false;
+          }
 
           newStates[cardId] = {
             status: isComplete ? 'complete' : 'hidden',
@@ -595,8 +651,27 @@ export function CardProvider({ children }: { children: React.ReactNode }) {
     const loadCards = async () => {
       console.log('🚀 CardContext: Starting to load cards...');
       try {
-        console.log('📞 CardContext: Calling getCardsDirect()...');
-        const cardsData = await getCardsDirect();
+        let cardsData;
+        
+        // Check if we have initial data (offline mode)
+        if (initialData?.cards) {
+          console.log('📦 Using offline data from config.json');
+          cardsData = initialData.cards;
+        } 
+        // Check if widget data is available globally (for standalone widget)
+        else if (typeof window !== 'undefined' && (window as any).__E1_WIDGET_DATA?.cards) {
+          console.log('📦 Using widget data from global store');
+          cardsData = (window as any).__E1_WIDGET_DATA.cards;
+        }
+        // Otherwise fetch from Supabase (development mode) - skip in widget mode
+        else if (!widgetMode) {
+          console.log('📞 CardContext: Calling getCardsDirect()...');
+          cardsData = await getCardsDirect();
+        } else {
+          console.warn('⚠️ Widget mode enabled but no data provided. Cards will be empty.');
+          cardsData = [];
+        }
+        
         console.log(
           '✅ CardContext: Cards loaded successfully:',
           cardsData.length,
@@ -604,7 +679,7 @@ export function CardProvider({ children }: { children: React.ReactNode }) {
         );
         console.log(
           '📋 CardContext: Card details:',
-          cardsData.map(c => ({
+          cardsData.map((c: any) => ({
             id: c.id,
             name: c.name,
             hasVisualObjects: !!c.visual_objects,
@@ -648,8 +723,13 @@ export function CardProvider({ children }: { children: React.ReactNode }) {
     loadCards();
   }, []);
 
-  // Initialize clean session on every app load (ensures fresh start)
+  // Initialize clean session on every app load (ensures fresh start) - skip in widget mode
   useEffect(() => {
+    if (widgetMode) {
+      console.log('🌐 Widget mode: Skipping session initialization');
+      return;
+    }
+    
     const initializeSession = async () => {
       console.log('🧹 Cleaning session data for fresh start...');
       try {
@@ -664,7 +744,7 @@ export function CardProvider({ children }: { children: React.ReactNode }) {
     };
 
     initializeSession();
-  }, [sessionId]);
+  }, [sessionId, widgetMode]);
 
   return (
     <CardContext.Provider

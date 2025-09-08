@@ -20,6 +20,15 @@ module.exports = {
   },
   module: {
     rules: [
+      // Use null-loader for files that shouldn't be included in widget
+      {
+        test: /supabase\.ts$/,
+        use: 'null-loader'
+      },
+      {
+        test: /session-data-table\.ts$/,
+        use: 'null-loader'
+      },
       {
         test: /\.tsx?$/,
         use: {
@@ -41,6 +50,7 @@ module.exports = {
               ],
               '@babel/preset-typescript',
             ],
+            compact: false, // Preserve UTF-8 characters
           },
         },
         exclude: /node_modules/,
@@ -126,6 +136,7 @@ module.exports = {
           mangle: true,
           format: {
             comments: false,
+            ascii_only: false, // Preserve UTF-8 characters
           },
         },
         extractComments: false,

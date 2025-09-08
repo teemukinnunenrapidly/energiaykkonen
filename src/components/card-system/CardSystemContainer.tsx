@@ -13,6 +13,8 @@ interface CardSystemContainerProps {
   height?: number; // Height in pixels
   forceMode?: 'desktop' | 'mobile'; // Force a specific mode for preview
   showBlurredCards?: boolean; // Show upcoming cards in blurred state
+  initialData?: any; // Initial data for offline mode
+  widgetMode?: boolean; // When true, skip all Supabase operations
 }
 
 // Create inner component that has access to CardContext
@@ -155,13 +157,15 @@ function CardSystemInner({
 }
 
 export function CardSystemContainer(props: CardSystemContainerProps) {
-  // Initialize dependencies on mount
+  // Initialize dependencies on mount (skip in widget mode)
   useEffect(() => {
-    initializeCommonDependencies();
-  }, []);
+    if (!props.widgetMode) {
+      initializeCommonDependencies();
+    }
+  }, [props.widgetMode]);
 
   return (
-    <CardProvider>
+    <CardProvider initialData={props.initialData} widgetMode={props.widgetMode}>
       <CardSystemInner {...props} />
     </CardProvider>
   );

@@ -1,6 +1,7 @@
 import React from 'react';
 import { FormCard } from './cards/FormCard';
 import { CalculationCard } from './cards/CalculationCard';
+import { WidgetCalculationCard } from './cards/WidgetCalculationCard';
 import { InfoCard } from './cards/InfoCard';
 import { EditableCalculationResult } from './cards/EditableCalculationResult';
 import type { CardTemplate } from '@/lib/supabase';
@@ -11,10 +12,17 @@ interface CardRendererProps {
 }
 
 export function CardRenderer({ card, onFieldFocus }: CardRendererProps) {
+  // Auto-detect widget mode by checking for widget data
+  const isWidgetMode = typeof window !== 'undefined' && (window as any).__E1_WIDGET_DATA;
+
   switch (card.type) {
     case 'form':
       return <FormCard card={card} onFieldFocus={onFieldFocus} />;
     case 'calculation':
+      // Use widget version in widget mode
+      if (isWidgetMode) {
+        return <WidgetCalculationCard card={card} onFieldFocus={onFieldFocus} />;
+      }
       return <CalculationCard card={card} onFieldFocus={onFieldFocus} />;
     case 'info':
       return <InfoCard card={card} />;
