@@ -3,65 +3,110 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>E1 Calculator Widget Test</title>
-    <link rel="stylesheet" href="dist/widget.min.css">
+    <title>Widget Test - Card System</title>
     <style>
         body {
             font-family: system-ui, -apple-system, sans-serif;
-            background: #f5f5f5;
-            padding: 20px;
             margin: 0;
+            padding: 20px;
+            background: #f5f5f5;
         }
         .container {
-            max-width: 1200px;
+            max-width: 1400px;
             margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
         }
         h1 {
-            text-align: center;
-            color: #333;
-            margin-bottom: 30px;
+            margin-bottom: 20px;
         }
-        .widget-wrapper {
-            background: white;
-            border-radius: 12px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-            padding: 20px;
-            min-height: 600px;
+        .status {
+            padding: 10px;
+            background: #e8f5fe;
+            border-left: 4px solid #0073aa;
+            margin-bottom: 20px;
+        }
+        .error {
+            background: #fee;
+            border-left-color: #c00;
+        }
+        .success {
+            background: #efe;
+            border-left-color: #0a0;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>E1 Calculator Widget Test</h1>
-        <div class="widget-wrapper">
-            <!-- Widget will be initialized here -->
-            <div id="e1-calculator-widget"></div>
+        <h1>🧪 Widget Test - Card System</h1>
+        
+        <div id="status" class="status">
+            Ladataan widgettiä...
         </div>
+        
+        <!-- Widget container -->
+        <div id="test-widget"></div>
     </div>
-
-    <!-- Load the widget script -->
-    <script src="dist/widget.min.js"></script>
+    
+    <!-- Load widget files directly from dist -->
+    <link rel="stylesheet" href="./dist/e1-calculator-widget.min.css">
+    <script src="./dist/e1-calculator-widget.min.js"></script>
+    
     <script>
-        // Wait for DOM to be ready
-        document.addEventListener('DOMContentLoaded', function() {
-            console.log('DOM loaded, checking for E1Widget...');
+        const statusEl = document.getElementById('status');
+        
+        // Wait for widget to load
+        let attempts = 0;
+        const maxAttempts = 50;
+        
+        function checkAndInit() {
+            attempts++;
             
-            if (typeof E1Widget !== 'undefined' && E1Widget.init) {
-                console.log('E1Widget found, initializing...');
+            if (typeof window.E1Calculator !== 'undefined') {
+                statusEl.className = 'status success';
+                statusEl.textContent = '✅ Widget ladattu! E1Calculator löytyy. Alustetaan...';
                 
-                // Initialize the widget with configuration
-                E1Widget.init('e1-calculator-widget', {
-                    apiUrl: '/api/submit-lead',
-                    theme: 'light',
-                    maxWidth: '100%',
-                    showVisualSupport: true
-                });
-                
-                console.log('Widget initialized successfully');
+                try {
+                    // Initialize widget
+                    const widget = window.E1Calculator.init('test-widget', {
+                        supabaseUrl: 'https://xfqmllsvdxejloecwlaq.supabase.co',
+                        supabaseAnonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhmcW1sbHN2ZHhlamxvZWN3bGFxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTYwNTE1NjAsImV4cCI6MjA3MTYyNzU2MH0.ZE4YOoVjqs4fGQs4gA3CJoQ4nEzfRqK4K2MO_bERGvM',
+                        showVisualSupport: true,
+                        theme: 'light'
+                    });
+                    
+                    if (widget) {
+                        statusEl.textContent = '✅ Widget alustettu onnistuneesti! Card System toimii.';
+                        console.log('Widget initialized:', widget);
+                    } else {
+                        statusEl.textContent = '✅ Widget ladattu ja E1Calculator.init kutsuttu.';
+                    }
+                } catch (error) {
+                    statusEl.className = 'status error';
+                    statusEl.textContent = '❌ Virhe widgetin alustuksessa: ' + error.message;
+                    console.error('Widget init error:', error);
+                }
+            } else if (attempts < maxAttempts) {
+                statusEl.textContent = 'Odotetaan widgetin latautumista... (' + attempts + '/' + maxAttempts + ')';
+                setTimeout(checkAndInit, 100);
             } else {
-                console.error('E1Widget not found');
+                statusEl.className = 'status error';
+                statusEl.textContent = '❌ Widget ei latautunut. E1Calculator ei löydy window-objektista.';
+                console.error('E1Calculator not found after', maxAttempts, 'attempts');
+                
+                // Debug info
+                console.log('Window keys:', Object.keys(window).filter(k => k.includes('E1') || k.includes('Calculator')));
             }
-        });
+        }
+        
+        // Start checking when DOM is ready
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', checkAndInit);
+        } else {
+            checkAndInit();
+        }
     </script>
 </body>
 </html>

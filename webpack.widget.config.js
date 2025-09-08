@@ -5,7 +5,7 @@ const CssMinimizerPlugin = require('css-minimizer-webpack-plugin');
 const webpack = require('webpack');
 
 module.exports = {
-  mode: 'production',
+  mode: 'development', // Changed to development for debugging
   entry: './src/widget/standalone-widget.tsx',
   output: {
     path: path.resolve(__dirname, 'dist'),

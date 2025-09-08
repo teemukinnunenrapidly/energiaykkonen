@@ -143,8 +143,18 @@
     </div>
     
     <!-- Lataa widget-tiedostot pluginin cache-kansiosta -->
-    <link rel="stylesheet" href="wordpress-plugin/e1-calculator-pro/cache/widget.css">
-    <script src="wordpress-plugin/e1-calculator-pro/cache/widget.js"></script>
+    <!-- Force reload with timestamp to bypass cache -->
+    <script>
+        const timestamp = Date.now();
+        const link = document.createElement('link');
+        link.rel = 'stylesheet';
+        link.href = 'wordpress-plugin/e1-calculator-pro/cache/widget.css?v=' + timestamp;
+        document.head.appendChild(link);
+        
+        const script = document.createElement('script');
+        script.src = 'wordpress-plugin/e1-calculator-pro/cache/widget.js?v=' + timestamp;
+        document.head.appendChild(script);
+    </script>
     
     <!-- Simuloi WordPress plugin initialization -->
     <script>
