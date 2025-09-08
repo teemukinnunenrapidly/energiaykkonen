@@ -62,6 +62,7 @@ const fetchCardData = async (baseUrl: string): Promise<CardData[]> => {
       {
         id: 'building-info',
         title: 'Talon tiedot',
+        type: 'form' as const,
         isUnlocked: true,
         isCompleted: false,
         visualObjectId: 'building-types',
@@ -91,6 +92,7 @@ const fetchCardData = async (baseUrl: string): Promise<CardData[]> => {
       {
         id: 'current-heating',
         title: 'Nykyinen lämmitys',
+        type: 'form' as const,
         isUnlocked: false,
         isCompleted: false,
         visualObjectId: 'heating-systems',
