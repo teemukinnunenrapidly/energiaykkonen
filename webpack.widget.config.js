@@ -6,7 +6,7 @@ const webpack = require('webpack');
 
 module.exports = {
   mode: 'production',
-  entry: './src/widget/standalone.tsx',
+  entry: './src/widget/hybrid-card-system.tsx',
   output: {
     path: path.resolve(__dirname, 'dist'),
     filename: 'widget.min.js',

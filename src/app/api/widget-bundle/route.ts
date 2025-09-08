@@ -3,6 +3,8 @@ import { createHash } from 'crypto';
 import fs from 'fs/promises';
 import path from 'path';
 import { widgetBundleRateLimiter } from '@/lib/rate-limiter';
+import { createClient } from '@supabase/supabase-js';
+import { cardStreamConfig } from '@/config/cardstream-config';
 
 /**
  * Widget Bundle API
@@ -56,12 +58,86 @@ function generateChecksum(data: any): string {
 }
 
 /**
+ * Fetch card data from Supabase
+ */
+async function fetchCardData() {
+  const supabase = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  );
+
+  try {
+    // Fetch card templates with their fields
+    const { data: cards, error: cardsError } = await supabase
+      .from('card_templates')
+      .select(`
+        id,
+        title,
+        description,
+        type,
+        sort_order,
+        visual_object_id,
+        is_active,
+        card_fields (
+          id,
+          name,
+          type,
+          label,
+          placeholder,
+          required,
+          min_value,
+          max_value,
+          options,
+          sort_order
+        )
+      `)
+      .eq('is_active', true)
+      .order('sort_order');
+
+    if (cardsError) throw cardsError;
+
+    // Fetch visual objects
+    const { data: visuals, error: visualsError } = await supabase
+      .from('visual_objects')
+      .select(`
+        id,
+        name,
+        title,
+        description,
+        content,
+        visual_object_images (
+          id,
+          image_url,
+          image_variant
+        )
+      `)
+      .eq('is_active', true);
+
+    if (visualsError) throw visualsError;
+
+    return {
+      cards: cards || [],
+      visuals: visuals || [],
+    };
+  } catch (error) {
+    console.error('Error fetching card data from Supabase:', error);
+    // Return empty data if fetch fails
+    return {
+      cards: [],
+      visuals: [],
+    };
+  }
+}
+
+/**
  * Rakenna widget bundle
  */
 async function buildWidgetBundle() {
-  const version = `2.0.0-${Date.now()}`;
+  const version = `2.2.0-${Date.now()}`;
 
   try {
+    // Fetch card data from Supabase
+    const { cards, visuals } = await fetchCardData();
     // Lue buildatut tiedostot dist-kansiosta
     const distPath = path.join(process.cwd(), 'dist');
 
@@ -284,64 +360,56 @@ async function buildWidgetBundle() {
   `;
     }
 
-    // Configuration (tämä tulisi normaalisti tietokannasta)
+    // Transform card data to widget format
+    const transformedCards = cards.map((card: any, index: number) => ({
+      id: card.id,
+      title: card.title,
+      description: card.description,
+      type: card.type,
+      visual_object_id: card.visual_object_id,
+      fields: (card.card_fields || [])
+        .sort((a: any, b: any) => a.sort_order - b.sort_order)
+        .map((field: any) => ({
+          id: field.id,
+          name: field.name,
+          type: field.type,
+          label: field.label,
+          placeholder: field.placeholder,
+          required: field.required,
+          min: field.min_value,
+          max: field.max_value,
+          options: field.options ? JSON.parse(field.options) : undefined,
+        })),
+    }));
+
+    // Transform visual objects
+    const transformedVisuals = visuals.map((visual: any) => ({
+      id: visual.id,
+      name: visual.name,
+      title: visual.title,
+      description: visual.description,
+      content: visual.content,
+      image_url: visual.visual_object_images?.[0]?.image_url,
+    }));
+
+    // Configuration with real data from Supabase and design tokens
     const config = {
-      forms: [
-        {
-          id: 'main-calculator',
-          fields: [
-            {
-              name: 'energy',
-              type: 'number',
-              label: 'Vuosittainen energiantarve (kWh)',
-              required: true,
-              min: 0,
-              max: 100000,
-            },
-            {
-              name: 'currentCost',
-              type: 'number',
-              label: 'Nykyiset lämmityskustannukset (€/vuosi)',
-              required: true,
-              min: 0,
-              max: 50000,
-            },
-          ],
-        },
-      ],
+      // Card data from database
+      cards: transformedCards,
+      visuals: transformedVisuals,
+      
+      // CardStream design tokens
+      cardStreamConfig: cardStreamConfig,
+      
+      // Calculation settings
       calculations: {
         cop: 3.8,
         electricityPrice: 0.15,
       },
-      design_tokens: {
-        colors: {
-          primary: '#10b981',
-          primaryHover: '#059669',
-          text: '#1f2937',
-          textSecondary: '#4b5563',
-          background: '#ffffff',
-          backgroundSecondary: '#f0fdf4',
-          border: '#d1d5db',
-        },
-        typography: {
-          fontFamily: 'system-ui, -apple-system, sans-serif',
-          fontSizeBase: '16px',
-          fontSizeSmall: '14px',
-          fontSizeLarge: '18px',
-          fontSizeXLarge: '24px',
-        },
-        spacing: {
-          small: '8px',
-          medium: '12px',
-          large: '20px',
-          xLarge: '30px',
-        },
-        borderRadius: {
-          small: '6px',
-          medium: '8px',
-          large: '12px',
-        },
-      },
+      
+      // Widget metadata
+      version,
+      generated_at: new Date().toISOString(),
     };
 
     return {
