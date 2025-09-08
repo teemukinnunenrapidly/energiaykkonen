@@ -7,7 +7,9 @@ import './card-system-styles.css';
 interface CardData {
   id: string;
   title: string;
-  fields: FieldData[];
+  type: 'form' | 'calculation' | 'info';
+  fields?: FieldData[];
+  config?: any;
   visualObjectId?: string;
   isUnlocked: boolean;
   isCompleted: boolean;
@@ -46,6 +48,8 @@ const fetchCardData = async (baseUrl: string): Promise<CardData[]> => {
       return config.cards.map((card: any, index: number) => ({
         id: card.id || `card-${index}`,
         title: card.title || 'Kortti',
+        type: card.type || 'form',
+        config: card.config,
         isUnlocked: index === 0, // First card starts unlocked
         isCompleted: false,
         visualObjectId: card.visual_object_id,
@@ -300,17 +304,190 @@ const ProgressiveCard: React.FC<{
     }
   }, [card.isUnlocked]);
 
-  const isCardComplete = card.fields.every(field => {
-    if (!field.required) return true;
-    const value = formData[field.name];
-    return value !== undefined && value !== '' && value !== null;
-  });
+  const isCardComplete = () => {
+    if (card.type === 'calculation') {
+      // Calculation cards are complete when they have a result
+      return formData[`calc_${card.id}`] !== undefined;
+    }
+    if (card.type === 'info') {
+      // Info cards are complete when viewed/acknowledged
+      return formData[`viewed_${card.id}`] === true;
+    }
+    // Form cards are complete when required fields are filled
+    return (card.fields || []).every(field => {
+      if (!field.required) return true;
+      const value = formData[field.name];
+      return value !== undefined && value !== '' && value !== null;
+    });
+  };
+
+  const cardComplete = isCardComplete();
 
   useEffect(() => {
-    if (isCardComplete && !card.isCompleted) {
+    if (cardComplete && !card.isCompleted) {
       onCardComplete(card.id);
     }
-  }, [isCardComplete, card.isCompleted, card.id, onCardComplete]);
+  }, [cardComplete, card.isCompleted, card.id, onCardComplete]);
+
+  // Render form fields
+  const renderFormContent = () => (
+    <>
+      {(card.fields || []).map(field => (
+        <div key={field.id} className="field-group">
+          <label className="field-label">
+            {field.label}
+            {field.required && <span className="required">*</span>}
+          </label>
+          
+          {field.type === 'text' && (
+            <input
+              type="text"
+              className="field-input"
+              value={formData[field.name] || ''}
+              onChange={(e) => onFieldChange(field.name, e.target.value)}
+              placeholder={field.placeholder}
+              required={field.required}
+            />
+          )}
+          
+          {field.type === 'number' && (
+            <input
+              type="number"
+              className="field-input"
+              value={formData[field.name] || ''}
+              onChange={(e) => onFieldChange(field.name, parseFloat(e.target.value) || 0)}
+              placeholder={field.placeholder}
+              min={field.min}
+              max={field.max}
+              required={field.required}
+            />
+          )}
+          
+          {field.type === 'select' && (
+            <select
+              className="field-input"
+              value={formData[field.name] || ''}
+              onChange={(e) => onFieldChange(field.name, e.target.value)}
+              required={field.required}
+            >
+              <option value="">Valitse...</option>
+              {field.options?.map(option => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
+          )}
+          
+          {field.type === 'radio' && (
+            <div className="radio-group">
+              {field.options?.map(option => (
+                <label key={option.value} className="radio-option">
+                  <input
+                    type="radio"
+                    name={field.name}
+                    value={option.value}
+                    checked={formData[field.name] === option.value}
+                    onChange={(e) => onFieldChange(field.name, e.target.value)}
+                    required={field.required}
+                  />
+                  <span className="radio-label">{option.label}</span>
+                </label>
+              ))}
+            </div>
+          )}
+        </div>
+      ))}
+    </>
+  );
+
+  // Render calculation card content
+  const renderCalculationContent = () => {
+    const result = formData[`calc_${card.id}`];
+    const canCalculate = checkCalculationRequirements();
+    
+    return (
+      <div className="calculation-card-content">
+        {card.config?.display_template && (
+          <p className="calculation-description">
+            {processTemplate(card.config.display_template)}
+          </p>
+        )}
+        
+        {!result && canCalculate && (
+          <button 
+            className="calculate-button"
+            onClick={performCalculation}
+          >
+            Laske tulos
+          </button>
+        )}
+        
+        {result && (
+          <div className="calculation-result">
+            <div className="result-value">{result}</div>
+            {card.config?.enable_edit_mode && (
+              <button 
+                className="edit-button"
+                onClick={() => setEditing(true)}
+              >
+                {card.config.edit_prompt || 'Muokkaa'}
+              </button>
+            )}
+          </div>
+        )}
+        
+        {!canCalculate && (
+          <div className="calculation-waiting">
+            <p>Täytä edelliset kortit saadaksesi tuloksen</p>
+          </div>
+        )}
+      </div>
+    );
+  };
+
+  // Render info card content
+  const renderInfoContent = () => (
+    <div className="info-card-content">
+      {card.config?.content && (
+        <div className="info-content">
+          <p>{card.config.content}</p>
+        </div>
+      )}
+      
+      {!formData[`viewed_${card.id}`] && (
+        <button 
+          className="acknowledge-button"
+          onClick={() => onFieldChange(`viewed_${card.id}`, true)}
+        >
+          Ymmärsin
+        </button>
+      )}
+    </div>
+  );
+
+  // Helper functions for calculations
+  const checkCalculationRequirements = () => {
+    // Simple check - ensure previous cards are complete
+    return true; // For now, allow all calculations
+  };
+
+  const processTemplate = (template: string) => {
+    // Simple template processing - can be enhanced
+    return template.replace(/\[calc:([^\]]+)\]/g, (match, calcName) => {
+      const result = formData[`calc_${calcName}`];
+      return result ? result : match;
+    });
+  };
+
+  const performCalculation = () => {
+    // Simple calculation based on form data
+    // This should ideally call your calculation API
+    const result = "Laskettu tulos"; // Placeholder
+    onFieldChange(`calc_${card.id}`, result);
+  };
+
+  const [editing, setEditing] = useState(false);
 
   if (!card.isUnlocked) {
     return (
@@ -337,72 +514,9 @@ const ProgressiveCard: React.FC<{
       
       {isExpanded && (
         <div className="card-content">
-          {card.fields.map(field => (
-            <div key={field.id} className="field-group">
-              <label className="field-label">
-                {field.label}
-                {field.required && <span className="required">*</span>}
-              </label>
-              
-              {field.type === 'text' && (
-                <input
-                  type="text"
-                  className="field-input"
-                  value={formData[field.name] || ''}
-                  onChange={(e) => onFieldChange(field.name, e.target.value)}
-                  placeholder={field.placeholder}
-                  required={field.required}
-                />
-              )}
-              
-              {field.type === 'number' && (
-                <input
-                  type="number"
-                  className="field-input"
-                  value={formData[field.name] || ''}
-                  onChange={(e) => onFieldChange(field.name, parseFloat(e.target.value) || 0)}
-                  placeholder={field.placeholder}
-                  min={field.min}
-                  max={field.max}
-                  required={field.required}
-                />
-              )}
-              
-              {field.type === 'select' && (
-                <select
-                  className="field-input"
-                  value={formData[field.name] || ''}
-                  onChange={(e) => onFieldChange(field.name, e.target.value)}
-                  required={field.required}
-                >
-                  <option value="">Valitse...</option>
-                  {field.options?.map(option => (
-                    <option key={option.value} value={option.value}>
-                      {option.label}
-                    </option>
-                  ))}
-                </select>
-              )}
-              
-              {field.type === 'radio' && (
-                <div className="radio-group">
-                  {field.options?.map(option => (
-                    <label key={option.value} className="radio-option">
-                      <input
-                        type="radio"
-                        name={field.name}
-                        value={option.value}
-                        checked={formData[field.name] === option.value}
-                        onChange={(e) => onFieldChange(field.name, e.target.value)}
-                        required={field.required}
-                      />
-                      <span className="radio-label">{option.label}</span>
-                    </label>
-                  ))}
-                </div>
-              )}
-            </div>
-          ))}
+          {card.type === 'form' && renderFormContent()}
+          {card.type === 'calculation' && renderCalculationContent()}
+          {card.type === 'info' && renderInfoContent()}
         </div>
       )}
     </div>
