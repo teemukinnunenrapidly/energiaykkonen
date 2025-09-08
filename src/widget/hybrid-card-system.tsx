@@ -478,7 +478,7 @@ const ProgressiveCard: React.FC<{
     // Simple template processing - can be enhanced
     return template.replace(/\[calc:([^\]]+)\]/g, (match, calcName) => {
       const result = formData[`calc_${calcName}`];
-      return result ? result : match;
+      return result ? String(result) : match;
     });
   };
 
