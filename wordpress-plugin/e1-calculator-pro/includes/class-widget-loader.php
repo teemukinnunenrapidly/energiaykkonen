@@ -158,7 +158,7 @@ class Widget_Loader {
             
             // Odota että widget library on ladattu
             function waitForWidget() {
-                if (typeof window.E1Widget === 'undefined') {
+                if (typeof window.E1Calculator === 'undefined') {
                     // Yritä uudelleen 100ms päästä
                     setTimeout(waitForWidget, 100);
                     return;
@@ -195,11 +195,11 @@ class Widget_Loader {
                             }
                             
                             // Alusta widget
-                            if (window.E1Widget && typeof window.E1Widget.init === 'function') {
-                                window.E1Widget.init(widgetId, fullConfig);
-                                console.log('E1 Widget initialized:', widgetId);
+                            if (window.E1Calculator && typeof window.E1Calculator.init === 'function') {
+                                window.E1Calculator.init(widgetId, fullConfig);
+                                console.log('E1 Calculator Widget initialized:', widgetId);
                             } else {
-                                throw new Error('E1Widget.init is not a function');
+                                throw new Error('E1Calculator.init is not a function');
                             }
                         } catch (error) {
                             console.error('E1 Widget initialization error:', error);

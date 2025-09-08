@@ -6,12 +6,12 @@ const webpack = require('webpack');
 
 module.exports = {
   mode: 'production',
-  entry: './src/widget/hybrid-card-system.tsx',
+  entry: './src/widget/standalone-widget.tsx',
   output: {
     path: path.resolve(__dirname, 'dist'),
-    filename: 'widget.min.js',
+    filename: 'e1-calculator-widget.min.js',
     library: {
-      name: 'E1Widget',
+      name: 'E1Calculator',
       type: 'umd',
       export: 'default',
     },
@@ -103,11 +103,12 @@ module.exports = {
   },
   plugins: [
     new MiniCssExtractPlugin({
-      filename: 'widget.min.css',
+      filename: 'e1-calculator-widget.min.css',
     }),
     new webpack.DefinePlugin({
       'process.env.NODE_ENV': JSON.stringify('production'),
-      'process.env': JSON.stringify({}),
+      'process.env.NEXT_PUBLIC_SUPABASE_URL': JSON.stringify(process.env.NEXT_PUBLIC_SUPABASE_URL || ''),
+      'process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY': JSON.stringify(process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ''),
     }),
     new webpack.ProvidePlugin({
       process: 'process/browser',
