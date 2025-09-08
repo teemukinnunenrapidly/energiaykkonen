@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { X } from 'lucide-react';
 import type { CardField } from '@/lib/supabase';
-import { IconPicker } from './IconPicker';
 import { generateUniqueFieldName } from '@/lib/id-utils';
 
 interface FieldModalProps {
@@ -23,7 +22,6 @@ export function FieldModal({
     label: '',
     placeholder: '',
     help_text: '',
-    icon: '',
     required: false,
     width: 'full',
     options: [],
@@ -31,7 +29,6 @@ export function FieldModal({
   });
 
   const [advancedOptions, setAdvancedOptions] = useState(false);
-  const [showIconPicker, setShowIconPicker] = useState(false);
 
   useEffect(() => {
     if (field) {
@@ -41,12 +38,6 @@ export function FieldModal({
         opt => opt.value !== opt.label
       );
       setAdvancedOptions(!!hasAdvancedOptions);
-    } else {
-      // Set default icon based on field type for new fields
-      setFormData(prev => ({
-        ...prev,
-        icon: getDefaultIconForFieldType(prev.field_type || 'text'),
-      }));
     }
   }, [field]);
 
@@ -91,30 +82,6 @@ export function FieldModal({
       ...prev,
       field_name: sanitized,
     }));
-  };
-
-  // Helper function to get default icons for field types
-  const getDefaultIconForFieldType = (fieldType: string): string => {
-    switch (fieldType) {
-      case 'text':
-        return 'text_fields';
-      case 'email':
-        return 'email';
-      case 'number':
-        return 'calculate';
-      case 'select':
-        return 'list';
-      case 'radio':
-        return 'radio_button_checked';
-      case 'buttons':
-        return 'smart_button';
-      case 'checkbox':
-        return 'check_box';
-      case 'textarea':
-        return 'subject';
-      default:
-        return 'input';
-    }
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -231,7 +198,6 @@ export function FieldModal({
                   setFormData({
                     ...formData,
                     field_type: newFieldType,
-                    icon: getDefaultIconForFieldType(newFieldType),
                   });
                 }}
                 className="w-full p-2 border rounded"
@@ -245,34 +211,6 @@ export function FieldModal({
                 <option value="checkbox">Checkbox</option>
                 <option value="textarea">Textarea</option>
               </select>
-            </div>
-          </div>
-
-          {/* Icon Selection */}
-          <div>
-            <label className="block text-sm font-medium mb-1">Icon</label>
-            <div className="flex items-center gap-2">
-              {formData.icon && (
-                <span className="material-icons text-gray-600 text-xl">
-                  {formData.icon}
-                </span>
-              )}
-              <button
-                type="button"
-                onClick={() => setShowIconPicker(true)}
-                className="flex-1 p-2 border rounded text-left text-gray-600 hover:bg-gray-50"
-              >
-                {formData.icon ? formData.icon : 'Select an icon (optional)'}
-              </button>
-              {formData.icon && (
-                <button
-                  type="button"
-                  onClick={() => setFormData({ ...formData, icon: '' })}
-                  className="p-2 text-red-600 hover:bg-red-50 rounded"
-                >
-                  <X className="w-4 h-4" />
-                </button>
-              )}
             </div>
           </div>
 
@@ -489,18 +427,6 @@ export function FieldModal({
           </div>
         </form>
       </div>
-
-      {/* Icon Picker Modal */}
-      {showIconPicker && (
-        <IconPicker
-          selectedIcon={formData.icon}
-          onIconSelect={iconName => {
-            setFormData({ ...formData, icon: iconName });
-            setShowIconPicker(false);
-          }}
-          onClose={() => setShowIconPicker(false)}
-        />
-      )}
     </div>
   );
 }

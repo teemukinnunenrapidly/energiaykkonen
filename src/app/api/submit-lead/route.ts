@@ -8,6 +8,7 @@ import { defaultRateLimiter, securityLogger } from '@/lib/input-sanitizer';
 import { pdf } from '@react-pdf/renderer';
 import { SavingsReportPDF } from '@/lib/pdf/SavingsReportPDF';
 import { processPDFData } from '@/lib/pdf/pdf-data-processor';
+import { calculatePDFValues } from '@/lib/pdf-calculations';
 import { EmailAttachment } from '@/lib/resend';
 
 // Enhanced rate limiting with security logging
@@ -84,66 +85,66 @@ export async function POST(request: NextRequest) {
     const referer = headersList.get('referer') || '';
     const sourcePage = referer || request.nextUrl.origin;
 
-    // Prepare data for database insertion - using JSONB for dynamic fields
+    // Filter out calculated fields that shouldn't be stored in form_data
+    const calculatedFieldsToExclude = [
+      'annual_savings',
+      'five_year_savings',
+      'ten_year_savings',
+      'payback_period',
+      'heat_pump_consumption',
+      'heat_pump_cost_annual',
+      'annual_energy_need',
+      'co2_reduction',
+    ];
+
+    // Create a filtered copy of body without calculated fields
+    const filteredBody = Object.keys(body).reduce(
+      (acc, key) => {
+        if (!calculatedFieldsToExclude.includes(key)) {
+          acc[key] = body[key];
+        }
+        return acc;
+      },
+      {} as Record<string, any>
+    );
+
+    // Store all form data first
+    const formData = {
+      // Store only non-calculated form fields
+      ...filteredBody,
+
+      // Add metadata
+      source_page: sourcePage,
+      user_agent: userAgent,
+      ip_address: clientIp,
+      consent_timestamp: new Date().toISOString(),
+    };
+
+    // Calculate all values needed for PDF generation
+    const calculationResults = await calculatePDFValues(
+      formData,
+      body.sessionId
+    );
+
+    console.log('📊 Calculation results for PDF:', calculationResults);
+
+    // Prepare data for database insertion - only fixed columns + JSONB
     const leadData = {
-      // Critical fixed columns (matching actual database column names)
-      first_name: body.first_name || body.nimi?.split(' ')[0] || '',
-      last_name:
-        body.last_name || body.nimi?.split(' ').slice(1).join(' ') || '',
-      s_hk_posti: body.sahkoposti || body.s_hk_posti || '', // Map to actual column name
+      // Only the 5 fixed columns from Card Builder
+      nimi: body.nimi || '',
+      sahkoposti: body.sahkoposti || '',
       puhelinnumero: body.puhelinnumero || '',
+      paikkakunta: body.paikkakunta || '',
+      osoite: body.osoite || '',
+
+      // Status field (if it exists in the table)
       status: 'new' as const,
 
-      // All dynamic form fields go into JSONB
-      form_data: {
-        // Store email in JSONB too for consistency
-        sahkoposti: body.sahkoposti || '',
+      // Store all form inputs and inline calculations
+      form_data: formData,
 
-        // Property details
-        neliot: parseFloat(body.neliot) || 0,
-        huonekorkeus: parseFloat(body.huonekorkeus || '2.5'),
-        rakennusvuosi: body.rakennusvuosi || '',
-        floors: parseInt(body.floors || '1'),
-        henkilomaara: parseInt(body.henkilomaara || '2'),
-        hot_water_usage: body.hot_water_usage || '',
-
-        // Address details
-        osoite: body.osoite || '',
-        paikkakunta: body.paikkakunta || '',
-        postcode: body.postcode || '',
-
-        // Current heating
-        lammitysmuoto: body.lammitysmuoto || '',
-        vesikiertoinen: parseFloat(body.vesikiertoinen) || 0,
-        current_energy_consumption: body.current_energy_consumption,
-
-        // Heat pump calculations
-        annual_energy_need: calculations.annualEnergyNeed,
-        heat_pump_consumption: calculations.heatPumpConsumption,
-        heat_pump_cost_annual: calculations.heatPumpCostAnnual,
-        annual_savings: calculations.annualSavings,
-        five_year_savings: calculations.fiveYearSavings,
-        ten_year_savings: calculations.tenYearSavings,
-        payback_period: calculations.paybackPeriod,
-        co2_reduction: calculations.co2Reduction,
-
-        // Other preferences
-        valittutukimuoto: body.valittutukimuoto || '',
-        message: body.message || '',
-
-        // Metadata
-        source_page: sourcePage,
-        user_agent: userAgent,
-        ip_address: clientIp,
-        consent_timestamp: new Date().toISOString(),
-
-        // Store ALL fields from Card Builder dynamically
-        ...Object.fromEntries(
-          Object.entries(body).filter(
-            ([key]) => !['first_name', 'last_name', 'nimi'].includes(key)
-          )
-        ),
-      },
+      // Store calculated values for PDF generation
+      calculation_results: calculationResults,
     };
 
     // Insert lead into Supabase
@@ -214,17 +215,24 @@ export async function POST(request: NextRequest) {
 
           pdfUrl = urlData.publicUrl;
 
-          // Update the lead with PDF URL
+          // Update the lead with PDF URL in form_data
+          const updatedFormData = {
+            ...insertedLead.form_data,
+            pdf_url: pdfUrl,
+            pdf_generated_at: new Date().toISOString(),
+          };
+
           const { error: updateError } = await supabase
             .from('leads')
             .update({
-              pdf_url: pdfUrl,
-              pdf_generated_at: new Date().toISOString(),
+              form_data: updatedFormData,
             })
             .eq('id', insertedLead.id);
 
           if (updateError) {
             console.error('Failed to update lead with PDF URL:', updateError);
+          } else {
+            console.log('✅ PDF URL saved to lead:', pdfUrl);
           }
         }
       } catch (storageError) {

@@ -114,8 +114,11 @@ export function CalculationCard({ card }: CalculationCardProps) {
 
           // Store the calculated result in formData using the configured field_name
           if (card.config?.field_name && result.result) {
+            // Handle Finnish number format: "2 706,6" -> 2706.6
             const numericResult = parseFloat(
-              String(result.result).replace(/[^\d.-]/g, '')
+              String(result.result)
+                .replace(/\s/g, '') // Remove spaces (thousands separator)
+                .replace(',', '.') // Convert comma to dot for decimal
             );
             if (!isNaN(numericResult)) {
               updateField(card.config.field_name, numericResult);
@@ -170,16 +173,27 @@ export function CalculationCard({ card }: CalculationCardProps) {
           );
 
           // Reformat the numeric part with Finnish locale
-          const numericValue = parseFloat(numericPart.replace(/[^\d.-]/g, ''));
+          // Handle Finnish number format: "2 706,6" -> 2706.6
+          const numericValue = parseFloat(
+            numericPart
+              .replace(/\s/g, '') // Remove spaces (thousands separator)
+              .replace(',', '.') // Convert comma to dot for decimal
+          );
           if (!isNaN(numericValue)) {
-            formattedResult = `${numericValue.toLocaleString('fi-FI')} ${unit}`;
+            formattedResult = `${numericValue.toLocaleString('fi-FI', {
+              minimumFractionDigits: 0,
+              maximumFractionDigits: 0,
+            })} ${unit}`;
           }
         } else {
           console.log(`❌ No unit found in result: "${formattedResult}"`);
           // No unit in result, check if it's a pure number
           const numericResult = Number(result.result);
           if (!isNaN(numericResult)) {
-            formattedResult = numericResult.toLocaleString('fi-FI');
+            formattedResult = numericResult.toLocaleString('fi-FI', {
+              minimumFractionDigits: 0,
+              maximumFractionDigits: 0,
+            });
 
             // Try to get unit from formula metadata for calc shortcodes
             const calcMatch =
@@ -194,7 +208,10 @@ export function CalculationCard({ card }: CalculationCardProps) {
 
                 if (formula?.unit) {
                   unit = formula.unit;
-                  formattedResult = `${numericResult.toLocaleString('fi-FI')} ${formula.unit}`;
+                  formattedResult = `${numericResult.toLocaleString('fi-FI', {
+                    minimumFractionDigits: 0,
+                    maximumFractionDigits: 0,
+                  })} ${formula.unit}`;
                 }
               } catch (unitError) {
                 // If unit fetching fails, just use the number without unit
@@ -285,8 +302,8 @@ export function CalculationCard({ card }: CalculationCardProps) {
       // Show success message
       setSubmitSuccess(true);
 
-      // Hide success message after 3 seconds
-      setTimeout(() => setSubmitSuccess(false), 3000);
+      // Keep success message visible - don't auto-hide
+      // setTimeout(() => setSubmitSuccess(false), 3000);
     } catch (error) {
       console.error('Submission failed:', error);
       // Could add error state here if needed

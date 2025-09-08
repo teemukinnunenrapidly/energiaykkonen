@@ -93,11 +93,6 @@ function SortableField({
         </div>
         <div className="flex-1">
           <div className="flex items-center gap-2">
-            {field.icon && (
-              <span className="material-icons text-gray-600 text-sm">
-                {field.icon}
-              </span>
-            )}
             <span className="font-medium text-sm">{field.label}</span>
             <span className="text-xs text-gray-500">({field.field_type})</span>
             {field.required && <span className="text-xs text-red-500">*</span>}

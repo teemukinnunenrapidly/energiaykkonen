@@ -46,6 +46,27 @@ export interface LeadFormData {
   [key: string]: any;
 }
 
+// Calculation results stored at submission time for PDF generation
+export interface CalculationResults {
+  // Energy calculations
+  annual_energy_need?: number;
+  heat_pump_consumption?: number;
+  heat_pump_cost_annual?: number;
+  current_heating_cost?: number;
+
+  // Savings calculations
+  annual_savings?: number;
+  five_year_savings?: number;
+  ten_year_savings?: number;
+  payback_period?: number;
+
+  // Environmental impact
+  co2_reduction?: number;
+
+  // Any other calculated values from PDF template shortcodes
+  [key: string]: any;
+}
+
 // Database types for leads table with JSONB support
 export interface Lead {
   // Primary key
@@ -55,51 +76,19 @@ export interface Lead {
   created_at: string;
   updated_at: string;
 
-  // Critical fixed columns (not in JSONB)
-  status: 'new' | 'contacted' | 'qualified' | 'converted';
-  notes?: string;
-  first_name: string;
-  last_name: string;
+  // Fixed columns from Card Builder (only these 5 + status)
+  nimi: string;
   sahkoposti: string;
   puhelinnumero: string;
+  paikkakunta?: string;
+  osoite?: string;
+  status: 'new' | 'contacted' | 'qualified' | 'converted';
 
-  // Key metrics (kept as columns for sorting/filtering)
-  annual_savings: number;
-  five_year_savings: number;
-  ten_year_savings: number;
-
-  // Document management
-  pdf_url?: string;
-  pdf_generated_at?: string;
-
-  // Tracking metadata
-  ip_address?: string;
-  user_agent?: string;
-  source_page?: string;
-
-  // JSONB field containing all dynamic form data
+  // JSONB field containing ALL form inputs and inline calculations
   form_data?: LeadFormData;
 
-  // Virtual fields for backward compatibility
-  // These are extracted from form_data by views or application logic
-  neliot?: number;
-  huonekorkeus?: number;
-  rakennusvuosi?: string;
-  floors?: number;
-  lammitysmuoto?: string;
-  vesikiertoinen?: number;
-  current_energy_consumption?: number;
-  henkilomaara?: number;
-  hot_water_usage?: string;
-  annual_energy_need?: number;
-  heat_pump_consumption?: number;
-  heat_pump_cost_annual?: number;
-  payback_period?: number;
-  co2_reduction?: number;
-  osoite?: string;
-  paikkakunta?: string;
-  valittutukimuoto?: string;
-  message?: string;
+  // JSONB field containing calculated values for PDF generation
+  calculation_results?: CalculationResults;
 }
 
 // Helper function to insert a new lead
@@ -234,7 +223,6 @@ export interface CardField {
   label: string;
   placeholder?: string;
   help_text?: string;
-  icon?: string; // Material Icons name (e.g., 'person', 'email', 'phone')
   validation_rules: {
     min?: number;
     max?: number;

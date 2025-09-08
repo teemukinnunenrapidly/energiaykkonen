@@ -109,12 +109,6 @@ export const SavingsReportPDF: React.FC<{ data: PDFData }> = ({ data }) => (
               </Text>
             </View>
             <View style={styles.customerRow}>
-              <Text style={styles.customerLabel}>Kerroksia:</Text>
-              <Text style={styles.customerValue}>
-                {data.floors || '2'} kerrosta
-              </Text>
-            </View>
-            <View style={styles.customerRow}>
               <Text style={styles.customerLabel}>Energiantarve:</Text>
               <Text style={styles.customerValue}>
                 {data.energyNeed ||
@@ -251,18 +245,22 @@ export const SavingsReportPDF: React.FC<{ data: PDFData }> = ({ data }) => (
                   <Text style={styles.costCenter}>
                     {data.newYear5Cost || data.new_5year_cost || '4 875'} €
                   </Text>
-                  <Text style={[styles.costValue, styles.positive]}>
-                    {data.savings5Year || data.five_year_savings || '8 125'} €
-                  </Text>
+                  <View style={styles.savingsColumn}>
+                    <Text style={[styles.costValue, styles.positive]}>
+                      {data.savings5Year || data.five_year_savings || '8 125'} €
+                    </Text>
+                  </View>
                 </View>
                 <View style={styles.costRowWithSavings}>
                   <Text style={styles.costLabel}>10 vuotta</Text>
                   <Text style={styles.costCenter}>
                     {data.newYear10Cost || data.new_10year_cost || '9 750'} €
                   </Text>
-                  <Text style={[styles.costValue, styles.positive]}>
-                    {data.savings10Year || data.ten_year_savings || '16 250'} €
-                  </Text>
+                  <View style={styles.savingsColumn}>
+                    <Text style={[styles.costValue, styles.positive]}>
+                      {data.savings10Year || data.ten_year_savings || '16 250'} €
+                    </Text>
+                  </View>
                 </View>
               </View>
 

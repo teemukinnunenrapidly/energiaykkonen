@@ -4,13 +4,13 @@ import { useState, useEffect } from 'react';
 import { Lead } from '@/lib/supabase';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { 
-  Table, 
-  TableBody, 
-  TableCell, 
-  TableHead, 
-  TableHeader, 
-  TableRow 
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
 } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { FileText, Mail, Phone, MapPin, Calendar } from 'lucide-react';
@@ -188,7 +188,7 @@ export default function SimpleLeadsPage() {
               <div className="text-2xl font-bold">{leads.length}</div>
             </CardContent>
           </Card>
-          
+
           <Card>
             <CardHeader className="pb-3">
               <CardTitle className="text-sm font-medium text-muted-foreground">
@@ -252,7 +252,7 @@ export default function SimpleLeadsPage() {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {leads.map((lead) => (
+                    {leads.map(lead => (
                       <TableRow key={lead.id}>
                         <TableCell className="text-sm">
                           <div className="flex items-center gap-1 text-muted-foreground">
@@ -269,7 +269,7 @@ export default function SimpleLeadsPage() {
                           <div className="space-y-1">
                             <div className="flex items-center gap-1 text-sm">
                               <Mail className="w-3 h-3 text-muted-foreground" />
-                              <a 
+                              <a
                                 href={`mailto:${lead.sahkoposti}`}
                                 className="text-blue-600 hover:underline"
                               >
@@ -278,7 +278,7 @@ export default function SimpleLeadsPage() {
                             </div>
                             <div className="flex items-center gap-1 text-sm">
                               <Phone className="w-3 h-3 text-muted-foreground" />
-                              <a 
+                              <a
                                 href={`tel:${lead.puhelinnumero}`}
                                 className="text-blue-600 hover:underline"
                               >
@@ -325,17 +325,15 @@ export default function SimpleLeadsPage() {
                               <Button
                                 size="sm"
                                 variant="outline"
-                                onClick={() => window.open(lead.pdf_url, '_blank')}
+                                onClick={() =>
+                                  window.open(lead.pdf_url, '_blank')
+                                }
                               >
                                 <FileText className="w-4 h-4 mr-1" />
                                 PDF
                               </Button>
                             ) : (
-                              <Button
-                                size="sm"
-                                variant="ghost"
-                                disabled
-                              >
+                              <Button size="sm" variant="ghost" disabled>
                                 <FileText className="w-4 h-4 mr-1" />
                                 Generate PDF
                               </Button>
@@ -354,8 +352,8 @@ export default function SimpleLeadsPage() {
         {/* Note about sample data */}
         <div className="mt-8 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
           <p className="text-sm text-yellow-800">
-            <strong>Note:</strong> This is sample data for demonstration. 
-            Real leads will appear here once customers submit the calculator form.
+            <strong>Note:</strong> This is sample data for demonstration. Real
+            leads will appear here once customers submit the calculator form.
           </p>
         </div>
       </div>

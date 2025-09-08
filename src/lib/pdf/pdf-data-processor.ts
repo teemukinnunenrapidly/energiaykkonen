@@ -8,46 +8,81 @@ import { DatabasePDFProcessor } from './database-pdf-processor';
 import { flattenLeadData } from '@/lib/lead-helpers';
 
 /**
- * Process lead data into PDF-ready format using database shortcodes
+ * Process lead data into PDF-ready format using hardcoded calculations
  */
 export async function processPDFData(lead: Lead): Promise<Record<string, any>> {
+  // Use our PDF-specific calculations directly
+  const { generatePDFCalculations } = await import('../pdf-calculation-definitions');
+  
+  // Generate all PDF calculations from the lead
+  const pdfCalculations = generatePDFCalculations(lead);
+  
   // Flatten lead data to access JSONB fields
   const flatLead = flattenLeadData(lead);
-  const processor = new DatabasePDFProcessor(flatLead);
-
-  // Load shortcodes from database
-  await processor.loadShortcodes();
-
-  // Get all shortcodes to build a data object
-  const shortcodes = await processor.getAvailableShortcodes();
-  const pdfData: Record<string, any> = {};
-
-  // Process each shortcode
-  for (const shortcode of shortcodes) {
-    // Use the shortcode's code as the key (without brackets)
-    const key = shortcode.code
-      .replace(/^\[/, '')
-      .replace(/\]$/, '')
-      .replace(/_/g, '');
-
-    // Process the shortcode to get its value
-    const value = await processor.process(shortcode.code);
-
-    pdfData[key] = value;
-  }
-
-  // Add some standard fields that PDF might expect
-  pdfData.customerName = `${flatLead.first_name} ${flatLead.last_name}`.trim();
-  pdfData.customerAddress = flatLead.osoite || '';
-  pdfData.customerEmail = flatLead.sahkoposti;
-  pdfData.customerPhone = flatLead.puhelinnumero;
-  pdfData.propertySize = `${flatLead.neliot} m²`;
-  pdfData.annualSavings = flatLead.annual_savings;
-  pdfData.fiveYearSavings = flatLead.five_year_savings;
-  pdfData.tenYearSavings = flatLead.ten_year_savings;
-  pdfData.paybackPeriod = flatLead.payback_period;
-  pdfData.calculationNumber = flatLead.id?.slice(0, 8).toUpperCase() || '';
-  pdfData.calculationDate = new Date().toLocaleDateString('fi-FI');
+  
+  // Build PDF data object with all necessary fields
+  const pdfData: Record<string, any> = {
+    // All calculated values from PDF calculations
+    ...pdfCalculations,
+    
+    // Customer information
+    customerName: flatLead.nimi || `${flatLead.first_name} ${flatLead.last_name}`.trim() || 'Asiakas',
+    customerAddress: flatLead.osoite || '',
+    customerEmail: flatLead.sahkoposti || '',
+    customerPhone: flatLead.puhelinnumero || '',
+    customerCity: flatLead.paikkakunta || '',
+    
+    // Property information
+    propertySize: `${flatLead.neliot || 0} m²`,
+    buildingYear: flatLead.rakennusvuosi || '',
+    buildingArea: flatLead.neliot || 0,
+    peopleCount: flatLead.henkilomaara || 2,
+    
+    // Current heating system
+    currentSystem: flatLead.lammitysmuoto || 'Nykyinen lämmitys',
+    oilConsumption: Math.round((flatLead.laskennallinenenergiantarve || 0) / 10) || 2000,
+    oilPrice: '1,30',
+    currentMaintenance: 200,
+    
+    // New system (heat pump) - using calculated values
+    electricityConsumption: pdfCalculations.new_electricity_consumption,
+    electricityPrice: pdfCalculations.electricity_price,
+    newMaintenance10Years: 30,
+    
+    // Cost comparisons - using calculated values
+    currentYear1Cost: pdfCalculations.current_cost_1year,
+    currentYear5Cost: pdfCalculations.current_cost_5years, 
+    currentYear10Cost: pdfCalculations.current_cost_10years,
+    newYear1Cost: pdfCalculations.new_cost_1year,
+    newYear5Cost: pdfCalculations.new_cost_5years,
+    newYear10Cost: pdfCalculations.new_cost_10years,
+    
+    // Savings - using calculated values
+    savings1Year: pdfCalculations.savings_1year,
+    savings5Year: pdfCalculations.savings_5years,
+    savings10Year: pdfCalculations.savings_10years,
+    annualSavings: pdfCalculations.annual_savings,
+    fiveYearSavings: pdfCalculations.five_year_savings,
+    tenYearSavings: pdfCalculations.ten_year_savings,
+    
+    // Environmental impact
+    currentCO2: pdfCalculations.current_co2_yearly,
+    newCO2: pdfCalculations.new_co2_yearly,
+    co2Reduction: pdfCalculations.co2_reduction_yearly,
+    
+    // Heat pump details
+    heat_pump_consumption: pdfCalculations.heat_pump_consumption,
+    heat_pump_cost_annual: pdfCalculations.heat_pump_cost_annual,
+    
+    // Document metadata
+    calculationNumber: flatLead.id?.slice(0, 8).toUpperCase() || Date.now().toString(36).toUpperCase(),
+    calculationDate: new Date().toLocaleDateString('fi-FI'),
+    
+    // Energy calculations
+    energyNeed: flatLead.laskennallinenenergiantarve || 0,
+    annual_energy_need: flatLead.laskennallinenenergiantarve || 0,
+    total_energy_need: flatLead.laskennallinenenergiantarve || 0,
+  };
 
   return pdfData;
 }

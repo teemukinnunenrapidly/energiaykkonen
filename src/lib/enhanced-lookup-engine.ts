@@ -92,6 +92,7 @@ export interface ActionConfig {
 export interface LookupExecutionResult {
   success: boolean;
   value?: any;
+  numericValue?: number; // Numeric value for calculations
   error?: string;
   matched_rule_id?: string;
   used_default: boolean;
@@ -181,6 +182,22 @@ export class EnhancedLookupEngine {
           context.formData
         );
 
+        // Add detailed logging for menekin-hinta lookup
+        if (
+          lookupName === 'menekin-hinta' ||
+          lookupName === 'kokonaismenekki'
+        ) {
+          console.log(`🔍 Evaluating rule for '${lookupName}':`, {
+            ruleId: rule.id,
+            ruleName: rule.name,
+            priority: rule.priority,
+            conditionLogic: rule.condition_logic,
+            conditionMatches: conditionResult,
+            availableFields: Object.keys(context.formData || {}),
+            formDataValues: context.formData,
+          });
+        }
+
         if (debugInfo) {
           debugInfo.evaluated_rules.push({
             rule_id: rule.id,
@@ -243,7 +260,13 @@ export class EnhancedLookupEngine {
         return result;
       }
 
-      // No default - return error
+      // No default - return error with debug info
+      console.error(`❌ Lookup '${lookupName}' failed:`, {
+        availableRules: rules.length,
+        formData: context.formData,
+        debugInfo: debugInfo,
+      });
+
       return {
         success: false,
         error: `No rules matched for lookup '${lookupName}' and no default action configured`,
@@ -407,8 +430,11 @@ export class EnhancedLookupEngine {
         const resultString = String(result.result);
 
         // Try to extract numeric value
+        // Handle Finnish locale formatting: spaces are thousand separators, commas are decimal separators
+        // Replace spaces (thousand separators) and convert comma to dot for parsing
         const numMatch = resultString
-          .replace(/[,\s]/g, '')
+          .replace(/\s/g, '') // Remove spaces (thousand separators)
+          .replace(/,/g, '.') // Convert comma (decimal separator) to dot
           .match(/^([+-]?[0-9]*\.?[0-9]+)/);
         if (numMatch) {
           numericResult = parseFloat(numMatch[1]);
@@ -439,6 +465,7 @@ export class EnhancedLookupEngine {
         return {
           success: true,
           value: finalResult,
+          numericValue: numericResult, // Add numeric value for calculations
         };
       } else {
         return {

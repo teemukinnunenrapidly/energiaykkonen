@@ -21,8 +21,9 @@ export const SalesNotificationTemplate = ({
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <meta httpEquiv="Content-Type" content="text/html; charset=UTF-8" />
         <title>
-          New Lead: {flatLead.first_name} {flatLead.last_name} - {flatLead.paikkakunta} -
-          Savings: {flatLead.annual_savings?.toLocaleString('fi-FI') || '0'}€/year
+          New Lead: {flatLead.first_name} {flatLead.last_name} -{' '}
+          {flatLead.paikkakunta} - Savings:{' '}
+          {flatLead.annual_savings?.toLocaleString('fi-FI') || '0'}€/year
         </title>
         <style>{`
           body {
@@ -258,7 +259,9 @@ export const SalesNotificationTemplate = ({
                 </div>
                 <div className="data-item">
                   <span className="data-label">Yhteydenotto:</span>
-                  <span className="data-value">{flatLead.valittutukimuoto}</span>
+                  <span className="data-value">
+                    {flatLead.valittutukimuoto}
+                  </span>
                 </div>
               </div>
               {flatLead.osoite && (
@@ -313,7 +316,8 @@ export const SalesNotificationTemplate = ({
                 <div className="data-item">
                   <span className="data-label">Lämmityskustannus:</span>
                   <span className="data-value">
-                    {flatLead.vesikiertoinen?.toLocaleString('fi-FI') || '0'}€/vuosi
+                    {flatLead.vesikiertoinen?.toLocaleString('fi-FI') || '0'}
+                    €/vuosi
                   </span>
                 </div>
                 <div className="data-item">
@@ -336,19 +340,25 @@ export const SalesNotificationTemplate = ({
                 <div className="data-item">
                   <span className="data-label">Energiantarve:</span>
                   <span className="data-value">
-                    {flatLead.annual_energy_need?.toLocaleString('fi-FI') || '0'} kWh/v
+                    {flatLead.annual_energy_need?.toLocaleString('fi-FI') ||
+                      '0'}{' '}
+                    kWh/v
                   </span>
                 </div>
                 <div className="data-item">
                   <span className="data-label">LP kulutus:</span>
                   <span className="data-value">
-                    {flatLead.heat_pump_consumption?.toLocaleString('fi-FI') || '0'} kWh/v
+                    {flatLead.heat_pump_consumption?.toLocaleString('fi-FI') ||
+                      '0'}{' '}
+                    kWh/v
                   </span>
                 </div>
                 <div className="data-item">
                   <span className="data-label">LP kustannus:</span>
                   <span className="data-value">
-                    {flatLead.heat_pump_cost_annual?.toLocaleString('fi-FI') || '0'}€/v
+                    {flatLead.heat_pump_cost_annual?.toLocaleString('fi-FI') ||
+                      '0'}
+                    €/v
                   </span>
                 </div>
                 <div className="data-item">
@@ -363,7 +373,8 @@ export const SalesNotificationTemplate = ({
                 <div className="data-item">
                   <span className="data-label">5v säästöt:</span>
                   <span className="data-value">
-                    {flatLead.five_year_savings?.toLocaleString('fi-FI') || '0'}€
+                    {flatLead.five_year_savings?.toLocaleString('fi-FI') || '0'}
+                    €
                   </span>
                 </div>
                 <div className="data-item">
@@ -381,7 +392,8 @@ export const SalesNotificationTemplate = ({
                 <div className="data-item">
                   <span className="data-label">CO2 säästö:</span>
                   <span className="data-value">
-                    {flatLead.co2_reduction?.toLocaleString('fi-FI') || '0'} kg/v
+                    {flatLead.co2_reduction?.toLocaleString('fi-FI') || '0'}{' '}
+                    kg/v
                   </span>
                 </div>
               </div>
@@ -389,7 +401,10 @@ export const SalesNotificationTemplate = ({
 
             {/* Action Buttons */}
             <div className="cta-buttons">
-              <a href={`tel:${flatLead.puhelinnumero}`} className="btn btn-primary">
+              <a
+                href={`tel:${flatLead.puhelinnumero}`}
+                className="btn btn-primary"
+              >
                 📞 Soita asiakkaalle
               </a>
               <a

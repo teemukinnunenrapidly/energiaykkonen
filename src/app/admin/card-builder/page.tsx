@@ -61,7 +61,8 @@ export default function CardBuilderPage() {
           visual_objects(*)
         `
         )
-        .order('display_order');
+        .order('display_order')
+        .order('display_order', { foreignTable: 'card_fields' });
 
       if (error) {
         console.error('Error loading cards:', error);
@@ -493,47 +494,20 @@ export default function CardBuilderPage() {
             // Existing field - add to update batch
             const { id, card_id, ...fieldData } = field;
 
-            // Check if field_name has changed
+            // Check if field_name has changed (for logging only)
             const originalField = originalFields[field.id];
             const oldFieldName = originalField?.field_name;
             const newFieldName = field.field_name;
 
             if (oldFieldName && newFieldName && oldFieldName !== newFieldName) {
-              // Track field name change for leads table sync
+              // Just log the field name change - no need to sync leads table
+              // since we're using JSONB form_data column
               console.log(
                 `🔄 Field name change detected: ${oldFieldName} → ${newFieldName}`
               );
-
-              // Sync leads table column
-              fetch('/api/admin/sync-lead-columns', {
-                method: 'POST',
-                headers: {
-                  'Content-Type': 'application/json',
-                  'X-Admin-Password':
-                    localStorage.getItem('adminPassword') || '',
-                },
-                body: JSON.stringify({
-                  oldFieldName,
-                  newFieldName,
-                }),
-              })
-                .then(res => res.json())
-                .then(result => {
-                  if (result.success) {
-                    console.log(
-                      `✅ Leads table column synced: ${oldFieldName} → ${newFieldName}`
-                    );
-                  } else if (result.warning) {
-                    console.warn(`⚠️ ${result.warning}`);
-                  } else if (result.error) {
-                    console.error(
-                      `❌ Failed to sync leads column: ${result.error}`
-                    );
-                  }
-                })
-                .catch(err => {
-                  console.error('Error syncing leads column:', err);
-                });
+              console.log(
+                `ℹ️ No leads table sync needed - using JSONB form_data column`
+              );
             }
 
             const completeFieldData = {

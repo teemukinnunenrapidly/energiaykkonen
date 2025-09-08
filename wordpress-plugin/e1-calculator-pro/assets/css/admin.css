@@ -1,0 +1,118 @@
+/**
+ * E1 Calculator Admin Styles
+ */
+
+/* Status indicators */
+.e1-calculator-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.e1-calculator-status .dashicons {
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+}
+
+/* Cards */
+.wrap .card {
+    max-width: 800px;
+    margin-top: 20px;
+}
+
+.wrap .card h2 {
+    margin-top: 0;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #e1e1e1;
+}
+
+.wrap .card h3 {
+    margin-top: 20px;
+}
+
+/* Form tables */
+.form-table th {
+    width: 200px;
+}
+
+.form-table input[type="url"],
+.form-table input[type="email"],
+.form-table input[type="password"] {
+    width: 100%;
+    max-width: 400px;
+}
+
+/* Action buttons */
+.wrap .button + .button {
+    margin-left: 5px;
+}
+
+.wrap .spinner {
+    float: none;
+    margin: 0 5px;
+}
+
+/* Result messages */
+#action-result {
+    margin-top: 10px;
+}
+
+#action-result .notice {
+    margin: 5px 0;
+}
+
+/* Code display */
+.wrap code {
+    display: inline-block;
+    padding: 8px 12px;
+    background: #f0f0f0;
+    border-radius: 4px;
+    font-family: 'Courier New', monospace;
+    font-size: 13px;
+}
+
+/* Cache info table */
+.cache-info-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.cache-info-table th,
+.cache-info-table td {
+    padding: 10px;
+    text-align: left;
+    border-bottom: 1px solid #e1e1e1;
+}
+
+.cache-info-table th {
+    background: #f9f9f9;
+    font-weight: 600;
+}
+
+/* Help sections */
+.help-section {
+    margin-bottom: 30px;
+}
+
+.help-section ol,
+.help-section ul {
+    margin-left: 20px;
+}
+
+.help-section li {
+    margin-bottom: 8px;
+}
+
+/* Responsive */
+@media screen and (max-width: 782px) {
+    .form-table th {
+        width: auto;
+        padding-bottom: 0;
+    }
+    
+    .wrap .card {
+        margin-left: 0;
+        margin-right: 0;
+    }
+}

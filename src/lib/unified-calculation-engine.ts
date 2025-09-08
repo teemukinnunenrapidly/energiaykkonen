@@ -481,6 +481,8 @@ export class UnifiedCalculationEngine {
   ): Promise<number> {
     let processedText = formulaText;
 
+    console.log(`📐 Processing formula: "${formulaText}" (depth: ${depth})`);
+
     // Handle [field:xxx] references
     const fieldReferences = formulaText.match(/\[field:([^\]]+)\]/g) || [];
     for (const fieldRef of fieldReferences) {
@@ -538,7 +540,9 @@ export class UnifiedCalculationEngine {
       );
 
       if (enhancedResult.success && enhancedResult.value !== undefined) {
-        return String(enhancedResult.value);
+        // Use numeric value if available for further calculations
+        // Otherwise use the formatted display value
+        return String(enhancedResult.numericValue ?? enhancedResult.value);
       }
 
       // If enhanced lookup doesn't have this lookup, fall back to legacy system
@@ -625,7 +629,14 @@ export class UnifiedCalculationEngine {
    * Safely evaluate mathematical expressions
    */
   private evaluateMathExpression(expression: string): number {
-    const cleanExpression = expression.replace(/\s/g, '');
+    // First, replace commas with dots for decimal numbers (Finnish locale)
+    let cleanExpression = expression.replace(/,/g, '.');
+    // Remove spaces
+    cleanExpression = cleanExpression.replace(/\s/g, '');
+
+    console.log(
+      `🧮 Evaluating math expression: "${expression}" -> "${cleanExpression}"`
+    );
 
     // Validate expression contains only safe characters
     if (!/^[0-9+\-*/().\s]+$/.test(cleanExpression)) {

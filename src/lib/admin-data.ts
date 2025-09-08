@@ -86,8 +86,9 @@ export async function getLeadsWithPagination(
     let totalCount = count || 0;
 
     // Get all matching leads first
-    const { data: allLeads, error: allError } = await dataQuery
-      .order(sortBy, { ascending: sortOrder === 'asc' });
+    const { data: allLeads, error: allError } = await dataQuery.order(sortBy, {
+      ascending: sortOrder === 'asc',
+    });
 
     if (allError) {
       throw new Error(`Error fetching leads: ${allError.message}`);

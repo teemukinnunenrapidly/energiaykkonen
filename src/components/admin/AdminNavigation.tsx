@@ -49,8 +49,8 @@ const primaryNavigation = [
 // Secondary navigation items (in dropdown)
 const secondaryNavigation = [
   {
-    name: 'PDF Shortcodes',
-    href: '/admin/pdf-shortcodes',
+    name: 'PDF Settings',
+    href: '/admin/pdf-settings',
     icon: FileCode,
     description: 'PDF Template Variables',
   },
@@ -59,12 +59,6 @@ const secondaryNavigation = [
     href: '/admin/visual-assets',
     icon: ImageIcon,
     description: 'Manage Images and Assets',
-  },
-  {
-    name: 'Email Builder',
-    href: '/admin/email-builder',
-    icon: Mail,
-    description: 'Template Editor',
   },
   {
     name: 'Preview',

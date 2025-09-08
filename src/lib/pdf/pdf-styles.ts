@@ -3,9 +3,10 @@ import { StyleSheet } from '@react-pdf/renderer';
 
 export const styles = StyleSheet.create({
   page: {
-    padding: '20mm',
+    padding: '12mm',  // Further reduced to save more space
+    paddingBottom: '10mm',  // Even less at bottom
     fontFamily: 'Helvetica',
-    fontSize: 11,
+    fontSize: 9,  // Further reduced for more space
     color: '#1f2937',
     backgroundColor: '#ffffff',
   },
@@ -15,11 +16,11 @@ export const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'flex-start',
-    paddingBottom: 15,
+    paddingBottom: 8,  // Further reduced
     borderBottomWidth: 2,
     borderBottomColor: '#10b981',
     borderBottomStyle: 'solid',
-    marginBottom: 30,
+    marginBottom: 15,  // Further reduced
   },
   headerLeft: {
     flex: 1,
@@ -45,10 +46,10 @@ export const styles = StyleSheet.create({
     lineHeight: 1.3,
   },
   documentTitle: {
-    fontSize: 20,
+    fontSize: 16,  // Further reduced
     color: '#1f2937',
     fontWeight: 'bold',
-    marginBottom: 5,
+    marginBottom: 2,  // Minimal margin
   },
   documentSubtitle: {
     fontSize: 10,
@@ -67,19 +68,19 @@ export const styles = StyleSheet.create({
   // CUSTOMER INFO SECTION
   customerSection: {
     backgroundColor: '#f9fafb',
-    padding: 15,
-    marginBottom: 25,
+    padding: 10,  // Further reduced
+    marginBottom: 15,  // Further reduced
     borderWidth: 1,
     borderColor: '#e5e7eb',
     borderStyle: 'solid',
     borderRadius: 4,
   },
   customerSectionTitle: {
-    fontSize: 11,
+    fontSize: 9,  // Further reduced
     fontWeight: 'bold',
     color: '#1f2937',
-    marginBottom: 12,
-    paddingBottom: 8,
+    marginBottom: 8,  // Further reduced
+    paddingBottom: 4,  // Further reduced
     borderBottomWidth: 1,
     borderBottomColor: '#e5e7eb',
     borderBottomStyle: 'solid',
@@ -93,15 +94,15 @@ export const styles = StyleSheet.create({
   },
   customerRow: {
     flexDirection: 'row',
-    marginBottom: 8,
+    marginBottom: 4,  // Further reduced
   },
   customerLabel: {
-    fontSize: 9,
+    fontSize: 8,  // Reduced
     color: '#6b7280',
-    width: 90,
+    width: 85,  // Slightly narrower
   },
   customerValue: {
-    fontSize: 9,
+    fontSize: 8,  // Reduced
     color: '#1f2937',
     fontWeight: 500,
     flex: 1,
@@ -109,28 +110,28 @@ export const styles = StyleSheet.create({
 
   // COMPARISON SECTION
   comparisonSection: {
-    marginBottom: 25,
+    marginBottom: 15,  // Further reduced
   },
   sectionTitle: {
-    fontSize: 12,
+    fontSize: 10,  // Further reduced
     fontWeight: 'bold',
     color: '#1f2937',
-    marginBottom: 15,
-    paddingBottom: 5,
+    marginBottom: 10,  // Further reduced
+    paddingBottom: 3,  // Further reduced
     borderBottomWidth: 1,
     borderBottomColor: '#e5e7eb',
     borderBottomStyle: 'solid',
   },
   twoColumns: {
     flexDirection: 'row',
-    gap: 20,
+    gap: 15,  // Reduced from 20
   },
   column: {
     flex: 1,
   },
   systemBox: {
     backgroundColor: '#ffffff',
-    padding: 15,
+    padding: 10,  // Further reduced
     borderWidth: 2,
     borderColor: '#e5e7eb',
     borderStyle: 'solid',
@@ -145,23 +146,23 @@ export const styles = StyleSheet.create({
     backgroundColor: '#ecfdf5',
   },
   systemTitle: {
-    fontSize: 11,
+    fontSize: 10,  // Reduced from 11
     fontWeight: 'bold',
     color: '#1f2937',
-    marginBottom: 3,
+    marginBottom: 2,  // Reduced from 3
     textAlign: 'center',
   },
   systemSubtitle: {
-    fontSize: 9,
+    fontSize: 8,  // Reduced from 9
     fontWeight: 'normal',
-    marginBottom: 15,
+    marginBottom: 10,  // Reduced from 15
     textAlign: 'center',
   },
   costSummary: {
     backgroundColor: '#ffffff',
-    padding: 10,
+    padding: 6,  // Further reduced
     borderRadius: 4,
-    marginBottom: 12,
+    marginBottom: 8,  // Further reduced
   },
   costHeader: {
     flexDirection: 'row',
@@ -208,13 +209,13 @@ export const styles = StyleSheet.create({
   costRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    paddingVertical: 6,
-    fontSize: 10,
+    paddingVertical: 4,  // Reduced from 6
+    fontSize: 9,  // Reduced from 10
   },
   costRowWithSavings: {
     flexDirection: 'row',
-    paddingVertical: 6,
-    fontSize: 10,
+    paddingVertical: 4,  // Reduced from 6
+    fontSize: 9,  // Reduced from 10
   },
   costRowHighlight: {
     backgroundColor: '#fafafa',
@@ -258,8 +259,8 @@ export const styles = StyleSheet.create({
     marginTop: 4,
   },
   systemDetails: {
-    marginTop: 12,
-    paddingTop: 12,
+    marginTop: 6,  // Further reduced
+    paddingTop: 6,  // Further reduced
     borderTopWidth: 1,
     borderTopColor: '#e5e7eb',
     borderTopStyle: 'solid',
@@ -267,8 +268,8 @@ export const styles = StyleSheet.create({
   detailRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    fontSize: 9,
-    paddingVertical: 4,
+    fontSize: 8,  // Reduced
+    paddingVertical: 3,  // Reduced
   },
   detailLabel: {
     color: '#6b7280',
@@ -289,12 +290,12 @@ export const styles = StyleSheet.create({
 
   // LIST ITEMS
   listContainer: {
-    marginBottom: 20,
+    marginBottom: 12,  // Further reduced
   },
   listItem: {
     flexDirection: 'row',
-    marginBottom: 6,
-    fontSize: 9,
+    marginBottom: 4,  // Reduced from 6
+    fontSize: 8,  // Reduced from 9
   },
   listIcon: {
     color: '#10b981',
@@ -304,44 +305,44 @@ export const styles = StyleSheet.create({
   listText: {
     flex: 1,
     color: '#4b5563',
-    lineHeight: 1.4,
-    fontSize: 9,
+    lineHeight: 1.3,  // Reduced from 1.4
+    fontSize: 8,  // Reduced from 9
   },
 
   // INFO BOX
   infoBox: {
     backgroundColor: '#f3f4f6',
-    borderLeftWidth: 4,
+    borderLeftWidth: 3,
     borderLeftColor: '#6b7280',
     borderLeftStyle: 'solid',
-    padding: 12,
-    marginBottom: 20,
+    padding: 8,  // Further reduced
+    marginBottom: 10,  // Further reduced
   },
   infoBoxTitle: {
-    fontSize: 10,
+    fontSize: 9,  // Reduced from 10
     fontWeight: 'bold',
     color: '#1f2937',
-    marginBottom: 5,
+    marginBottom: 3,  // Reduced from 5
   },
   infoBoxContent: {
-    fontSize: 9,
+    fontSize: 8,  // Reduced from 9
     color: '#4b5563',
-    lineHeight: 1.4,
+    lineHeight: 1.3,  // Reduced from 1.4
   },
 
   // FOOTER
   footer: {
     position: 'absolute',
-    bottom: '15mm',
-    left: '20mm',
-    right: '20mm',
-    paddingTop: 10,
+    bottom: '8mm',  // Further reduced
+    left: '12mm',  // Match page padding
+    right: '12mm',  // Match page padding
+    paddingTop: 6,  // Further reduced
     borderTopWidth: 1,
     borderTopColor: '#e5e7eb',
     borderTopStyle: 'solid',
     flexDirection: 'row',
     justifyContent: 'space-between',
-    fontSize: 8,
+    fontSize: 7,
     color: '#9ca3af',
   },
   footerLeft: {

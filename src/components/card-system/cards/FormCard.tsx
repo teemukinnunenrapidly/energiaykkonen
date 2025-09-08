@@ -109,8 +109,8 @@ export function FormCard({ card, onFieldFocus }: FormCardProps) {
       // Show success message
       setSubmitSuccess(true);
 
-      // Hide success message after 3 seconds
-      setTimeout(() => setSubmitSuccess(false), 3000);
+      // Keep success message visible - don't auto-hide
+      // setTimeout(() => setSubmitSuccess(false), 3000);
     } catch (error) {
       console.error('Submission failed:', error);
       // Could add error state here if needed
@@ -685,9 +685,11 @@ export function FormCard({ card, onFieldFocus }: FormCardProps) {
       </div>
 
       {/* Form Fields */}
-      {card.card_fields.map(field => (
-        <div key={field.field_name}>{renderField(field)}</div>
-      ))}
+      {card.card_fields
+        .sort((a, b) => (a.display_order || 0) - (b.display_order || 0))
+        .map(field => (
+          <div key={field.field_name}>{renderField(field)}</div>
+        ))}
 
       {/* Submit Button Section */}
       {card.config?.has_submit_button && (
