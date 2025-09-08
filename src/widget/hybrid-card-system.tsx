@@ -36,7 +36,7 @@ interface VisualObject {
 }
 
 interface FormData {
-  [key: string]: string | number;
+  [key: string]: string | number | boolean;
 }
 
 // API data fetching functions
