@@ -295,7 +295,7 @@ const VisualSupportPanel: React.FC<{
 const ProgressiveCard: React.FC<{
   card: CardData;
   formData: FormData;
-  onFieldChange: (name: string, value: string | number) => void;
+  onFieldChange: (name: string, value: string | number | boolean) => void;
   onCardComplete: (cardId: string) => void;
 }> = ({ card, formData, onFieldChange, onCardComplete }) => {
   const [isExpanded, setIsExpanded] = useState(card.isUnlocked);
@@ -619,7 +619,7 @@ const HybridCardSystem: React.FC = () => {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  const handleFieldChange = (name: string, value: string | number) => {
+  const handleFieldChange = (name: string, value: string | number | boolean) => {
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
