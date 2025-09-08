@@ -345,7 +345,7 @@ const ProgressiveCard: React.FC<{
             <input
               type="text"
               className="field-input"
-              value={formData[field.name] || ''}
+              value={String(formData[field.name] || '')}
               onChange={(e) => onFieldChange(field.name, e.target.value)}
               placeholder={field.placeholder}
               required={field.required}
@@ -356,7 +356,7 @@ const ProgressiveCard: React.FC<{
             <input
               type="number"
               className="field-input"
-              value={formData[field.name] || ''}
+              value={String(formData[field.name] || '')}
               onChange={(e) => onFieldChange(field.name, parseFloat(e.target.value) || 0)}
               placeholder={field.placeholder}
               min={field.min}
@@ -368,7 +368,7 @@ const ProgressiveCard: React.FC<{
           {field.type === 'select' && (
             <select
               className="field-input"
-              value={formData[field.name] || ''}
+              value={String(formData[field.name] || '')}
               onChange={(e) => onFieldChange(field.name, e.target.value)}
               required={field.required}
             >
@@ -389,7 +389,7 @@ const ProgressiveCard: React.FC<{
                     type="radio"
                     name={field.name}
                     value={option.value}
-                    checked={formData[field.name] === option.value}
+                    checked={String(formData[field.name]) === option.value}
                     onChange={(e) => onFieldChange(field.name, e.target.value)}
                     required={field.required}
                   />
