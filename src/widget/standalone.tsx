@@ -219,4 +219,10 @@ if (typeof window !== 'undefined') {
   }
 }
 
+// Export for webpack UMD
+export default {
+  init: initE1Widget,
+  version: '2.1.0',
+};
+
 export { initE1Widget };

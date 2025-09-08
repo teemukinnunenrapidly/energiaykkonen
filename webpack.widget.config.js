@@ -10,8 +10,11 @@ module.exports = {
   output: {
     path: path.resolve(__dirname, 'dist'),
     filename: 'widget.min.js',
-    library: 'E1Widget',
-    libraryTarget: 'umd',
+    library: {
+      name: 'E1Widget',
+      type: 'umd',
+      export: 'default',
+    },
     globalObject: 'this',
     clean: true,
   },

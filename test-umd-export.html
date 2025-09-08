@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test UMD Export</title>
+    <link rel="stylesheet" href="dist/widget.min.css">
+</head>
+<body>
+    <h1>Test UMD Export</h1>
+    <div id="test-widget"></div>
+    
+    <script src="dist/widget.min.js"></script>
+    <script>
+        console.log('E1Widget available:', typeof E1Widget);
+        console.log('E1Widget.init available:', typeof E1Widget?.init);
+        
+        if (E1Widget && typeof E1Widget.init === 'function') {
+            console.log('Initializing widget...');
+            E1Widget.init('test-widget');
+        } else {
+            console.error('E1Widget.init is not available');
+        }
+    </script>
+</body>
+</html>
