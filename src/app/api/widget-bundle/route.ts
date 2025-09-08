@@ -72,11 +72,12 @@ async function fetchCardData() {
       .from('card_templates')
       .select(`
         id,
+        name,
         title,
-        description,
         type,
-        sort_order,
+        display_order,
         visual_object_id,
+        config,
         is_active,
         card_fields (
           id,
@@ -88,11 +89,11 @@ async function fetchCardData() {
           min_value,
           max_value,
           options,
-          sort_order
+          display_order
         )
       `)
       .eq('is_active', true)
-      .order('sort_order');
+      .order('display_order');
 
     if (cardsError) throw cardsError;
 
@@ -363,12 +364,13 @@ async function buildWidgetBundle() {
     // Transform card data to widget format
     const transformedCards = cards.map((card: any, index: number) => ({
       id: card.id,
+      name: card.name,
       title: card.title,
-      description: card.description,
       type: card.type,
       visual_object_id: card.visual_object_id,
+      config: card.config,
       fields: (card.card_fields || [])
-        .sort((a: any, b: any) => a.sort_order - b.sort_order)
+        .sort((a: any, b: any) => a.display_order - b.display_order)
         .map((field: any) => ({
           id: field.id,
           name: field.name,
@@ -378,7 +380,7 @@ async function buildWidgetBundle() {
           required: field.required,
           min: field.min_value,
           max: field.max_value,
-          options: field.options ? JSON.parse(field.options) : undefined,
+          options: field.options ? (typeof field.options === 'string' ? JSON.parse(field.options) : field.options) : undefined,
         })),
     }));
 
