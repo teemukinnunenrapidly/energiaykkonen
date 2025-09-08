@@ -9,6 +9,7 @@ import './widget-styles.css';
 interface WidgetConfig {
   supabaseUrl?: string;
   supabaseAnonKey?: string;
+  cloudflareAccountHash?: string;
   theme?: string;
   maxWidth?: string | number;
   maxHeight?: string | number;
@@ -16,6 +17,7 @@ interface WidgetConfig {
   showVisualSupport?: boolean;
   showBlurredCards?: boolean;
   customTokens?: any; // Allow overriding design tokens
+  progressiveImageLoading?: boolean;
 }
 
 // Global widget instance
@@ -185,6 +187,13 @@ const E1CalculatorWidget: React.FC<{ config: WidgetConfig }> = ({ config }) => {
     // Apply design tokens first
     applyDesignTokens(designTokens.cardStreamConfig, config.customTokens);
     
+    // Store Cloudflare account hash globally for image loading
+    if (config.cloudflareAccountHash) {
+      (window as any).__E1_CLOUDFLARE_HASH = config.cloudflareAccountHash;
+      // Also set as env variable for compatibility
+      process.env.NEXT_PUBLIC_CLOUDFLARE_ACCOUNT_HASH = config.cloudflareAccountHash;
+    }
+    
     // Initialize Supabase and other dependencies
     const supabase = initSupabase(config);
     
@@ -292,6 +301,9 @@ if (typeof window !== 'undefined') {
       }
       if (container.getAttribute('data-supabase-key')) {
         config.supabaseAnonKey = container.getAttribute('data-supabase-key') || undefined;
+      }
+      if (container.getAttribute('data-cloudflare-hash')) {
+        config.cloudflareAccountHash = container.getAttribute('data-cloudflare-hash') || undefined;
       }
       if (container.getAttribute('data-theme')) {
         config.theme = container.getAttribute('data-theme') || undefined;

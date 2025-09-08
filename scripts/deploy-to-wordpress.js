@@ -45,12 +45,20 @@ const configPath = path.join(CACHE_DIR, 'config.json');
 const config = {
   version: '1.0.0',
   name: 'E1Calculator',
-  supabaseUrl: process.env.NEXT_PUBLIC_SUPABASE_URL || '',
-  supabaseAnonKey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '',
+  supabaseUrl: 'https://xfqmllsvdxejloecwlaq.supabase.co',
+  supabaseAnonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhmcW1sbHN2ZHhlamxvZWN3bGFxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTYwNTE1NjAsImV4cCI6MjA3MTYyNzU2MH0.ZE4YOoVjqs4fGQs4gA3CJoQ4nEzfRqK4K2MO_bERGvM',
+  cloudflareAccountHash: 'AkEHl6uYQM8NNRufIXHzFw',
   features: {
     visualSupport: true,
     blurredCards: false,
-    animations: true
+    animations: true,
+    progressiveImageLoading: true
+  },
+  // Cards and visual objects will be fetched dynamically
+  // But we can include image IDs for preloading if needed
+  visualAssets: {
+    defaultVariant: 'public',
+    variants: ['public', 'thumbnail', 'avatar', 'cover']
   }
 };
 

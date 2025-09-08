@@ -20,6 +20,7 @@ export function VisualSupport({
   const styles = useCardStyles();
   const [visualImages, setVisualImages] = useState<any[]>([]);
   const [loadingImages, setLoadingImages] = useState(false);
+  const [imageLoadStarted, setImageLoadStarted] = useState(false);
 
   // Get the visual object from activeCard or visualConfig
   const visualObject = visualConfig || activeCard?.visual_objects;
@@ -33,17 +34,23 @@ export function VisualSupport({
     visualObjectTitle: visualObject?.title,
   });
 
-  // Fetch visual object images when visual object changes
+  // Progressive loading: Only fetch images when card becomes active
   useEffect(() => {
     const fetchVisualImages = async () => {
-      if (!visualObject?.id) {
-        setVisualImages([]);
+      // Only fetch if we have a visual object and haven't started loading yet
+      if (!visualObject?.id || imageLoadStarted) {
+        if (!visualObject?.id) {
+          setVisualImages([]);
+          setImageLoadStarted(false);
+        }
         return;
       }
 
       setLoadingImages(true);
+      setImageLoadStarted(true);
+      
       try {
-        console.log('🖼️ Fetching images for visual object:', visualObject.id);
+        console.log('🎯 Progressive loading: Fetching images for visual object:', visualObject.id);
         const { data: images, error } = await supabase
           .from('visual_object_images')
           .select('*')
@@ -54,7 +61,7 @@ export function VisualSupport({
           console.error('❌ Error fetching visual images:', error);
           setVisualImages([]);
         } else {
-          console.log('✅ Loaded visual images:', images?.length || 0);
+          console.log('✅ Progressive load complete: Loaded', images?.length || 0, 'images');
           setVisualImages(images || []);
         }
       } catch (error) {
@@ -65,15 +72,23 @@ export function VisualSupport({
       }
     };
 
-    fetchVisualImages();
-  }, [visualObject?.id]);
+    // Only fetch when activeCard changes and has visual objects
+    if (activeCard && visualObject?.id) {
+      fetchVisualImages();
+    }
+  }, [visualObject?.id, activeCard?.id, imageLoadStarted]);
 
   // Helper function to generate Cloudflare image URL
   const getCloudflareImageUrl = (
     cloudflareImageId: string,
     variant: string = 'public'
   ) => {
-    const accountHash = process.env.NEXT_PUBLIC_CLOUDFLARE_ACCOUNT_HASH;
+    // Check for Cloudflare hash from multiple sources (for standalone widget compatibility)
+    const accountHash = 
+      process.env.NEXT_PUBLIC_CLOUDFLARE_ACCOUNT_HASH ||
+      (typeof window !== 'undefined' && (window as any).__E1_CLOUDFLARE_HASH) ||
+      null;
+      
     console.log('🔧 Cloudflare config:', {
       accountHash: accountHash
         ? `${accountHash.substring(0, 8)}...`
@@ -83,7 +98,7 @@ export function VisualSupport({
     });
 
     if (!accountHash) {
-      console.error('❌ Missing NEXT_PUBLIC_CLOUDFLARE_ACCOUNT_HASH');
+      console.error('❌ Missing NEXT_PUBLIC_CLOUDFLARE_ACCOUNT_HASH or __E1_CLOUDFLARE_HASH');
       return null;
     }
     const url = `https://imagedelivery.net/${accountHash}/${cloudflareImageId}/${variant}`;
@@ -151,7 +166,7 @@ export function VisualSupport({
                   left: 0,
                   right: 0,
                   bottom: 0,
-                  backgroundImage: `url(${imageUrl})`,
+                  backgroundImage: activeCard ? `url(${imageUrl})` : 'none', // Only load when card is active
                   backgroundSize: 'cover',
                   backgroundPosition: 'center',
                   opacity: 0.3, // Semi-transparent background
@@ -247,6 +262,7 @@ export function VisualSupport({
                   key={image.id}
                   src={imageUrl}
                   alt={content.title || 'Visual content'}
+                  loading="lazy" // Enable browser lazy loading
                   style={{
                     width: '100%',
                     height: '100%',

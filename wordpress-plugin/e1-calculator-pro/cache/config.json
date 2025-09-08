@@ -3,9 +3,20 @@
   "name": "E1Calculator",
   "supabaseUrl": "https://xfqmllsvdxejloecwlaq.supabase.co",
   "supabaseAnonKey": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhmcW1sbHN2ZHhlamxvZWN3bGFxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTYwNTE1NjAsImV4cCI6MjA3MTYyNzU2MH0.ZE4YOoVjqs4fGQs4gA3CJoQ4nEzfRqK4K2MO_bERGvM",
+  "cloudflareAccountHash": "AkEHl6uYQM8NNRufIXHzFw",
   "features": {
     "visualSupport": true,
     "blurredCards": false,
-    "animations": true
+    "animations": true,
+    "progressiveImageLoading": true
+  },
+  "visualAssets": {
+    "defaultVariant": "public",
+    "variants": [
+      "public",
+      "thumbnail",
+      "avatar",
+      "cover"
+    ]
   }
 }
