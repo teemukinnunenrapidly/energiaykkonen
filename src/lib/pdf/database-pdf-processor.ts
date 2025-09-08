@@ -190,13 +190,13 @@ export class DatabasePDFProcessor {
         return `${year}-${idPart}`;
 
       case 'translate_heating_type':
-        return this.translateHeatingType(this.lead.lammitysmuoto || '');
+        return this.translateHeatingType(this.lead.form_data?.lammitysmuoto || '');
 
       case 'efficiency_rating':
         return this.calculateEfficiencyRating();
 
       case 'full_name':
-        return `${this.lead.first_name || ''} ${this.lead.last_name || ''}`.trim();
+        return this.lead.nimi || '';
 
       case 'full_address':
         const parts = [this.lead.osoite, this.lead.paikkakunta].filter(Boolean);
@@ -327,8 +327,8 @@ export class DatabasePDFProcessor {
    * Calculate efficiency rating based on savings
    */
   private calculateEfficiencyRating(): string {
-    const savingsPercentage = this.lead.vesikiertoinen
-      ? (this.lead.annual_savings / this.lead.vesikiertoinen) * 100
+    const savingsPercentage = this.lead.form_data?.vesikiertoinen
+      ? ((this.lead.calculation_results?.annual_savings || 0) / this.lead.form_data.vesikiertoinen) * 100
       : 0;
 
     if (savingsPercentage >= 70) {

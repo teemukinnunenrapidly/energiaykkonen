@@ -13,16 +13,12 @@ export function ShortcodePreview({ shortcode }: { shortcode?: PDFShortcode }) {
   // Käytä mock lead-dataa esikatseluun
   const mockLead: Lead = {
     id: 'preview-123',
-    first_name: 'Matti',
-    last_name: 'Meikäläinen',
+    nimi: 'Matti Meikäläinen',
     sahkoposti: 'matti@example.com',
     puhelinnumero: '040 123 4567',
     status: 'new',
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
-    annual_savings: 1625,
-    five_year_savings: 8125,
-    ten_year_savings: 16250,
     form_data: {
       osoite: 'Esimerkkikatu 123',
       paikkakunta: 'Helsinki',
@@ -41,6 +37,11 @@ export function ShortcodePreview({ shortcode }: { shortcode?: PDFShortcode }) {
       heat_pump_cost_annual: 975,
       payback_period: 9.2,
       co2_reduction: 5320,
+    },
+    calculation_results: {
+      annual_savings: 1625,
+      five_year_savings: 8125,
+      ten_year_savings: 16250,
     },
   };
 

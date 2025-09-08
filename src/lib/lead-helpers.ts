@@ -8,7 +8,7 @@ import { Lead, LeadFormData } from './supabase';
  * Extract and flatten lead data from JSONB structure
  * This provides backward compatibility for components expecting the old structure
  */
-export function flattenLeadData(lead: Lead): Lead {
+export function flattenLeadData(lead: Lead): any {
   if (!lead.form_data) {
     return lead;
   }
@@ -17,44 +17,45 @@ export function flattenLeadData(lead: Lead): Lead {
   return {
     ...lead,
     // Property details
-    neliot: lead.form_data.neliot || lead.neliot,
-    huonekorkeus: lead.form_data.huonekorkeus || lead.huonekorkeus,
-    rakennusvuosi: lead.form_data.rakennusvuosi || lead.rakennusvuosi,
-    floors: lead.form_data.floors || lead.floors,
-    henkilomaara: lead.form_data.henkilomaara || lead.henkilomaara,
-    hot_water_usage: lead.form_data.hot_water_usage || lead.hot_water_usage,
+    neliot: lead.form_data?.neliot,
+    huonekorkeus: lead.form_data?.huonekorkeus,
+    rakennusvuosi: lead.form_data?.rakennusvuosi,
+    floors: lead.form_data?.floors,
+    henkilomaara: lead.form_data?.henkilomaara,
+    hot_water_usage: lead.form_data?.hot_water_usage,
 
-    // Address
-    osoite: lead.form_data.osoite || lead.osoite,
-    paikkakunta: lead.form_data.paikkakunta || lead.paikkakunta,
+    // Address (also check top-level fields since they exist in Lead interface)
+    osoite: lead.osoite || lead.form_data?.osoite,
+    paikkakunta: lead.paikkakunta || lead.form_data?.paikkakunta,
 
     // Heating
-    lammitysmuoto: lead.form_data.lammitysmuoto || lead.lammitysmuoto,
-    vesikiertoinen: lead.form_data.vesikiertoinen || lead.vesikiertoinen,
-    current_energy_consumption:
-      lead.form_data.current_energy_consumption ||
-      lead.current_energy_consumption,
+    lammitysmuoto: lead.form_data?.lammitysmuoto,
+    vesikiertoinen: lead.form_data?.vesikiertoinen,
+    current_energy_consumption: lead.form_data?.current_energy_consumption,
 
-    // Calculations
+    // Calculations (check both form_data and calculation_results)
     annual_energy_need:
-      lead.form_data.annual_energy_need || lead.annual_energy_need,
+      lead.form_data?.annual_energy_need || lead.calculation_results?.annual_energy_need,
     heat_pump_consumption:
-      lead.form_data.heat_pump_consumption || lead.heat_pump_consumption,
+      lead.form_data?.heat_pump_consumption || lead.calculation_results?.heat_pump_consumption,
     heat_pump_cost_annual:
-      lead.form_data.heat_pump_cost_annual || lead.heat_pump_cost_annual,
-    payback_period: lead.form_data.payback_period || lead.payback_period,
-    co2_reduction: lead.form_data.co2_reduction || lead.co2_reduction,
+      lead.form_data?.heat_pump_cost_annual || lead.calculation_results?.heat_pump_cost_annual,
+    annual_savings: lead.calculation_results?.annual_savings,
+    five_year_savings: lead.calculation_results?.five_year_savings,
+    ten_year_savings: lead.calculation_results?.ten_year_savings,
+    payback_period: lead.form_data?.payback_period || lead.calculation_results?.payback_period,
+    co2_reduction: lead.form_data?.co2_reduction || lead.calculation_results?.co2_reduction,
 
     // Preferences
-    valittutukimuoto: lead.form_data.valittutukimuoto || lead.valittutukimuoto,
-    message: lead.form_data.message || lead.message,
+    valittutukimuoto: lead.form_data?.valittutukimuoto,
+    message: lead.form_data?.message,
   };
 }
 
 /**
  * Flatten an array of leads
  */
-export function flattenLeadsData(leads: Lead[]): Lead[] {
+export function flattenLeadsData(leads: Lead[]): any[] {
   return leads.map(flattenLeadData);
 }
 

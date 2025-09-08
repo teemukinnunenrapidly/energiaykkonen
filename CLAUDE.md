@@ -80,7 +80,6 @@ Located at `/src/app/admin/`, protected by authentication:
 - **Card Builder** - Drag-drop interface for building forms
 - **Visual Assets** - Media library with Cloudflare Images integration
 - **Calculations** - Formula editor with live testing
-- **Email Builder** - Template creation with shortcodes
 - **Analytics** - Lead tracking and conversion metrics
 
 ## Key Technical Decisions

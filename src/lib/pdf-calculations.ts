@@ -124,7 +124,7 @@ async function calculateStandardMetrics(
   engine: any
 ): Promise<CalculationResults> {
   // Use PDF-specific calculations
-  const calculatedMetrics = generatePDFCalculations(formData);
+  const calculatedMetrics = generatePDFCalculations(formData) as any;
 
   // Also get values from database formulas/lookups for additional data
   const results: CalculationResults = {};
@@ -212,7 +212,7 @@ function getDefaultCalculations(
   formData: Record<string, any>
 ): CalculationResults {
   // Use PDF-specific calculations to ensure consistent results
-  const pdfMetrics = generatePDFCalculations(formData);
+  const pdfMetrics = generatePDFCalculations(formData) as any;
   
   // Return calculated values with fallback to form_data if available
   return {

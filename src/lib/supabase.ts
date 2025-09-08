@@ -83,6 +83,9 @@ export interface Lead {
   paikkakunta?: string;
   osoite?: string;
   status: 'new' | 'contacted' | 'qualified' | 'converted';
+  
+  // Optional admin notes
+  notes?: string;
 
   // JSONB field containing ALL form inputs and inline calculations
   form_data?: LeadFormData;
@@ -92,6 +95,11 @@ export interface Lead {
 
   // JSONB field containing calculated values for PDF generation
   calculation_results?: CalculationResults;
+  
+  // Tracking fields
+  ip_address?: string;
+  user_agent?: string;
+  source_page?: string;
 }
 
 // Helper function to insert a new lead

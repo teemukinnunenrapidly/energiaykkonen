@@ -6,7 +6,7 @@ import { flattenLeadData, getLeadValue } from '@/lib/lead-helpers';
  */
 export function calculateLeadScore(lead: Lead): 'high' | 'medium' | 'low' {
   // Flatten lead data to access JSONB fields
-  const flatLead = flattenLeadData(lead);
+  const flatLead = flattenLeadData(lead) as any;
   let score = 0;
 
   // Annual savings weight (40%)
@@ -78,8 +78,8 @@ export const emailSubjects = {
   customer: () => `Your Heat Pump Savings Calculation - Energiaykkönen`,
 
   sales: (lead: Lead) => {
-    const flatLead = flattenLeadData(lead);
-    return `New Lead: ${flatLead.first_name} ${flatLead.last_name} - ${flatLead.paikkakunta || 'Ei kaupunkia'} - Savings: ${flatLead.annual_savings?.toLocaleString('fi-FI') || '0'}€/year`;
+    const flatLead = flattenLeadData(lead) as any;
+    return `New Lead: ${flatLead.nimi} - ${flatLead.paikkakunta || 'Ei kaupunkia'} - Savings: ${flatLead.annual_savings?.toLocaleString('fi-FI') || '0'}€/year`;
   },
 };
 

@@ -96,7 +96,7 @@ export async function processPDFDataLegacy(
   calculations?: Record<string, any>
 ): Promise<Record<string, any>> {
   // Convert old format to Lead format
-  const lead: Lead = {
+  const lead: any = {
     id: formData.id || `temp-${Date.now()}`,
 
     // Form inputs

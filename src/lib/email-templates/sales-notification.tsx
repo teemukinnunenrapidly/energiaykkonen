@@ -14,14 +14,14 @@ export const SalesNotificationTemplate = ({
   adminUrl,
 }: SalesEmailData) => {
   // Flatten lead data to access JSONB fields
-  const flatLead = flattenLeadData(lead);
+  const flatLead = flattenLeadData(lead) as any;
   return (
     <html>
       <head>
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <meta httpEquiv="Content-Type" content="text/html; charset=UTF-8" />
         <title>
-          New Lead: {flatLead.first_name} {flatLead.last_name} -{' '}
+          New Lead: {flatLead.nimi} -{' '}
           {flatLead.paikkakunta} - Savings:{' '}
           {flatLead.annual_savings?.toLocaleString('fi-FI') || '0'}€/year
         </title>
@@ -201,7 +201,7 @@ export const SalesNotificationTemplate = ({
               </span>
             </h1>
             <p style={{ margin: '8px 0 0 0', opacity: '0.9' }}>
-              {flatLead.first_name} {flatLead.last_name} -{' '}
+              {flatLead.nimi} -{' '}
               {flatLead.paikkakunta || 'Ei kaupunkia'} - Säästöt:{' '}
               {flatLead.annual_savings?.toLocaleString('fi-FI') || '0'}€/vuosi
             </p>
@@ -232,7 +232,7 @@ export const SalesNotificationTemplate = ({
                 <div className="data-item">
                   <span className="data-label">Nimi:</span>
                   <span className="data-value">
-                    {flatLead.first_name} {flatLead.last_name}
+                    {flatLead.nimi}
                   </span>
                 </div>
                 <div className="data-item">
@@ -457,7 +457,7 @@ export const SalesNotificationTemplate = ({
 export const generateSalesEmailHtml = (data: SalesEmailData): string => {
   const { lead, leadScore, adminUrl } = data;
   // Flatten lead data to access JSONB fields
-  const flatLead = flattenLeadData(lead);
+  const flatLead = flattenLeadData(lead) as any;
 
   const scoreClass = `score-${leadScore}`;
   const priorityAlert =
@@ -471,7 +471,7 @@ export const generateSalesEmailHtml = (data: SalesEmailData): string => {
       <head>
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-        <title>New Lead: ${flatLead.first_name} ${flatLead.last_name} - ${flatLead.paikkakunta || 'Ei kaupunkia'} - Savings: ${flatLead.annual_savings?.toLocaleString('fi-FI') || '0'}€/year</title>
+        <title>New Lead: ${flatLead.nimi} - ${flatLead.paikkakunta || 'Ei kaupunkia'} - Savings: ${flatLead.annual_savings?.toLocaleString('fi-FI') || '0'}€/year</title>
         <style>
           body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
@@ -562,7 +562,7 @@ export const generateSalesEmailHtml = (data: SalesEmailData): string => {
               <span class="lead-score ${scoreClass}">${leadScore.toUpperCase()} PRIORITY</span>
             </h1>
             <p style="margin: 8px 0 0 0; opacity: 0.9;">
-              ${flatLead.first_name} ${flatLead.last_name} - ${flatLead.paikkakunta || 'Ei kaupunkia'} - Säästöt: ${flatLead.annual_savings?.toLocaleString('fi-FI') || '0'}€/vuosi
+              ${flatLead.nimi} - ${flatLead.paikkakunta || 'Ei kaupunkia'} - Säästöt: ${flatLead.annual_savings?.toLocaleString('fi-FI') || '0'}€/vuosi
             </p>
           </div>
           
@@ -577,7 +577,7 @@ export const generateSalesEmailHtml = (data: SalesEmailData): string => {
             <div class="section">
               <h3 style="margin: 0 0 12px 0; font-size: 16px; color: #1f2937;">📞 Yhteystiedot</h3>
               <div class="data-grid">
-                <div><strong>Nimi:</strong> ${flatLead.first_name} ${flatLead.last_name}</div>
+                <div><strong>Nimi:</strong> ${flatLead.nimi}</div>
                 <div><strong>Sähköposti:</strong> <a href="mailto:${flatLead.sahkoposti}" style="color: #22c55e;">${flatLead.sahkoposti}</a></div>
                 <div><strong>Puhelin:</strong> <a href="tel:${flatLead.puhelinnumero}" style="color: #22c55e;">${flatLead.puhelinnumero}</a></div>
                 <div><strong>Yhteydenotto:</strong> ${flatLead.valittutukimuoto}</div>

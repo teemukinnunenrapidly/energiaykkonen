@@ -18,10 +18,6 @@ import {
   type VisualObjectWithDetails,
   getSafeImageUrl,
 } from '@/lib/visual-assets-service';
-import {
-  getEmailTemplates,
-  type EmailTemplate,
-} from '@/lib/email-templates-service';
 
 // Validation function for reveal conditions - preserved for future use
 // const validateRevealConditions = (
@@ -150,8 +146,6 @@ export function CardEditor({
   const [loadingVisualObjects, setLoadingVisualObjects] = useState(false);
   const [linkedVisualObject, setLinkedVisualObject] =
     useState<VisualObjectWithDetails | null>(null);
-  const [emailTemplates, setEmailTemplates] = useState<EmailTemplate[]>([]);
-  const [loadingTemplates, setLoadingTemplates] = useState(false);
   const fields = card.card_fields || [];
 
   // Load visual objects for linking
@@ -170,24 +164,6 @@ export function CardEditor({
 
     loadVisualObjects();
   }, []);
-
-  // Load email templates when submit button is enabled
-  useEffect(() => {
-    const loadEmailTemplates = async () => {
-      if (card.config?.has_submit_button || card.type === 'submit') {
-        setLoadingTemplates(true);
-        try {
-          const templates = await getEmailTemplates();
-          setEmailTemplates(templates);
-        } catch (error) {
-          console.error('Error loading email templates:', error);
-        } finally {
-          setLoadingTemplates(false);
-        }
-      }
-    };
-    loadEmailTemplates();
-  }, [card.config?.has_submit_button, card.type]);
 
   // Load linked visual object details when card changes
   useEffect(() => {
@@ -623,39 +599,6 @@ export function CardEditor({
                 </p>
               </div>
 
-              <div>
-                <label className="block text-sm font-medium mb-1">
-                  Email Template
-                </label>
-                {loadingTemplates ? (
-                  <div className="w-full p-2 border rounded bg-gray-50 text-gray-500">
-                    Loading templates...
-                  </div>
-                ) : (
-                  <select
-                    value={card.config?.submit_email_template || ''}
-                    onChange={e =>
-                      onUpdateCard({
-                        config: {
-                          ...card.config,
-                          submit_email_template: e.target.value,
-                        },
-                      })
-                    }
-                    className="w-full p-2 border rounded"
-                  >
-                    <option value="">No email</option>
-                    {emailTemplates.map(template => (
-                      <option key={template.id} value={template.id}>
-                        {template.name} ({template.category})
-                      </option>
-                    ))}
-                  </select>
-                )}
-                <p className="text-xs text-gray-500 mt-1">
-                  Email template to send when form is submitted
-                </p>
-              </div>
             </div>
           )}
         </div>

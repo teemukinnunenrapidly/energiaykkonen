@@ -9,7 +9,6 @@ import {
   CustomerEmailData,
   SalesEmailData,
 } from './email-templates';
-import { getEmailTemplatesByCategory } from './email-templates-service';
 import { UnifiedCalculationEngine } from './unified-calculation-engine';
 import { flattenLeadData } from './lead-helpers';
 
@@ -22,122 +21,32 @@ export async function sendCustomerResultsEmail(
 ) {
   try {
     // Flatten lead data to access JSONB fields
-    const flatLead = flattenLeadData(lead);
+    const flatLead = flattenLeadData(lead) as any;
     console.log(`Sending customer results email to ${flatLead.sahkoposti}`);
 
-    // Try to fetch template from database first
+    // Use hardcoded template
     let html: string;
     let subject: string = emailSubjects.customer();
 
-    try {
-      // Fetch customer results template from database
-      const templates = await getEmailTemplatesByCategory('results');
-
-      if (templates && templates.length > 0) {
-        // Use the first active template
-        const template = templates[0];
-
-        // Prepare data for shortcode processing
-        const templateData = {
-          // Lead data
-          first_name: flatLead.first_name,
-          last_name: flatLead.last_name,
-          sahkoposti: flatLead.sahkoposti,
-          puhelinnumero: flatLead.puhelinnumero,
-          osoite: flatLead.osoite,
-          paikkakunta: flatLead.paikkakunta,
-
-          // House data
-          neliot: flatLead.neliot,
-          huonekorkeus: flatLead.huonekorkeus,
-          rakennusvuosi: flatLead.rakennusvuosi,
-          floors: flatLead.floors,
-          lammitysmuoto: flatLead.lammitysmuoto,
-          vesikiertoinen: flatLead.vesikiertoinen,
-          current_energy_consumption: flatLead.current_energy_consumption,
-          henkilomaara: flatLead.henkilomaara,
-          hot_water_usage: flatLead.hot_water_usage,
-
-          // Calculations
-          annual_energy_need: flatLead.annual_energy_need,
-          heat_pump_consumption: flatLead.heat_pump_consumption,
-          heat_pump_cost_annual: flatLead.heat_pump_cost_annual,
-          annual_savings: flatLead.annual_savings,
-          five_year_savings: flatLead.five_year_savings,
-          ten_year_savings: flatLead.ten_year_savings,
-          payback_period: flatLead.payback_period,
-          co2_reduction: flatLead.co2_reduction,
-
-          // Add PDF attachment note if PDF is attached
-          pdf_attachment_note: pdfAttachment
-            ? '<p style="background-color: #f0f9ff; padding: 12px; border-radius: 6px; margin: 16px 0;">📎 <strong>Liite:</strong> Yksityiskohtainen säästöraportti PDF-muodossa on liitteenä tässä sähköpostissa.</p>'
-            : '',
-        };
-
-        // Process shortcodes in template
-        const engine = new UnifiedCalculationEngine(
-          supabase,
-          `email-${Date.now()}`,
-          templateData
-        );
-
-        // Process subject
-        const subjectResult = await engine.process(template.subject);
-        subject =
-          subjectResult.success && subjectResult.result
-            ? subjectResult.result
-            : template.subject;
-
-        // Process content
-        const contentResult = await engine.process(template.content);
-        html =
-          contentResult.success && contentResult.result
-            ? contentResult.result
-            : template.content;
-
-        console.log('✅ Using database template for customer email');
-      } else {
-        // Fall back to hardcoded template
-        console.log('⚠️ No database template found, using hardcoded template');
-        const emailData: CustomerEmailData = {
-          firstName: flatLead.first_name,
-          lastName: flatLead.last_name,
-          calculations: {
-            annualSavings: flatLead.annual_savings || 0,
-            fiveYearSavings: flatLead.five_year_savings || 0,
-            tenYearSavings: flatLead.ten_year_savings || 0,
-            paybackPeriod: flatLead.payback_period || 0,
-            co2Reduction: flatLead.co2_reduction || 0,
-          },
-          houseInfo: {
-            squareMeters: flatLead.neliot || 0,
-            heatingType: flatLead.lammitysmuoto || '',
-          },
-        };
-        html = generateCustomerEmailHtml(emailData);
-      }
-    } catch (templateError) {
-      // If database fetch fails, fall back to hardcoded template
-      console.error('Failed to fetch database template:', templateError);
-      console.log('⚠️ Falling back to hardcoded template');
-
-      const emailData: CustomerEmailData = {
-        firstName: flatLead.first_name,
-        lastName: flatLead.last_name,
-        calculations: {
-          annualSavings: flatLead.annual_savings || 0,
-          fiveYearSavings: flatLead.five_year_savings || 0,
-          tenYearSavings: flatLead.ten_year_savings || 0,
-          paybackPeriod: flatLead.payback_period || 0,
-          co2Reduction: flatLead.co2_reduction || 0,
-        },
-        houseInfo: {
-          squareMeters: flatLead.neliot || 0,
-          heatingType: flatLead.lammitysmuoto || '',
-        },
-      };
-      html = generateCustomerEmailHtml(emailData);
-    }
+    // Always use hardcoded template
+    console.log('Using hardcoded template for customer email');
+    
+    const emailData: CustomerEmailData = {
+      firstName: flatLead.nimi?.split(' ')[0] || '',
+      lastName: flatLead.nimi?.split(' ').slice(1).join(' ') || '',
+      calculations: {
+        annualSavings: flatLead.annual_savings || 0,
+        fiveYearSavings: flatLead.five_year_savings || 0,
+        tenYearSavings: flatLead.ten_year_savings || 0,
+        paybackPeriod: flatLead.payback_period || 0,
+        co2Reduction: flatLead.co2_reduction || 0,
+      },
+      houseInfo: {
+        squareMeters: flatLead.neliot || 0,
+        heatingType: flatLead.lammitysmuoto || '',
+      },
+    };
+    html = generateCustomerEmailHtml(emailData);
 
     // Send email with optional PDF attachment
     const result = await sendEmail({
@@ -241,50 +150,57 @@ export async function sendTestEmails(testEmail: string = 'test@example.com') {
     id: 'test-lead-id',
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
-
-    // House Information
-    neliot: 120,
-    huonekorkeus: 2.5,
-    rakennusvuosi: '1991-2010',
-    floors: 2,
-
-    // Current Heating
-    lammitysmuoto: 'Electric',
-    vesikiertoinen: 2500,
-    current_energy_consumption: 15000,
-
-    // Household
-    henkilomaara: 4,
-    hot_water_usage: 'Normal',
-
-    // Contact Info
-    first_name: 'Testi',
-    last_name: 'Käyttäjä',
+    status: 'new',
+    
+    // Required fields
+    nimi: 'Testi Käyttäjä',
     sahkoposti: testEmail,
     puhelinnumero: '+358401234567',
     osoite: 'Testikatu 1',
     paikkakunta: 'Helsinki',
-    valittutukimuoto: 'Both',
-    message: 'Kiinnostaa lämpöpumppu, ottakaa yhteyttä!',
-
-    // Calculations
-    annual_energy_need: 18720,
-    heat_pump_consumption: 5616,
-    heat_pump_cost_annual: 673.92,
-    annual_savings: 1826.08,
-    five_year_savings: 9130.4,
-    ten_year_savings: 18260.8,
-    payback_period: 8.22,
-    co2_reduction: 3744,
-
-    // Lead Management
-    status: 'new',
-    notes: undefined,
-
-    // Metadata
+    
+    // Tracking fields
     ip_address: '192.168.1.1',
     user_agent: 'Mozilla/5.0 (Test Browser)',
     source_page: 'https://test.energiaykkonen.fi/calculator',
+    
+    // Form data
+    form_data: {
+      // House Information
+      neliot: 120,
+      huonekorkeus: 2.5,
+      rakennusvuosi: '1991-2010',
+      floors: 2,
+      
+      // Current Heating
+      lammitysmuoto: 'Electric',
+      vesikiertoinen: 2500,
+      current_energy_consumption: 15000,
+      
+      // Household
+      henkilomaara: 4,
+      hot_water_usage: 'Normal',
+      
+      // Preferences
+      valittutukimuoto: 'Both',
+      message: 'Kiinnostaa lämpöpumppu, ottakaa yhteyttä!',
+      
+      // Energy calculations (Finnish shortcodes)
+      laskennallinenenergiantarve: 18720,
+      menekinhintavuosi: 2500,
+    },
+    
+    // Calculation results
+    calculation_results: {
+      annual_energy_need: 18720,
+      heat_pump_consumption: 5616,
+      heat_pump_cost_annual: 673.92,
+      annual_savings: 1826.08,
+      five_year_savings: 9130.4,
+      ten_year_savings: 18260.8,
+      payback_period: 8.22,
+      co2_reduction: 3744,
+    },
   };
 
   try {

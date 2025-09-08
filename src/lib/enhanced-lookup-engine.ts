@@ -190,7 +190,7 @@ export class EnhancedLookupEngine {
           console.log(`🔍 Evaluating rule for '${lookupName}':`, {
             ruleId: rule.id,
             ruleName: rule.name,
-            priority: rule.priority,
+            priority: rule.order_index,
             conditionLogic: rule.condition_logic,
             conditionMatches: conditionResult,
             availableFields: Object.keys(context.formData || {}),
@@ -465,7 +465,6 @@ export class EnhancedLookupEngine {
         return {
           success: true,
           value: finalResult,
-          numericValue: numericResult, // Add numeric value for calculations
         };
       } else {
         return {

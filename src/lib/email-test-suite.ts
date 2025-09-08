@@ -90,7 +90,7 @@ export function createTestLead(
         ten_year_savings: 24632,
         payback_period: 6.1,
         co2_reduction: 5760,
-      };
+      } as any;
 
     case 'medium-value':
       return {
@@ -129,7 +129,7 @@ export function createTestLead(
         ten_year_savings: 15260.8,
         payback_period: 9.8,
         co2_reduction: 3744,
-      };
+      } as any;
 
     case 'low-value':
       return {
@@ -168,7 +168,7 @@ export function createTestLead(
         ten_year_savings: 9507.2,
         payback_period: 15.8,
         co2_reduction: 2496,
-      };
+      } as any;
 
     case 'minimal-data':
       return {
@@ -207,7 +207,7 @@ export function createTestLead(
         ten_year_savings: 12384,
         payback_period: 12.1,
         co2_reduction: 3120,
-      };
+      } as any;
 
     default:
       throw new Error(`Unknown test scenario: ${scenario}`);

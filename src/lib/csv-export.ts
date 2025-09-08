@@ -76,8 +76,7 @@ function formatCurrencyForCSV(amount: number): string {
 function getCSVHeaders(): string[] {
   return [
     // Contact Information
-    'First Name',
-    'Last Name',
+    'Full Name',
     'Email',
     'Phone',
     'Street Address',
@@ -129,11 +128,10 @@ function leadToCSVRow(
   dateFormat: 'ISO' | 'Finnish' = 'Finnish'
 ): string[] {
   // Flatten lead data to access JSONB fields
-  const flatLead = flattenLeadData(lead);
+  const flatLead = flattenLeadData(lead) as any;
   return [
     // Contact Information
-    flatLead.first_name || '',
-    flatLead.last_name || '',
+    flatLead.nimi || '',
     flatLead.sahkoposti || '',
     flatLead.puhelinnumero || '',
     flatLead.osoite || '',

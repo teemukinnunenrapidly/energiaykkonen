@@ -100,12 +100,12 @@ export async function getLeadsWithPagination(
     // Apply savings filter on flattened data
     if (savingsMin !== undefined && savingsMin >= 0) {
       processedLeads = processedLeads.filter(
-        lead => (lead.annual_savings || 0) >= savingsMin
+        lead => (lead.calculation_results?.annual_savings || 0) >= savingsMin
       );
     }
     if (savingsMax !== undefined && savingsMax >= 0) {
       processedLeads = processedLeads.filter(
-        lead => (lead.annual_savings || 0) <= savingsMax
+        lead => (lead.calculation_results?.annual_savings || 0) <= savingsMax
       );
     }
 
@@ -173,7 +173,7 @@ export async function getLeadStats() {
 
     // Financial metrics - now using flattened data
     const totalAnnualSavings = leads.reduce(
-      (sum, lead) => sum + (lead.annual_savings || 0),
+      (sum, lead) => sum + (lead.calculation_results?.annual_savings || 0),
       0
     );
     const averageAnnualSavings =

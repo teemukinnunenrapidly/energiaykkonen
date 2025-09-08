@@ -129,31 +129,31 @@ function LeadExpandedDetails({ lead }: { lead: Lead }) {
           <div className="space-y-2 text-sm">
             <div>
               <span className="text-muted-foreground">Energy Need:</span>{' '}
-              {(lead.annual_energy_need || 0).toLocaleString()} kWh/year
+              {(lead.calculation_results?.annual_energy_need || lead.form_data?.laskennallinenenergiantarve || 0).toLocaleString()} kWh/year
             </div>
             <div>
               <span className="text-muted-foreground">HP Consumption:</span>{' '}
-              {(lead.heat_pump_consumption || 0).toLocaleString()} kWh/year
+              {(lead.calculation_results?.heat_pump_consumption || 0).toLocaleString()} kWh/year
             </div>
             <div>
               <span className="text-muted-foreground">HP Annual Cost:</span>{' '}
-              {formatCurrency(lead.heat_pump_cost_annual || 0)}
+              {formatCurrency(lead.calculation_results?.heat_pump_cost_annual || 0)}
             </div>
             <div className="font-medium text-green-600">
               <span className="text-muted-foreground">5-Year Savings:</span>{' '}
-              {formatCurrency(lead.five_year_savings)}
+              {formatCurrency(lead.calculation_results?.five_year_savings || 0)}
             </div>
             <div className="font-medium text-green-600">
               <span className="text-muted-foreground">10-Year Savings:</span>{' '}
-              {formatCurrency(lead.ten_year_savings)}
+              {formatCurrency(lead.calculation_results?.ten_year_savings || 0)}
             </div>
             <div>
               <span className="text-muted-foreground">Payback:</span>{' '}
-              {(lead.payback_period || 0).toFixed(1)} years
+              {(lead.calculation_results?.payback_period || 0).toFixed(1)} years
             </div>
             <div>
               <span className="text-muted-foreground">CO₂ Reduction:</span>{' '}
-              {(lead.co2_reduction || 0).toLocaleString()} kg/year
+              {(lead.calculation_results?.co2_reduction || 0).toLocaleString()} kg/year
             </div>
           </div>
         </div>
@@ -203,13 +203,13 @@ function LeadExpandedDetails({ lead }: { lead: Lead }) {
             )}
             <div>
               <span className="text-muted-foreground">Prefers:</span>{' '}
-              {flatLead.valittutukimuoto}
+              {(flatLead as any).valittutukimuoto || '-'}
             </div>
-            {flatLead.message && (
+            {(flatLead as any).message && (
               <div>
                 <span className="text-muted-foreground">Message:</span>
                 <p className="mt-1 text-foreground italic">
-                  &ldquo;{flatLead.message}&rdquo;
+                  &ldquo;{(flatLead as any).message}&rdquo;
                 </p>
               </div>
             )}
@@ -333,7 +333,7 @@ export default function LeadsTable({
                       </button>
                     </TableCell>
                     <TableCell className="font-medium">
-                      {lead.first_name} {lead.last_name}
+                      {lead.nimi}
                     </TableCell>
                     <TableCell>
                       <a
@@ -346,7 +346,7 @@ export default function LeadsTable({
                     <TableCell>{lead.paikkakunta || '-'}</TableCell>
                     <TableCell>
                       <div className="font-medium text-green-600">
-                        {formatCurrency(lead.annual_savings || 0)}
+                        {formatCurrency(lead.calculation_results?.annual_savings || 0)}
                       </div>
                       <div className="text-xs text-muted-foreground">
                         {lead.form_data?.neliot || 0}m² • {lead.form_data?.lammitysmuoto || "-"}
@@ -383,7 +383,7 @@ export default function LeadsTable({
               <div className="flex justify-between items-start mb-3">
                 <div>
                   <h3 className="font-medium text-foreground">
-                    {lead.first_name} {lead.last_name}
+                    {lead.nimi}
                   </h3>
                   <p className="text-sm text-muted-foreground">
                     {lead.paikkakunta || 'No city'}
@@ -398,7 +398,7 @@ export default function LeadsTable({
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Annual Savings:</span>
                   <span className="font-medium text-green-600">
-                    {formatCurrency(lead.annual_savings || 0)}
+                    {formatCurrency(lead.calculation_results?.annual_savings || 0)}
                   </span>
                 </div>
                 <div className="flex justify-between">
