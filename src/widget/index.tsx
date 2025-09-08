@@ -1,6 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import { CalculatorWidget } from './components/CalculatorWidget';
+import { CardSystemWidget } from './components/CardSystemWidget';
 import './styles.css';
 
 // Widget initialization function
@@ -21,7 +21,7 @@ function initE1Widget(elementId: string, config?: any) {
   const root = ReactDOM.createRoot(container);
   root.render(
     <React.StrictMode>
-      <CalculatorWidget />
+      <CardSystemWidget config={config} />
     </React.StrictMode>
   );
 

@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="fi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>E1 Widget Test</title>
+</head>
+<body>
+    <h1>E1 Widget Test</h1>
+    <div id="e1-calculator-widget" style="min-height: 600px; border: 1px solid #ccc; padding: 20px;">
+        <p>Loading widget...</p>
+    </div>
+
+    <script>
+        // Test with the actual production bundle
+        fetch('https://energiaykkonen-calculator.vercel.app/api/widget-bundle', {
+            headers: {
+                'Authorization': 'Bearer E1Calc2025KeySecureAuth789'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                console.log('Bundle loaded successfully', {
+                    jsSize: data.widget.js.length,
+                    cssSize: data.widget.css.length
+                });
+                
+                // Inject CSS
+                const style = document.createElement('style');
+                style.textContent = data.widget.css;
+                document.head.appendChild(style);
+                
+                // Inject and execute JS
+                const script = document.createElement('script');
+                script.textContent = data.widget.js;
+                document.head.appendChild(script);
+                
+                // Wait a bit and try to initialize
+                setTimeout(() => {
+                    console.log('Checking for E1Widget...', typeof window.E1Widget);
+                    if (window.E1Widget && window.E1Widget.init) {
+                        console.log('Initializing widget...');
+                        window.E1Widget.init('e1-calculator-widget', {
+                            apiUrl: '/api/submit-lead',
+                            theme: 'light'
+                        });
+                    } else {
+                        console.error('E1Widget not found on window');
+                    }
+                }, 100);
+            } else {
+                console.error('Failed to load bundle:', data.error);
+            }
+        })
+        .catch(error => {
+            console.error('Error loading bundle:', error);
+        });
+    </script>
+</body>
+</html>

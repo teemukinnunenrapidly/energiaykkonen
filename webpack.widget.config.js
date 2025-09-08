@@ -6,7 +6,7 @@ const webpack = require('webpack');
 
 module.exports = {
   mode: 'production',
-  entry: './src/widget/index.tsx',
+  entry: './src/widget/standalone.tsx',
   output: {
     path: path.resolve(__dirname, 'dist'),
     filename: 'widget.min.js',
