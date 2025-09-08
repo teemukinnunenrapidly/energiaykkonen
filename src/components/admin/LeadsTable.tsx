@@ -74,24 +74,24 @@ function LeadExpandedDetails({ lead }: { lead: Lead }) {
           <h4 className="font-medium text-foreground mb-3">Property Details</h4>
           <div className="space-y-2 text-sm">
             <div>
-              <span className="text-muted-foreground">Size:</span> {lead.neliot}{' '}
+              <span className="text-muted-foreground">Size:</span> {lead.form_data?.neliot || '-'}{' '}
               m²
             </div>
             <div>
               <span className="text-muted-foreground">Ceiling:</span>{' '}
-              {lead.huonekorkeus}m
+              {lead.form_data?.huonekorkeus || "-"}m
             </div>
             <div>
               <span className="text-muted-foreground">Built:</span>{' '}
-              {lead.rakennusvuosi}
+              {lead.form_data?.rakennusvuosi || "-"}
             </div>
             <div>
               <span className="text-muted-foreground">Floors:</span>{' '}
-              {lead.floors}
+              {lead.form_data?.floors || "-"}
             </div>
             <div>
               <span className="text-muted-foreground">Residents:</span>{' '}
-              {lead.henkilomaara}
+              {lead.form_data?.henkilomaara || "-"}
             </div>
           </div>
         </div>
@@ -102,11 +102,11 @@ function LeadExpandedDetails({ lead }: { lead: Lead }) {
           <div className="space-y-2 text-sm">
             <div>
               <span className="text-muted-foreground">Type:</span>{' '}
-              {lead.lammitysmuoto}
+              {lead.form_data?.lammitysmuoto || "-"}
             </div>
             <div>
               <span className="text-muted-foreground">Annual Cost:</span>{' '}
-              {formatCurrency(lead.vesikiertoinen || 0)}
+              {formatCurrency(lead.form_data?.vesikiertoinen || 0)}
             </div>
             {lead.current_energy_consumption && (
               <div>
@@ -349,7 +349,7 @@ export default function LeadsTable({
                         {formatCurrency(lead.annual_savings || 0)}
                       </div>
                       <div className="text-xs text-muted-foreground">
-                        {lead.neliot}m² • {lead.lammitysmuoto}
+                        {lead.form_data?.neliot || 0}m² • {lead.form_data?.lammitysmuoto || "-"}
                       </div>
                     </TableCell>
                     <TableCell>
@@ -404,7 +404,7 @@ export default function LeadsTable({
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Property:</span>
                   <span>
-                    {lead.neliot}m² • {lead.lammitysmuoto}
+                    {lead.form_data?.neliot || 0}m² • {lead.form_data?.lammitysmuoto || "-"}
                   </span>
                 </div>
                 <div className="flex justify-between">
