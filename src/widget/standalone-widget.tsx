@@ -408,8 +408,20 @@ function initWidget(elementId: string, config: WidgetConfig = {}) {
   if (dataConfig) {
     try {
       const parsedConfig = JSON.parse(dataConfig);
-      config = { ...parsedConfig, ...config };
-      console.log('📝 Parsed config from data-e1-config attribute');
+      // If the parsed config has a 'data' property, use that as the main data
+      if (parsedConfig.data) {
+        config = { ...config, data: parsedConfig.data, cloudflareAccountHash: parsedConfig.cloudflareAccountHash };
+      } else {
+        // Otherwise treat the whole thing as data
+        config = { ...config, data: parsedConfig };
+      }
+      console.log('📝 Parsed config from data-e1-config attribute:', {
+        hasData: !!config.data,
+        hasCards: !!(config.data?.cards),
+        cardCount: config.data?.cards?.length || 0,
+        hasVisualObjects: !!(config.data?.visualObjects),
+        visualObjectKeys: config.data?.visualObjects ? Object.keys(config.data.visualObjects) : []
+      });
     } catch (e) {
       console.warn('Failed to parse data-e1-config:', e);
     }

@@ -140,11 +140,11 @@ class Widget_Loader {
         }
         
         // Encode config as JSON for data attribute
-        $config_json = json_encode($config, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP);
+        $config_json = htmlspecialchars(json_encode($config), ENT_QUOTES, 'UTF-8');
         
         // Palauta container HTML with embedded config
         return sprintf(
-            '<div id="%s" class="e1-calculator-widget-container %s" data-type="%s" data-theme="%s" data-e1-config=\'%s\' %s>
+            '<div id="%s" class="e1-calculator-widget-container %s" data-type="%s" data-theme="%s" data-e1-config="%s" %s>
                 <div class="e1-calculator-loading">
                     <div class="e1-loading-spinner"></div>
                     <p>%s</p>
@@ -226,13 +226,27 @@ class Widget_Loader {
                                 loadingEl.style.display = 'none';
                             }
                             
-                            // Alusta widget - se parsii automaattisesti data-e1-config attribuutin
+                            // Get the config from the container's data attribute
+                            var configAttr = container.getAttribute('data-e1-config');
+                            var parsedConfig = {};
+                            try {
+                                if (configAttr) {
+                                    parsedConfig = JSON.parse(configAttr);
+                                    console.log('Parsed config from data attribute:', parsedConfig);
+                                }
+                            } catch (e) {
+                                console.warn('Failed to parse data-e1-config:', e);
+                            }
+                            
+                            // Alusta widget with both embedded config and instance settings
                             if (window.E1Calculator && typeof window.E1Calculator.init === 'function') {
                                 window.E1Calculator.init(widgetId, {
                                     theme: instanceConfig.theme,
                                     height: 600,
                                     showVisualSupport: true,
-                                    widgetMode: true
+                                    widgetMode: true,
+                                    data: parsedConfig.data || parsedConfig, // Support both formats
+                                    cloudflareAccountHash: parsedConfig.cloudflareAccountHash || fullConfig.cloudflareAccountHash
                                 });
                                 console.log('E1 Calculator Widget initialized:', widgetId);
                             } else {
