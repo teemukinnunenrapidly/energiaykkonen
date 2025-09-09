@@ -269,6 +269,10 @@ class Plugin {
         delete_option('e1_calculator_last_sync');
         delete_option('e1_calculator_sync_version');
         
+        // Remove widget submission settings
+        delete_option('e1_widget_api_url');
+        delete_option('e1_widget_secret_key');
+        
         // Remove cache directory
         if (file_exists(E1_CALC_CACHE_DIR)) {
             self::delete_directory(E1_CALC_CACHE_DIR);
