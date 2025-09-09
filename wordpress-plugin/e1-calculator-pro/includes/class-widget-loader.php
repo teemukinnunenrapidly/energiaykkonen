@@ -195,12 +195,23 @@ class Widget_Loader {
                         var loadingEl = container.querySelector('.e1-calculator-loading');
                         if (loadingEl) loadingEl.style.display = 'none';
                         
-                        // Init widget
-                        window.E1Calculator.init(widgetId, {
-                            configUrl: '<?php echo E1_CALC_CACHE_URL; ?>config.json',
-                            showVisualSupport: true,
-                            theme: instanceConfig.theme || 'light'
-                        });
+                        // Init widget with delay to ensure everything is loaded
+                        setTimeout(function() {
+                            console.log('🔧 Initializing widget:', widgetId);
+                            console.log('📍 ConfigUrl:', '<?php echo E1_CALC_CACHE_URL; ?>config.json');
+                            console.log('🎨 Theme:', instanceConfig.theme || 'light');
+                            
+                            try {
+                                window.E1Calculator.init(widgetId, {
+                                    configUrl: '<?php echo E1_CALC_CACHE_URL; ?>config.json',
+                                    showVisualSupport: true,
+                                    theme: instanceConfig.theme || 'light'
+                                });
+                                console.log('✅ Widget initialized successfully for:', widgetId);
+                            } catch (error) {
+                                console.error('❌ Widget init failed:', error);
+                            }
+                        }, 500); // 500ms delay to ensure proper loading
                     }
                     
                     // Tarkista onko DOM valmis
@@ -224,20 +235,15 @@ class Widget_Loader {
      * Hae widget versio cache bustingiin
      */
     private function get_widget_version() {
-        $meta = get_option('e1_calculator_sync_metadata', []);
-        
-        if (!empty($meta['version'])) {
-            // Käytä synkattu versiota
-            return $meta['version'];
-        }
-        
-        // Fallback: käytä tiedoston muokkausaikaa
+        // ALWAYS use file timestamp for cache busting to force reload
+        // This ensures WordPress always loads the latest widget after plugin update
         $js_file = E1_CALC_CACHE_DIR . 'widget.js';
         if (file_exists($js_file)) {
-            return filemtime($js_file);
+            // Use both version AND timestamp for aggressive cache busting
+            return E1_CALC_VERSION . '-' . filemtime($js_file);
         }
         
-        // Viimeinen fallback
+        // Fallback to just version
         return E1_CALC_VERSION;
     }
     

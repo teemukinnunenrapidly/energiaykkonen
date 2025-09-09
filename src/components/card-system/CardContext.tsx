@@ -835,25 +835,33 @@ export function CardProvider({
     initializeSession();
   }, [sessionId, widgetMode]);
 
+  const value = {
+    formData,
+    cardStates,
+    cards,
+    sessionId,
+    updateField,
+    completeCard,
+    uncompleteCard,
+    activateCard,
+    setCardsAndInitialize,
+    checkRevealConditions,
+    shouldBeRevealed,
+    revealCard,
+    isCardComplete,
+    submitData,
+  };
+
+  console.log('🎯 CardContext providing value:', { 
+    cards: value.cards?.length || 0,
+    hasCards: !!value.cards && value.cards.length > 0,
+    cardStatesCount: Object.keys(value.cardStates || {}).length,
+    formDataKeys: Object.keys(value.formData || {}).length,
+    widgetMode
+  });
+
   return (
-    <CardContext.Provider
-      value={{
-        formData,
-        cardStates,
-        cards,
-        sessionId,
-        updateField,
-        completeCard,
-        uncompleteCard,
-        activateCard,
-        setCardsAndInitialize,
-        checkRevealConditions,
-        shouldBeRevealed,
-        revealCard,
-        isCardComplete,
-        submitData,
-      }}
-    >
+    <CardContext.Provider value={value}>
       {children}
     </CardContext.Provider>
   );

@@ -410,16 +410,14 @@ const E1CalculatorWidget: React.FC<{ config: WidgetConfig }> = ({ config }) => {
 
   return (
     <div className="e1-widget-container">
-      <CardProvider initialData={widgetData} widgetMode={true}>
-        <CardSystemContainer
-          initialData={widgetData}
-          maxWidth={config.maxWidth}
-          height={config.height}
-          showVisualSupport={config.showVisualSupport !== false}
-          showBlurredCards={config.showBlurredCards}
-          widgetMode={true}
-        />
-      </CardProvider>
+      <CardSystemContainer
+        initialData={widgetData}
+        maxWidth={config.maxWidth}
+        height={config.height}
+        showVisualSupport={config.showVisualSupport !== false}
+        showBlurredCards={config.showBlurredCards}
+        widgetMode={true}
+      />
     </div>
   );
 };
