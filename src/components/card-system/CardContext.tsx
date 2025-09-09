@@ -418,10 +418,10 @@ export function CardProvider({
           
           // Get calculated results from context
           const calculatedResults = Object.entries(cardStates)
-            .filter(([_, state]) => state.calculatedValue !== undefined)
+            .filter(([_, state]) => state.data && Object.keys(state.data).length > 0)
             .reduce((acc, [cardId, state]) => ({
               ...acc,
-              [cardId]: state.calculatedValue
+              [cardId]: state.data
             }), {});
           
           // Submit via WordPress AJAX using configured URL

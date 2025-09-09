@@ -160,7 +160,7 @@ function CardSystemInner({
               alignSelf: 'flex-start',
               transform: styles.visualSupport.sticky?.transform || 'translate3d(0, 0, 0)',
               willChange: styles.visualSupport.sticky?.willChange || 'transform',
-              backfaceVisibility: styles.visualSupport.sticky?.backfaceVisibility || 'hidden',
+              backfaceVisibility: (styles.visualSupport.sticky?.backfaceVisibility as any) || 'hidden',
               background: styles.visualSupport.background,
               borderRight: styles.visualSupport.borderRight,
             }}
@@ -186,8 +186,8 @@ function CardSystemInner({
               : showVisualSupport
                 ? cardStreamWidth
                 : '100%',
-            minHeight: styles.cardStream.minHeight || styles.container.minHeight,
-            height: styles.cardStream.height || '100%',
+            minHeight: (styles.cardStream as any).minHeight || (styles.container as any).minHeight,
+            height: (styles.cardStream as any).height || '100%',
             background: styles.cardStream.background,
             flex: 1,
             overflow: 'hidden',
