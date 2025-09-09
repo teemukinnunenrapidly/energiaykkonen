@@ -245,6 +245,16 @@ const E1CalculatorWidget: React.FC<{ config: WidgetConfig }> = ({ config }) => {
       try {
         let data = config.data;
         
+        // Jos config sisältää cards/visuals suoraan (WordPress plugin case)
+        if (!data && (config.cards || config.visuals || config.cardStreamConfig)) {
+          console.log('✅ Using data from config object (WordPress plugin format)');
+          data = {
+            cards: config.cards || [],
+            visuals: config.visuals || [],
+            cardStreamConfig: config.cardStreamConfig || {}
+          };
+        }
+        
         // Jos data annettu suoraan, käytä sitä
         if (data) {
           console.log('✅ Using injected data directly');
