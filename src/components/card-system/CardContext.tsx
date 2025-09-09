@@ -727,14 +727,14 @@ export function CardProvider({
         // Inline setCardsAndInitialize logic to avoid dependency issues
         console.log('🚀 setCardsAndInitialize called with:', cardsData);
         setCards(cardsData);
-        const orderedCardIds = cardsData.map(card => card.id);
+        const orderedCardIds = cardsData.map((card: any) => card.id);
         setCardOrder(orderedCardIds);
 
         // Initialize card states - simplified version for first load
         const newStates: Record<string, CardState> = {};
         for (let index = 0; index < orderedCardIds.length; index++) {
           const cardId = orderedCardIds[index];
-          const card = cardsData.find(c => c.id === cardId);
+          const card = cardsData.find((c: any) => c.id === cardId);
 
           if (index === 0) {
             // First card starts as active and revealed

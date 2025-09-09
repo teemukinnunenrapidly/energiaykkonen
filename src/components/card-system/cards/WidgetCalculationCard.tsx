@@ -329,16 +329,16 @@ export function WidgetCalculationCard({ card, formulas = [], widgetMode = false 
               isCalculating={isCalculating}
             />
           ) : calculatedResult ? (
-            <div style={styles.calculationCard.metricDisplay as React.CSSProperties}>
-              <div style={styles.calculationCard.metricValue as React.CSSProperties}>
+            <div style={styles.calculationCard.resultDisplay as React.CSSProperties}>
+              <div style={{ fontSize: '2rem', fontWeight: '600' }}>
                 {String(calculatedResult || '')}
               </div>
-              <div style={styles.calculationCard.metricUnit as React.CSSProperties}>
+              <div style={{ fontSize: '1.2rem', color: '#6b7280' }}>
                 {resultUnit || (card.title?.includes('hinta') ? '€' : 'kWh')}
               </div>
             </div>
           ) : (
-            <div style={styles.calculationCard.placeholder as React.CSSProperties}>
+            <div style={styles.calculationCard.resultDisplay as React.CSSProperties}>
               Syötä arvot yllä nähdäksesi laskelman
             </div>
           )}

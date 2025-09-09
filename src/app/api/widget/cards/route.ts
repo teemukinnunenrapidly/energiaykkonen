@@ -83,12 +83,12 @@ export async function GET(request: NextRequest) {
           options: field.options,
           config: field.config
         })),
-      visualObject: card.visual_objects ? {
-        id: card.visual_objects.id,
-        name: card.visual_objects.name,
-        title: card.visual_objects.title,
-        description: card.visual_objects.description,
-        images: (card.visual_objects.visual_object_images || [])
+      visualObject: card.visual_objects && card.visual_objects[0] ? {
+        id: card.visual_objects[0].id,
+        name: card.visual_objects[0].name,
+        title: card.visual_objects[0].title,
+        description: card.visual_objects[0].description,
+        images: (card.visual_objects[0].visual_object_images || [])
           .sort((a: any, b: any) => a.display_order - b.display_order)
           .map((img: any) => ({
             id: img.id,

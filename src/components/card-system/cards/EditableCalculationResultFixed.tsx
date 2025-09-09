@@ -156,15 +156,15 @@ export const EditableCalculationResult: React.FC<EditableCalculationResultProps>
             onClick={handleSave}
             style={{
               flex: 1,
-              padding: styles.submitButton.padding,
+              padding: '0.625rem 1.5rem',
               background: styles.colors.state.success,
-              color: styles.submitButton.color,
+              color: '#fff',
               border: 'none',
-              borderRadius: styles.submitButton.borderRadius,
+              borderRadius: '0.5rem',
               cursor: 'pointer',
-              fontSize: styles.submitButton.fontSize,
-              fontWeight: styles.submitButton.fontWeight,
-            }}
+              fontSize: '1rem',
+              fontWeight: '500',
+            } as React.CSSProperties}
           >
             ✓ Tallenna
           </button>
@@ -172,15 +172,15 @@ export const EditableCalculationResult: React.FC<EditableCalculationResultProps>
             onClick={handleCancel}
             style={{
               flex: 1,
-              padding: styles.submitButton.padding,
+              padding: '0.625rem 1.5rem',
               background: styles.colors.text.secondary,
-              color: styles.submitButton.color,
+              color: '#fff',
               border: 'none',
-              borderRadius: styles.submitButton.borderRadius,
+              borderRadius: '0.5rem',
               cursor: 'pointer',
-              fontSize: styles.submitButton.fontSize,
-              fontWeight: styles.submitButton.fontWeight,
-            }}
+              fontSize: '1rem',
+              fontWeight: '500',
+            } as React.CSSProperties}
           >
             ✕ Peruuta
           </button>
