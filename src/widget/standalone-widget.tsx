@@ -252,10 +252,10 @@ const E1CalculatorWidget: React.FC<{ config: WidgetConfig }> = ({ config }) => {
           }
         }
         
-        // If still no data, try default location
+        // If still no data, try default WordPress plugin location
         if (!data) {
           try {
-            const defaultUrl = 'wordpress-plugin/e1-calculator-pro/cache/config.json';
+            const defaultUrl = '/wp-content/plugins/e1-calculator-pro/cache/config.json';
             const loadedConfig = await loadConfigData(defaultUrl);
             data = loadedConfig.data;
             
