@@ -123,8 +123,8 @@ class Widget {
         
         // Initialize widget
         $output .= sprintf(
-            "if (typeof E1Widget !== 'undefined' && E1Widget.init) {
-                E1Widget.init('%s', window.E1_WIDGET_CONFIG_%s || {});
+            "if (typeof E1Calculator !== 'undefined' && E1Calculator.init) {
+                E1Calculator.init('%s', window.E1_WIDGET_CONFIG_%s || {});
             } else if (document.getElementById('%s')) {
                 console.error('E1 Calculator: Widget initialization failed');
             }",

@@ -275,12 +275,17 @@ const E1CalculatorWidget: React.FC<{ config: WidgetConfig }> = ({ config }) => {
             console.log('🔧 Found WordPress config, checking for data...', {
               hasData: !!wpConfig.data,
               hasCards: !!(wpConfig.data?.cards),
-              cardCount: wpConfig.data?.cards?.length || 0
+              cardCount: wpConfig.data?.cards?.length || 0,
+              configKeys: configKeys,
+              wpConfigKeys: Object.keys(wpConfig || {})
             });
             
-            if (wpConfig.data) {
+            if (wpConfig && wpConfig.data) {
               console.log('✅ Using WordPress config data');
               data = wpConfig.data;
+            } else if (wpConfig && (wpConfig.cards || wpConfig.visualObjects)) {
+              console.log('✅ Using WordPress config data (direct format)');
+              data = wpConfig;
             }
           }
         }
