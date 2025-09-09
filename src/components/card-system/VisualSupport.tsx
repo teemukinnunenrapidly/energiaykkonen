@@ -257,11 +257,12 @@ export function VisualSupport({
             content.hasImages && visualImages.length > 0
               ? '0'
               : styles.visualSupport.content.padding, // No padding when image fills
-          display: styles.visualSupport.content.display,
-          flexDirection: cssValue(styles.visualSupport.content.flexDirection),
-          alignItems: styles.visualSupport.content.alignItems,
-          justifyContent: styles.visualSupport.content.justifyContent,
-          flex: styles.visualSupport.content.flex,
+          display: styles.visualSupport.content.display || 'flex',
+          flexDirection: cssValue(styles.visualSupport.content.flexDirection) || 'column',
+          alignItems: styles.visualSupport.content.alignItems || 'center',
+          justifyContent: styles.visualSupport.content.justifyContent || 'center',
+          flex: styles.visualSupport.content.flex || '1', // Ensure it takes available space
+          minHeight: '400px', // Minimum height to ensure visibility
           position: 'relative', // Enable absolute positioning for full-screen image
           overflow: 'hidden', // Clip image to container bounds
         }}

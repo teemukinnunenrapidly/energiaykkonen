@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="fi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Visual Panel Debug</title>
+    <style>
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .debug-info {
+            background: #f0f0f0;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            font-family: monospace;
+        }
+        .highlight {
+            border: 3px solid red !important;
+            background: rgba(255,0,0,0.1) !important;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 Visual Panel Debug</h1>
+        
+        <div class="debug-info" id="debug-info">
+            <p>Waiting for widget to load...</p>
+        </div>
+        
+        <!-- Widget container with explicit height -->
+        <div id="test-widget" style="min-height: 600px;"></div>
+        
+        <button onclick="debugVisualPanel()">🔍 Debug Visual Panel</button>
+        <button onclick="forceShowImage()">🖼️ Force Show Image</button>
+    </div>
+    
+    <!-- Load widget files -->
+    <link rel="stylesheet" href="./dist/e1-calculator-widget.min.css?v=20250109b">
+    <script src="./dist/e1-calculator-widget.min.js?v=20250109b"></script>
+    
+    <script>
+        function debugVisualPanel() {
+            const debugInfo = document.getElementById('debug-info');
+            let html = '<h3>Visual Panel Debug:</h3>';
+            
+            // Find visual panel
+            const visualPanels = document.querySelectorAll('[style*="visual"]');
+            const visualSupport = document.querySelector('.visual-support-panel');
+            const visualContainer = document.querySelector('[style*="width"][style*="35%"]');
+            
+            html += `<p>Visual panels found: ${visualPanels.length}</p>`;
+            html += `<p>Visual support element: ${visualSupport ? 'YES' : 'NO'}</p>`;
+            html += `<p>Visual container (35% width): ${visualContainer ? 'YES' : 'NO'}</p>`;
+            
+            // Check the actual visual panel div
+            const allDivs = document.querySelectorAll('div');
+            allDivs.forEach(div => {
+                const style = window.getComputedStyle(div);
+                if (style.width === '35%' || style.flex === '0 0 35%') {
+                    html += '<h4>Found Visual Panel:</h4>';
+                    html += `<p>Width: ${style.width}</p>`;
+                    html += `<p>Height: ${style.height}</p>`;
+                    html += `<p>Display: ${style.display}</p>`;
+                    html += `<p>Visibility: ${style.visibility}</p>`;
+                    html += `<p>Opacity: ${style.opacity}</p>`;
+                    html += `<p>Position: ${style.position}</p>`;
+                    html += `<p>Children: ${div.children.length}</p>`;
+                    
+                    // Highlight it
+                    div.classList.add('highlight');
+                    
+                    // Check for images inside
+                    const images = div.querySelectorAll('img');
+                    html += `<p>Images inside: ${images.length}</p>`;
+                    images.forEach((img, i) => {
+                        html += `<p>Image ${i+1}: ${img.src ? img.src.substring(0, 50) + '...' : 'NO SRC'}</p>`;
+                        html += `<p>- Width: ${img.width}px, Height: ${img.height}px</p>`;
+                        html += `<p>- Display: ${window.getComputedStyle(img).display}</p>`;
+                    });
+                }
+            });
+            
+            // Check for specific style patterns
+            const flexDivs = document.querySelectorAll('[style*="flex: 0 0 35%"]');
+            html += `<p>Divs with flex: 0 0 35%: ${flexDivs.length}</p>`;
+            
+            debugInfo.innerHTML = html;
+        }
+        
+        function forceShowImage() {
+            // Try to find and force show the image
+            const images = document.querySelectorAll('img[src*="imagedelivery"]');
+            images.forEach(img => {
+                console.log('Found Cloudflare image:', img.src);
+                img.style.display = 'block !important';
+                img.style.visibility = 'visible !important';
+                img.style.opacity = '1 !important';
+                img.style.width = '100% !important';
+                img.style.height = 'auto !important';
+                img.style.minHeight = '200px';
+                img.style.border = '2px solid green';
+                
+                // Also check parent
+                const parent = img.parentElement;
+                if (parent) {
+                    parent.style.display = 'block !important';
+                    parent.style.visibility = 'visible !important';
+                    parent.style.minHeight = '200px';
+                }
+            });
+            
+            if (images.length === 0) {
+                alert('No Cloudflare images found in DOM!');
+            } else {
+                alert(`Found ${images.length} image(s) and forced them visible`);
+            }
+        }
+        
+        // Initialize widget
+        let attempts = 0;
+        const maxAttempts = 50;
+        
+        function checkAndInit() {
+            attempts++;
+            
+            if (typeof window.E1Calculator !== 'undefined') {
+                console.log('Initializing widget...');
+                
+                try {
+                    const widget = window.E1Calculator.init('test-widget', {
+                        configUrl: './wordpress-plugin/e1-calculator-pro/cache/config.json',
+                        showVisualSupport: true,
+                        theme: 'light',
+                        height: 600  // Explicit height
+                    });
+                    
+                    if (widget) {
+                        document.getElementById('debug-info').innerHTML = '<p>✅ Widget initialized! Click debug button to analyze.</p>';
+                        
+                        // Auto-debug after 2 seconds
+                        setTimeout(debugVisualPanel, 2000);
+                    }
+                } catch (error) {
+                    document.getElementById('debug-info').innerHTML = '<p>❌ Error: ' + error.message + '</p>';
+                }
+            } else if (attempts < maxAttempts) {
+                setTimeout(checkAndInit, 100);
+            } else {
+                document.getElementById('debug-info').innerHTML = '<p>❌ Widget failed to load</p>';
+            }
+        }
+        
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', checkAndInit);
+        } else {
+            checkAndInit();
+        }
+    </script>
+</body>
+</html>
