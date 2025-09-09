@@ -231,6 +231,15 @@ const E1CalculatorWidget: React.FC<{ config: WidgetConfig }> = ({ config }) => {
       process.env.NEXT_PUBLIC_CLOUDFLARE_ACCOUNT_HASH = config.cloudflareAccountHash;
     }
     
+    // Store WordPress nonce if available (for secure submission)
+    if (typeof window !== 'undefined') {
+      const wpConfig = (window as any).e1_widget_config;
+      if (wpConfig && wpConfig.nonce) {
+        (window as any).e1_widget_nonce = wpConfig.nonce;
+        console.log('🔐 WordPress nonce stored for secure submission');
+      }
+    }
+    
     // Load data either from provided data or from config URL
     const loadData = async () => {
       try {

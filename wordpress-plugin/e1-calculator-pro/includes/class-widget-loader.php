@@ -77,6 +77,15 @@ class Widget_Loader {
             'nonce' => wp_create_nonce('e1_calculator_public'),
             'locale' => get_locale(),
         ]);
+        
+        // Lisää widget config data for form submissions
+        wp_localize_script('e1-calculator-widget', 'e1_widget_config', [
+            'ajax_url' => admin_url('admin-ajax.php'),
+            'nonce' => wp_create_nonce('e1_widget_nonce'),
+            'api_url' => get_option('e1_widget_api_url', 'https://your-app.vercel.app'),
+            'plugin_url' => E1_CALC_PLUGIN_URL,
+            'config_url' => E1_CALC_CACHE_URL . 'config.json'
+        ]);
     }
     
     /**
@@ -177,6 +186,9 @@ class Widget_Loader {
                         containerId: widgetId,
                         apiEndpoint: window.e1CalculatorData ? window.e1CalculatorData.apiUrl : '',
                         nonce: window.e1CalculatorData ? window.e1CalculatorData.nonce : '',
+                        widgetNonce: window.e1_widget_config ? window.e1_widget_config.nonce : '',
+                        ajaxUrl: window.e1_widget_config ? window.e1_widget_config.ajax_url : '',
+                        configUrl: window.e1_widget_config ? window.e1_widget_config.config_url : ''
                     });
                     
                     // Alusta widget kun DOM on valmis

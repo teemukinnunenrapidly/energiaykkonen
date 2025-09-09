@@ -401,16 +401,60 @@ export function CardProvider({
 
   const submitData = useCallback(
     async (emailTemplate?: string) => {
-      // In widget mode, skip actual submission but log success
+      // In widget mode, submit via WordPress AJAX (secure)
       if (widgetMode) {
-        console.log('📧 Widget mode: Form submission simulated', {
+        console.log('📧 Widget mode: Submitting via WordPress AJAX', {
           formData,
           emailTemplate
         });
-        // Simulate successful submission
-        return Promise.resolve();
+        
+        try {
+          // Get WordPress config with nonce and AJAX URL
+          const wpConfig = (window as any).e1_widget_config;
+          if (!wpConfig?.nonce) {
+            console.error('❌ WordPress nonce not found');
+            throw new Error('WordPress configuration not found');
+          }
+          
+          // Get calculated results from context
+          const calculatedResults = Object.entries(cardStates)
+            .filter(([_, state]) => state.calculatedValue !== undefined)
+            .reduce((acc, [cardId, state]) => ({
+              ...acc,
+              [cardId]: state.calculatedValue
+            }), {});
+          
+          // Submit via WordPress AJAX using configured URL
+          const response = await fetch(wpConfig.ajax_url || '/wp-admin/admin-ajax.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: new URLSearchParams({
+              action: 'e1_submit_form',
+              nonce: wpConfig.nonce,
+              formData: JSON.stringify(formData),
+              calculations: JSON.stringify(calculatedResults),
+              emailTemplate: emailTemplate || ''
+            })
+          });
+          
+          if (!response.ok) {
+            throw new Error('WordPress submission failed');
+          }
+          
+          const result = await response.json();
+          if (!result.success) {
+            throw new Error(result.data || 'Submission failed');
+          }
+          
+          console.log('✅ Widget form submitted successfully via WordPress');
+          return result.data;
+        } catch (error) {
+          console.error('❌ Widget submission error:', error);
+          throw error;
+        }
       }
       
+      // Normal mode: use API endpoint
       const submitPayload = {
         ...formData,
         submit_email_template: emailTemplate,

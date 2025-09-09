@@ -1,14 +1,14 @@
 {
   "version": "2.0.0",
-  "buildTime": "2025-09-09T09:17:46.859Z",
+  "buildTime": "2025-09-09T11:47:49.717Z",
   "files": [
     "widget.js",
     "widget.css"
   ],
   "bundleSize": {
-    "js": 264196,
-    "css": 6562,
-    "config": 14968
+    "js": 277356,
+    "css": 7301,
+    "config": 15161
   },
   "dataStats": {
     "cards": 9,

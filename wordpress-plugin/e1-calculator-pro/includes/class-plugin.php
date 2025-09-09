@@ -52,6 +52,9 @@ class Plugin {
         require_once E1_CALC_PLUGIN_DIR . 'includes/class-widget-loader.php';
         require_once E1_CALC_PLUGIN_DIR . 'includes/class-security.php';
         
+        // Include AJAX handler for widget form submissions
+        require_once E1_CALC_PLUGIN_DIR . 'includes/ajax-handler.php';
+        
         if (is_admin()) {
             require_once E1_CALC_PLUGIN_DIR . 'includes/class-admin.php';
         }

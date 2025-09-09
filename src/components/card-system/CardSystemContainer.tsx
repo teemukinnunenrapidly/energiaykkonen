@@ -132,16 +132,18 @@ function CardSystemInner({
     <div
       style={{
         margin: '0 auto',
+        minHeight: styles.container.minHeight,
         ...containerStyle,
       }}
     >
       <div
         style={{
-          height: containerHeight === 'auto' ? 'auto' : `${containerHeight}px`,
+          minHeight: styles.container.minHeight,
+          height: styles.container.height,
           padding: 0,
           display: 'flex',
           flexDirection: 'row',
-          alignItems: 'stretch',
+          alignItems: 'flex-start', // Changed from 'stretch' for sticky to work
           gap: styles.layout.gapBetweenPanels,
           position: 'relative',
         }}
@@ -152,7 +154,13 @@ function CardSystemInner({
             style={{
               display: !isMobileMode ? 'block' : 'none',
               width: styles.layout.visualSupportRatio,
-              height: '100%',
+              position: 'sticky',
+              top: styles.visualSupport.sticky?.top || 0,
+              height: styles.visualSupport.sticky?.height || '100vh',
+              alignSelf: 'flex-start',
+              transform: styles.visualSupport.sticky?.transform || 'translate3d(0, 0, 0)',
+              willChange: styles.visualSupport.sticky?.willChange || 'transform',
+              backfaceVisibility: styles.visualSupport.sticky?.backfaceVisibility || 'hidden',
               background: styles.visualSupport.background,
               borderRight: styles.visualSupport.borderRight,
             }}
@@ -178,7 +186,8 @@ function CardSystemInner({
               : showVisualSupport
                 ? cardStreamWidth
                 : '100%',
-            height: '100%',
+            minHeight: styles.cardStream.minHeight || styles.container.minHeight,
+            height: styles.cardStream.height || '100%',
             background: styles.cardStream.background,
             flex: 1,
             overflow: 'hidden',

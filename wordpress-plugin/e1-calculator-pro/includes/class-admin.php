@@ -135,6 +135,15 @@ class Admin {
         register_setting('e1_calculator_settings', 'e1_calculator_notification_email', [
             'sanitize_callback' => 'sanitize_email',
         ]);
+        
+        // Widget submission settings
+        register_setting('e1_calculator_settings', 'e1_widget_api_url', [
+            'sanitize_callback' => 'esc_url_raw',
+            'default' => 'https://your-app.vercel.app'
+        ]);
+        register_setting('e1_calculator_settings', 'e1_widget_secret_key', [
+            'sanitize_callback' => 'sanitize_text_field'
+        ]);
     }
     
     /**
@@ -330,6 +339,45 @@ class Admin {
                                     <?php if ($has_key): ?>
                                         <br><span style="color: green;">✓ <?php _e('API key is currently saved', 'e1-calculator'); ?></span>
                                     <?php endif; ?>
+                                </p>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+                
+                <div class="card" style="max-width: 800px; margin-top: 20px;">
+                    <h2><?php _e('Widget Submission Settings', 'e1-calculator'); ?></h2>
+                    
+                    <table class="form-table">
+                        <tr>
+                            <th scope="row">
+                                <label for="e1_widget_api_url"><?php _e('Widget Submit API URL', 'e1-calculator'); ?></label>
+                            </th>
+                            <td>
+                                <input type="url" 
+                                       id="e1_widget_api_url"
+                                       name="e1_widget_api_url" 
+                                       value="<?php echo esc_attr(get_option('e1_widget_api_url', 'https://your-app.vercel.app')); ?>" 
+                                       class="large-text" 
+                                       placeholder="https://your-app.vercel.app" />
+                                <p class="description">
+                                    <?php _e('Your Next.js application URL for widget form submissions (e.g. https://energiaykkonen-calculator.vercel.app)', 'e1-calculator'); ?>
+                                </p>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th scope="row">
+                                <label for="e1_widget_secret_key"><?php _e('Widget Secret Key', 'e1-calculator'); ?></label>
+                            </th>
+                            <td>
+                                <input type="password" 
+                                       id="e1_widget_secret_key"
+                                       name="e1_widget_secret_key" 
+                                       value="<?php echo esc_attr(get_option('e1_widget_secret_key')); ?>" 
+                                       class="regular-text" 
+                                       placeholder="<?php _e('Enter shared secret key', 'e1-calculator'); ?>" />
+                                <p class="description">
+                                    <?php _e('Must match WIDGET_SECRET_KEY in your Next.js .env file. This ensures only your WordPress site can submit forms.', 'e1-calculator'); ?>
                                 </p>
                             </td>
                         </tr>

@@ -67,7 +67,9 @@
         "type": "form",
         "display_order": 2,
         "visual_object_id": null,
-        "config": {},
+        "config": {
+          "linked_visual_object_id": "0361026f-6e79-40ec-8050-bb125b3b987e"
+        },
         "reveal_conditions": [],
         "is_active": true,
         "card_fields": [
@@ -107,7 +109,9 @@
         "type": "form",
         "display_order": 3,
         "visual_object_id": null,
-        "config": {},
+        "config": {
+          "linked_visual_object_id": "57bdb3c1-f205-4e90-8ca9-d3313d017eb3"
+        },
         "reveal_conditions": [],
         "is_active": true,
         "card_fields": [
@@ -150,7 +154,8 @@
           "edit_prompt": "Syötä lukema",
           "main_result": "[calc:laskennallinen-energiantarve-kwh]",
           "display_template": "Laskennallinen energiantarve talollesi on [calc:Laskennallinen energiantarve (kwh)]",
-          "enable_edit_mode": true
+          "enable_edit_mode": true,
+          "linked_visual_object_id": "0361026f-6e79-40ec-8050-bb125b3b987e"
         },
         "reveal_conditions": [],
         "is_active": true,
@@ -647,6 +652,6 @@
       "cover"
     ]
   },
-  "buildTime": "2025-09-09T09:17:46.857Z",
-  "dataFetchedAt": "2025-09-09T09:17:46.858Z"
+  "buildTime": "2025-09-09T11:47:49.716Z",
+  "dataFetchedAt": "2025-09-09T11:47:49.716Z"
 }

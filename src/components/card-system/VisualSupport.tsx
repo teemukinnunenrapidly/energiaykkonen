@@ -31,6 +31,8 @@ export function VisualSupport({
     activeCardId: activeCard?.id,
     activeCardName: activeCard?.name,
     hasVisualObjects: !!activeCard?.visual_objects,
+    hasLinkedVisualObjectId: !!activeCard?.config?.linked_visual_object_id,
+    linkedVisualObjectId: activeCard?.config?.linked_visual_object_id,
     visualObjectId: visualObject?.id,
     visualObjectTitle: visualObject?.title,
     visualConfigPassed: !!visualConfig,
@@ -41,12 +43,10 @@ export function VisualSupport({
   // Progressive loading: Only fetch images when card becomes active
   useEffect(() => {
     const fetchVisualImages = async () => {
-      // Only fetch if we have a visual object and haven't started loading yet
-      if (!visualObject?.id || imageLoadStarted) {
-        if (!visualObject?.id) {
-          setVisualImages([]);
-          setImageLoadStarted(false);
-        }
+      // Only fetch if we have a visual object
+      if (!visualObject?.id) {
+        setVisualImages([]);
+        setImageLoadStarted(false);
         return;
       }
 
@@ -98,11 +98,9 @@ export function VisualSupport({
       }
     };
 
-    // Only fetch when activeCard changes and has visual objects
-    if (activeCard && visualObject?.id) {
-      fetchVisualImages();
-    }
-  }, [visualObject?.id, activeCard?.id, imageLoadStarted, widgetMode]);
+    // Fetch when activeCard changes and has visual objects
+    fetchVisualImages();
+  }, [visualObject?.id, activeCard?.id, widgetMode]);
 
   // Helper function to generate Cloudflare image URL
   const getCloudflareImageUrl = (
@@ -301,11 +299,10 @@ export function VisualSupport({
                   alt={content.title || 'Visual content'}
                   loading="lazy" // Enable browser lazy loading
                   style={{
-                    width: '100%',
-                    height: 'auto',
-                    maxHeight: '350px', // Limit height to prevent stretching
-                    objectFit: cssValue(styles.visualSupport.image.objectFit) || 'contain',
-                    borderRadius: styles.visualSupport.image.borderRadius || '8px',
+                    width: styles.visualSupport.image.width || '100%',
+                    height: styles.visualSupport.image.height || '100%',
+                    objectFit: cssValue(styles.visualSupport.image.objectFit) || 'cover',
+                    borderRadius: styles.visualSupport.image.borderRadius,
                   }}
                   onLoad={() => {
                     console.log('✅ Image loaded successfully:', imageUrl);
