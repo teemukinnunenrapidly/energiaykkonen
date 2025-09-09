@@ -481,14 +481,15 @@ export class WidgetCalculationEngine {
         console.warn(`Lookup table not found: ${lookupName}`);
         // Fallback to simple lookup processing
         const result = await processLookupShortcode(
-          `[lookup:${lookupName}]`,
+          lookupName,
+          this.context.sessionId,
           this.context.formData
         );
         // processLookupShortcode returns an object with success flag
-        if (typeof result === 'object' && 'shortcode' in result && result.shortcode) {
+        if (result.success && result.shortcode) {
           return result.shortcode;
         }
-        return typeof result === 'string' ? result : '';
+        return '';
       }
       
       // Get the condition field value from form data
