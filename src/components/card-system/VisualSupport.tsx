@@ -107,24 +107,27 @@ export function VisualSupport({
     cloudflareImageId: string,
     variant: string = 'public'
   ) => {
-    // Check for Cloudflare hash from multiple sources (for standalone widget compatibility)
-    // In widget mode, the hash is stored in window.__E1_CLOUDFLARE_HASH
-    // In normal mode, it comes from process.env
-    const accountHash = 
-      (typeof window !== 'undefined' && (window as any).__E1_CLOUDFLARE_HASH) ||
-      process.env.NEXT_PUBLIC_CLOUDFLARE_ACCOUNT_HASH ||
-      null;
+    // In widget mode, get hash from __E1_WIDGET_DATA.cloudflareAccountHash
+    // In normal mode, get hash from process.env
+    const accountHash = widgetMode
+      ? (typeof window !== 'undefined' && (window as any).__E1_WIDGET_DATA?.cloudflareAccountHash)
+      : process.env.NEXT_PUBLIC_CLOUDFLARE_ACCOUNT_HASH;
       
     console.log('🔧 Cloudflare config:', {
+      widgetMode,
       accountHash: accountHash
         ? `${accountHash.substring(0, 8)}...`
         : 'MISSING',
       cloudflareImageId,
       variant,
+      source: widgetMode ? '__E1_WIDGET_DATA.cloudflareAccountHash' : 'process.env'
     });
 
     if (!accountHash) {
-      console.error('❌ Missing NEXT_PUBLIC_CLOUDFLARE_ACCOUNT_HASH or __E1_CLOUDFLARE_HASH');
+      console.error('❌ Missing Cloudflare account hash:', {
+        widgetMode,
+        checkedLocation: widgetMode ? '__E1_WIDGET_DATA.cloudflareAccountHash' : 'process.env.NEXT_PUBLIC_CLOUDFLARE_ACCOUNT_HASH'
+      });
       return null;
     }
     const url = `https://imagedelivery.net/${accountHash}/${cloudflareImageId}/${variant}`;
