@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="fi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WordPress Widget Test - Offline Mode</title>
+    <style>
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            margin-bottom: 20px;
+            color: #333;
+        }
+        .info {
+            background: #e8f5fe;
+            border-left: 4px solid #0073aa;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+        .info h3 {
+            margin-top: 0;
+            color: #0073aa;
+        }
+        .info ul {
+            margin: 10px 0;
+        }
+        .status {
+            padding: 10px;
+            background: #fffbcc;
+            border-left: 4px solid #f0ad4e;
+            margin-bottom: 20px;
+            font-family: monospace;
+        }
+        .error {
+            background: #fee;
+            border-left-color: #c00;
+        }
+        .success {
+            background: #d4edda;
+            border-left-color: #28a745;
+        }
+        #test-widget {
+            min-height: 600px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔌 WordPress Widget Test - Offline Mode</h1>
+        
+        <div class="info">
+            <h3>📦 Tämä testaa WordPress-pluginin cached widget-versiota</h3>
+            <ul>
+                <li>✅ Ladataan widget.js ja widget.css WordPress-plugin kansiosta</li>
+                <li>✅ Käyttää config.json dataa (9 korttia, 2 visual objectia)</li>
+                <li>✅ Toimii täysin offline - ei API-kutsuja</li>
+                <li>✅ Simuloi WordPress-ympäristöä</li>
+            </ul>
+        </div>
+        
+        <div id="status" class="status">
+            🔄 Ladataan WordPress widgettiä...
+        </div>
+        
+        <!-- Widget container with data attribute like WordPress would have -->
+        <div id="e1-calculator-widget" class="e1-calculator-widget-container"></div>
+    </div>
+    
+    <!-- Load WordPress plugin widget files -->
+    <link rel="stylesheet" href="./wordpress-plugin/e1-calculator-pro/cache/widget.css">
+    <script src="./wordpress-plugin/e1-calculator-pro/cache/widget.js"></script>
+    
+    <script>
+        const statusEl = document.getElementById('status');
+        let configData = null;
+        
+        // First, load the config.json
+        async function loadConfig() {
+            try {
+                statusEl.textContent = '📥 Ladataan config.json...';
+                const response = await fetch('./wordpress-plugin/e1-calculator-pro/cache/config.json');
+                if (!response.ok) throw new Error('Config lataus epäonnistui: ' + response.status);
+                
+                configData = await response.json();
+                statusEl.className = 'status success';
+                statusEl.innerHTML = `✅ Config ladattu! <br>
+                    📊 ${configData.data.cards.length} korttia<br>
+                    🖼️ ${Object.keys(configData.data.visualObjects).length} visual objectia<br>
+                    🧮 ${configData.data.formulas.length} kaavaa`;
+                
+                console.log('Config loaded:', {
+                    cards: configData.data.cards.length,
+                    visualObjects: Object.keys(configData.data.visualObjects).length,
+                    formulas: configData.data.formulas.length,
+                    firstCard: configData.data.cards[0]?.name
+                });
+                
+                // Add config to container as data attribute (base64 encoded like WordPress does)
+                const container = document.getElementById('e1-calculator-widget');
+                const configForWidget = {
+                    ...configData,
+                    cloudflareAccountHash: configData.cloudflareAccountHash || 'AkEHl6uYQM8NNRufIXHzFw'
+                };
+                container.setAttribute('data-e1-config', btoa(JSON.stringify(configForWidget)));
+                
+                return true;
+            } catch (error) {
+                statusEl.className = 'status error';
+                statusEl.textContent = '❌ Config lataus epäonnistui: ' + error.message;
+                console.error('Config load error:', error);
+                return false;
+            }
+        }
+        
+        // Then initialize widget
+        async function initWidget() {
+            // Load config first
+            const configLoaded = await loadConfig();
+            if (!configLoaded) return;
+            
+            statusEl.textContent = '🔄 Odotetaan E1Calculator objektia...';
+            
+            // Wait for widget to be available
+            let attempts = 0;
+            const maxAttempts = 50;
+            
+            function checkAndInit() {
+                attempts++;
+                
+                if (typeof window.E1Calculator !== 'undefined' && typeof window.E1Calculator.init === 'function') {
+                    statusEl.className = 'status success';
+                    statusEl.innerHTML = `✅ Widget valmis! Alustetaan...<br>
+                        📊 ${configData.data.cards.length} korttia ladattu<br>
+                        🖼️ ${Object.keys(configData.data.visualObjects).length} visual objectia`;
+                    
+                    try {
+                        // Initialize widget like WordPress would
+                        const widget = window.E1Calculator.init('e1-calculator-widget', {
+                            data: configData.data,
+                            cloudflareAccountHash: configData.cloudflareAccountHash || 'AkEHl6uYQM8NNRufIXHzFw',
+                            showVisualSupport: true,
+                            theme: 'light',
+                            height: 600
+                        });
+                        
+                        statusEl.innerHTML += '<br>🎉 Widget alustettu onnistuneesti!';
+                        console.log('Widget initialized successfully');
+                    } catch (error) {
+                        statusEl.className = 'status error';
+                        statusEl.textContent = '❌ Widget alustus epäonnistui: ' + error.message;
+                        console.error('Widget init error:', error);
+                    }
+                } else if (attempts < maxAttempts) {
+                    setTimeout(checkAndInit, 100);
+                } else {
+                    statusEl.className = 'status error';
+                    statusEl.textContent = '❌ E1Calculator ei latautunut. Tarkista konsoli.';
+                    console.error('E1Calculator not found. Available:', {
+                        E1Calculator: window.E1Calculator,
+                        E1Widget: window.E1Widget,
+                        windowKeys: Object.keys(window).filter(k => k.toLowerCase().includes('e1') || k.toLowerCase().includes('widget'))
+                    });
+                }
+            }
+            
+            checkAndInit();
+        }
+        
+        // Start when DOM is ready
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initWidget);
+        } else {
+            initWidget();
+        }
+    </script>
+</body>
+</html>

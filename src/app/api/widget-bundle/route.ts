@@ -402,7 +402,17 @@ async function buildWidgetBundle() {
 
     // Configuration with real data from Supabase and design tokens
     const config = {
-      // Card data from database
+      // Data object containing all widget data
+      data: {
+        cards: transformedCards,
+        visuals: transformedVisuals,
+        visualObjects: transformedVisuals.reduce((acc: any, visual: any) => {
+          acc[visual.name] = visual;
+          return acc;
+        }, {}),
+      },
+      
+      // Also include at root level for backward compatibility
       cards: transformedCards,
       visuals: transformedVisuals,
       

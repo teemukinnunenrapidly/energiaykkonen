@@ -109,13 +109,8 @@ class Widget_Loader {
         self::$instance_count++;
         $widget_id = !empty($atts['id']) ? esc_attr($atts['id']) : 'e1-calculator-widget-' . self::$instance_count;
         
-        // Lataa config
-        $bundle = $this->cache_manager->get_bundle();
-        // IMPORTANT: $bundle['config'] already contains the full parsed config.json
-        // No need to parse again - use it directly
-        $config = $bundle['config'] ?? [];
-        
-        if (empty($config)) {
+        // Tarkista että cache on olemassa
+        if (!$this->verify_cache_files()) {
             return '<div class="e1-calculator-error" style="padding: 20px; background: #fee; border: 1px solid #fcc; color: #c00;">
                         <strong>Widget Error:</strong> Widget not synced. Please sync in admin panel.
                     </div>';
@@ -125,8 +120,6 @@ class Widget_Loader {
         self::$widget_instances[$widget_id] = [
             'type' => $atts['type'],
             'theme' => $atts['theme'],
-            'api_url' => get_option('e1_calculator_api_url', ''),
-            'data' => $config, // Include config data
         ];
         
         // LATAA RESURSSIT (vain kerran vaikka useita widgettejä)
@@ -141,12 +134,9 @@ class Widget_Loader {
             $container_style = sprintf('style="min-height: %spx;"', esc_attr($atts['height']));
         }
         
-        // Encode config as JSON for data attribute - use base64 to avoid escaping issues
-        $config_json = base64_encode(json_encode($config));
-        
-        // Palauta container HTML with embedded config
+        // Palauta container HTML - simpler without embedded config!
         return sprintf(
-            '<div id="%s" class="e1-calculator-widget-container %s" data-type="%s" data-theme="%s" data-e1-config="%s" %s>
+            '<div id="%s" class="e1-calculator-widget-container %s" data-type="%s" data-theme="%s" %s>
                 <div class="e1-calculator-loading">
                     <div class="e1-loading-spinner"></div>
                     <p>%s</p>
@@ -161,7 +151,6 @@ class Widget_Loader {
             esc_attr($atts['class']),
             esc_attr($atts['type']),
             esc_attr($atts['theme']),
-            esc_attr($config_json),
             $container_style,
             __('Ladataan laskuria...', 'e1-calculator'),
             __('Tämä laskuri vaatii JavaScriptin toimiakseen. Ole hyvä ja ota JavaScript käyttöön selaimessasi.', 'e1-calculator')
@@ -176,10 +165,6 @@ class Widget_Loader {
         if (empty(self::$widget_instances)) {
             return;
         }
-        
-        // Lataa config
-        $bundle = $this->cache_manager->get_bundle();
-        $config = $bundle['config'] ?? [];
         
         ?>
         <script id="e1-calculator-init">
@@ -196,104 +181,26 @@ class Widget_Loader {
                 
                 // Widget configurations
                 var instances = <?php echo json_encode(self::$widget_instances, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP); ?>;
-                var globalConfig = <?php echo json_encode($config, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP); ?>;
                 
                 // Alusta jokainen widget
                 Object.keys(instances).forEach(function(widgetId) {
                     var instanceConfig = instances[widgetId];
                     
-                    // Yhdistä global config ja instance config
-                    var fullConfig = Object.assign({}, globalConfig, instanceConfig, {
-                        containerId: widgetId,
-                        apiEndpoint: window.e1CalculatorData ? window.e1CalculatorData.apiUrl : '',
-                        nonce: window.e1CalculatorData ? window.e1CalculatorData.nonce : '',
-                        widgetNonce: window.e1_widget_config ? window.e1_widget_config.nonce : '',
-                        ajaxUrl: window.e1_widget_config ? window.e1_widget_config.ajax_url : '',
-                        // Use embedded data instead of configUrl to avoid HTTP requests
-                        data: globalConfig
-                    });
-                    
                     // Alusta widget kun DOM on valmis
                     function initWidget() {
                         var container = document.getElementById(widgetId);
-                        if (!container) {
-                            console.warn('E1 Widget: Container not found:', widgetId);
-                            return;
-                        }
+                        if (!container) return;
                         
-                        try {
-                            // Poista latausviesti
-                            var loadingEl = container.querySelector('.e1-calculator-loading');
-                            if (loadingEl) {
-                                loadingEl.style.display = 'none';
-                            }
-                            
-                            // Get the config from the container's data attribute (base64 encoded)
-                            var configAttr = container.getAttribute('data-e1-config');
-                            var parsedConfig = {};
-                            try {
-                                if (configAttr) {
-                                    // Decode base64 first
-                                    var decodedJson = atob(configAttr);
-                                    parsedConfig = JSON.parse(decodedJson);
-                                    
-                                    // Debug: Check structure of parsedConfig
-                                    console.log('📋 ParsedConfig structure:', {
-                                        topLevelKeys: Object.keys(parsedConfig),
-                                        hasDataField: !!parsedConfig.data,
-                                        hasDirectCards: !!parsedConfig.cards,
-                                        cardsLocation: parsedConfig.data?.cards ? 'data.cards' : parsedConfig.cards ? 'cards' : 'none'
-                                    });
-                                    
-                                    console.log('✅ Parsed config from data attribute:', {
-                                        hasData: !!parsedConfig.data,
-                                        cardCount: parsedConfig.data?.cards?.length || parsedConfig.cards?.length || 0,
-                                        hasVisualObjects: !!(parsedConfig.data?.visualObjects || parsedConfig.visualObjects),
-                                        cloudflareHash: parsedConfig.cloudflareAccountHash
-                                    });
-                                } else {
-                                    console.error('❌ No data-e1-config attribute found on container');
-                                }
-                            } catch (e) {
-                                console.error('❌ Failed to parse data-e1-config:', e);
-                                console.log('Raw attribute value:', configAttr ? configAttr.substring(0, 100) + '...' : 'empty');
-                            }
-                            
-                            // Alusta widget with both embedded config and instance settings
-                            if (window.E1Calculator && typeof window.E1Calculator.init === 'function') {
-                                // IMPORTANT: parsedConfig has structure { data: { cards: [...], visualObjects: {...} }, ... }
-                                // We need to pass the data field, not the whole config
-                                var actualData = parsedConfig.data || parsedConfig;
-                                
-                                var widgetConfig = {
-                                    theme: instanceConfig.theme,
-                                    height: 600,
-                                    showVisualSupport: true,
-                                    widgetMode: true,
-                                    data: actualData, // Pass the actual data object
-                                    cloudflareAccountHash: parsedConfig.cloudflareAccountHash || fullConfig.cloudflareAccountHash
-                                };
-                                
-                                console.log('🚀 Initializing widget with config:', {
-                                    widgetId: widgetId,
-                                    hasData: !!widgetConfig.data,
-                                    dataType: typeof widgetConfig.data,
-                                    cardCount: widgetConfig.data && widgetConfig.data.cards ? widgetConfig.data.cards.length : 0,
-                                    actualDataKeys: widgetConfig.data ? Object.keys(widgetConfig.data) : [],
-                                    cloudflareHash: widgetConfig.cloudflareAccountHash
-                                });
-                                
-                                window.E1Calculator.init(widgetId, widgetConfig);
-                                console.log('✅ E1 Calculator Widget initialized:', widgetId);
-                            } else {
-                                throw new Error('E1Calculator.init is not a function');
-                            }
-                        } catch (error) {
-                            console.error('E1 Widget initialization error:', error);
-                            container.innerHTML = '<div class="e1-widget-error" style="padding: 20px; background: #fee; border: 1px solid #fcc; color: #c00;">' +
-                                '<strong>Widget-virhe:</strong> ' + error.message + 
-                                '</div>';
-                        }
+                        // Piilota loading
+                        var loadingEl = container.querySelector('.e1-calculator-loading');
+                        if (loadingEl) loadingEl.style.display = 'none';
+                        
+                        // Init widget
+                        window.E1Calculator.init(widgetId, {
+                            configUrl: '<?php echo E1_CALC_CACHE_URL; ?>config.json',
+                            showVisualSupport: true,
+                            theme: instanceConfig.theme || 'light'
+                        });
                     }
                     
                     // Tarkista onko DOM valmis
@@ -308,24 +215,6 @@ class Widget_Loader {
             
             // Aloita odottaminen
             waitForWidget();
-            
-            // jQuery noConflict -yhteensopivuus
-            if (typeof jQuery !== 'undefined') {
-                jQuery(function($) {
-                    // Widget on alustettu vanilla JS:llä
-                    // Lisää jQuery-pohjaisia lisätoimintoja tarvittaessa
-                    
-                    // Esim. smooth scroll tuloksiin
-                    $(document).on('e1-calculator:results', function(event, data) {
-                        var $container = $('#' + data.widgetId);
-                        if ($container.length) {
-                            $('html, body').animate({
-                                scrollTop: $container.offset().top - 100
-                            }, 500);
-                        }
-                    });
-                });
-            }
         })();
         </script>
         <?php
