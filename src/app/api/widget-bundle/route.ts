@@ -116,6 +116,12 @@ async function fetchCardData() {
 
     if (visualsError) throw visualsError;
 
+    console.log('Fetched from Supabase:', {
+      cards: cards?.length || 0,
+      visuals: visuals?.length || 0,
+      cardSample: cards?.[0]?.name || 'none'
+    });
+
     return {
       cards: cards || [],
       visuals: visuals || [],
@@ -413,6 +419,13 @@ async function buildWidgetBundle() {
       version,
       generated_at: new Date().toISOString(),
     };
+
+    console.log('Final widget bundle config:', {
+      cardsCount: transformedCards.length,
+      visualsCount: transformedVisuals.length,
+      cardSample: transformedCards[0]?.name || 'none',
+      version
+    });
 
     return {
       version,
