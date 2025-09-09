@@ -148,11 +148,11 @@ async function buildWidgetBundle() {
     // Try to use the built widget bundle first
     try {
       widgetJs = await fs.readFile(
-        path.join(distPath, 'widget.min.js'),
+        path.join(distPath, 'e1-calculator-widget.min.js'),
         'utf-8'
       );
       widgetCss = await fs.readFile(
-        path.join(distPath, 'widget.min.css'),
+        path.join(distPath, 'e1-calculator-widget.min.css'),
         'utf-8'
       );
       
