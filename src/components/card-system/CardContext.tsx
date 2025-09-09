@@ -804,7 +804,7 @@ export function CardProvider({
     };
 
     loadCards();
-  }, []);
+  }, [initialData, widgetMode]);
 
   // Initialize clean session on every app load (ensures fresh start) - skip in widget mode
   useEffect(() => {
