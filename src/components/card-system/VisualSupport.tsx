@@ -108,9 +108,11 @@ export function VisualSupport({
     variant: string = 'public'
   ) => {
     // Check for Cloudflare hash from multiple sources (for standalone widget compatibility)
+    // In widget mode, the hash is stored in window.__E1_CLOUDFLARE_HASH
+    // In normal mode, it comes from process.env
     const accountHash = 
-      process.env.NEXT_PUBLIC_CLOUDFLARE_ACCOUNT_HASH ||
       (typeof window !== 'undefined' && (window as any).__E1_CLOUDFLARE_HASH) ||
+      process.env.NEXT_PUBLIC_CLOUDFLARE_ACCOUNT_HASH ||
       null;
       
     console.log('🔧 Cloudflare config:', {
