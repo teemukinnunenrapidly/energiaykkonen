@@ -135,12 +135,16 @@ class Cache_Manager {
         // Debug: Log what we found
         if (!empty($bundle['config'])) {
             error_log('E1 Calculator: Cache bundle loaded with config containing:');
-            error_log('  - Cards: ' . (isset($bundle['config']['cards']) ? count($bundle['config']['cards']) : 'MISSING'));
-            error_log('  - Visuals: ' . (isset($bundle['config']['visuals']) ? count($bundle['config']['visuals']) : 'MISSING'));
+            // Check the correct nested structure: config.data.cards
+            error_log('  - Cards: ' . (isset($bundle['config']['data']['cards']) ? count($bundle['config']['data']['cards']) : 'MISSING'));
+            error_log('  - VisualObjects: ' . (isset($bundle['config']['data']['visualObjects']) ? count($bundle['config']['data']['visualObjects']) : 'MISSING'));
             
-            // If cards/visuals are empty, try to debug
-            if (empty($bundle['config']['cards']) || empty($bundle['config']['visuals'])) {
-                error_log('E1 Calculator: Config keys: ' . implode(', ', array_keys($bundle['config'])));
+            // If cards are empty, debug the structure
+            if (empty($bundle['config']['data']['cards'])) {
+                error_log('E1 Calculator: Config top-level keys: ' . implode(', ', array_keys($bundle['config'])));
+                if (isset($bundle['config']['data'])) {
+                    error_log('E1 Calculator: Config.data keys: ' . implode(', ', array_keys($bundle['config']['data'])));
+                }
             }
         } else {
             error_log('E1 Calculator: No config found in cache bundle');

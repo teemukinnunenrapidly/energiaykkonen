@@ -111,6 +111,8 @@ class Widget_Loader {
         
         // Lataa config
         $bundle = $this->cache_manager->get_bundle();
+        // IMPORTANT: $bundle['config'] already contains the full parsed config.json
+        // No need to parse again - use it directly
         $config = $bundle['config'] ?? [];
         
         if (empty($config)) {

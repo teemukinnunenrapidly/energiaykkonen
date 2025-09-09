@@ -254,11 +254,30 @@ const E1CalculatorWidget: React.FC<{ config: WidgetConfig }> = ({ config }) => {
     // Load data either from provided data or from config URL
     const loadData = async () => {
       try {
-        let data = config.data;
+        let data = null;
         
-        // Jos config sisältää cards/visuals suoraan (WordPress plugin case)
-        if (!data && (config.cards || config.visuals || config.cardStreamConfig)) {
-          console.log('✅ Using data from config object (WordPress plugin format)');
+        // Check if config.data exists and has the expected structure
+        if (config.data) {
+          console.log('📊 Config.data found, checking structure...');
+          
+          // If config.data has cards directly, use it as is
+          if (config.data.cards || config.data.visualObjects) {
+            console.log('✅ Using config.data directly (has cards or visualObjects)');
+            data = config.data;
+          }
+          // Otherwise check if it's a nested structure
+          else if (config.data.data) {
+            console.log('✅ Using nested config.data.data structure');
+            data = config.data.data;
+          }
+          else {
+            console.log('⚠️ config.data exists but no cards found, using as is');
+            data = config.data;
+          }
+        }
+        // Jos config sisältää cards/visuals suoraan (legacy format)
+        else if (config.cards || config.visuals || config.cardStreamConfig) {
+          console.log('✅ Using data from config object (legacy format)');
           data = {
             cards: config.cards || [],
             visuals: config.visuals || [],
@@ -266,21 +285,20 @@ const E1CalculatorWidget: React.FC<{ config: WidgetConfig }> = ({ config }) => {
           };
         }
         
-        // Jos config sisältää nested data struktuuri (cache format)
-        if (!data && config.data) {
-          console.log('✅ Using nested data structure (cache format)');
-          data = config.data;
-          
-          // Transform visualObjects to visuals array format
-          if (data.visualObjects && !data.visuals) {
-            data.visuals = Object.values(data.visualObjects);
-            console.log('📝 Transformed visualObjects to visuals array');
-          }
+        // Transform visualObjects to visuals array format if needed
+        if (data && data.visualObjects && !data.visuals) {
+          data.visuals = Object.values(data.visualObjects);
+          console.log('📝 Transformed visualObjects to visuals array');
         }
         
-        // Jos data annettu suoraan, käytä sitä
+        // Log what we have
         if (data) {
-          console.log('✅ Using injected data directly');
+          console.log('📦 Data loaded:', {
+            hasCards: !!data.cards,
+            cardCount: data.cards?.length || 0,
+            hasVisualObjects: !!data.visualObjects,
+            visualObjectCount: data.visualObjects ? Object.keys(data.visualObjects).length : 0
+          });
         }
         // Fallback: lataa URL:sta jos ei dataa
         else if (config.configUrl) {
