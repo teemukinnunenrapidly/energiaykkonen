@@ -26,6 +26,7 @@ function CardSystemInner({
   height,
   forceMode,
   showBlurredCards = false,
+  widgetMode = false,
 }: CardSystemContainerProps) {
   const styles = useCardStyles();
   const { cards } = useCardContext();
@@ -59,20 +60,39 @@ function CardSystemInner({
   // Find the active card from cards list
   const activeCard = cards.find(c => c.id === activeContext.cardId);
 
+  // Resolve visual object from linked_visual_object_id (for widget mode)
+  let visualObject = activeCard?.visual_objects;
+  
+  if (widgetMode && activeCard?.config?.linked_visual_object_id) {
+    // In widget mode, get visual object from global data
+    const widgetData = (window as any).__E1_WIDGET_DATA;
+    if (widgetData?.visualObjects) {
+      visualObject = widgetData.visualObjects[activeCard.config.linked_visual_object_id];
+      console.log('🎨 Widget mode: Resolved visual object:', {
+        linkedId: activeCard.config.linked_visual_object_id,
+        found: !!visualObject,
+        title: visualObject?.title,
+      });
+    }
+  }
+
   // Debug logging
   console.log('🏗️ CardSystemContainer state:', {
     totalCards: cards.length,
-    cardsWithVisuals: cards.filter(c => c.visual_objects).length,
+    cardsWithVisuals: cards.filter(c => c.visual_objects || c.config?.linked_visual_object_id).length,
     activeContextCardId: activeContext.cardId,
     activeCardName: activeCard?.name,
-    activeCardHasVisuals: !!activeCard?.visual_objects,
+    activeCardHasVisuals: !!visualObject,
+    widgetMode,
   });
 
   // Auto-select first card with visual objects for better UX (when no active card)
   useEffect(() => {
     // Only run once when cards are first loaded
     if (!activeContext.cardId && cards.length > 0) {
-      const cardWithVisual = cards.find(c => c.visual_objects);
+      const cardWithVisual = cards.find(c => 
+        c.visual_objects || (widgetMode && c.config?.linked_visual_object_id)
+      );
       if (cardWithVisual) {
         setActiveContext({
           cardId: cardWithVisual.id,
@@ -114,7 +134,7 @@ function CardSystemInner({
           >
             <VisualSupport
               activeCard={activeCard}
-              visualConfig={activeCard?.visual_objects}
+              visualConfig={visualObject}
               compact={isMobileMode}
               widgetMode={widgetMode}
             />

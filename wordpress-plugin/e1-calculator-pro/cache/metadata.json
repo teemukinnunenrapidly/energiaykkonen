@@ -1,12 +1,12 @@
 {
   "version": "2.0.0",
-  "buildTime": "2025-09-09T08:31:14.633Z",
+  "buildTime": "2025-09-09T09:17:46.859Z",
   "files": [
     "widget.js",
     "widget.css"
   ],
   "bundleSize": {
-    "js": 286417,
+    "js": 264196,
     "css": 6562,
     "config": 14968
   },
