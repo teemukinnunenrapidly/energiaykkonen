@@ -18,6 +18,13 @@ interface WidgetConfig {
   progressiveImageLoading?: boolean;
   configUrl?: string; // URL to load config.json from
   data?: any; // Pre-loaded data (cards, visual objects, etc.)
+  // WordPress plugin format fields
+  cards?: any[];
+  visuals?: any[];
+  cardStreamConfig?: any;
+  calculations?: any;
+  version?: string;
+  generated_at?: string;
 }
 
 // Global widget instance
