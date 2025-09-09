@@ -123,11 +123,36 @@ export class WidgetCalculationEngine {
         const lookupName = singleLookupMatch[1];
         console.log('Looking for lookup table:', lookupName);
         const lookupTable = this.lookupTables.find(t => t.name === lookupName);
-        // Determine unit based on lookup table name
+        
         if (lookupTable) {
-          if (lookupName.includes('hinta') || lookupName.includes('kulutus')) {
+          // Check if lookup name suggests a price
+          if (lookupName.includes('hinta')) {
             unit = '€';
             console.log('Setting unit for price lookup:', unit);
+          } else {
+            // For other lookups, we need to resolve what they return to get the unit
+            // Get the condition field value
+            const conditionField = lookupTable.condition_field;
+            const conditionValue = this.context.formData[conditionField];
+            
+            // Find matching lookup value
+            const lookupValues = lookupTable.lookup_values || [];
+            const matchingValue = lookupValues.find((v: any) => 
+              v.condition_value === conditionValue
+            );
+            
+            if (matchingValue && matchingValue.return_value) {
+              // Check if the return value is a calc shortcode
+              const calcMatch = String(matchingValue.return_value).match(/^\[calc:([^\]]+)\]$/);
+              if (calcMatch) {
+                const nestedFormulaName = calcMatch[1];
+                const nestedFormula = this.formulas.find(f => f.name === nestedFormulaName);
+                if (nestedFormula && nestedFormula.unit) {
+                  unit = nestedFormula.unit;
+                  console.log(`Setting unit from nested calc ${nestedFormulaName}:`, unit);
+                }
+              }
+            }
           }
         }
       }
