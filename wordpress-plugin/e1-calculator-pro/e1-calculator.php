@@ -3,7 +3,7 @@
  * Plugin Name: E1 Calculator Pro
  * Plugin URI: https://energiaykkonen.fi/
  * Description: Professional widget sync system for E1 Calculator with caching and optimization
- * Version: 3.3.3
+ * Version: 3.3.4
  * Author: Energiaykkönen Oy
  * License: GPL v2 or later
  * Text Domain: e1-calculator
@@ -18,7 +18,7 @@ if (!defined('ABSPATH')) {
 }
 
 // Plugin constants
-define('E1_CALC_VERSION', '3.3.3');
+define('E1_CALC_VERSION', '3.3.4');
 define('E1_CALC_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('E1_CALC_PLUGIN_URL', plugin_dir_url(__FILE__));
 define('E1_CALC_PLUGIN_FILE', __FILE__);

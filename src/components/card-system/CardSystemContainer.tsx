@@ -220,6 +220,14 @@ export function CardSystemContainer(props: CardSystemContainerProps) {
     }
   }, [props.widgetMode]);
 
+  // In widget mode, we assume CardProvider is already provided by the parent
+  // In normal mode, we provide our own CardProvider
+  if (props.widgetMode) {
+    // Widget mode: Don't wrap in CardProvider (parent already provides it)
+    return <CardSystemInner {...props} />;
+  }
+
+  // Normal mode: Wrap in CardProvider
   return (
     <CardProvider initialData={props.initialData} widgetMode={props.widgetMode}>
       <CardSystemInner {...props} />
