@@ -23,6 +23,7 @@ class Admin_Simple {
         
         // AJAX handlers
         add_action('wp_ajax_e1_sync_widget', array($this, 'ajax_sync_widget'));
+        add_action('wp_ajax_e1_clear_cache', array($this, 'ajax_clear_cache'));
     }
     
     /**
@@ -152,7 +153,13 @@ class Admin_Simple {
                     <button type="button" id="sync-widget-btn" class="button button-primary button-hero">
                         <?php _e('Sync Widget', 'e1-calculator'); ?>
                     </button>
+                    <button type="button" id="clear-cache-btn" class="button" style="margin-left: 10px;">
+                        <?php _e('Clear Cache First', 'e1-calculator'); ?>
+                    </button>
                     <span class="spinner" style="float: none; margin: 0 0 0 10px;"></span>
+                </p>
+                <p class="description">
+                    <?php _e('If sync fails or shows old data, click "Clear Cache First" then "Sync Widget".', 'e1-calculator'); ?>
                 </p>
                 
                 <?php if ($sync_status['last_sync']): ?>
@@ -251,6 +258,28 @@ class Admin_Simple {
                 'message' => 'Sync failed: ' . $e->getMessage(),
                 'errors' => [$e->getMessage()]
             ]);
+        }
+    }
+    
+    /**
+     * AJAX: Clear cache
+     */
+    public function ajax_clear_cache() {
+        // Check nonce
+        if (!$this->security->validate_nonce($_POST['nonce'] ?? '')) {
+            wp_send_json_error(['message' => __('Security check failed', 'e1-calculator')]);
+        }
+        
+        // Check permissions
+        if (!$this->security->check_admin_permissions()) {
+            wp_send_json_error(['message' => __('Unauthorized', 'e1-calculator')]);
+        }
+        
+        try {
+            $this->cache_manager->clear_cache();
+            wp_send_json_success(['message' => __('Cache cleared successfully. Now click "Sync Widget" to download fresh data.', 'e1-calculator')]);
+        } catch (\Exception $e) {
+            wp_send_json_error(['message' => $e->getMessage()]);
         }
     }
 }

@@ -264,7 +264,16 @@ class Sync_Manager {
         $files = [
             'widget.js' => $bundle['widget']['js'],
             'widget.css' => $bundle['widget']['css'],
-            'config.json' => json_encode($bundle['config'], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE)
+            'config.json' => json_encode($bundle['config'], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE),
+            'metadata.json' => json_encode([
+                'version' => $bundle['version'] ?? 'unknown',
+                'checksum' => $bundle['checksum'] ?? '',
+                'generated_at' => $bundle['generated_at'] ?? '',
+                'synced_at' => current_time('mysql'),
+                'synced_by' => wp_get_current_user()->user_login ?? 'system',
+                'cache_timestamp' => time(),
+                'api_response' => $bundle // Store full API response for debugging
+            ], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE)
         ];
         
         try {

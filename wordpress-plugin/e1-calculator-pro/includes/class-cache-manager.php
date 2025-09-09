@@ -123,10 +123,27 @@ class Cache_Manager {
             $bundle['config'] = json_decode(file_get_contents($config_file), true);
         }
         
-        // Read metadata
-        $meta_file = E1_CALC_CACHE_DIR . self::CACHE_META;
+        // Read metadata (try both meta.json and metadata.json for compatibility)
+        $meta_file = E1_CALC_CACHE_DIR . 'metadata.json';
+        if (!file_exists($meta_file)) {
+            $meta_file = E1_CALC_CACHE_DIR . self::CACHE_META;
+        }
         if (file_exists($meta_file)) {
             $bundle['meta'] = json_decode(file_get_contents($meta_file), true);
+        }
+        
+        // Debug: Log what we found
+        if (!empty($bundle['config'])) {
+            error_log('E1 Calculator: Cache bundle loaded with config containing:');
+            error_log('  - Cards: ' . (isset($bundle['config']['cards']) ? count($bundle['config']['cards']) : 'MISSING'));
+            error_log('  - Visuals: ' . (isset($bundle['config']['visuals']) ? count($bundle['config']['visuals']) : 'MISSING'));
+            
+            // If cards/visuals are empty, try to debug
+            if (empty($bundle['config']['cards']) || empty($bundle['config']['visuals'])) {
+                error_log('E1 Calculator: Config keys: ' . implode(', ', array_keys($bundle['config'])));
+            }
+        } else {
+            error_log('E1 Calculator: No config found in cache bundle');
         }
         
         return !empty($bundle) ? $bundle : null;
@@ -136,7 +153,11 @@ class Cache_Manager {
      * Check if cache is valid
      */
     public function is_cache_valid() {
-        $meta_file = E1_CALC_CACHE_DIR . self::CACHE_META;
+        // Try new metadata.json first, fallback to meta.json
+        $meta_file = E1_CALC_CACHE_DIR . 'metadata.json';
+        if (!file_exists($meta_file)) {
+            $meta_file = E1_CALC_CACHE_DIR . self::CACHE_META;
+        }
         
         if (!file_exists($meta_file)) {
             return false;
@@ -181,6 +202,7 @@ class Cache_Manager {
             self::CACHE_CSS,
             self::CACHE_CONFIG,
             self::CACHE_META,
+            'metadata.json', // New metadata file
         ];
         
         foreach ($files as $file) {
@@ -189,6 +211,14 @@ class Cache_Manager {
                 unlink($path);
             }
         }
+        
+        // Also clear temp files
+        $temp_files = glob(E1_CALC_CACHE_DIR . 'temp/*.tmp');
+        foreach ($temp_files as $file) {
+            @unlink($file);
+        }
+        
+        error_log('E1 Calculator: Cache cleared completely');
         
         return true;
     }
