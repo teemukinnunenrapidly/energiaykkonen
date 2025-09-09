@@ -262,6 +262,18 @@ const E1CalculatorWidget: React.FC<{ config: WidgetConfig }> = ({ config }) => {
           };
         }
         
+        // Jos config sisältää nested data struktuuri (cache format)
+        if (!data && config.data) {
+          console.log('✅ Using nested data structure (cache format)');
+          data = config.data;
+          
+          // Transform visualObjects to visuals array format
+          if (data.visualObjects && !data.visuals) {
+            data.visuals = Object.values(data.visualObjects);
+            console.log('📝 Transformed visualObjects to visuals array');
+          }
+        }
+        
         // Jos data annettu suoraan, käytä sitä
         if (data) {
           console.log('✅ Using injected data directly');
