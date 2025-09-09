@@ -217,6 +217,19 @@ export class WidgetCalculationEngine {
         );
       }
     }
+    
+    // Extract lookup: references and add their condition fields as dependencies
+    const lookupPattern = /\[lookup:([^\]]+)\]/gi;
+    while ((match = lookupPattern.exec(content)) !== null) {
+      const lookupName = match[1];
+      const lookupTable = this.lookupTables.find(t => t.name === lookupName);
+      
+      if (lookupTable && lookupTable.condition_field) {
+        // Add the condition field as a dependency
+        fieldDeps.add(lookupTable.condition_field);
+        console.log(`Added lookup condition field ${lookupTable.condition_field} as dependency for ${lookupName}`);
+      }
+    }
   }
 
   /**

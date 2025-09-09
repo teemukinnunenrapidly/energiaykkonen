@@ -5,9 +5,10 @@ import { useCardContext } from '../CardContext';
 
 interface InfoCardProps {
   card: CardTemplate;
+  widgetMode?: boolean;
 }
 
-export function InfoCard({ card }: InfoCardProps) {
+export function InfoCard({ card, widgetMode = false }: InfoCardProps) {
   const styles = useCardStyles();
   const { completeCard, cardStates } = useCardContext();
 

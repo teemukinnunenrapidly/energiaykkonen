@@ -1,76 +1,65 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { Edit2, Check, X, RotateCcw } from 'lucide-react';
-import { useCardStyles } from '../../../hooks/useCardStyles';
+import React, { useState, useEffect } from 'react';
+import { useCardStyles } from '@/hooks/useCardStyles';
 
 interface EditableCalculationResultProps {
-  value: string;
+  value: string; // Format: "number unit" e.g., "50820 kWH"
   originalValue: string;
   unit?: string;
-  onUpdate: (newValue: number) => void;
+  onUpdate: (value: number) => void;
   editButtonText?: string;
+  isCalculating?: boolean;
   editPrompt?: string;
   validationMin?: number;
   validationMax?: number;
-  isCalculating?: boolean;
 }
 
-export function EditableCalculationResult({
+export const EditableCalculationResult: React.FC<EditableCalculationResultProps> = ({
   value,
   originalValue,
-  unit = '',
+  unit,
   onUpdate,
-  editButtonText = 'Korjaa lukemaa',
-  editPrompt = 'Syötä todellinen kulutuksesi',
+  editButtonText = 'Syötä lukema',
+  isCalculating = false,
+  editPrompt,
   validationMin,
   validationMax,
-  isCalculating = false,
-}: EditableCalculationResultProps) {
+}) => {
   const styles = useCardStyles();
   const [isEditing, setIsEditing] = useState(false);
   const [editValue, setEditValue] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [isOverridden, setIsOverridden] = useState(false);
-  const inputRef = useRef<HTMLInputElement>(null);
 
-  // Check if current value differs from original (indicates override)
+  // Extract numeric value from string
+  const getNumericValue = (val: string): number => {
+    if (!val) return 0;
+    const numStr = val.split(' ')[0];
+    return parseFloat(numStr.replace(/\s/g, '').replace(',', '.')) || 0;
+  };
+
+  // Check if value has been overridden
   useEffect(() => {
-    const numericValue = parseFloat(
-      value.replace(/[^\d,.-]/g, '').replace(',', '.')
-    );
-    const numericOriginal = parseFloat(
-      originalValue.replace(/[^\d,.-]/g, '').replace(',', '.')
-    );
+    const numericValue = getNumericValue(value);
+    const numericOriginal = getNumericValue(originalValue);
     setIsOverridden(Math.abs(numericValue - numericOriginal) > 0.01);
   }, [value, originalValue]);
 
-  // Focus input when entering edit mode
-  useEffect(() => {
-    if (isEditing && inputRef.current) {
-      inputRef.current.focus();
-      inputRef.current.select();
-    }
-  }, [isEditing]);
-
   const handleEdit = () => {
-    // Extract numeric value from display value
-    const numericValue = value.replace(/[^\d,.-]/g, '').replace(',', '.');
-    setEditValue(numericValue);
+    const numericValue = getNumericValue(value);
+    setEditValue(numericValue.toString());
     setError(null);
     setIsEditing(true);
   };
 
   const parseFormattedNumber = (input: string): number | null => {
-    // Handle Finnish number format: space as thousands separator, comma as decimal
     const normalized = input
-      .replace(/\s/g, '') // Remove spaces (thousands separator)
-      .replace(',', '.'); // Replace comma with dot for decimal
-
+      .replace(/\s/g, '') // Remove spaces
+      .replace(',', '.'); // Replace comma with dot
     const parsed = parseFloat(normalized);
     return isNaN(parsed) ? null : parsed;
   };
 
   const formatNumber = (num: number): string => {
-    // Format with Finnish locale
     return num.toLocaleString('fi-FI');
   };
 
@@ -82,7 +71,6 @@ export function EditableCalculationResult({
       return;
     }
 
-    // Validate against min/max if provided
     if (validationMin !== undefined && parsedValue < validationMin) {
       setError(`Arvon tulee olla vähintään ${formatNumber(validationMin)}`);
       return;
@@ -93,7 +81,6 @@ export function EditableCalculationResult({
       return;
     }
 
-    // Update the value
     onUpdate(parsedValue);
     setIsEditing(false);
     setError(null);
@@ -106,41 +93,26 @@ export function EditableCalculationResult({
   };
 
   const handleRevert = () => {
-    // Parse and update with original value
-    const numericOriginal = parseFloat(
-      originalValue.replace(/[^\d,.-]/g, '').replace(',', '.')
-    );
+    const numericOriginal = getNumericValue(originalValue);
     onUpdate(numericOriginal);
-  };
-
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter') {
-      handleSave();
-    } else if (e.key === 'Escape') {
-      handleCancel();
-    }
   };
 
   if (isCalculating) {
     return (
-      <div
-        style={{
-          color: styles.colors.state.info,
-          display: 'flex',
-          alignItems: 'center',
-          gap: '12px',
-        }}
-      >
-        <div
-          style={{
-            animation: 'spin 1s linear infinite',
-            borderRadius: '50%',
-            height: '32px',
-            width: '32px',
-            border: '2px solid transparent',
-            borderBottom: `2px solid ${styles.colors.state.info}`,
-          }}
-        ></div>
+      <div style={{ 
+        display: 'flex', 
+        alignItems: 'center', 
+        gap: '12px',
+        color: styles.colors.state.info
+      }}>
+        <div className="loading-spinner" style={{
+          width: '20px',
+          height: '20px',
+          border: `2px solid ${styles.colors.border.default}`,
+          borderTopColor: styles.colors.state.info,
+          borderRadius: '50%',
+          animation: 'spin 1s linear infinite',
+        }} />
         Lasketaan...
       </div>
     );
@@ -149,155 +121,77 @@ export function EditableCalculationResult({
   if (isEditing) {
     return (
       <div>
-        <div
-          style={
-            styles.calculationCard.editMode.inputGroup as React.CSSProperties
-          }
-        >
-          <div
-            style={{
-              ...(styles.calculationCard.editMode
-                .inputWrapper as React.CSSProperties),
-              ...(error
-                ? {
-                    borderColor:
-                      styles.calculationCard.editMode.inputError.borderColor,
-                  }
-                : {}),
+        <div style={{ display: 'flex', gap: '8px', alignItems: 'center', marginBottom: '8px' }}>
+          <input
+            type="text"
+            value={editValue}
+            onChange={(e) => setEditValue(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') handleSave();
+              if (e.key === 'Escape') handleCancel();
             }}
-          >
-            <input
-              ref={inputRef}
-              type="text"
-              value={editValue}
-              onChange={e => setEditValue(e.target.value)}
-              onKeyDown={handleKeyDown}
-              style={{
-                ...(styles.calculationCard.editMode
-                  .input as React.CSSProperties),
-                paddingRight: unit ? '60px' : '12px', // Make room for unit label
-              }}
-              onFocus={e => {
-                const wrapper = e.currentTarget.parentElement;
-                if (wrapper) {
-                  Object.assign(
-                    wrapper.style,
-                    styles.calculationCard.editMode.inputWrapperFocus
-                  );
-                }
-              }}
-              onBlur={e => {
-                const wrapper = e.currentTarget.parentElement;
-                if (wrapper && !error) {
-                  wrapper.style.borderColor =
-                    styles.calculationCard.editMode.inputWrapper.borderColor;
-                  wrapper.style.boxShadow = 'none';
-                }
-              }}
-            />
-            {unit && (
-              <span
-                style={{
-                  ...(styles.calculationCard.editMode
-                    .unitLabel as React.CSSProperties),
-                  position: 'absolute',
-                  right: '1px',
-                  top: '50%',
-                  transform: 'translateY(-50%)',
-                  padding: '6px 12px',
-                  background: '#f3f4f6',
-                  borderLeft: '1px solid #e5e7eb',
-                  borderRadius: '0 6px 6px 0',
-                  color: '#6b7280',
-                  fontSize: '14px',
-                  pointerEvents: 'none',
-                }}
-              >
-                {unit}
-              </span>
-            )}
-          </div>
-          <div
-            style={
-              styles.calculationCard.editMode
-                .actionButtons as React.CSSProperties
-            }
-          >
-            <button
-              onClick={handleSave}
-              style={
-                styles.calculationCard.editMode
-                  .saveButton as React.CSSProperties
-              }
-              onMouseEnter={e => {
-                Object.assign(
-                  e.currentTarget.style,
-                  styles.calculationCard.editMode.saveButtonHover
-                );
-              }}
-              onMouseLeave={e => {
-                Object.assign(
-                  e.currentTarget.style,
-                  styles.calculationCard.editMode.saveButton
-                );
-              }}
-            >
-              <Check
-                style={{
-                  width: '14px',
-                  height: '14px',
-                  marginRight: '4px',
-                  display: 'inline',
-                }}
-              />
-              Tallenna
-            </button>
-            <button
-              onClick={handleCancel}
-              style={
-                styles.calculationCard.editMode
-                  .cancelButton as React.CSSProperties
-              }
-              onMouseEnter={e => {
-                Object.assign(
-                  e.currentTarget.style,
-                  styles.calculationCard.editMode.cancelButtonHover
-                );
-              }}
-              onMouseLeave={e => {
-                Object.assign(
-                  e.currentTarget.style,
-                  styles.calculationCard.editMode.cancelButton
-                );
-              }}
-            >
-              <X
-                style={{
-                  width: '14px',
-                  height: '14px',
-                  marginRight: '4px',
-                  display: 'inline',
-                }}
-              />
-              Peruuta
-            </button>
-          </div>
-        </div>
-        {editPrompt && (
-          <p
             style={{
+              padding: styles.formElements.input.padding,
+              border: `1px solid ${error ? styles.colors.state.error : styles.colors.border.default}`,
+              borderRadius: styles.formElements.input.borderRadius,
+              fontSize: styles.formElements.input.fontSize,
+              flex: 1,
+            }}
+            placeholder="Syötä arvo"
+            autoFocus
+          />
+          {unit && (
+            <span style={{ 
+              color: styles.colors.text.secondary, 
               fontSize: styles.typography.fontSizeBase,
-              color: styles.colors.text.secondary,
-              marginTop: '8px',
-            }}
+              minWidth: 'max-content'
+            }}>
+              {unit}
+            </span>
+          )}
+        </div>
+        
+        <div style={{ display: 'flex', gap: '8px' }}>
+          <button
+            onClick={handleSave}
+            style={{
+              flex: 1,
+              padding: '0.625rem 1.5rem',
+              background: styles.colors.state.success,
+              color: '#fff',
+              border: 'none',
+              borderRadius: '0.5rem',
+              cursor: 'pointer',
+              fontSize: '1rem',
+              fontWeight: '500',
+            } as React.CSSProperties}
           >
-            {editPrompt}
-          </p>
-        )}
+            ✓ Tallenna
+          </button>
+          <button
+            onClick={handleCancel}
+            style={{
+              flex: 1,
+              padding: '0.625rem 1.5rem',
+              background: styles.colors.text.secondary,
+              color: '#fff',
+              border: 'none',
+              borderRadius: '0.5rem',
+              cursor: 'pointer',
+              fontSize: '1rem',
+              fontWeight: '500',
+            } as React.CSSProperties}
+          >
+            ✕ Peruuta
+          </button>
+        </div>
+        
         {error && (
-          <div
-            style={styles.calculationCard.errorMessage as React.CSSProperties}
-          >
+          <div style={{ 
+            color: styles.colors.state.error, 
+            fontSize: styles.formElements.errorMessage.fontSize,
+            marginTop: '4px' 
+          }}>
             {error}
           </div>
         )}
@@ -305,123 +199,104 @@ export function EditableCalculationResult({
     );
   }
 
+  // Non-editing display mode
+  const displayValue = value.split(' ')[0];
+  const displayUnit = unit || value.split(' ').slice(1).join(' ');
+
   return (
     <div style={{ position: 'relative' }}>
-      {/* Edited indicator badge */}
       {isOverridden && (
-        <div
-          style={
-            styles.calculationCard.editedIndicator.badge as React.CSSProperties
-          }
-        >
-          <span
-            style={
-              styles.calculationCard.editedIndicator.icon as React.CSSProperties
-            }
-          >
-            ✏️
-          </span>
+        <div style={{
+          position: 'absolute',
+          top: '-8px',
+          right: '-8px',
+          background: styles.colors.state.warning,
+          color: 'white',
+          fontSize: '0.75rem',
+          padding: '2px 6px',
+          borderRadius: '12px',
+          fontWeight: styles.typography.fontWeightMedium,
+        }}>
           Muokattu
         </div>
       )}
 
-      {/* Result display */}
-      <div>
-        <div
-          style={styles.calculationCard.resultSection as React.CSSProperties}
-        >
-          <div
-            style={styles.calculationCard.resultDisplay as React.CSSProperties}
-          >
-            <div>
-              <span
-                style={
-                  styles.calculationCard.metricValue as React.CSSProperties
-                }
-              >
-                {value.split(' ')[0]}
-              </span>
-              {value.includes(' ') && (
-                <span
-                  style={
-                    styles.calculationCard.metricUnit as React.CSSProperties
-                  }
-                >
-                  {value.split(' ').slice(1).join(' ')}
-                </span>
-              )}
-            </div>
+      {/* Display the calculated value - using calculation card styles */}
+      <div style={styles.calculationCard.resultDisplay as React.CSSProperties}>
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: '12px',
+        }}>
+          <div style={{
+            ...styles.calculationCard.metricValue as React.CSSProperties,
+            flex: 1,
+          }}>
+            {displayValue}
           </div>
-        </div>
-
-        {/* Edit/Revert buttons on separate row below */}
-        <div style={{ display: 'flex', gap: '8px', marginTop: '12px' }}>
-          {isOverridden && (
-            <button
-              onClick={handleRevert}
-              style={styles.calculationCard.editButton as React.CSSProperties}
-              onMouseEnter={e => {
-                Object.assign(
-                  e.currentTarget.style,
-                  styles.calculationCard.editButtonHover
-                );
-              }}
-              onMouseLeave={e => {
-                Object.assign(
-                  e.currentTarget.style,
-                  styles.calculationCard.editButton
-                );
-              }}
-              title={`Palauta alkuperäinen arvo: ${originalValue}`}
-            >
-              <RotateCcw
-                style={{
-                  ...(styles.calculationCard.editIcon as React.CSSProperties),
-                  width: '14px',
-                  height: '14px',
-                }}
-              />
-              Palauta
-            </button>
+          {displayUnit && (
+            <div style={styles.calculationCard.metricUnit as React.CSSProperties}>
+              {displayUnit}
+            </div>
           )}
-          <button
-            onClick={handleEdit}
-            style={styles.calculationCard.editButton as React.CSSProperties}
-            onMouseEnter={e => {
-              Object.assign(
-                e.currentTarget.style,
-                styles.calculationCard.editButtonHover
-              );
-            }}
-            onMouseLeave={e => {
-              Object.assign(
-                e.currentTarget.style,
-                styles.calculationCard.editButton
-              );
-            }}
-            onFocus={e => {
-              Object.assign(
-                e.currentTarget.style,
-                styles.calculationCard.editButtonFocus
-              );
-            }}
-            onBlur={e => {
-              e.currentTarget.style.outline = 'none';
-              e.currentTarget.style.outlineOffset = '0';
-            }}
-            title={editButtonText}
-          >
-            <Edit2
-              style={{
-                ...(styles.calculationCard.editIcon as React.CSSProperties),
-                width: '14px',
-                height: '14px',
-              }}
-            />
-            {editButtonText}
-          </button>
         </div>
       </div>
+
+      {/* Edit button - properly styled with design tokens */}
+      <button
+        onClick={handleEdit}
+        style={{
+          width: '100%',
+          padding: styles.formElements.input.padding,
+          background: 'transparent',
+          color: styles.colors.brand.primary,
+          border: `1px solid ${styles.colors.brand.primary}`,
+          borderRadius: styles.formElements.input.borderRadius,
+          cursor: 'pointer',
+          fontSize: styles.typography.fontSizeBase,
+          fontWeight: styles.typography.fontWeightMedium,
+          marginTop: '16px',
+          marginBottom: isOverridden ? '8px' : '0',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          gap: '8px',
+          transition: 'all 0.2s ease',
+        }}
+        onMouseEnter={(e) => {
+          e.currentTarget.style.background = styles.colors.brand.primary;
+          e.currentTarget.style.color = 'white';
+        }}
+        onMouseLeave={(e) => {
+          e.currentTarget.style.background = 'transparent';
+          e.currentTarget.style.color = styles.colors.brand.primary;
+        }}
+      >
+        ✏️ {editButtonText || 'Syötä lukema'}
+      </button>
+
+      {isOverridden && (
+        <button
+          onClick={handleRevert}
+          style={{
+            width: '100%',
+            padding: styles.formElements.input.padding,
+            background: styles.colors.text.secondary,
+            color: 'white',
+            border: 'none',
+            borderRadius: styles.formElements.input.borderRadius,
+            cursor: 'pointer',
+            fontSize: styles.typography.fontSizeBase,
+            fontWeight: styles.typography.fontWeightMedium,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: '8px',
+          }}
+        >
+          ↻ Palauta alkuperäinen ({originalValue.split(' ')[0]} {displayUnit})
+        </button>
+      )}
     </div>
   );
-}
+};
