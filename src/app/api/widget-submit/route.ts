@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabase } from '@/lib/supabase';
-import { sendEmail } from '@/lib/email-service';
+import { sendLeadEmails } from '@/lib/email-service';
 
 export async function POST(req: NextRequest) {
   try {
@@ -44,18 +44,16 @@ export async function POST(req: NextRequest) {
 
     console.log('✅ Widget submission saved to Supabase:', lead.id);
 
-    // Send confirmation email
+    // Send confirmation and sales notification emails
     try {
-      await sendEmail({
-        to: formData.sahkoposti,
-        templateType: emailTemplate || 'default',
-        data: {
-          ...formData,
-          ...calculations,
-          leadId: lead.id
-        }
-      });
-      console.log('✅ Confirmation email sent to:', formData.sahkoposti);
+      const baseUrl = req.headers.get('origin') || process.env.NEXTAUTH_URL || 'http://localhost:3000';
+      const emailResults = await sendLeadEmails(lead, baseUrl);
+      
+      if (emailResults.errors.length > 0) {
+        console.error('⚠️ Some emails failed:', emailResults.errors);
+      } else {
+        console.log('✅ All emails sent successfully');
+      }
     } catch (emailError) {
       console.error('⚠️ Email sending failed (lead saved):', emailError);
       // Don't fail the whole submission if email fails
