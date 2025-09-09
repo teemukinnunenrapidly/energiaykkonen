@@ -116,6 +116,7 @@ function CardSystemInner({
               activeCard={activeCard}
               visualConfig={activeCard?.visual_objects}
               compact={isMobileMode}
+              widgetMode={widgetMode}
             />
           </div>
         )}

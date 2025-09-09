@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useCardStyles, cssValue } from '@/hooks/useCardStyles';
 import type { CardTemplate } from '@/lib/supabase';
-import { supabase } from '@/lib/supabase';
 
 interface VisualSupportProps {
   activeCard?: CardTemplate;
@@ -9,6 +8,7 @@ interface VisualSupportProps {
   compact?: boolean;
   // Keep objectId for backward compatibility
   objectId?: string;
+  widgetMode?: boolean;
 }
 
 export function VisualSupport({
@@ -16,6 +16,7 @@ export function VisualSupport({
   visualConfig,
   compact = false,
   objectId,
+  widgetMode = false,
 }: VisualSupportProps) {
   const styles = useCardStyles();
   const [visualImages, setVisualImages] = useState<any[]>([]);
@@ -50,19 +51,37 @@ export function VisualSupport({
       setImageLoadStarted(true);
       
       try {
-        console.log('🎯 Progressive loading: Fetching images for visual object:', visualObject.id);
-        const { data: images, error } = await supabase
-          .from('visual_object_images')
-          .select('*')
-          .eq('visual_object_id', visualObject.id)
-          .order('display_order');
-
-        if (error) {
-          console.error('❌ Error fetching visual images:', error);
-          setVisualImages([]);
+        if (widgetMode) {
+          // In widget mode, get visual objects from global data
+          const widgetData = (window as any).__E1_WIDGET_DATA;
+          if (widgetData?.visualObjects) {
+            const visualObj = widgetData.visualObjects[visualObject.id];
+            if (visualObj?.images) {
+              console.log('✅ Widget mode: Loaded', visualObj.images.length, 'images from config');
+              setVisualImages(visualObj.images);
+            } else {
+              setVisualImages([]);
+            }
+          } else {
+            setVisualImages([]);
+          }
         } else {
-          console.log('✅ Progressive load complete: Loaded', images?.length || 0, 'images');
-          setVisualImages(images || []);
+          // Normal mode: fetch from Supabase
+          console.log('🎯 Progressive loading: Fetching images for visual object:', visualObject.id);
+          const { supabase } = await import('@/lib/supabase');
+          const { data: images, error } = await supabase
+            .from('visual_object_images')
+            .select('*')
+            .eq('visual_object_id', visualObject.id)
+            .order('display_order');
+
+          if (error) {
+            console.error('❌ Error fetching visual images:', error);
+            setVisualImages([]);
+          } else {
+            console.log('✅ Progressive load complete: Loaded', images?.length || 0, 'images');
+            setVisualImages(images || []);
+          }
         }
       } catch (error) {
         console.error('❌ Error fetching visual images:', error);
@@ -76,7 +95,7 @@ export function VisualSupport({
     if (activeCard && visualObject?.id) {
       fetchVisualImages();
     }
-  }, [visualObject?.id, activeCard?.id, imageLoadStarted]);
+  }, [visualObject?.id, activeCard?.id, imageLoadStarted, widgetMode]);
 
   // Helper function to generate Cloudflare image URL
   const getCloudflareImageUrl = (
