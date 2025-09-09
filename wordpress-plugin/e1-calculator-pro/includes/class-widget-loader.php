@@ -35,6 +35,10 @@ class Widget_Loader {
         
         // REST API endpoint
         add_action('rest_api_init', [$this, 'register_rest_routes']);
+        
+        // AJAX endpoint for widget config
+        add_action('wp_ajax_e1_widget_config', [$this, 'ajax_widget_config']);
+        add_action('wp_ajax_nopriv_e1_widget_config', [$this, 'ajax_widget_config']);
     }
     
     /**
@@ -84,7 +88,7 @@ class Widget_Loader {
             'nonce' => wp_create_nonce('e1_widget_nonce'),
             'api_url' => get_option('e1_widget_api_url', 'https://your-app.vercel.app'),
             'plugin_url' => E1_CALC_PLUGIN_URL,
-            'config_url' => E1_CALC_CACHE_URL . 'config.json'
+            'config_url' => admin_url('admin-ajax.php?action=e1_widget_config')
         ]);
     }
     
@@ -105,11 +109,22 @@ class Widget_Loader {
         self::$instance_count++;
         $widget_id = !empty($atts['id']) ? esc_attr($atts['id']) : 'e1-calculator-widget-' . self::$instance_count;
         
+        // Lataa config
+        $bundle = $this->cache_manager->get_bundle();
+        $config = $bundle['config'] ?? [];
+        
+        if (empty($config)) {
+            return '<div class="e1-calculator-error" style="padding: 20px; background: #fee; border: 1px solid #fcc; color: #c00;">
+                        <strong>Widget Error:</strong> Widget not synced. Please sync in admin panel.
+                    </div>';
+        }
+        
         // Tallenna instanssin config myöhempää käyttöä varten
         self::$widget_instances[$widget_id] = [
             'type' => $atts['type'],
             'theme' => $atts['theme'],
             'api_url' => get_option('e1_calculator_api_url', ''),
+            'data' => $config, // Include config data
         ];
         
         // LATAA RESURSSIT (vain kerran vaikka useita widgettejä)
@@ -124,9 +139,12 @@ class Widget_Loader {
             $container_style = sprintf('style="min-height: %spx;"', esc_attr($atts['height']));
         }
         
-        // Palauta container HTML
+        // Encode config as JSON for data attribute
+        $config_json = json_encode($config, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP);
+        
+        // Palauta container HTML with embedded config
         return sprintf(
-            '<div id="%s" class="e1-calculator-widget-container %s" data-type="%s" data-theme="%s" %s>
+            '<div id="%s" class="e1-calculator-widget-container %s" data-type="%s" data-theme="%s" data-e1-config=\'%s\' %s>
                 <div class="e1-calculator-loading">
                     <div class="e1-loading-spinner"></div>
                     <p>%s</p>
@@ -141,6 +159,7 @@ class Widget_Loader {
             esc_attr($atts['class']),
             esc_attr($atts['type']),
             esc_attr($atts['theme']),
+            esc_attr($config_json),
             $container_style,
             __('Ladataan laskuria...', 'e1-calculator'),
             __('Tämä laskuri vaatii JavaScriptin toimiakseen. Ole hyvä ja ota JavaScript käyttöön selaimessasi.', 'e1-calculator')
@@ -188,7 +207,8 @@ class Widget_Loader {
                         nonce: window.e1CalculatorData ? window.e1CalculatorData.nonce : '',
                         widgetNonce: window.e1_widget_config ? window.e1_widget_config.nonce : '',
                         ajaxUrl: window.e1_widget_config ? window.e1_widget_config.ajax_url : '',
-                        configUrl: window.e1_widget_config ? window.e1_widget_config.config_url : ''
+                        // Use embedded data instead of configUrl to avoid HTTP requests
+                        data: globalConfig
                     });
                     
                     // Alusta widget kun DOM on valmis
@@ -206,9 +226,14 @@ class Widget_Loader {
                                 loadingEl.style.display = 'none';
                             }
                             
-                            // Alusta widget
+                            // Alusta widget - se parsii automaattisesti data-e1-config attribuutin
                             if (window.E1Calculator && typeof window.E1Calculator.init === 'function') {
-                                window.E1Calculator.init(widgetId, fullConfig);
+                                window.E1Calculator.init(widgetId, {
+                                    theme: instanceConfig.theme,
+                                    height: 600,
+                                    showVisualSupport: true,
+                                    widgetMode: true
+                                });
                                 console.log('E1 Calculator Widget initialized:', widgetId);
                             } else {
                                 throw new Error('E1Calculator.init is not a function');
@@ -448,5 +473,28 @@ class Widget_Loader {
         $rules .= "Options -Indexes\n";
         
         file_put_contents($htaccess, $rules);
+    }
+    
+    /**
+     * AJAX endpoint for widget config
+     */
+    public function ajax_widget_config() {
+        // Set JSON header
+        header('Content-Type: application/json');
+        
+        try {
+            // Load config from cache
+            $bundle = $this->cache_manager->get_bundle();
+            $config = $bundle['config'] ?? [];
+            
+            if (empty($config)) {
+                wp_send_json_error(['message' => 'Config not found']);
+                return;
+            }
+            
+            wp_send_json_success($config);
+        } catch (Exception $e) {
+            wp_send_json_error(['message' => $e->getMessage()]);
+        }
     }
 }
