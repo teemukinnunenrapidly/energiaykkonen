@@ -305,7 +305,8 @@ const E1CalculatorWidget: React.FC<{ config: WidgetConfig }> = ({ config }) => {
           console.log('⚠️ Falling back to URL loading from:', config.configUrl);
           try {
             const loadedConfig = await loadConfigData(config.configUrl);
-            data = loadedConfig.data;
+            // Check if config has nested data structure or flat structure
+            data = loadedConfig.data || loadedConfig;
             
             // Also update Cloudflare hash if provided in config
             if (loadedConfig.cloudflareAccountHash) {
@@ -322,7 +323,8 @@ const E1CalculatorWidget: React.FC<{ config: WidgetConfig }> = ({ config }) => {
           try {
             const defaultUrl = '/wp-content/plugins/e1-calculator-pro/cache/config.json';
             const loadedConfig = await loadConfigData(defaultUrl);
-            data = loadedConfig.data;
+            // Check if config has nested data structure or flat structure
+            data = loadedConfig.data || loadedConfig;
             
             if (loadedConfig.cloudflareAccountHash) {
               (window as any).__E1_CLOUDFLARE_HASH = loadedConfig.cloudflareAccountHash;
