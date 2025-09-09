@@ -244,7 +244,18 @@ const E1CalculatorWidget: React.FC<{ config: WidgetConfig }> = ({ config }) => {
     
     // Store WordPress nonce if available (for secure submission)
     if (typeof window !== 'undefined') {
-      const wpConfig = (window as any).e1_widget_config;
+      // Check for WordPress config (multiple possible formats)
+      let wpConfig = (window as any).e1_widget_config;
+      
+      // Also check for WordPress widget-specific configs
+      if (!wpConfig) {
+        const configKeys = Object.keys(window).filter(key => key.startsWith('E1_WIDGET_CONFIG_'));
+        if (configKeys.length > 0) {
+          wpConfig = (window as any)[configKeys[0]];
+          console.log('🔧 Found WordPress config:', configKeys[0]);
+        }
+      }
+      
       if (wpConfig && wpConfig.nonce) {
         (window as any).e1_widget_nonce = wpConfig.nonce;
         console.log('🔐 WordPress nonce stored for secure submission');
@@ -256,8 +267,26 @@ const E1CalculatorWidget: React.FC<{ config: WidgetConfig }> = ({ config }) => {
       try {
         let data = null;
         
+        // First, check if we have WordPress config data available globally
+        if (typeof window !== 'undefined') {
+          const configKeys = Object.keys(window).filter(key => key.startsWith('E1_WIDGET_CONFIG_'));
+          if (configKeys.length > 0) {
+            const wpConfig = (window as any)[configKeys[0]];
+            console.log('🔧 Found WordPress config, checking for data...', {
+              hasData: !!wpConfig.data,
+              hasCards: !!(wpConfig.data?.cards),
+              cardCount: wpConfig.data?.cards?.length || 0
+            });
+            
+            if (wpConfig.data) {
+              console.log('✅ Using WordPress config data');
+              data = wpConfig.data;
+            }
+          }
+        }
+        
         // Check if config.data exists and has the expected structure
-        if (config.data) {
+        if (!data && config.data) {
           console.log('📊 Config.data found, checking structure...');
           
           // If config.data has cards directly, use it as is
@@ -276,7 +305,7 @@ const E1CalculatorWidget: React.FC<{ config: WidgetConfig }> = ({ config }) => {
           }
         }
         // Jos config sisältää cards/visuals suoraan (legacy format)
-        else if (config.cards || config.visuals || config.cardStreamConfig) {
+        else if (!data && (config.cards || config.visuals || config.cardStreamConfig)) {
           console.log('✅ Using data from config object (legacy format)');
           data = {
             cards: config.cards || [],
