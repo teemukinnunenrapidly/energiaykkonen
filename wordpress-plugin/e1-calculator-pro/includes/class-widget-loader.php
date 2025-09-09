@@ -139,8 +139,8 @@ class Widget_Loader {
             $container_style = sprintf('style="min-height: %spx;"', esc_attr($atts['height']));
         }
         
-        // Encode config as JSON for data attribute
-        $config_json = htmlspecialchars(json_encode($config), ENT_QUOTES, 'UTF-8');
+        // Encode config as JSON for data attribute - use base64 to avoid escaping issues
+        $config_json = base64_encode(json_encode($config));
         
         // Palauta container HTML with embedded config
         return sprintf(
@@ -226,29 +226,63 @@ class Widget_Loader {
                                 loadingEl.style.display = 'none';
                             }
                             
-                            // Get the config from the container's data attribute
+                            // Get the config from the container's data attribute (base64 encoded)
                             var configAttr = container.getAttribute('data-e1-config');
                             var parsedConfig = {};
                             try {
                                 if (configAttr) {
-                                    parsedConfig = JSON.parse(configAttr);
-                                    console.log('Parsed config from data attribute:', parsedConfig);
+                                    // Decode base64 first
+                                    var decodedJson = atob(configAttr);
+                                    parsedConfig = JSON.parse(decodedJson);
+                                    
+                                    // Debug: Check structure of parsedConfig
+                                    console.log('📋 ParsedConfig structure:', {
+                                        topLevelKeys: Object.keys(parsedConfig),
+                                        hasDataField: !!parsedConfig.data,
+                                        hasDirectCards: !!parsedConfig.cards,
+                                        cardsLocation: parsedConfig.data?.cards ? 'data.cards' : parsedConfig.cards ? 'cards' : 'none'
+                                    });
+                                    
+                                    console.log('✅ Parsed config from data attribute:', {
+                                        hasData: !!parsedConfig.data,
+                                        cardCount: parsedConfig.data?.cards?.length || parsedConfig.cards?.length || 0,
+                                        hasVisualObjects: !!(parsedConfig.data?.visualObjects || parsedConfig.visualObjects),
+                                        cloudflareHash: parsedConfig.cloudflareAccountHash
+                                    });
+                                } else {
+                                    console.error('❌ No data-e1-config attribute found on container');
                                 }
                             } catch (e) {
-                                console.warn('Failed to parse data-e1-config:', e);
+                                console.error('❌ Failed to parse data-e1-config:', e);
+                                console.log('Raw attribute value:', configAttr ? configAttr.substring(0, 100) + '...' : 'empty');
                             }
                             
                             // Alusta widget with both embedded config and instance settings
                             if (window.E1Calculator && typeof window.E1Calculator.init === 'function') {
-                                window.E1Calculator.init(widgetId, {
+                                // IMPORTANT: parsedConfig has structure { data: { cards: [...], visualObjects: {...} }, ... }
+                                // We need to pass the data field, not the whole config
+                                var actualData = parsedConfig.data || parsedConfig;
+                                
+                                var widgetConfig = {
                                     theme: instanceConfig.theme,
                                     height: 600,
                                     showVisualSupport: true,
                                     widgetMode: true,
-                                    data: parsedConfig.data || parsedConfig, // Support both formats
+                                    data: actualData, // Pass the actual data object
                                     cloudflareAccountHash: parsedConfig.cloudflareAccountHash || fullConfig.cloudflareAccountHash
+                                };
+                                
+                                console.log('🚀 Initializing widget with config:', {
+                                    widgetId: widgetId,
+                                    hasData: !!widgetConfig.data,
+                                    dataType: typeof widgetConfig.data,
+                                    cardCount: widgetConfig.data && widgetConfig.data.cards ? widgetConfig.data.cards.length : 0,
+                                    actualDataKeys: widgetConfig.data ? Object.keys(widgetConfig.data) : [],
+                                    cloudflareHash: widgetConfig.cloudflareAccountHash
                                 });
-                                console.log('E1 Calculator Widget initialized:', widgetId);
+                                
+                                window.E1Calculator.init(widgetId, widgetConfig);
+                                console.log('✅ E1 Calculator Widget initialized:', widgetId);
                             } else {
                                 throw new Error('E1Calculator.init is not a function');
                             }

@@ -197,8 +197,11 @@ async function loadConfigData(configUrl: string): Promise<any> {
 function adaptDataFormat(data: any): any {
   if (!data) return data;
   
-  // Ensure cards have the correct structure
+  // IMPORTANT: Don't modify cards array if it exists and is already correct!
   if (data.cards && Array.isArray(data.cards)) {
+    console.log(`✅ Cards array found with ${data.cards.length} cards`);
+    
+    // Only map if we need to fix field naming
     data.cards = data.cards.map((card: any) => {
       // Ensure card_fields exists (handle both 'fields' and 'card_fields')
       if (!card.card_fields && card.fields) {
@@ -211,11 +214,12 @@ function adaptDataFormat(data: any): any {
         card.card_fields = [];
       }
       
-      // Log to debug
-      console.log(`Card "${card.name}" has ${card.card_fields.length} fields`);
-      
       return card;
     });
+    
+    console.log(`✅ After adaptation: ${data.cards.length} cards`);
+  } else {
+    console.warn('⚠️ No cards array found in data');
   }
   
   return data;
@@ -325,22 +329,28 @@ const E1CalculatorWidget: React.FC<{ config: WidgetConfig }> = ({ config }) => {
         data = adaptDataFormat(data);
         
         // Store complete widget data globally for CardSystem to use
-        // Include visualObjects at the top level for easy access
+        // EXPLICITLY include all data fields to ensure nothing is lost
         (window as any).__E1_WIDGET_DATA = {
-          ...data,
+          cards: data.cards || [],  // EXPLICITLY include cards
           visualObjects: data.visualObjects || {},
-          cloudflareAccountHash: (window as any).__E1_CLOUDFLARE_HASH
+          formulas: data.formulas || [],
+          lookupTables: data.lookupTables || {},
+          theme: data.theme || {},
+          cloudflareAccountHash: config.cloudflareAccountHash || (window as any).__E1_CLOUDFLARE_HASH,
+          ...data  // Include any remaining fields
         };
         
         console.log('📦 Widget data stored globally:', {
+          cardCount: (window as any).__E1_WIDGET_DATA.cards?.length || 0,
+          hasCards: !!((window as any).__E1_WIDGET_DATA.cards && (window as any).__E1_WIDGET_DATA.cards.length > 0),
           hasVisualObjects: !!(data.visualObjects),
           visualObjectCount: Object.keys(data.visualObjects || {}).length,
           visualObjectsPreview: data.visualObjects ? Object.keys(data.visualObjects).slice(0, 2) : [],
           cloudflareHash: (window as any).__E1_CLOUDFLARE_HASH ? 
             `${(window as any).__E1_CLOUDFLARE_HASH.substring(0, 8)}...` : 
             'MISSING',
-          firstCard: data.cards?.[0]?.name,
-          firstCardLinkedVisual: data.cards?.[0]?.config?.linked_visual_object_id,
+          firstCard: (window as any).__E1_WIDGET_DATA.cards?.[0]?.name,
+          firstCardLinkedVisual: (window as any).__E1_WIDGET_DATA.cards?.[0]?.config?.linked_visual_object_id,
           globalDataCheck: typeof window !== 'undefined' ? !!(window as any).__E1_WIDGET_DATA : false,
         });
         
@@ -407,7 +417,19 @@ function initWidget(elementId: string, config: WidgetConfig = {}) {
   const dataConfig = container.getAttribute('data-e1-config');
   if (dataConfig) {
     try {
-      const parsedConfig = JSON.parse(dataConfig);
+      let parsedConfig;
+      
+      // Check if it's base64 encoded (doesn't start with { or [)
+      if (!dataConfig.startsWith('{') && !dataConfig.startsWith('[')) {
+        // Decode base64 first
+        const decodedJson = atob(dataConfig);
+        parsedConfig = JSON.parse(decodedJson);
+        console.log('📦 Decoded base64 config');
+      } else {
+        // Direct JSON parse
+        parsedConfig = JSON.parse(dataConfig);
+      }
+      
       // If the parsed config has a 'data' property, use that as the main data
       if (parsedConfig.data) {
         config = { ...config, data: parsedConfig.data, cloudflareAccountHash: parsedConfig.cloudflareAccountHash };
