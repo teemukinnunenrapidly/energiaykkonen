@@ -292,11 +292,13 @@ const E1CalculatorWidget: React.FC<{ config: WidgetConfig }> = ({ config }) => {
         console.log('📦 Widget data stored globally:', {
           hasVisualObjects: !!(data.visualObjects),
           visualObjectCount: Object.keys(data.visualObjects || {}).length,
+          visualObjectsPreview: data.visualObjects ? Object.keys(data.visualObjects).slice(0, 2) : [],
           cloudflareHash: (window as any).__E1_CLOUDFLARE_HASH ? 
             `${(window as any).__E1_CLOUDFLARE_HASH.substring(0, 8)}...` : 
             'MISSING',
           firstCard: data.cards?.[0]?.name,
           firstCardLinkedVisual: data.cards?.[0]?.config?.linked_visual_object_id,
+          globalDataCheck: typeof window !== 'undefined' ? !!(window as any).__E1_WIDGET_DATA : false,
         });
         
         setWidgetData(data);
