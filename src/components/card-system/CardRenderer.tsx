@@ -21,7 +21,7 @@ export function CardRenderer({ card, onFieldFocus }: CardRendererProps) {
     case 'calculation':
       // Use widget version in widget mode
       if (isWidgetMode) {
-        return <WidgetCalculationCard card={card} onFieldFocus={onFieldFocus} />;
+        return <WidgetCalculationCard card={card} onFieldFocus={onFieldFocus} widgetMode={true} />;
       }
       return <CalculationCard card={card} onFieldFocus={onFieldFocus} />;
     case 'info':

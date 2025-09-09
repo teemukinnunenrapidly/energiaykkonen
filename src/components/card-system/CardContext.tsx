@@ -432,17 +432,56 @@ export function CardProvider({
   const completeCard = useCallback(
     (cardId: string) => {
       console.log(`completeCard called for: ${cardId}`);
+      
+      // Find the card being completed
+      const completedCard = cards.find(c => c.id === cardId);
+      
       setCardStates(prev => {
         const newStates = { ...prev };
 
         // Mark current card as complete
         newStates[cardId] = { ...newStates[cardId], status: 'complete' };
 
+        // Check all cards to see if any should now be revealed based on this completion
+        cards.forEach(card => {
+          if (card.reveal_conditions && card.reveal_conditions.length > 0) {
+            // Check if this card's reveal conditions are now met
+            const conditionsMet = card.reveal_conditions.every(condition => {
+              if (condition.type === 'card_complete') {
+                const targetCardNames = condition.target || [];
+                // Check if all target cards are complete
+                return targetCardNames.every(targetName => {
+                  const targetCard = cards.find(c => c.name === targetName);
+                  if (!targetCard) return false;
+                  
+                  // Check if we just completed this card or it was already complete
+                  if (targetCard.id === cardId) {
+                    return true; // We just completed this card
+                  }
+                  return newStates[targetCard.id]?.status === 'complete';
+                });
+              }
+              return true; // Unknown condition type, assume met
+            });
+
+            if (conditionsMet && !newStates[card.id]?.isRevealed) {
+              console.log(`✅ Revealing card "${card.name}" - conditions met after completing "${completedCard?.name}"`);
+              newStates[card.id] = { ...newStates[card.id], isRevealed: true };
+              
+              // If this is the next card in sequence and no other card is active, activate it
+              const activeCard = Object.entries(newStates).find(([_, state]) => state.status === 'active');
+              if (!activeCard) {
+                newStates[card.id].status = 'active';
+              }
+            }
+          }
+        });
+
         console.log('Updated card states after completion:', newStates);
         return newStates;
       });
 
-      // Handle granting reveal permission to next card based on reveal timing
+      // Handle granting reveal permission to next card based on reveal timing (legacy)
       const currentCardIndex = cards.findIndex(c => c.id === cardId);
       const nextCard = cards[currentCardIndex + 1];
 
@@ -704,7 +743,7 @@ export function CardProvider({
               `🟢 INIT: Card ${index} "${card?.name}" set to ACTIVE and REVEALED`
             );
           } else {
-            // Other cards start hidden and not revealed
+            // Other cards start hidden and not revealed - progressive disclosure
             newStates[cardId] = { status: 'hidden', isRevealed: false };
             console.log(
               `🔴 INIT: Card ${index} "${card?.name}" set to HIDDEN and NOT REVEALED`
@@ -731,6 +770,12 @@ export function CardProvider({
     }
     
     const initializeSession = async () => {
+      // Skip in widget mode - no database connection
+      if (widgetMode) {
+        console.log('🔧 Widget mode: Skipping session initialization');
+        return;
+      }
+      
       console.log('🧹 Cleaning session data for fresh start...');
       try {
         await initializeCleanSession(sessionId);

@@ -70,7 +70,8 @@ function CardSystemInner({
 
   // Auto-select first card with visual objects for better UX (when no active card)
   useEffect(() => {
-    if (!activeCard && cards.length > 0) {
+    // Only run once when cards are first loaded
+    if (!activeContext.cardId && cards.length > 0) {
       const cardWithVisual = cards.find(c => c.visual_objects);
       if (cardWithVisual) {
         setActiveContext({
@@ -80,7 +81,7 @@ function CardSystemInner({
         });
       }
     }
-  }, [cards, activeCard]);
+  }, []); // Empty deps - only run once on mount
 
   return (
     <div

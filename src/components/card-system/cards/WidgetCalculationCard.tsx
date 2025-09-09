@@ -2,15 +2,18 @@ import React, { useEffect, useState, useRef } from 'react';
 import { type CardTemplate } from '@/lib/supabase';
 import { useCardContext } from '../CardContext';
 import { WidgetCalculationEngine } from '@/lib/widget-calculation-engine';
-import { EditableCalculationResult } from '../../../widget/components/EditableCalculationResult';
+import { EditableCalculationResult } from './EditableCalculationResultFixed';
+import { useCardStyles } from '@/hooks/useCardStyles';
 
 interface WidgetCalculationCardProps {
   card: CardTemplate;
   onFieldFocus?: (cardId: string, fieldId: string, value: any) => void;
   formulas?: any[]; // Pre-loaded formulas from config.json
+  widgetMode?: boolean; // Whether we're in widget mode
 }
 
-export function WidgetCalculationCard({ card, formulas = [] }: WidgetCalculationCardProps) {
+export function WidgetCalculationCard({ card, formulas = [], widgetMode = false }: WidgetCalculationCardProps) {
+  const styles = useCardStyles();
   const {
     formData,
     completeCard,
@@ -42,14 +45,6 @@ export function WidgetCalculationCard({ card, formulas = [] }: WidgetCalculation
   useEffect(() => {
     const processCalculation = async () => {
       try {
-      console.log(`🔍 WidgetCalculationCard "${card.name}" useEffect triggered`);
-      console.log(`  - Form data:`, JSON.stringify(formData));
-      console.log(`  - Field dependencies:`, JSON.stringify(fieldDependencies));
-      console.log(`  - Available formulas:`, widgetFormulas.length);
-      if (widgetFormulas.length > 0) {
-        console.log(`  - Formula names:`, widgetFormulas.map((f: any) => f.name).join(', '));
-      }
-      console.log(`  - Main result to calculate:`, card.config?.main_result);
 
       // Only process calculation if this card is revealed
       const cardState = cardStates[card.id];
@@ -57,44 +52,26 @@ export function WidgetCalculationCard({ card, formulas = [] }: WidgetCalculation
       const isAlreadyComplete = cardState?.status === 'complete';
 
       if (!isThisCardRevealed) {
-        console.log(
-          `🔴 WidgetCalculationCard "${card.name}" is NOT revealed yet, NOT processing calculation`
-        );
         hasProcessedCalculationRef.current = false;
         return;
       }
 
       if (isAlreadyComplete && fieldDependencies.length > 0) {
-        console.log(
-          `🔄 WidgetCalculationCard "${card.name}" is complete but dependencies may have changed, allowing re-calculation`
-        );
+        // Allow re-calculation if dependencies changed
       } else if (isAlreadyComplete) {
-        console.log(
-          `⏭️ WidgetCalculationCard "${card.name}" is already complete, skipping calculation`
-        );
         return;
       }
 
       // Allow re-calculation if form data has changed
       if (hasProcessedCalculationRef.current) {
-        console.log(
-          `🔄 WidgetCalculationCard "${card.name}" has processed before but form data may have changed, re-calculating`
-        );
         hasProcessedCalculationRef.current = false;
       }
 
       if (!card.config?.main_result) {
-        console.log(
-          `🔴 WidgetCalculationCard "${card.name}" has no main_result configured`
-        );
         return;
       }
 
-      console.log(
-        `🔄 WidgetCalculationCard "${card.name}" processing calculation: ${card.config.main_result}`
-      );
-      console.log('Main result config:', card.config?.main_result);
-      console.log('Card config:', card.config);
+      // Process calculation
       hasProcessedCalculationRef.current = true;
       setIsCalculating(true);
       setError(null);
@@ -113,6 +90,7 @@ export function WidgetCalculationCard({ card, formulas = [] }: WidgetCalculation
 
         // Process the calculation
         const result = await engine.process(card.config.main_result);
+        console.log('WidgetCalculationCard received result:', result);
 
         if (result.success) {
           try {
@@ -122,16 +100,17 @@ export function WidgetCalculationCard({ card, formulas = [] }: WidgetCalculation
             if (result.result != null) {
               // Safe type checking to avoid React Error #185
               const resultType = Object.prototype.toString.call(result.result);
-              console.log('Result type:', resultType, 'Value:', result.result);
               
               if (resultType === '[object Object]') {
-                console.warn('Calculation result is object - extracting value');
                 // Try to extract value from object safely
                 const obj = result.result as any;
                 if (obj && typeof obj === 'object' && obj.value !== undefined) {
                   resultString = String(obj.value);
+                  // Also check for unit in object
+                  if (obj.unit) result.unit = obj.unit;
                 } else if (obj && typeof obj === 'object' && obj.result !== undefined) {
                   resultString = String(obj.result);
+                  if (obj.unit) result.unit = obj.unit;
                 } else {
                   resultString = String(result.result);
                 }
@@ -140,61 +119,58 @@ export function WidgetCalculationCard({ card, formulas = [] }: WidgetCalculation
               }
             }
           } catch (typeError) {
-            console.error('Error checking result type:', typeError);
             resultString = String(result.result || '0');
           }
-          console.log('Setting calculatedResult:', { resultString, type: typeof resultString });
           
-          // Extra safety: ensure resultString is a safe primitive string
-          const safeResultString = resultString === null ? '' : String(resultString || '');
-          console.log('Safe result string:', { safeResultString, type: typeof safeResultString });
+          // Ensure we have a safe result string
+          const safeResultString = resultString || '';
           
-          console.log('🔵 About to call setCalculatedResult');
-          setCalculatedResult(safeResultString);
-          console.log('✅ setCalculatedResult completed');
+          // Extract unit from result if it contains a space (e.g., "20820 kWh")
+          let extractedUnit = '';
+          let valueToFormat = safeResultString;
           
-          console.log('🔵 About to call setOriginalResult');
-          setOriginalResult(safeResultString);
-          console.log('✅ setOriginalResult completed');
+          // Check if the result contains a unit (has a space)
+          const parts = safeResultString.trim().split(/\s+/);
+          if (parts.length > 1) {
+            // Last part is likely the unit
+            extractedUnit = parts[parts.length - 1];
+            // Everything else is the value
+            valueToFormat = parts.slice(0, -1).join(' ');
+          }
           
-          console.log('🔵 About to call setResultUnit');
-          setResultUnit('');
-          console.log('✅ setResultUnit completed');
+          // Format result with Finnish number formatting
+          const numericValue = parseFloat(valueToFormat.replace(/\s/g, '').replace(',', '.'));
+          const formattedResult = !isNaN(numericValue) 
+            ? numericValue.toLocaleString('fi-FI') 
+            : valueToFormat;
           
-          console.log('🔵 About to call setFormulaName');
+          setCalculatedResult(formattedResult);
+          setOriginalResult(formattedResult);
+          setResultUnit(extractedUnit || result.unit || ''); // Use extracted unit, or result.unit, or empty
+          
           setFormulaName(null);
-          console.log('✅ setFormulaName completed');
 
           // Store the calculated result in formData using the configured field_name
-          if (card.config?.field_name && safeResultString) {
-            console.log('🔵 About to process field storage');
+          if (card.config?.field_name && formattedResult) {
             try {
               // Handle Finnish number format: "2 706,6" -> 2706.6
               const numericResult = parseFloat(
-                safeResultString
+                formattedResult
                   .replace(/\s/g, '') // Remove spaces (thousands separator)
                   .replace(',', '.') // Convert comma to dot for decimal
               );
-              console.log('🔵 Parsed numeric result:', numericResult);
               if (!isNaN(numericResult)) {
-                console.log('🔵 About to call updateField');
                 updateField(card.config.field_name, numericResult);
-                console.log('✅ updateField completed');
-                console.log(
-                  `💾 Stored calculation result in field "${card.config.field_name}": ${numericResult}`
-                );
               }
             } catch (updateError) {
-              console.error('❌ Error updating field:', updateError);
+              // Field update failed
             }
           }
           
-          console.log('🔵 About to check auto_complete_on_success');
           // Auto-complete the card if calculation succeeds
-          if (card.config?.auto_complete_on_success) {
-            console.log('🔵 About to call completeCard');
+          // In widget mode, always auto-complete calculation cards to enable progressive disclosure
+          if (card.config?.auto_complete_on_success || widgetMode) {
             completeCard(card.id);
-            console.log('✅ completeCard completed');
           }
           } catch (innerError) {
             console.error('Error in result.success block:', innerError);
@@ -254,14 +230,12 @@ export function WidgetCalculationCard({ card, formulas = [] }: WidgetCalculation
       setError('Calculation process failed: ' + (error instanceof Error ? error.message : String(error)));
     }
   }, [
-    card,
-    formData,
-    cardStates,
-    completeCard,
-    sessionId,
-    updateField,
-    widgetFormulas,
-    // Remove isCalculating from deps to prevent loops
+    card.id, // Only depend on card ID, not entire card object
+    card.config?.main_result, // And the main result config
+    JSON.stringify(formData), // Stringify to avoid object reference changes
+    cardStates[card.id]?.isRevealed, // Only track this card's reveal state
+    cardStates[card.id]?.status, // And completion status
+    // Remove other deps that can cause loops
   ]);
 
   const handleResultOverride = (newValue: number | string) => {
@@ -282,8 +256,9 @@ export function WidgetCalculationCard({ card, formulas = [] }: WidgetCalculation
     }
 
     // Mark card as complete if needed
+    // In widget mode, always complete to enable progressive disclosure
     if (
-      card.config?.auto_complete_on_success &&
+      (card.config?.auto_complete_on_success || widgetMode) &&
       cardStates[card.id]?.status !== 'complete'
     ) {
       completeCard(card.id);
@@ -317,60 +292,73 @@ export function WidgetCalculationCard({ card, formulas = [] }: WidgetCalculation
   const canSubmit = card.config?.show_submit_button && calculatedResult && !isComplete;
 
   return (
-    <div className="card">
-      {card.name && (
-        <h3 className="card-title">
-          {String(card.name || '')}
-        </h3>
-      )}
-
-      {card.description && (
-        <div className="calculation-description" style={{ marginBottom: '20px', color: '#6b7280' }}>
-          {String(card.description || '')}
+    <div
+      style={{
+        padding: styles.calculationCard.container.padding,
+        background: styles.calculationCard.container.background,
+      }}
+    >
+      {/* Header section */}
+      {(card.title || card.config?.description) && (
+        <div style={styles.calculationCard.header as React.CSSProperties}>
+          <h3 style={styles.calculationCard.title as React.CSSProperties}>
+            {card.title || card.name}
+          </h3>
+          {card.config?.description && (
+            <p style={styles.calculationCard.description as React.CSSProperties}>
+              {card.config.description}
+            </p>
+          )}
         </div>
       )}
 
-      <div className="results-card">
-        <div className="results-summary">
-          {isCalculating ? (
-            <div className="calculating-message" style={{ color: '#3b82f6' }}>
-              Calculating...
+      {/* Main Result Field */}
+      <div style={styles.calculationCard.resultSection as React.CSSProperties}>
+        <div style={styles.calculationCard.resultDisplay as React.CSSProperties}>
+          {error ? (
+            <div style={styles.calculationCard.errorMessage as React.CSSProperties}>
+              {error}
             </div>
-          ) : error ? (
-            <div className="calculation-error" style={{ color: '#ef4444' }}>
-              ERROR: {String(error || '')}
-            </div>
-          ) : calculatedResult && calculatedResult.trim() !== '' ? (
-            <>
-              <div className="result-item">
-                <span className="result-label">
-                  Result:
-                </span>
-                <span className="result-value primary">
-                  {String(calculatedResult || '')}
-                </span>
+          ) : calculatedResult && card.config?.enable_edit_mode ? (
+            <EditableCalculationResult
+              value={`${calculatedResult}${resultUnit ? ` ${resultUnit}` : ''}`}
+              originalValue={`${originalResult || calculatedResult}${resultUnit ? ` ${resultUnit}` : ''}`}
+              unit={resultUnit || ''}
+              onUpdate={handleResultOverride}
+              editButtonText={card.config?.edit_prompt || 'Korjaa lukemaa'}
+              isCalculating={isCalculating}
+            />
+          ) : calculatedResult ? (
+            <div style={styles.calculationCard.metricDisplay as React.CSSProperties}>
+              <div style={styles.calculationCard.metricValue as React.CSSProperties}>
+                {String(calculatedResult || '')}
               </div>
-              {canSubmit && (
-                <button
-                  onClick={handleSubmit}
-                  disabled={isSubmitting}
-                  className="calculate-button"
-                  style={{
-                    marginTop: '20px',
-                    width: '100%',
-                  }}
-                >
-                  {isSubmitting ? 'Submitting...' : submitSuccess ? '✓ Submitted' : 'Submit'}
-                </button>
-              )}
-            </>
+              <div style={styles.calculationCard.metricUnit as React.CSSProperties}>
+                {resultUnit || (card.title?.includes('hinta') ? '€' : 'kWh')}
+              </div>
+            </div>
           ) : (
-            <div className="no-result-message" style={{ color: '#9ca3af' }}>
-              Enter values above to see calculation
+            <div style={styles.calculationCard.placeholder as React.CSSProperties}>
+              Syötä arvot yllä nähdäksesi laskelman
             </div>
           )}
         </div>
       </div>
+      
+      {/* Submit button if configured */}
+      {canSubmit && (
+        <button
+          onClick={handleSubmit}
+          disabled={isSubmitting}
+          style={{
+            ...styles.submitButton as React.CSSProperties,
+            marginTop: '20px',
+            width: '100%',
+          }}
+        >
+          {isSubmitting ? 'Lähetetään...' : submitSuccess ? '✓ Lähetetty' : 'Lähetä'}
+        </button>
+      )}
     </div>
   );
 }

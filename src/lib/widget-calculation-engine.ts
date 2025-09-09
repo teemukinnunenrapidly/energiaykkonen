@@ -27,6 +27,7 @@ export interface ProcessingContext {
 export interface ProcessingResult {
   success: boolean;
   result?: string;
+  unit?: string; // Unit from formula configuration
   error?: string;
   processedCount: number;
   executionTime: number;
@@ -104,11 +105,39 @@ export class WidgetCalculationEngine {
       // Extract field dependencies for tracking
       const fieldDependencies = await this.extractFieldDependencies(content);
 
+      // Check if this is a single calc or lookup shortcode to extract unit
+      let unit: string | undefined;
+      const singleCalcMatch = content.match(/^\[calc:([^\]]+)\]$/);  
+      const singleLookupMatch = content.match(/^\[lookup:([^\]]+)\]$/);
+      
+      if (singleCalcMatch) {
+        const formulaName = singleCalcMatch[1];
+        console.log('Looking for formula:', formulaName);
+        const formula = this.formulas.find(f => f.name === formulaName);
+        console.log('Found formula:', formula?.name, 'with unit:', formula?.unit);
+        if (formula && formula.unit) {
+          unit = formula.unit;
+          console.log('Setting unit:', unit);
+        }
+      } else if (singleLookupMatch) {
+        const lookupName = singleLookupMatch[1];
+        console.log('Looking for lookup table:', lookupName);
+        const lookupTable = this.lookupTables.find(t => t.name === lookupName);
+        // Determine unit based on lookup table name
+        if (lookupTable) {
+          if (lookupName.includes('hinta') || lookupName.includes('kulutus')) {
+            unit = '€';
+            console.log('Setting unit for price lookup:', unit);
+          }
+        }
+      }
+
       if (dependencies.size === 0) {
         // No dependencies, return as-is
         return {
           success: true,
           result: content,
+          unit,
           processedCount: 0,
           executionTime: performance.now() - startTime,
           dependencies: fieldDependencies,
@@ -121,13 +150,16 @@ export class WidgetCalculationEngine {
       // Apply resolved dependencies to content
       const finalResult = this.evaluateWithDependencies(content, resolvedDeps);
 
-      return {
+      const returnValue = {
         success: true,
         result: finalResult,
+        unit,
         processedCount: dependencies.size,
         executionTime: performance.now() - startTime,
         dependencies: fieldDependencies,
       };
+      console.log('Returning from process:', returnValue);
+      return returnValue;
     } catch (error) {
       return {
         success: false,

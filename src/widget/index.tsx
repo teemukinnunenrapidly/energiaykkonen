@@ -1,6 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import { CardSystemWidget } from './components/CardSystemWidget';
+import { CardSystemContainer } from '../components/card-system/CardSystemContainer';
+import { CardProvider } from '../components/card-system/CardContext';
 import './styles.css';
 
 // Widget initialization function
@@ -21,7 +22,13 @@ function initE1Widget(elementId: string, config?: any) {
   const root = ReactDOM.createRoot(container);
   root.render(
     <React.StrictMode>
-      <CardSystemWidget config={config} />
+      <CardProvider widgetMode={true}>
+        <CardSystemContainer
+          maxWidth={config?.maxWidth || '100%'}
+          showVisualSupport={config?.showVisualSupport !== false}
+          fullWidth={true}
+        />
+      </CardProvider>
     </React.StrictMode>
   );
 
