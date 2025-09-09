@@ -96,6 +96,9 @@ function CardSystemInner({
     activeCardName: activeCard?.name,
     activeCardHasVisuals: !!visualObject,
     widgetMode,
+    isMobileMode,
+    showVisualSupport,
+    visualPanelVisible: showVisualSupport && !isMobileMode,
   });
 
   // Auto-select first card with visual objects for better UX (when no active card)

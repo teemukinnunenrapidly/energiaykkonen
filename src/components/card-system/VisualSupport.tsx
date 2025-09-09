@@ -55,21 +55,23 @@ export function VisualSupport({
       
       try {
         if (widgetMode) {
-          // In widget mode, the visualObject is already resolved and contains images
-          if (visualObject?.images) {
-            console.log('✅ Widget mode: Using pre-resolved images:', {
-              visualObjectId: visualObject.id,
-              imageCount: visualObject.images.length,
-              firstImage: visualObject.images[0]?.cloudflare_image_id,
-            });
-            setVisualImages(visualObject.images);
-          } else {
-            console.log('⚠️ Widget mode: No images in visual object:', {
-              visualObjectId: visualObject?.id,
-              hasImages: !!visualObject?.images,
-            });
-            setVisualImages([]);
-          }
+          // In widget mode, try both possible field names for images
+          const images = visualObject?.images || 
+                        visualObject?.visual_object_images || 
+                        [];
+          
+          console.log('✅ Widget mode: Checking images:', {
+            visualObjectId: visualObject?.id,
+            hasImages: images.length > 0,
+            imageCount: images.length,
+            firstImage: images[0]?.cloudflare_image_id,
+            visualObjectStructure: {
+              hasImagesField: !!visualObject?.images,
+              hasVisualObjectImagesField: !!visualObject?.visual_object_images,
+            }
+          });
+          
+          setVisualImages(images);
         } else {
           // Normal mode: fetch from Supabase
           console.log('🎯 Progressive loading: Fetching images for visual object:', visualObject.id);
@@ -286,6 +288,11 @@ export function VisualSupport({
           >
             {visualImages.map((image, index) => {
               const imageUrl = getCloudflareImageUrl(image.cloudflare_image_id);
+              console.log(`🖼️ Rendering image ${index + 1}:`, {
+                imageId: image.id,
+                cloudflareId: image.cloudflare_image_id,
+                generatedUrl: imageUrl,
+              });
               return imageUrl ? (
                 <img
                   key={image.id}
