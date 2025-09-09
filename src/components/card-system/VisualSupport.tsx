@@ -33,6 +33,9 @@ export function VisualSupport({
     hasVisualObjects: !!activeCard?.visual_objects,
     visualObjectId: visualObject?.id,
     visualObjectTitle: visualObject?.title,
+    visualConfigPassed: !!visualConfig,
+    widgetMode,
+    compact,
   });
 
   // Progressive loading: Only fetch images when card becomes active
@@ -52,17 +55,19 @@ export function VisualSupport({
       
       try {
         if (widgetMode) {
-          // In widget mode, get visual objects from global data
-          const widgetData = (window as any).__E1_WIDGET_DATA;
-          if (widgetData?.visualObjects) {
-            const visualObj = widgetData.visualObjects[visualObject.id];
-            if (visualObj?.images) {
-              console.log('✅ Widget mode: Loaded', visualObj.images.length, 'images from config');
-              setVisualImages(visualObj.images);
-            } else {
-              setVisualImages([]);
-            }
+          // In widget mode, the visualObject is already resolved and contains images
+          if (visualObject?.images) {
+            console.log('✅ Widget mode: Using pre-resolved images:', {
+              visualObjectId: visualObject.id,
+              imageCount: visualObject.images.length,
+              firstImage: visualObject.images[0]?.cloudflare_image_id,
+            });
+            setVisualImages(visualObject.images);
           } else {
+            console.log('⚠️ Widget mode: No images in visual object:', {
+              visualObjectId: visualObject?.id,
+              hasImages: !!visualObject?.images,
+            });
             setVisualImages([]);
           }
         } else {

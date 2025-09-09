@@ -66,13 +66,25 @@ function CardSystemInner({
   if (widgetMode && activeCard?.config?.linked_visual_object_id) {
     // In widget mode, get visual object from global data
     const widgetData = (window as any).__E1_WIDGET_DATA;
+    console.log('🔍 Attempting to resolve visual object:', {
+      activeCardId: activeCard?.id,
+      linkedId: activeCard.config.linked_visual_object_id,
+      hasWidgetData: !!widgetData,
+      hasVisualObjects: !!widgetData?.visualObjects,
+      visualObjectsKeys: widgetData?.visualObjects ? Object.keys(widgetData.visualObjects) : [],
+    });
+    
     if (widgetData?.visualObjects) {
       visualObject = widgetData.visualObjects[activeCard.config.linked_visual_object_id];
       console.log('🎨 Widget mode: Resolved visual object:', {
         linkedId: activeCard.config.linked_visual_object_id,
         found: !!visualObject,
         title: visualObject?.title,
+        hasImages: visualObject?.images?.length > 0,
+        imageCount: visualObject?.images?.length || 0,
       });
+    } else {
+      console.warn('⚠️ No visual objects found in widget data');
     }
   }
 
@@ -90,18 +102,28 @@ function CardSystemInner({
   useEffect(() => {
     // Only run once when cards are first loaded
     if (!activeContext.cardId && cards.length > 0) {
+      // In widget mode, prioritize cards with linked_visual_object_id
       const cardWithVisual = cards.find(c => 
         c.visual_objects || (widgetMode && c.config?.linked_visual_object_id)
       );
-      if (cardWithVisual) {
+      
+      // If no card with visual, just select the first card
+      const cardToSelect = cardWithVisual || cards[0];
+      
+      if (cardToSelect) {
+        console.log('🎯 Auto-selecting card:', {
+          cardId: cardToSelect.id,
+          cardName: cardToSelect.name,
+          hasVisual: !!(cardToSelect.visual_objects || cardToSelect.config?.linked_visual_object_id),
+        });
         setActiveContext({
-          cardId: cardWithVisual.id,
+          cardId: cardToSelect.id,
           fieldId: 'auto_selected',
           value: 'preview',
         });
       }
     }
-  }, []); // Empty deps - only run once on mount
+  }, [cards.length, widgetMode]); // React to cards loading
 
   return (
     <div
