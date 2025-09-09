@@ -281,8 +281,24 @@ const E1CalculatorWidget: React.FC<{ config: WidgetConfig }> = ({ config }) => {
         // Adapt data format to ensure compatibility
         data = adaptDataFormat(data);
         
-        // Store widget data globally for CardSystem to use
-        (window as any).__E1_WIDGET_DATA = data;
+        // Store complete widget data globally for CardSystem to use
+        // Include visualObjects at the top level for easy access
+        (window as any).__E1_WIDGET_DATA = {
+          ...data,
+          visualObjects: data.visualObjects || {},
+          cloudflareAccountHash: (window as any).__E1_CLOUDFLARE_HASH
+        };
+        
+        console.log('📦 Widget data stored globally:', {
+          hasVisualObjects: !!(data.visualObjects),
+          visualObjectCount: Object.keys(data.visualObjects || {}).length,
+          cloudflareHash: (window as any).__E1_CLOUDFLARE_HASH ? 
+            `${(window as any).__E1_CLOUDFLARE_HASH.substring(0, 8)}...` : 
+            'MISSING',
+          firstCard: data.cards?.[0]?.name,
+          firstCardLinkedVisual: data.cards?.[0]?.config?.linked_visual_object_id,
+        });
+        
         setWidgetData(data);
         
         // Apply theme if provided
