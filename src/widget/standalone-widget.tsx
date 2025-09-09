@@ -245,8 +245,13 @@ const E1CalculatorWidget: React.FC<{ config: WidgetConfig }> = ({ config }) => {
       try {
         let data = config.data;
         
-        // If no data provided, try to load from config URL
-        if (!data && config.configUrl) {
+        // Jos data annettu suoraan, käytä sitä
+        if (data) {
+          console.log('✅ Using injected data directly');
+        }
+        // Fallback: lataa URL:sta jos ei dataa
+        else if (config.configUrl) {
+          console.log('⚠️ Falling back to URL loading from:', config.configUrl);
           try {
             const loadedConfig = await loadConfigData(config.configUrl);
             data = loadedConfig.data;
@@ -367,6 +372,18 @@ function initWidget(elementId: string, config: WidgetConfig = {}) {
   if (!container) {
     console.error(`E1 Widget: Container element with id "${elementId}" not found`);
     return null;
+  }
+  
+  // Jos data-e1-config attribuutti, parsea se
+  const dataConfig = container.getAttribute('data-e1-config');
+  if (dataConfig) {
+    try {
+      const parsedConfig = JSON.parse(dataConfig);
+      config = { ...parsedConfig, ...config };
+      console.log('📝 Parsed config from data-e1-config attribute');
+    } catch (e) {
+      console.warn('Failed to parse data-e1-config:', e);
+    }
   }
   
   // Clear any existing instance

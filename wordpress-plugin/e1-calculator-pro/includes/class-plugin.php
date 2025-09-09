@@ -56,7 +56,7 @@ class Plugin {
         require_once E1_CALC_PLUGIN_DIR . 'includes/ajax-handler.php';
         
         if (is_admin()) {
-            require_once E1_CALC_PLUGIN_DIR . 'includes/class-admin.php';
+            require_once E1_CALC_PLUGIN_DIR . 'includes/class-admin-simple.php';
         }
     }
     
@@ -73,7 +73,7 @@ class Plugin {
         
         
         if (is_admin()) {
-            $this->admin = new Admin($this->api_client, $this->cache_manager, $this->sync_manager, $this->security);
+            $this->admin = new Admin_Simple($this->api_client, $this->cache_manager, $this->sync_manager, $this->security);
         }
     }
     
@@ -90,8 +90,7 @@ class Plugin {
         // Scripts and styles
         add_action('wp_enqueue_scripts', array($this, 'enqueue_scripts'));
         
-        // AJAX endpoints
-        add_action('wp_ajax_e1_sync_widget', array($this, 'ajax_sync_widget'));
+        // AJAX endpoints  
         add_action('wp_ajax_e1_clear_cache', array($this, 'ajax_clear_cache'));
         add_action('wp_ajax_e1_sync_status', array($this, 'ajax_sync_status'));
         
@@ -128,13 +127,13 @@ class Plugin {
      * AJAX: Sync widget
      */
     public function ajax_sync_widget() {
-        // Check nonce
-        if (!wp_verify_nonce($_POST['nonce'] ?? '', 'e1_calculator_ajax')) {
+        // Check nonce (use same method as working debug sync)
+        if (!$this->security->validate_nonce($_POST['nonce'] ?? '')) {
             wp_send_json_error(['message' => __('Security check failed', 'e1-calculator')]);
         }
         
-        // Check permissions
-        if (!current_user_can('manage_options')) {
+        // Check permissions (use same method as working debug sync)  
+        if (!$this->security->check_admin_permissions()) {
             wp_send_json_error(['message' => __('Unauthorized', 'e1-calculator')]);
         }
         

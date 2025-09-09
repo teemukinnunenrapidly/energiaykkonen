@@ -41,7 +41,7 @@ class Admin {
         // AJAX handlers
         add_action('wp_ajax_e1_test_connection', [$this, 'ajax_test_connection']);
         add_action('wp_ajax_e1_restore_backup', [$this, 'ajax_restore_backup']);
-        add_action('wp_ajax_e1_debug_sync', [$this, 'ajax_debug_sync']);
+        // Removed debug sync - use main sync widget only
     }
     
     /**
@@ -275,9 +275,7 @@ class Admin {
                     <button type="button" id="clear-cache-btn" class="button">
                         <?php _e('Clear Cache', 'e1-calculator'); ?>
                     </button>
-                    <button type="button" id="debug-sync-btn" class="button" style="background: #ff9800; color: white;">
-                        <?php _e('Debug Sync', 'e1-calculator'); ?>
-                    </button>
+                    <!-- Debug sync removed - use main sync button -->
                     <span class="spinner" style="float: none;"></span>
                 </p>
                 
@@ -684,115 +682,6 @@ class Admin {
     }
     
     /**
-     * AJAX: Debug sync
-     */
-    public function ajax_debug_sync() {
-        if (!$this->security->validate_nonce($_POST['nonce'] ?? '')) {
-            wp_send_json_error(['message' => __('Security check failed', 'e1-calculator')]);
-        }
-        
-        if (!$this->security->check_admin_permissions()) {
-            wp_send_json_error(['message' => __('Unauthorized', 'e1-calculator')]);
-        }
-        
-        $debug_info = [];
-        
-        // Check API configuration
-        $api_url = get_option('e1_calculator_api_url');
-        $api_key = $this->security->get_api_key();
-        
-        $debug_info[] = "API URL: " . ($api_url ?: 'NOT SET');
-        $debug_info[] = "API Key: " . ($api_key ? 'SET' : 'NOT SET');
-        
-        // Check directories
-        $cache_dir = WP_CONTENT_DIR . '/cache/e1-calculator/';
-        $debug_info[] = "Cache dir exists: " . (file_exists($cache_dir) ? 'YES' : 'NO');
-        
-        if (!file_exists($cache_dir)) {
-            wp_mkdir_p($cache_dir);
-            $debug_info[] = "Created cache directory";
-        }
-        
-        $debug_info[] = "Cache dir writable: " . (is_writable($cache_dir) ? 'YES' : 'NO');
-        
-        // Try simple API call
-        if ($api_url && $api_key) {
-            $response = wp_remote_get($api_url, [
-                'timeout' => 30,
-                'headers' => [
-                    'Authorization' => 'Bearer ' . $api_key,
-                    'Accept' => 'application/json',
-                ],
-                'sslverify' => false
-            ]);
-            
-            if (is_wp_error($response)) {
-                $debug_info[] = "API Error: " . $response->get_error_message();
-            } else {
-                $status = wp_remote_retrieve_response_code($response);
-                $debug_info[] = "API Response: HTTP " . $status;
-                
-                if ($status === 200) {
-                    $body = wp_remote_retrieve_body($response);
-                    $data = json_decode($body, true);
-                    if ($data && isset($data['success'])) {
-                        $debug_info[] = "API Success: Version " . ($data['version'] ?? 'unknown');
-                        
-                        // Try to write files
-                        try {
-                            $test_file = $cache_dir . 'test.txt';
-                            if (file_put_contents($test_file, 'test')) {
-                                $debug_info[] = "File write: SUCCESS";
-                                unlink($test_file);
-                                
-                                // Actually write the widget files since everything works
-                                $js_written = file_put_contents($cache_dir . 'widget.js', $data['widget']['js'] ?? '');
-                                $css_written = file_put_contents($cache_dir . 'widget.css', $data['widget']['css'] ?? '');
-                                $config_written = file_put_contents($cache_dir . 'config.json', json_encode($data['config'] ?? []));
-                                
-                                if ($js_written && $css_written && $config_written) {
-                                    $debug_info[] = "Widget files written successfully!";
-                                    $debug_info[] = "- widget.js: " . number_format($js_written) . " bytes";
-                                    $debug_info[] = "- widget.css: " . number_format($css_written) . " bytes";
-                                    $debug_info[] = "- config.json: " . number_format($config_written) . " bytes";
-                                    
-                                    // Create meta.json for cache manager
-                                    $meta = [
-                                        'version' => $data['version'] ?? 'unknown',
-                                        'checksum' => $data['checksum'] ?? '',
-                                        'generated_at' => $data['generated_at'] ?? '',
-                                        'cached_at' => current_time('mysql'),
-                                        'cache_timestamp' => time(),
-                                    ];
-                                    file_put_contents($cache_dir . 'meta.json', json_encode($meta, JSON_PRETTY_PRINT));
-                                    
-                                    // Update metadata
-                                    update_option('e1_calculator_sync_metadata', [
-                                        'version' => $data['version'] ?? 'unknown',
-                                        'last_sync' => current_time('mysql'),
-                                        'synced_by' => wp_get_current_user()->user_login,
-                                        'file_sizes' => [
-                                            'js' => $js_written,
-                                            'css' => $css_written,
-                                            'config' => $config_written
-                                        ]
-                                    ]);
-                                    
-                                    $debug_info[] = "\n✅ SYNC COMPLETE! Widget is ready to use.";
-                                    $debug_info[] = "Add [e1_calculator] to any page.";
-                                }
-                            } else {
-                                $debug_info[] = "File write: FAILED";
-                            }
-                        } catch (\Exception $e) {
-                            $debug_info[] = "Write error: " . $e->getMessage();
-                        }
-                    }
-                }
-            }
-        }
-        
-        wp_send_json_success([
             'message' => implode("\n", $debug_info)
         ]);
     }

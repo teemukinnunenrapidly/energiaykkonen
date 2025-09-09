@@ -5,52 +5,6 @@
   'use strict';
 
   $(document).ready(function () {
-    // Test connection button
-    $('#test-connection-btn').on('click', function () {
-      const $btn = $(this);
-      const $spinner = $btn.siblings('.spinner');
-      const $result = $('#action-result');
-
-      $btn.prop('disabled', true);
-      $spinner.addClass('is-active');
-      $result.html('');
-
-      $.ajax({
-        url: e1_calculator_admin.ajax_url,
-        type: 'POST',
-        data: {
-          action: 'e1_test_connection',
-          nonce: e1_calculator_admin.nonce,
-        },
-        success: function (response) {
-          if (response.success) {
-            $result.html(
-              '<div class="notice notice-success"><p>' +
-                response.data.message +
-                '</p></div>'
-            );
-          } else {
-            $result.html(
-              '<div class="notice notice-error"><p>' +
-                response.data.message +
-                '</p></div>'
-            );
-          }
-        },
-        error: function () {
-          $result.html(
-            '<div class="notice notice-error"><p>' +
-              e1_calculator_admin.strings.error +
-              ' Connection test failed' +
-              '</p></div>'
-          );
-        },
-        complete: function () {
-          $btn.prop('disabled', false);
-          $spinner.removeClass('is-active');
-        },
-      });
-    });
 
     // Sync widget button
     $('#sync-widget-btn').on('click', function () {
@@ -88,13 +42,32 @@
               window.location.reload();
             }, 2000);
           } else {
-            $result.html(
-              '<div class="notice notice-error"><p>' +
-                e1_calculator_admin.strings.error +
-                ' ' +
-                response.data.message +
-                '</p></div>'
-            );
+            let errorHtml = '<div class="notice notice-error"><p><strong>' +
+              e1_calculator_admin.strings.error +
+              '</strong> ' +
+              response.data.message +
+              '</p>';
+            
+            // Show debug information if available
+            if (response.data.debug) {
+              errorHtml += '<h4>Debug Information:</h4><ul>';
+              Object.keys(response.data.debug).forEach(function(key) {
+                errorHtml += '<li><strong>' + key + ':</strong> ' + response.data.debug[key] + '</li>';
+              });
+              errorHtml += '</ul>';
+            }
+            
+            // Show errors if available
+            if (response.data.errors && response.data.errors.length > 0) {
+              errorHtml += '<h4>Detailed Errors:</h4><ul>';
+              response.data.errors.forEach(function(error) {
+                errorHtml += '<li>' + error + '</li>';
+              });
+              errorHtml += '</ul>';
+            }
+            
+            errorHtml += '</div>';
+            $result.html(errorHtml);
           }
         },
         error: function () {
@@ -232,51 +205,6 @@
       });
     });
 
-    // Debug sync button
-    $('#debug-sync-btn').on('click', function () {
-      const $btn = $(this);
-      const $spinner = $btn.siblings('.spinner');
-      const $result = $('#action-result');
-
-      $btn.prop('disabled', true);
-      $spinner.addClass('is-active');
-      $result.html(
-        '<div class="notice notice-info"><p>Running diagnostics...</p></div>'
-      );
-
-      $.ajax({
-        url: e1_calculator_admin.ajax_url,
-        type: 'POST',
-        data: {
-          action: 'e1_debug_sync',
-          nonce: e1_calculator_admin.nonce,
-        },
-        success: function (response) {
-          if (response.success) {
-            $result.html(
-              '<div class="notice notice-warning"><p><strong>Debug Information:</strong><br><pre>' +
-                response.data.message +
-                '</pre></p></div>'
-            );
-          } else {
-            $result.html(
-              '<div class="notice notice-error"><p>' +
-                response.data.message +
-                '</p></div>'
-            );
-          }
-        },
-        error: function () {
-          $result.html(
-            '<div class="notice notice-error"><p>Debug request failed</p></div>'
-          );
-        },
-        complete: function () {
-          $btn.prop('disabled', false);
-          $spinner.removeClass('is-active');
-        },
-      });
-    });
 
     // Toggle API key visibility
     $('#e1_calculator_api_key')
