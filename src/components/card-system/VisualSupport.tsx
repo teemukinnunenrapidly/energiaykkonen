@@ -302,9 +302,10 @@ export function VisualSupport({
                   loading="lazy" // Enable browser lazy loading
                   style={{
                     width: '100%',
-                    height: '100%',
-                    objectFit: cssValue(styles.visualSupport.image.objectFit),
-                    borderRadius: styles.visualSupport.image.borderRadius,
+                    height: 'auto',
+                    maxHeight: '350px', // Limit height to prevent stretching
+                    objectFit: cssValue(styles.visualSupport.image.objectFit) || 'contain',
+                    borderRadius: styles.visualSupport.image.borderRadius || '8px',
                   }}
                   onLoad={() => {
                     console.log('✅ Image loaded successfully:', imageUrl);
