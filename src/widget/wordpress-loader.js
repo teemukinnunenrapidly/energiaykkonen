@@ -702,8 +702,8 @@
     // Wait for main widget script
     async waitForMainWidget() {
       return RetryManager.withRetry(async (attempt) => {
-        if (typeof window.E1Calculator === 'undefined' || 
-            typeof window.E1Calculator.init === 'undefined') {
+        if (typeof window.E1CalculatorWidget === 'undefined' || 
+            typeof window.E1CalculatorWidget.init === 'undefined') {
           throw new Error('Main E1Calculator widget not loaded');
         }
         
@@ -714,8 +714,8 @@
     // Render widget instance
     async renderWidget(mountPoint, configData, options) {
       // Use the main widget's initialization
-      if (window.E1Calculator && window.E1Calculator.init) {
-        return window.E1Calculator.init({
+      if (window.E1CalculatorWidget && window.E1CalculatorWidget.init) {
+        return window.E1CalculatorWidget.init({
           container: mountPoint,
           config: configData,
           ...options

@@ -561,6 +561,37 @@ class StyleManager {
   }
 }
 
+// Init function for WordPress loader compatibility
+const init = (options: { container: HTMLElement | string; config: any; [key: string]: any }) => {
+  const { container, config, ...restOptions } = options;
+  
+  // Get container element
+  const containerElement = typeof container === 'string' 
+    ? document.getElementById(container) 
+    : container;
+    
+  if (!containerElement) {
+    throw new Error(`Container not found: ${container}`);
+  }
+  
+  // Create React root and render widget
+  const root = ReactDOM.createRoot(containerElement);
+  root.render(React.createElement(E1CalculatorWidget, {
+    config: {
+      ...config,
+      ...restOptions
+    }
+  }));
+  
+  return {
+    container: containerElement,
+    root,
+    destroy: () => {
+      root.unmount();
+    }
+  };
+};
+
 // Export enhanced components and utilities
-export { E1CalculatorWidget, StyleManager };
+export { E1CalculatorWidget, StyleManager, init };
 export type { WidgetConfig, WidgetInstance };

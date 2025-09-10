@@ -1,13 +1,13 @@
 {
-  "timestamp": "2025-09-10T12:38:49.485Z",
+  "timestamp": "2025-09-10T14:19:58.884Z",
   "tests": [
     {
       "name": "File Access: widget.js",
       "status": "passed",
       "duration": 0,
-      "details": "File exists (44KB)",
+      "details": "File exists (109KB)",
       "metrics": {
-        "fileSize": 44627
+        "fileSize": 111281
       }
     },
     {
@@ -34,7 +34,7 @@
       "duration": 0,
       "details": "File exists (15KB)",
       "metrics": {
-        "fileSize": 15637
+        "fileSize": 15648
       }
     },
     {
@@ -43,7 +43,7 @@
       "duration": 0,
       "details": "File exists (28KB)",
       "metrics": {
-        "fileSize": 28213
+        "fileSize": 28214
       }
     },
     {
@@ -61,7 +61,7 @@
       "duration": 0,
       "details": "Valid JSON with 7 root properties",
       "metrics": {
-        "configSize": 28094
+        "configSize": 28095
       }
     },
     {
@@ -80,10 +80,10 @@
       "name": "Bundle Size Performance",
       "status": "passed",
       "duration": 0,
-      "details": "Total bundle size: 86KB (target: <500KB)",
+      "details": "Total bundle size: 151KB (target: <500KB)",
       "metrics": {
-        "totalSizeKB": 86,
-        "jsSizeKB": 44,
+        "totalSizeKB": 151,
+        "jsSizeKB": 109,
         "cssSizeKB": 19,
         "namespacedCssSizeKB": 23
       }
@@ -91,10 +91,10 @@
     {
       "name": "Config Loading Performance",
       "status": "passed",
-      "duration": 1,
-      "details": "Config loaded in 1ms (target: <100ms)",
+      "duration": 2,
+      "details": "Config loaded in 2ms (target: <100ms)",
       "metrics": {
-        "loadTimeMs": 1,
+        "loadTimeMs": 2,
         "configSizeKB": 27,
         "recordCount": 9
       }
@@ -108,13 +108,13 @@
   },
   "performance": {
     "Bundle Size Performance": {
-      "totalSizeKB": 86,
-      "jsSizeKB": 44,
+      "totalSizeKB": 151,
+      "jsSizeKB": 109,
       "cssSizeKB": 19,
       "namespacedCssSizeKB": 23
     },
     "Config Loading Performance": {
-      "loadTimeMs": 1,
+      "loadTimeMs": 2,
       "configSizeKB": 27,
       "recordCount": 9
     }

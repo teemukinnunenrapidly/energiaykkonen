@@ -1,8 +1,8 @@
 {
   "deployment": {
-    "timestamp": "2025-09-10T12:38:49.443Z",
-    "version": "2.1.0-1757507928470",
-    "buildId": "1757507928470"
+    "timestamp": "2025-09-10T14:19:58.873Z",
+    "version": "2.1.0-1757513996865",
+    "buildId": "1757513996865"
   },
   "statistics": {
     "dataRecords": {
@@ -12,12 +12,12 @@
       "lookupTables": 2
     },
     "bundleSize": {
-      "totalKB": 101,
+      "totalKB": 166,
       "files": 4
     }
   },
   "health": {
-    "lastDeployment": "2025-09-10T12:38:49.443Z",
+    "lastDeployment": "2025-09-10T14:19:58.873Z",
     "status": "healthy",
     "errors": []
   }

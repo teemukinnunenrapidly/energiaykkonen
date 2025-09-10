@@ -158,14 +158,17 @@ class E1_Calculator_Loader {
         // Load frontend scripts for block editor
         $this->enqueue_scripts();
         
-        // Additional block editor specific scripts
-        wp_enqueue_script(
-            'e1-calculator-block-inspector',
-            $this->cache_url . '/block-inspector.js',
-            ['wp-blocks', 'wp-editor', 'wp-components'],
-            $this->version,
-            true
-        );
+        // Additional block editor specific scripts (only if file exists)
+        $block_inspector_file = $this->cache_path . '/block-inspector.js';
+        if (file_exists($block_inspector_file)) {
+            wp_enqueue_script(
+                'e1-calculator-block-inspector',
+                $this->cache_url . '/block-inspector.js',
+                ['wp-blocks', 'wp-editor', 'wp-components'],
+                $this->version,
+                true
+            );
+        }
         
         // Block editor specific localization
         wp_localize_script('e1-calculator-block-inspector', 'e1CalculatorBlockWP', [
@@ -324,34 +327,38 @@ class E1_Calculator_Loader {
             return;
         }
         
-        // Enhanced block editor script with dependencies
-        wp_register_script(
-            'e1-calculator-block',
-            $this->cache_url . '/block.js',
-            [
-                'wp-blocks',
-                'wp-element', 
-                'wp-editor',
-                'wp-components',
-                'wp-i18n',
-                'wp-data'
-            ],
-            $this->version,
-            true
-        );
+        // Enhanced block editor script with dependencies (only if file exists)
+        $block_file = $this->cache_path . '/block.js';
+        if (file_exists($block_file)) {
+            wp_register_script(
+                'e1-calculator-block',
+                $this->cache_url . '/block.js',
+                [
+                    'wp-blocks',
+                    'wp-element', 
+                    'wp-editor',
+                    'wp-components',
+                    'wp-i18n',
+                    'wp-data'
+                ],
+                $this->version,
+                true
+            );
+        }
         
-        // Block editor styles
-        wp_register_style(
-            'e1-calculator-block-editor',
-            $this->cache_url . '/block-editor.css',
-            ['wp-edit-blocks'],
-            $this->version
-        );
+        // Block editor styles (only if file exists)
+        $block_css_file = $this->cache_path . '/block-editor.css';
+        if (file_exists($block_css_file)) {
+            wp_register_style(
+                'e1-calculator-block-editor',
+                $this->cache_url . '/block-editor.css',
+                ['wp-edit-blocks'],
+                $this->version
+            );
+        }
         
-        // Register block with comprehensive attributes
-        register_block_type('e1-calculator/widget', [
-            'editor_script' => 'e1-calculator-block',
-            'editor_style' => 'e1-calculator-block-editor',
+        // Register block with comprehensive attributes (only if scripts exist)
+        $block_args = [
             'render_callback' => [$this, 'render_block'],
             'attributes' => [
                 // Core display attributes
@@ -467,7 +474,17 @@ class E1_Calculator_Loader {
                     'text' => false
                 ]
             ]
-        ]);
+        ];
+        
+        // Add editor script and style only if they exist
+        if (file_exists($block_file)) {
+            $block_args['editor_script'] = 'e1-calculator-block';
+        }
+        if (file_exists($block_css_file)) {
+            $block_args['editor_style'] = 'e1-calculator-block-editor';
+        }
+        
+        register_block_type('e1-calculator/widget', $block_args);
     }
     
     /**

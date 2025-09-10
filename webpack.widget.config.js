@@ -7,23 +7,21 @@ const webpack = require('webpack');
 module.exports = (env, argv) => {
   const isProduction = argv.mode === 'production';
   
-  // Base configuration shared between both builds
-  const getBaseConfig = (cssMode) => ({
+  // Base configuration shared between all builds
+  const getBaseConfig = (cssMode, entryName, entryPath, libraryName) => ({
     mode: isProduction ? 'production' : 'development',
     entry: {
-      'e1-calculator-widget': './src/widget/enhanced-standalone-widget.tsx',
-      'wordpress-loader': './src/widget/wordpress-loader.js',
+      [entryName]: entryPath,
     },
     output: {
       path: path.resolve(__dirname, 'dist'),
       filename: cssMode === 'namespaced' ? '[name].namespaced.js' : '[name].min.js',
       library: {
-        name: 'E1Calculator',
+        name: libraryName,
         type: 'umd',
-        export: 'E1CalculatorWidget',
       },
       globalObject: 'this',
-      clean: cssMode === 'shadow', // Clean only on first build
+      clean: false, // Disable clean to avoid file conflicts
     },
     module: {
       rules: [
@@ -183,18 +181,22 @@ module.exports = (env, argv) => {
 
   // Return array of configurations for multi-build
   return [
-    // Shadow DOM build (normal CSS)
+    // Shadow DOM builds (normal CSS)
     {
-      ...getBaseConfig('shadow'),
-      name: 'shadow-dom',
+      ...getBaseConfig('shadow', 'e1-calculator-widget', './src/widget/enhanced-standalone-widget.tsx', 'E1CalculatorWidget'),
+      name: 'shadow-dom-widget',
     },
-    // Namespace build (prefixed CSS)
     {
-      ...getBaseConfig('namespaced'),
-      name: 'namespaced',
+      ...getBaseConfig('shadow', 'wordpress-loader', './src/widget/wordpress-loader.js', 'E1Calculator'),
+      name: 'shadow-dom-loader',
+    },
+    // Namespace builds (prefixed CSS)
+    {
+      ...getBaseConfig('namespaced', 'e1-calculator-widget', './src/widget/enhanced-standalone-widget.tsx', 'E1CalculatorWidget'),
+      name: 'namespaced-widget',
       // Avoid conflicting JS outputs by only emitting CSS for namespaced build
       optimization: {
-        ...getBaseConfig('namespaced').optimization,
+        ...getBaseConfig('namespaced', 'e1-calculator-widget', './src/widget/enhanced-standalone-widget.tsx', 'E1CalculatorWidget').optimization,
         // Don't emit JS files for the namespaced build, only CSS
         splitChunks: {
           cacheGroups: {
@@ -207,6 +209,10 @@ module.exports = (env, argv) => {
           },
         },
       },
+    },
+    {
+      ...getBaseConfig('namespaced', 'wordpress-loader', './src/widget/wordpress-loader.js', 'E1Calculator'),
+      name: 'namespaced-loader',
     },
   ];
 };

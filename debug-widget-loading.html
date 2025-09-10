@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debug E1 Widget Loading</title>
+    <style>
+        body { font-family: system-ui; padding: 20px; }
+        .debug-info { background: #f3f4f6; padding: 20px; border-radius: 8px; margin: 20px 0; }
+        .widget-container { background: #ffffff; border: 2px solid #e5e7eb; padding: 20px; border-radius: 12px; margin: 20px 0; }
+        .status { padding: 10px; margin: 10px 0; border-radius: 4px; }
+        .success { background: #d1fae5; color: #065f46; }
+        .error { background: #fee2e2; color: #991b1b; }
+        .warning { background: #fef3c7; color: #92400e; }
+    </style>
+</head>
+<body>
+    <h1>🔍 E1 Widget Loading Debug</h1>
+    
+    <div class="debug-info">
+        <h3>Debug Information</h3>
+        <div id="debug-status">Loading debug info...</div>
+    </div>
+
+    <div class="widget-container">
+        <h3>Widget Test</h3>
+        <div id="e1-calculator-widget" style="min-height: 400px;">
+            <div style="text-align: center; padding: 40px; color: #6b7280;">
+                Ladataan E1-laskuria...
+            </div>
+        </div>
+    </div>
+
+    <div class="debug-info">
+        <h3>Console Logs</h3>
+        <div id="console-logs" style="max-height: 300px; overflow-y: auto; font-family: monospace; font-size: 12px;"></div>
+    </div>
+
+    <script>
+        // Capture console logs
+        const originalLog = console.log;
+        const originalError = console.error;
+        const originalWarn = console.warn;
+        const logsContainer = document.getElementById('console-logs');
+        const debugStatus = document.getElementById('debug-status');
+        
+        function addLog(type, ...args) {
+            const timestamp = new Date().toLocaleTimeString();
+            const div = document.createElement('div');
+            div.style.color = type === 'error' ? 'red' : type === 'warn' ? 'orange' : 'black';
+            div.textContent = `[${timestamp}] [${type.toUpperCase()}] ${args.join(' ')}`;
+            logsContainer.appendChild(div);
+            logsContainer.scrollTop = logsContainer.scrollHeight;
+        }
+        
+        console.log = (...args) => {
+            originalLog(...args);
+            addLog('log', ...args);
+        };
+        
+        console.error = (...args) => {
+            originalError(...args);
+            addLog('error', ...args);
+        };
+        
+        console.warn = (...args) => {
+            originalWarn(...args);
+            addLog('warn', ...args);
+        };
+        
+        // Check widget environment
+        function updateDebugStatus() {
+            const status = {
+                timestamp: new Date().toISOString(),
+                windowE1Calculator: typeof window.E1Calculator,
+                initAllAvailable: window.E1Calculator && typeof window.E1Calculator.initAll,
+                widgetContainer: !!document.getElementById('e1-calculator-widget'),
+                cacheFiles: {
+                    js: 'Checking...',
+                    css: 'Checking...',
+                    config: 'Checking...'
+                }
+            };
+            
+            // Check if files exist
+            const testJs = new Image();
+            testJs.onload = () => status.cacheFiles.js = '✅ Available';
+            testJs.onerror = () => status.cacheFiles.js = '❌ Not found';
+            testJs.src = '/wp-content/plugins/e1-calculator-pro/cache/widget.js';
+            
+            const testCss = new Image();
+            testCss.onload = () => status.cacheFiles.css = '✅ Available';  
+            testCss.onerror = () => status.cacheFiles.css = '❌ Not found';
+            testCss.src = '/wp-content/plugins/e1-calculator-pro/cache/widget.css';
+            
+            debugStatus.innerHTML = `
+                <pre>${JSON.stringify(status, null, 2)}</pre>
+            `;
+        }
+        
+        // Initial status
+        updateDebugStatus();
+        
+        console.log('🔍 Debug script started');
+        console.log('🔍 Checking if E1Calculator is available...');
+        
+        // Check every second for E1Calculator
+        let checkCount = 0;
+        const checkInterval = setInterval(() => {
+            checkCount++;
+            console.log(`🔍 Check ${checkCount}: window.E1Calculator =`, typeof window.E1Calculator);
+            
+            if (window.E1Calculator) {
+                console.log('✅ E1Calculator found!');
+                console.log('🔍 Available methods:', Object.keys(window.E1Calculator));
+                console.log('🔍 initAll available:', typeof window.E1Calculator.initAll);
+                
+                if (window.E1Calculator.initAll) {
+                    console.log('🚀 Attempting to initialize widget...');
+                    try {
+                        window.E1Calculator.initAll({
+                            useShadowDOM: false,
+                            debugMode: true,
+                            performanceTracking: true
+                        }).then(instances => {
+                            console.log('✅ Widget initialized successfully:', instances);
+                        }).catch(error => {
+                            console.error('❌ Widget initialization failed:', error);
+                        });
+                    } catch (error) {
+                        console.error('❌ Widget initialization threw error:', error);
+                    }
+                }
+                clearInterval(checkInterval);
+            } else if (checkCount > 10) {
+                console.error('❌ E1Calculator not found after 10 seconds');
+                clearInterval(checkInterval);
+            }
+            
+            updateDebugStatus();
+        }, 1000);
+        
+        // Load the widget script directly
+        console.log('📦 Loading widget script...');
+        const script = document.createElement('script');
+        script.src = '/wp-content/plugins/e1-calculator-pro/cache/widget.js';
+        script.onload = () => {
+            console.log('✅ Widget script loaded successfully');
+            console.log('🔍 window.E1Calculator after load:', typeof window.E1Calculator);
+        };
+        script.onerror = () => {
+            console.error('❌ Failed to load widget script');
+        };
+        document.head.appendChild(script);
+        
+        // Load the CSS
+        const css = document.createElement('link');
+        css.rel = 'stylesheet';
+        css.href = '/wp-content/plugins/e1-calculator-pro/cache/widget.css';
+        css.onload = () => console.log('✅ Widget CSS loaded');
+        css.onerror = () => console.error('❌ Failed to load widget CSS');
+        document.head.appendChild(css);
+    </script>
+</body>
+</html>
