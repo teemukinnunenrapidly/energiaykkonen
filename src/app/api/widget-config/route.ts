@@ -154,7 +154,7 @@ export async function GET(request: NextRequest) {
         formula_code: formula.formula_code,
         input_parameters: formula.input_parameters || {},
         output_format: formula.output_format || {},
-        category: formula.category,
+        category: formula.category || 'general',
         is_active: formula.is_active,
         created_at: formula.created_at,
       })),
@@ -395,7 +395,7 @@ async function fetchFormulaData() {
     .from('formulas')
     .select('*')
     .eq('is_active', true)
-    .order('category', { ascending: true });
+    .order('name', { ascending: true });
 
   if (error) {
     console.error('❌ Error fetching formulas:', error);
