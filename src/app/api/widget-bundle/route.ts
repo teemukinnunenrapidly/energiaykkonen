@@ -86,8 +86,12 @@ async function fetchCardData() {
         .in('card_template_id', cardIds)
         .order('display_order');
       
-      if (!fieldsError) {
+      if (fieldsError) {
+        console.error('Card fields query error:', fieldsError);
+        cardFields = [];
+      } else {
         cardFields = fields || [];
+        console.log('Fetched card fields:', cardFields.length, 'fields for', cardIds.length, 'cards');
       }
     }
 
@@ -97,7 +101,11 @@ async function fetchCardData() {
       .select('*')
       .eq('is_active', true);
 
-    if (visualsError) throw visualsError;
+    if (visualsError) {
+      console.error('Visual objects query error:', visualsError);
+    } else {
+      console.log('Fetched visual objects:', visuals?.length || 0);
+    }
 
     console.log('Fetched from Supabase:', {
       cards: cards?.length || 0,
