@@ -143,15 +143,17 @@ The widget comes with predefined styles, but you can add custom CSS to override 
 /wp-content/plugins/e1-calculator-pro/
 ├── e1-calculator.php              # Main plugin file
 ├── includes/
-│   ├── class-plugin.php          # Core plugin class
-│   ├── class-api-client.php      # API communication
+│   ├── class-plugin.php          # Legacy plugin class (unused)
+│   ├── class-admin-settings.php  # Current admin interface
+│   ├── class-e1-calculator-loader.php # Current widget loader
 │   ├── class-cache-manager.php   # Cache handling
+│   ├── class-api-client.php      # API communication
+│   ├── class-sync-manager.php    # Widget sync management
 │   ├── class-widget.php          # Widget rendering
-│   ├── class-admin.php           # Admin interface
 │   └── class-security.php        # Security functions
 ├── assets/
-│   ├── css/admin.css             # Admin styles
-│   └── js/admin.js               # Admin JavaScript
+│   ├── admin.js                  # Admin JavaScript
+│   └── css/admin.css             # Admin styles
 └── cache/                         # Widget cache directory
 ```
 

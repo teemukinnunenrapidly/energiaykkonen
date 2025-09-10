@@ -56,7 +56,7 @@ class Plugin {
         require_once E1_CALC_PLUGIN_DIR . 'includes/ajax-handler.php';
         
         if (is_admin()) {
-            require_once E1_CALC_PLUGIN_DIR . 'includes/class-admin-simple.php';
+            require_once E1_CALC_PLUGIN_DIR . 'includes/class-admin-settings.php';
         }
     }
     
@@ -73,7 +73,7 @@ class Plugin {
         
         
         if (is_admin()) {
-            $this->admin = new Admin_Simple($this->api_client, $this->cache_manager, $this->sync_manager, $this->security);
+            $this->admin = new Admin_Settings($this->cache_manager);
         }
     }
     
