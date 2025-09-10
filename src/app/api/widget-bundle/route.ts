@@ -67,51 +67,34 @@ async function fetchCardData() {
   );
 
   try {
-    // Fetch card templates with their fields
+    // Fetch card templates first, then get fields separately
     const { data: cards, error: cardsError } = await supabase
       .from('card_templates')
-      .select(`
-        id,
-        name,
-        title,
-        type,
-        display_order,
-        visual_object_id,
-        config,
-        is_active,
-        card_fields (
-          id,
-          name,
-          type,
-          label,
-          placeholder,
-          required,
-          min_value,
-          max_value,
-          options,
-          display_order
-        )
-      `)
+      .select('*')
       .eq('is_active', true)
       .order('display_order');
 
     if (cardsError) throw cardsError;
 
-    // Fetch visual objects
+    // Fetch card fields for all cards
+    let cardFields = [];
+    if (cards && cards.length > 0) {
+      const cardIds = cards.map(card => card.id);
+      const { data: fields, error: fieldsError } = await supabase
+        .from('card_fields')
+        .select('*')
+        .in('card_template_id', cardIds)
+        .order('display_order');
+      
+      if (!fieldsError) {
+        cardFields = fields || [];
+      }
+    }
+
+    // Fetch visual objects (simplified query)
     const { data: visuals, error: visualsError } = await supabase
       .from('visual_objects')
-      .select(`
-        id,
-        name,
-        title,
-        description,
-        content,
-        visual_object_images (
-          id,
-          image_url,
-          image_variant
-        )
-      `)
+      .select('*')
       .eq('is_active', true);
 
     if (visualsError) throw visualsError;
@@ -125,6 +108,7 @@ async function fetchCardData() {
     return {
       cards: cards || [],
       visuals: visuals || [],
+      cardFields: cardFields || [],
     };
   } catch (error) {
     console.error('Error fetching card data from Supabase:', error);
@@ -132,6 +116,7 @@ async function fetchCardData() {
     return {
       cards: [],
       visuals: [],
+      cardFields: [],
     };
   }
 }
@@ -144,7 +129,7 @@ async function buildWidgetBundle() {
 
   try {
     // Fetch card data from Supabase
-    const { cards, visuals } = await fetchCardData();
+    const { cards, visuals, cardFields } = await fetchCardData();
     // Lue buildatut tiedostot dist-kansiosta
     const distPath = path.join(process.cwd(), 'dist');
 
@@ -375,7 +360,8 @@ async function buildWidgetBundle() {
       type: card.type,
       visual_object_id: card.visual_object_id,
       config: card.config,
-      fields: (card.card_fields || [])
+      fields: cardFields
+        .filter((field: any) => field.card_template_id === card.id)
         .sort((a: any, b: any) => a.display_order - b.display_order)
         .map((field: any) => ({
           id: field.id,
@@ -391,13 +377,13 @@ async function buildWidgetBundle() {
     }));
 
     // Transform visual objects
-    const transformedVisuals = visuals.map((visual: any) => ({
+    const transformedVisuals = (visuals || []).map((visual: any) => ({
       id: visual.id,
       name: visual.name,
       title: visual.title,
       description: visual.description,
       content: visual.content,
-      image_url: visual.visual_object_images?.[0]?.image_url,
+      image_url: null, // Will need to fetch images separately if needed
     }));
 
     // Configuration with real data from Supabase and design tokens
