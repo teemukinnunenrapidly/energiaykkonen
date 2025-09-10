@@ -78,17 +78,16 @@
 
     // Check WordPress environment
     isWordPressReady() {
-      // Basic WordPress detection
-      const hasWPScripts = document.querySelector('script[src*="wp-includes"]') || 
-                          document.querySelector('script[src*="wp-content"]');
+      // Frontend should not require window.wp; only block editor/admin does
+      const isAdminOrEditor = document.body.classList.contains('wp-admin') ||
+                              document.body.classList.contains('block-editor-page') ||
+                              !!document.querySelector('.block-editor');
       const hasWPObject = typeof window.wp !== 'undefined';
-      const hasWPAjax = typeof window.ajaxurl !== 'undefined';
-      
-      // If WordPress scripts detected, wait for wp object
-      if (hasWPScripts && !hasWPObject) {
+
+      // In admin/block editor, wait for wp object; otherwise treat as ready
+      if (isAdminOrEditor && !hasWPObject) {
         return false;
       }
-      
       return true;
     },
 

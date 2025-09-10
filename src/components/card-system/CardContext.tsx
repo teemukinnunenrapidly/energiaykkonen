@@ -236,14 +236,32 @@ export function CardProvider({
       console.log(
         `🎯 REVEAL: Granting reveal permission to Card "${card?.name}" (${cardId})`
       );
-      setCardStates(prev => {
-        const newStates = {
+      setCardStates(prev => ({
+        ...prev,
+        [cardId]: { ...prev[cardId], isRevealed: true },
+      }));
+
+      // Auto-complete non-form cards when revealed and cascade to next
+      if (card && (card.type === 'info' || card.type === 'visual' || card.type === 'calculation')) {
+        setCardStates(prev => ({
           ...prev,
-          [cardId]: { ...prev[cardId], isRevealed: true },
-        };
-        // console.log(`🎯 REVEAL: Updated card states:`, newStates);
-        return newStates;
-      });
+          [cardId]: { ...prev[cardId], status: 'complete', isRevealed: true },
+        }));
+
+        const currentIndex = cards.findIndex(c => c.id === cardId);
+        const nextCard = cards[currentIndex + 1];
+        if (nextCard) {
+          const timing = card.reveal_timing;
+          if (timing?.timing === 'after_delay') {
+            const delayMs = (timing.delay_seconds || 3) * 1000;
+            console.log(`⏱️ Auto-complete cascade: revealing "${nextCard.name}" after ${delayMs}ms`);
+            setTimeout(() => revealCard(nextCard.id), delayMs);
+          } else {
+            console.log(`⚡ Auto-complete cascade: revealing "${nextCard.name}" immediately`);
+            revealCard(nextCard.id);
+          }
+        }
+      }
     },
     [cards]
   );
