@@ -151,7 +151,7 @@
         
         <div class="info-box">
             <h2>API Widget Bundle Tester</h2>
-            <p>Tämä testisivu hakee widget-bundlen API:sta ja näyttää sen toiminnassa.</p>
+            <p>Tämä testisivu hakee widget-konfiguraation API:sta ja näyttää sen toiminnassa.</p>
             
             <div class="controls">
                 <input type="text" 
@@ -208,15 +208,14 @@
             
             // Reset
             statusEl.className = 'status info';
-            statusEl.textContent = 'Haetaan widget-bundlea...';
+            statusEl.textContent = 'Haetaan widget-konfiguraatiota...';
             statusEl.style.display = 'block';
             fetchBtn.disabled = true;
             
             try {
-                const response = await fetch('/api/widget-bundle', {
+                const response = await fetch('/api/widget-config', {
                     method: 'GET',
                     headers: {
-                        'Authorization': 'Bearer ' + apiKey,
                         'Accept': 'application/json'
                     }
                 });

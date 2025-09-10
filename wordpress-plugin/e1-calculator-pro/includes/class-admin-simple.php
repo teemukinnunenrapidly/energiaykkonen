@@ -98,7 +98,7 @@ class Admin_Simple {
                                 <input type="url" 
                                        id="e1_calculator_api_url"
                                        name="e1_calculator_api_url" 
-                                       value="<?php echo esc_attr(get_option('e1_calculator_api_url', 'https://energiaykkonen-calculator.vercel.app/api/widget-bundle')); ?>" 
+                                       value="<?php echo esc_attr(get_option('e1_calculator_api_url', 'https://energiaykkonen-calculator.vercel.app/api/widget-config')); ?>" 
                                        class="large-text" 
                                        required />
                             </td>

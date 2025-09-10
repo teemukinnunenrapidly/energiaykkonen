@@ -13,10 +13,7 @@
 
     <script>
         // Test with the actual production bundle
-        fetch('https://energiaykkonen-calculator.vercel.app/api/widget-bundle', {
-            headers: {
-                'Authorization': 'Bearer E1Calc2025KeySecureAuth789'
-            }
+        fetch('https://energiaykkonen-calculator.vercel.app/api/widget-config'
         })
         .then(response => response.json())
         .then(data => {

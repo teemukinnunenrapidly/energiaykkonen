@@ -242,7 +242,7 @@ class Plugin {
         }
         
         // Set default options
-        add_option('e1_calculator_api_url', 'https://energiaykkonen-calculator.vercel.app/api/widget-bundle');
+        add_option('e1_calculator_api_url', 'https://energiaykkonen-calculator.vercel.app/api/widget-config');
         add_option('e1_calculator_api_key', '');
         add_option('e1_calculator_auto_sync', false);
         add_option('e1_calculator_cache_duration', 86400); // 24 hours

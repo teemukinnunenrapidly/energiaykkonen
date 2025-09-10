@@ -311,9 +311,9 @@ class Admin {
                                        name="e1_calculator_api_url" 
                                        value="<?php echo esc_attr(get_option('e1_calculator_api_url')); ?>" 
                                        class="large-text" 
-                                       placeholder="https://example.com/api/widget-bundle" />
+                                       placeholder="https://example.com/api/widget-config" />
                                 <p class="description">
-                                    <?php _e('Full widget bundle API endpoint URL (e.g. https://energiaykkonen-calculator.vercel.app/api/widget-bundle)', 'e1-calculator'); ?>
+                                    <?php _e('Widget configuration API endpoint URL (e.g. https://energiaykkonen-calculator.vercel.app/api/widget-config)', 'e1-calculator'); ?>
                                 </p>
                             </td>
                         </tr>
