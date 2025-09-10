@@ -100,6 +100,9 @@ async function fetchCardData() {
       } else {
         cardFields = fields || [];
         console.log('Found', cardFields.length, 'card fields');
+        if (cardFields.length > 0) {
+          console.log('Sample field data:', JSON.stringify(cardFields[0], null, 2));
+        }
       }
     }
 
@@ -402,14 +405,14 @@ async function buildWidgetBundle() {
         .sort((a: any, b: any) => a.display_order - b.display_order)
         .map((field: any) => ({
           id: field.id,
-          name: field.name,
-          type: field.type,
+          name: field.field_name,
+          type: field.field_type,
           label: field.label,
           placeholder: field.placeholder,
           required: field.required,
           min: field.min_value,
           max: field.max_value,
-          options: field.options ? (typeof field.options === 'string' ? JSON.parse(field.options) : field.options) : undefined,
+          options: field.options ? (typeof field.options === 'string' ? JSON.parse(field.options) : field.options) : field.options,
         })),
     }));
 
