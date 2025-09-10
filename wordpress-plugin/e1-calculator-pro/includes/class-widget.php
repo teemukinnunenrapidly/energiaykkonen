@@ -123,10 +123,13 @@ class Widget {
         
         // Initialize widget
         $output .= sprintf(
-            "if (typeof E1Calculator !== 'undefined' && E1Calculator.init) {
-                E1Calculator.init('%s', window.E1_WIDGET_CONFIG_%s || {});
+            "if (typeof E1CalculatorWidget !== 'undefined' && E1CalculatorWidget.init) {
+                E1CalculatorWidget.init({
+                    container: '%s',
+                    config: window.E1_WIDGET_CONFIG_%s || {}
+                });
             } else if (document.getElementById('%s')) {
-                console.error('E1 Calculator: Widget initialization failed');
+                console.error('E1 Calculator: Widget initialization failed - E1CalculatorWidget not available');
             }",
             $widget_id,
             str_replace('-', '_', $widget_id),
