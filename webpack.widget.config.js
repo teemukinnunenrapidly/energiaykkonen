@@ -20,7 +20,7 @@ module.exports = (env, argv) => {
       library: {
         name: 'E1Calculator',
         type: 'umd',
-        export: 'default',
+        export: 'E1CalculatorWidget',
       },
       globalObject: 'this',
       clean: cssMode === 'shadow', // Clean only on first build
