@@ -1,8 +1,11 @@
 {
+  "cache_timestamp": "2025-09-10T18:35:52.161Z",
+  "version": "2.1.0-1757529351015",
+  "buildId": "1757529351015",
   "deployment": {
-    "timestamp": "2025-09-10T14:19:58.873Z",
-    "version": "2.1.0-1757513996865",
-    "buildId": "1757513996865"
+    "timestamp": "2025-09-10T18:35:52.161Z",
+    "version": "2.1.0-1757529351015",
+    "buildId": "1757529351015"
   },
   "statistics": {
     "dataRecords": {
@@ -12,12 +15,12 @@
       "lookupTables": 2
     },
     "bundleSize": {
-      "totalKB": 166,
+      "totalKB": 343,
       "files": 4
     }
   },
   "health": {
-    "lastDeployment": "2025-09-10T14:19:58.873Z",
+    "lastDeployment": "2025-09-10T18:35:52.161Z",
     "status": "healthy",
     "errors": []
   }

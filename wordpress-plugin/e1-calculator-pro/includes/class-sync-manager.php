@@ -271,8 +271,14 @@ class Sync_Manager {
                 'generated_at' => $bundle['generated_at'] ?? '',
                 'synced_at' => current_time('mysql'),
                 'synced_by' => wp_get_current_user()->user_login ?? 'system',
-                'cache_timestamp' => time(),
-                'api_response' => $bundle // Store full API response for debugging
+                // Prefer ISO8601 timestamp for readability
+                'cache_timestamp' => gmdate('c'),
+                // Also store epoch seconds for arithmetic comparisons
+                'cache_epoch' => time(),
+                // Preserve deployment/statistics/health from API if present (for admins)
+                'deployment' => isset($bundle['deployment']) ? $bundle['deployment'] : null,
+                'statistics' => isset($bundle['statistics']) ? $bundle['statistics'] : null,
+                'health' => isset($bundle['health']) ? $bundle['health'] : null
             ], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE)
         ];
         
@@ -375,7 +381,9 @@ class Sync_Manager {
             'generated_at' => $bundle['generated_at'] ?? '',
             'synced_at' => current_time('mysql'),
             'synced_by' => wp_get_current_user()->user_login ?? 'system',
-            'cache_timestamp' => time(),
+            // Prefer ISO string; also provide epoch
+            'cache_timestamp' => gmdate('c'),
+            'cache_epoch' => time(),
             'file_sizes' => [
                 'js' => strlen($bundle['widget']['js']),
                 'css' => strlen($bundle['widget']['css']),

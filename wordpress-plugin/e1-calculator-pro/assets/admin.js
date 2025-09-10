@@ -233,10 +233,67 @@ jQuery(document).ready(function($) {
      * Update cache status in main panel
      */
     function updateCacheStatus() {
-        // Refresh page after a short delay to show updated status
-        setTimeout(() => {
-            window.location.reload();
-        }, 2000);
+        // Update cache status without reloading the page
+        $.ajax({
+            url: e1AdminAjax.ajaxurl,
+            type: 'POST',
+            data: {
+                action: 'e1_get_cache_status',
+                nonce: e1AdminAjax.nonce
+            },
+            success: function(response) {
+                if (response.success) {
+                    const data = response.data;
+                    updateCacheStatusDisplay(data);
+                }
+            },
+            error: function() {
+                console.warn('E1 Calculator: Failed to update cache status');
+            }
+        });
+    }
+    
+    /**
+     * Update cache status display
+     */
+    function updateCacheStatusDisplay(cacheInfo) {
+        // Update main status panel
+        const $statusCard = $('.e1-status-card').first();
+        const $icon = $statusCard.find('.e1-status-icon .dashicons');
+        const $content = $statusCard.find('.e1-status-content');
+        
+        if (cacheInfo.has_cache) {
+            $icon.removeClass('dashicons-warning').addClass('dashicons-yes-alt').css('color', '#00a32a');
+            $content.find('p').text('Widget tiedostot löytyvät');
+            $content.find('small').text('Koko: ' + formatFileSize(cacheInfo.total_size));
+        } else {
+            $icon.removeClass('dashicons-yes-alt').addClass('dashicons-warning').css('color', '#dba617');
+            $content.find('p').text('Widget ei ole synkronoitu');
+            $content.find('small').remove();
+        }
+        
+        // Update cache info section
+        const $cacheInfo = $('.e1-cache-info');
+        if (cacheInfo.has_cache) {
+            $cacheInfo.find('li').first().html('<strong>Status:</strong> ✅ Cache löytyy');
+            $cacheInfo.find('li').eq(1).html('<strong>Tiedostoja:</strong> ' + cacheInfo.files.length + ' kpl');
+            $cacheInfo.find('li').eq(2).html('<strong>Koko yhteensä:</strong> ' + formatFileSize(cacheInfo.total_size));
+        } else {
+            $cacheInfo.find('li').first().html('<strong>Status:</strong> ❌ Ei cachea');
+        }
+    }
+    
+    /**
+     * Format file size
+     */
+    function formatFileSize(bytes) {
+        if (bytes >= 1048576) {
+            return (bytes / 1048576).toFixed(2) + ' MB';
+        } else if (bytes >= 1024) {
+            return (bytes / 1024).toFixed(2) + ' KB';
+        } else {
+            return bytes + ' B';
+        }
     }
     
     /**

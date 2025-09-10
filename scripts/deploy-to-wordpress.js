@@ -444,8 +444,8 @@ class AssetManager {
       // Shadow DOM CSS
       const shadowPath = path.join(CONFIG.paths.cache, 'widget.css');
       const shadowUploadsPath = path.join(CONFIG.paths.uploads, 'widget.css');
-      await fs.writeFile(shadowPath, cssData.shadowDOM.content);
-      await fs.writeFile(shadowUploadsPath, cssData.shadowDOM.content);
+      await fs.writeFile(shadowPath, cssData.shadowDOM.content, 'utf8');
+      await fs.writeFile(shadowUploadsPath, cssData.shadowDOM.content, 'utf8');
       
       copiedFiles.push({
         source: 'e1-calculator-widget.min.css',
@@ -459,8 +459,8 @@ class AssetManager {
       // Namespaced CSS
       const namespacedPath = path.join(CONFIG.paths.cache, 'widget-namespaced.css');
       const namespacedUploadsPath = path.join(CONFIG.paths.uploads, 'widget-namespaced.css');
-      await fs.writeFile(namespacedPath, cssData.namespaced.content);
-      await fs.writeFile(namespacedUploadsPath, cssData.namespaced.content);
+      await fs.writeFile(namespacedPath, cssData.namespaced.content, 'utf8');
+      await fs.writeFile(namespacedUploadsPath, cssData.namespaced.content, 'utf8');
       
       copiedFiles.push({
         source: 'widget-namespaced.min.css',
@@ -533,11 +533,14 @@ class AssetManager {
     
     // Write config to both locations
     const configJSON = JSON.stringify(config, null, 2);
-    await fs.writeFile(path.join(CONFIG.paths.cache, 'config.json'), configJSON);
-    await fs.writeFile(path.join(CONFIG.paths.uploads, 'config.json'), configJSON);
+    await fs.writeFile(path.join(CONFIG.paths.cache, 'config.json'), configJSON, 'utf8');
+    await fs.writeFile(path.join(CONFIG.paths.uploads, 'config.json'), configJSON, 'utf8');
     
     // Create metadata
     const metadata = {
+      cache_timestamp: new Date().toISOString(),
+      version: config.version,
+      buildId: CONFIG.buildId,
       deployment: {
         timestamp: new Date().toISOString(),
         version: config.version,
@@ -564,11 +567,13 @@ class AssetManager {
     
     await fs.writeFile(
       path.join(CONFIG.paths.cache, 'metadata.json'),
-      JSON.stringify(metadata, null, 2)
+      JSON.stringify(metadata, null, 2), 
+      'utf8'
     );
     await fs.writeFile(
       path.join(CONFIG.paths.uploads, 'metadata.json'),
-      JSON.stringify(metadata, null, 2)
+      JSON.stringify(metadata, null, 2),
+      'utf8'
     );
     
     console.log('   ✅ Configuration files created');

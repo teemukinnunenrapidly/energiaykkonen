@@ -26,6 +26,7 @@ class Admin_Settings {
         add_action('wp_ajax_e1_clear_cache', [$this, 'ajax_clear_cache']);
         add_action('wp_ajax_e1_test_widget', [$this, 'ajax_test_widget']);
         add_action('wp_ajax_e1_sync_widget', [$this, 'ajax_sync_widget']);
+        add_action('wp_ajax_e1_get_cache_status', [$this, 'ajax_get_cache_status']);
         
         // Admin käyttöliittymä
         add_action('admin_enqueue_scripts', [$this, 'enqueue_admin_scripts']);
@@ -590,6 +591,24 @@ class Admin_Settings {
         }
         
         wp_send_json_success($test_results);
+    }
+    
+    /**
+     * AJAX: Hae cache status
+     */
+    public function ajax_get_cache_status() {
+        // Tarkista nonce ja oikeudet
+        if (!check_ajax_referer('e1_admin_nonce', 'nonce', false) || !current_user_can('manage_options')) {
+            wp_send_json_error(['message' => 'Ei oikeuksia']);
+            return;
+        }
+        
+        try {
+            $cache_info = $this->cache_manager->get_cache_info();
+            wp_send_json_success($cache_info);
+        } catch (Exception $e) {
+            wp_send_json_error(['message' => 'Virhe: ' . $e->getMessage()]);
+        }
     }
     
     /**

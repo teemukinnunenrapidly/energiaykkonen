@@ -27,19 +27,35 @@ class Cache_Manager {
     private function ensure_cache_directory() {
         if (!file_exists(E1_CALC_CACHE_DIR)) {
             wp_mkdir_p(E1_CALC_CACHE_DIR);
-            
-            // Add .htaccess for security
-            $htaccess = E1_CALC_CACHE_DIR . '.htaccess';
-            if (!file_exists($htaccess)) {
-                file_put_contents($htaccess, "Deny from all\n");
-            }
-            
-            // Add index.php for extra security
-            $index = E1_CALC_CACHE_DIR . 'index.php';
-            if (!file_exists($index)) {
-                file_put_contents($index, "<?php // Silence is golden\n");
-            }
         }
+
+        // Always write .htaccess that ALLOWS public access to widget assets
+        $htaccess = E1_CALC_CACHE_DIR . '.htaccess';
+        $rules = <<<HTACCESS
+# E1 Calculator cache rules
+<IfModule mod_authz_core.c>
+    Require all denied
+</IfModule>
+<IfModule !mod_authz_core.c>
+    Deny from all
+</IfModule>
+
+# Allow public access to widget assets
+<FilesMatch "^(widget\\.js|widget\\.css|config\\.json)$">
+    <IfModule mod_authz_core.c>
+        Require all granted
+    </IfModule>
+    <IfModule !mod_authz_core.c>
+        Allow from all
+        Satisfy any
+    </IfModule>
+</FilesMatch>
+HTACCESS;
+        @file_put_contents($htaccess, $rules);
+
+        // Ensure index.php exists
+        $index = E1_CALC_CACHE_DIR . 'index.php';
+        @file_put_contents($index, "<?php // Silence is golden\n");
     }
     
     /**
@@ -169,13 +185,37 @@ class Cache_Manager {
         
         $meta = json_decode(file_get_contents($meta_file), true);
         
-        if (!$meta || !isset($meta['cache_timestamp'])) {
+        if (!$meta) {
             return false;
         }
-        
+
+        // Support multiple timestamp formats for compatibility:
+        // - cache_epoch (number)
+        // - cache_timestamp (ISO string or epoch)
+        // - deployment.timestamp (ISO string)
+        $cache_epoch = 0;
+        if (isset($meta['cache_epoch']) && is_numeric($meta['cache_epoch'])) {
+            $cache_epoch = (int) $meta['cache_epoch'];
+        } elseif (isset($meta['cache_timestamp'])) {
+            $ts = $meta['cache_timestamp'];
+            if (is_numeric($ts)) {
+                $cache_epoch = (int) $ts;
+            } else {
+                $parsed = strtotime($ts);
+                $cache_epoch = $parsed ? (int) $parsed : 0;
+            }
+        } elseif (isset($meta['deployment']) && is_array($meta['deployment']) && isset($meta['deployment']['timestamp'])) {
+            $parsed = strtotime($meta['deployment']['timestamp']);
+            $cache_epoch = $parsed ? (int) $parsed : 0;
+        }
+
+        if ($cache_epoch <= 0) {
+            return false;
+        }
+
         // Check cache age
         $cache_duration = get_option('e1_calculator_cache_duration', 86400); // Default 24 hours
-        $cache_age = time() - $meta['cache_timestamp'];
+        $cache_age = time() - $cache_epoch;
         
         if ($cache_age > $cache_duration) {
             return false;
@@ -234,12 +274,20 @@ class Cache_Manager {
         $info = [
             'exists' => false,
             'valid' => false,
+            'has_cache' => false,
             'version' => null,
             'cached_at' => null,
             'size' => 0,
+            'files' => [],
+            'total_size' => 0,
+            'last_modified' => null,
         ];
         
-        $meta_file = E1_CALC_CACHE_DIR . self::CACHE_META;
+        // Check for both metadata.json and meta.json
+        $meta_file = E1_CALC_CACHE_DIR . 'metadata.json';
+        if (!file_exists($meta_file)) {
+            $meta_file = E1_CALC_CACHE_DIR . self::CACHE_META;
+        }
         
         if (file_exists($meta_file)) {
             $info['exists'] = true;
@@ -247,19 +295,52 @@ class Cache_Manager {
             
             if ($meta) {
                 $info['version'] = $meta['version'] ?? null;
-                $info['cached_at'] = $meta['cached_at'] ?? null;
-                $info['valid'] = $this->is_cache_valid();
-                
-                // Calculate total cache size
-                $files = [self::CACHE_JS, self::CACHE_CSS, self::CACHE_CONFIG, self::CACHE_META];
-                foreach ($files as $file) {
-                    $path = E1_CALC_CACHE_DIR . $file;
-                    if (file_exists($path)) {
-                        $info['size'] += filesize($path);
+                // Determine a human-readable cached_at value
+                $cached_at = $meta['cached_at'] ?? ($meta['synced_at'] ?? null);
+                if (!$cached_at) {
+                    if (isset($meta['cache_timestamp'])) {
+                        $ts = $meta['cache_timestamp'];
+                        if (is_numeric($ts)) {
+                            $cached_at = gmdate('c', (int) $ts);
+                        } else {
+                            $cached_at = $ts; // assume ISO
+                        }
+                    } elseif (isset($meta['cache_epoch']) && is_numeric($meta['cache_epoch'])) {
+                        $cached_at = gmdate('c', (int) $meta['cache_epoch']);
+                    } elseif (isset($meta['deployment']['timestamp'])) {
+                        $cached_at = $meta['deployment']['timestamp'];
                     }
+                }
+                $info['cached_at'] = $cached_at;
+                $info['valid'] = $this->is_cache_valid();
+            }
+        }
+        
+        // Check for required files
+        $required_files = [self::CACHE_JS, self::CACHE_CSS, self::CACHE_CONFIG];
+        $found_files = [];
+        $total_size = 0;
+        $last_modified = 0;
+        
+        foreach ($required_files as $file) {
+            $path = E1_CALC_CACHE_DIR . $file;
+            if (file_exists($path)) {
+                $found_files[] = $file;
+                $file_size = filesize($path);
+                $total_size += $file_size;
+                $file_mtime = filemtime($path);
+                if ($file_mtime > $last_modified) {
+                    $last_modified = $file_mtime;
                 }
             }
         }
+        
+        // Cache is considered to exist if we have all required files
+        $info['has_cache'] = count($found_files) === count($required_files);
+        $info['files'] = $found_files;
+        $info['total_size'] = $total_size;
+        $info['size'] = $total_size; // For backward compatibility
+        $info['last_modified'] = $last_modified > 0 ? $last_modified : null;
         
         return $info;
     }

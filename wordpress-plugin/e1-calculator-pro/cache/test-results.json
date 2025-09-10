@@ -1,13 +1,13 @@
 {
-  "timestamp": "2025-09-10T14:19:58.884Z",
+  "timestamp": "2025-09-10T18:35:52.167Z",
   "tests": [
     {
       "name": "File Access: widget.js",
       "status": "passed",
       "duration": 0,
-      "details": "File exists (109KB)",
+      "details": "File exists (285KB)",
       "metrics": {
-        "fileSize": 111281
+        "fileSize": 292089
       }
     },
     {
@@ -34,7 +34,7 @@
       "duration": 0,
       "details": "File exists (15KB)",
       "metrics": {
-        "fileSize": 15648
+        "fileSize": 15684
       }
     },
     {
@@ -50,9 +50,9 @@
       "name": "File Access: metadata.json",
       "status": "passed",
       "duration": 0,
-      "details": "File exists (0KB)",
+      "details": "File exists (1KB)",
       "metrics": {
-        "fileSize": 455
+        "fileSize": 570
       }
     },
     {
@@ -80,10 +80,10 @@
       "name": "Bundle Size Performance",
       "status": "passed",
       "duration": 0,
-      "details": "Total bundle size: 151KB (target: <500KB)",
+      "details": "Total bundle size: 328KB (target: <500KB)",
       "metrics": {
-        "totalSizeKB": 151,
-        "jsSizeKB": 109,
+        "totalSizeKB": 328,
+        "jsSizeKB": 285,
         "cssSizeKB": 19,
         "namespacedCssSizeKB": 23
       }
@@ -91,10 +91,10 @@
     {
       "name": "Config Loading Performance",
       "status": "passed",
-      "duration": 2,
-      "details": "Config loaded in 2ms (target: <100ms)",
+      "duration": 1,
+      "details": "Config loaded in 1ms (target: <100ms)",
       "metrics": {
-        "loadTimeMs": 2,
+        "loadTimeMs": 1,
         "configSizeKB": 27,
         "recordCount": 9
       }
@@ -108,13 +108,13 @@
   },
   "performance": {
     "Bundle Size Performance": {
-      "totalSizeKB": 151,
-      "jsSizeKB": 109,
+      "totalSizeKB": 328,
+      "jsSizeKB": 285,
       "cssSizeKB": 19,
       "namespacedCssSizeKB": 23
     },
     "Config Loading Performance": {
-      "loadTimeMs": 2,
+      "loadTimeMs": 1,
       "configSizeKB": 27,
       "recordCount": 9
     }

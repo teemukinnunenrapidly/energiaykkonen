@@ -106,8 +106,8 @@ class Widget {
                 $config['theme'] = $atts['theme'];
             }
             
-            // Add API endpoint for form submissions
-            $config['apiUrl'] = home_url('/wp-json/e1-calculator/v1/submit');
+            // Provide a fast local config URL for the widget to use if needed
+            $config['configUrl'] = trailingslashit($this->cache_manager->get_cache_url()) . Cache_Manager::CACHE_CONFIG;
             
             $output .= sprintf(
                 'window.E1_WIDGET_CONFIG_%s = %s;',
