@@ -16,6 +16,7 @@ class Widget_Loader {
     
     private static $instance_count = 0;
     private static $widget_instances = [];
+    private static $footer_initialized = false;
     private $cache_manager;
     
     /**
@@ -82,13 +83,20 @@ class Widget_Loader {
             'locale' => get_locale(),
         ]);
         
+        // Get plugin settings
+        $plugin_settings = Admin_Settings::get_settings();
+        
         // Lisää widget config data for form submissions
         wp_localize_script('e1-calculator-widget', 'e1_widget_config', [
             'ajax_url' => admin_url('admin-ajax.php'),
             'nonce' => wp_create_nonce('e1_widget_nonce'),
             'api_url' => get_option('e1_widget_api_url', 'https://your-app.vercel.app'),
             'plugin_url' => E1_CALC_PLUGIN_URL,
-            'config_url' => admin_url('admin-ajax.php?action=e1_widget_config')
+            'config_url' => admin_url('admin-ajax.php?action=e1_widget_config'),
+            'settings' => [
+                'shadow_dom_mode' => $plugin_settings['shadow_dom_mode'] ?? 'auto',
+                'debug_mode' => $plugin_settings['debug_mode'] ?? false
+            ]
         ]);
     }
     
@@ -106,7 +114,7 @@ class Widget_Loader {
             'id' => '',
         ], $atts, 'e1_calculator');
         
-        // Luo uniikki ID tälle instanssille
+        // Support multiple widget instances on same page
         self::$instance_count++;
         $widget_id = !empty($atts['id']) ? esc_attr($atts['id']) : 'e1-calculator-widget-' . self::$instance_count;
         
@@ -126,8 +134,16 @@ class Widget_Loader {
             'theme' => $atts['theme'],
         ];
         
-        // LATAA RESURSSIT (vain kerran vaikka useita widgettejä)
-        if (self::$instance_count === 1) {
+        // Also store in WordPress option as backup
+        $current_instances = get_option('e1_widget_temp_instances', []);
+        $current_instances[$widget_id] = [
+            'type' => $atts['type'],
+            'theme' => $atts['theme'],
+        ];
+        update_option('e1_widget_temp_instances', $current_instances);
+        
+        // LATAA RESURSSIT (vain kerran per sivu vaikka useita widgettejä)
+        if (!wp_script_is('e1-calculator-widget', 'enqueued')) {
             error_log('[E1 DEBUG] Enqueueing widget assets (CSS + JS)');
             wp_enqueue_style('e1-calculator-widget');
             wp_enqueue_script('e1-calculator-widget');
@@ -168,93 +184,110 @@ class Widget_Loader {
      * Tulosta widget-konfiguraatiot footeriin
      */
     public function output_widget_configs() {
-        // Jos ei widgettejä sivulla, älä tee mitään
-        if (empty(self::$widget_instances)) {
-            error_log('[E1 DEBUG] No widget instances found - skipping footer config');
+        // Prevent multiple initializations - use simpler check
+        if (self::$footer_initialized) {
             return;
         }
         
-        error_log('[E1 DEBUG] Outputting widget configs for ' . count(self::$widget_instances) . ' instances');
+        // Simple check - if no widgets, don't output anything
+        if (empty(self::$widget_instances) && self::$instance_count === 0) {
+            return;
+        }
+        
+        // If we have instance count but empty instances array, recreate default instance
+        if (empty(self::$widget_instances) && self::$instance_count > 0) {
+            for ($i = 1; $i <= self::$instance_count; $i++) {
+                $widget_id = 'e1-calculator-widget-' . $i;
+                self::$widget_instances[$widget_id] = [
+                    'type' => 'default',
+                    'theme' => 'light',
+                ];
+            }
+        }
+        
+        // Mark as initialized
+        self::$footer_initialized = true;
         
         ?>
         <script id="e1-calculator-init">
         (function() {
             'use strict';
             
-            // Odota että widget library on ladattu
-            function waitForWidget() {
+            console.log('🚀 E1 Calculator initialization starting...');
+            
+            // Simple wait for E1Calculator to be available
+            function initializeWidget() {
                 if (typeof window.E1Calculator === 'undefined') {
-                    // Yritä uudelleen 100ms päästä
-                    setTimeout(waitForWidget, 100);
+                    console.log('⏳ Waiting for E1Calculator...');
+                    setTimeout(initializeWidget, 100);
                     return;
                 }
                 
-                // Widget configurations
+                console.log('✅ E1Calculator found, initializing widgets...');
+                
+                // Widget configurations  
                 var instances = <?php echo json_encode(self::$widget_instances, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP); ?>;
                 
-                // Alusta jokainen widget
+                // Initialize each widget
                 Object.keys(instances).forEach(function(widgetId) {
-                    var instanceConfig = instances[widgetId];
-                    
-                    // Alusta widget kun DOM on valmis
-                    function initWidget() {
-                        var container = document.getElementById(widgetId);
-                        if (!container) return;
-                        
-                        // Piilota loading
-                        var loadingEl = container.querySelector('.e1-calculator-loading');
-                        if (loadingEl) loadingEl.style.display = 'none';
-                        
-                        // Init widget with delay to ensure everything is loaded
-                        setTimeout(function() {
-                            console.log('🔧 Initializing widget:', widgetId);
-                            console.log('📍 ConfigUrl:', '<?php echo E1_CALC_CACHE_URL; ?>config.json');
-                            console.log('🎨 Theme:', instanceConfig.theme || 'light');
-                            console.log('🔍 E1Calculator object:', window.E1Calculator);
-                            console.log('🌐 Full config URL:', '<?php echo home_url(); ?>/wp-content/cache/e1-calculator/config.json');
-                            
-                            // Test config URL accessibility
-                            fetch('<?php echo E1_CALC_CACHE_URL; ?>config.json')
-                                .then(response => {
-                                    console.log('🌍 Config fetch response:', response.status, response.statusText);
-                                    return response.json();
-                                })
-                                .then(config => {
-                                    console.log('📋 Config loaded:', config);
-                                })
-                                .catch(error => {
-                                    console.error('❌ Config fetch failed:', error);
-                                });
-                            
-                            try {
-                                window.E1Calculator.init(widgetId, {
-                                    configUrl: '<?php echo E1_CALC_CACHE_URL; ?>config.json',
-                                    showVisualSupport: true,
-                                    theme: instanceConfig.theme || 'light'
-                                });
-                                console.log('✅ Widget initialized successfully for:', widgetId);
-                            } catch (error) {
-                                console.error('❌ Widget init failed:', error);
-                                console.error('Error details:', error.stack);
-                            }
-                        }, 500); // 500ms delay to ensure proper loading
+                    var container = document.getElementById(widgetId);
+                    if (!container) {
+                        console.warn('⚠️ Container not found for:', widgetId);
+                        return;
                     }
                     
-                    // Tarkista onko DOM valmis
-                    if (document.readyState === 'loading') {
-                        document.addEventListener('DOMContentLoaded', initWidget);
-                    } else {
-                        // DOM on jo valmis, mutta odota seuraava tick
-                        setTimeout(initWidget, 0);
+                    console.log('🔧 Initializing widget:', widgetId);
+                    
+                    // Hide loading spinner
+                    var loadingEl = container.querySelector('.e1-calculator-loading');
+                    if (loadingEl) loadingEl.style.display = 'none';
+                    
+                    try {
+                        window.E1Calculator.init(widgetId, {
+                            configUrl: '<?php echo E1_CALC_CACHE_URL; ?>config.json',
+                            showVisualSupport: true,
+                            theme: instances[widgetId].theme || 'light'
+                        });
+                        console.log('✅ Widget initialized:', widgetId);
+                    } catch (error) {
+                        console.error('❌ Widget init failed for ' + widgetId + ':', error);
+                        // Show error message in container
+                        container.innerHTML = '<div style="padding: 20px; background: #fee; border: 1px solid #fcc; color: #c00;">Widget initialization failed. Check console for details.</div>';
                     }
                 });
             }
             
-            // Aloita odottaminen
-            waitForWidget();
+            // Start initialization
+            initializeWidget();
         })();
         </script>
         <?php
+        
+        // Clean up temporary instances to prevent memory issues
+        $this->cleanup_widget_instances();
+    }
+    
+    /**
+     * Clean up widget instances and memory
+     */
+    private function cleanup_widget_instances() {
+        // Clean up temporary instances option
+        delete_option('e1_widget_temp_instances');
+        
+        // Reset static variables for next page load
+        add_action('wp_footer', function() {
+            // This runs after footer output, preparing for next page
+        }, 99);
+    }
+    
+    /**
+     * Destroy widget instances (for programmatic cleanup)
+     */
+    public static function destroy_widgets() {
+        self::$instance_count = 0;
+        self::$widget_instances = [];
+        self::$footer_initialized = false;
+        delete_option('e1_widget_temp_instances');
     }
     
     /**
