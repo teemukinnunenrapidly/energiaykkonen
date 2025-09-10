@@ -96,6 +96,7 @@ class Widget_Loader {
      * Shortcode handler
      */
     public function render_shortcode($atts) {
+        error_log('[E1 DEBUG] Shortcode render_shortcode called with atts: ' . print_r($atts, true));
         // Oletusarvot
         $atts = shortcode_atts([
             'type' => 'default',
@@ -111,10 +112,13 @@ class Widget_Loader {
         
         // Tarkista että cache on olemassa
         if (!$this->verify_cache_files()) {
+            error_log('[E1 DEBUG] Cache files missing - returning error message');
             return '<div class="e1-calculator-error" style="padding: 20px; background: #fee; border: 1px solid #fcc; color: #c00;">
                         <strong>Widget Error:</strong> Widget not synced. Please sync in admin panel.
                     </div>';
         }
+        
+        error_log('[E1 DEBUG] Cache files verified successfully');
         
         // Tallenna instanssin config myöhempää käyttöä varten
         self::$widget_instances[$widget_id] = [
@@ -124,9 +128,12 @@ class Widget_Loader {
         
         // LATAA RESURSSIT (vain kerran vaikka useita widgettejä)
         if (self::$instance_count === 1) {
+            error_log('[E1 DEBUG] Enqueueing widget assets (CSS + JS)');
             wp_enqueue_style('e1-calculator-widget');
             wp_enqueue_script('e1-calculator-widget');
         }
+        
+        error_log('[E1 DEBUG] Widget instance created: ' . $widget_id);
         
         // Määritä container style
         $container_style = '';
@@ -163,8 +170,11 @@ class Widget_Loader {
     public function output_widget_configs() {
         // Jos ei widgettejä sivulla, älä tee mitään
         if (empty(self::$widget_instances)) {
+            error_log('[E1 DEBUG] No widget instances found - skipping footer config');
             return;
         }
+        
+        error_log('[E1 DEBUG] Outputting widget configs for ' . count(self::$widget_instances) . ' instances');
         
         ?>
         <script id="e1-calculator-init">
@@ -200,6 +210,21 @@ class Widget_Loader {
                             console.log('🔧 Initializing widget:', widgetId);
                             console.log('📍 ConfigUrl:', '<?php echo E1_CALC_CACHE_URL; ?>config.json');
                             console.log('🎨 Theme:', instanceConfig.theme || 'light');
+                            console.log('🔍 E1Calculator object:', window.E1Calculator);
+                            console.log('🌐 Full config URL:', '<?php echo home_url(); ?>/wp-content/cache/e1-calculator/config.json');
+                            
+                            // Test config URL accessibility
+                            fetch('<?php echo E1_CALC_CACHE_URL; ?>config.json')
+                                .then(response => {
+                                    console.log('🌍 Config fetch response:', response.status, response.statusText);
+                                    return response.json();
+                                })
+                                .then(config => {
+                                    console.log('📋 Config loaded:', config);
+                                })
+                                .catch(error => {
+                                    console.error('❌ Config fetch failed:', error);
+                                });
                             
                             try {
                                 window.E1Calculator.init(widgetId, {
@@ -210,6 +235,7 @@ class Widget_Loader {
                                 console.log('✅ Widget initialized successfully for:', widgetId);
                             } catch (error) {
                                 console.error('❌ Widget init failed:', error);
+                                console.error('Error details:', error.stack);
                             }
                         }, 500); // 500ms delay to ensure proper loading
                     }

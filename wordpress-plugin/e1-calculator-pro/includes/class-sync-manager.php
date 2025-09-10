@@ -230,7 +230,7 @@ class Sync_Manager {
      * Validoi bundle rakenne
      */
     private function validate_bundle($bundle) {
-        $required = ['widget', 'config', 'checksum', 'version'];
+        $required = ['widget', 'config', 'version'];
         
         foreach ($required as $field) {
             if (!isset($bundle[$field])) {
@@ -267,7 +267,7 @@ class Sync_Manager {
             'config.json' => json_encode($bundle['config'], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE),
             'metadata.json' => json_encode([
                 'version' => $bundle['version'] ?? 'unknown',
-                'checksum' => $bundle['checksum'] ?? '',
+                'checksum' => $bundle['checksum'] ?? null,
                 'generated_at' => $bundle['generated_at'] ?? '',
                 'synced_at' => current_time('mysql'),
                 'synced_by' => wp_get_current_user()->user_login ?? 'system',
@@ -371,7 +371,7 @@ class Sync_Manager {
     private function save_sync_metadata($bundle) {
         $metadata = [
             'version' => $bundle['version'] ?? 'unknown',
-            'checksum' => $bundle['checksum'] ?? '',
+            'checksum' => $bundle['checksum'] ?? null,
             'generated_at' => $bundle['generated_at'] ?? '',
             'synced_at' => current_time('mysql'),
             'synced_by' => wp_get_current_user()->user_login ?? 'system',

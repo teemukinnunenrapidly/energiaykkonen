@@ -102,36 +102,48 @@ export function VisualSupport({
     fetchVisualImages();
   }, [visualObject?.id, activeCard?.id, widgetMode]);
 
-  // Helper function to generate Cloudflare image URL
-  const getCloudflareImageUrl = (
-    cloudflareImageId: string,
-    variant: string = 'public'
-  ) => {
-    // In widget mode, get hash from __E1_WIDGET_DATA.cloudflareAccountHash
-    // In normal mode, get hash from process.env
+  // Helper function to get image URL - prioritize pre-constructed URLs in widget mode
+  const getImageUrl = (image: any) => {
+    // In widget mode, visual objects should already have pre-constructed image_url
+    if (widgetMode && visualObject?.image_url) {
+      console.log('🔗 Using pre-constructed image URL from visual object:', visualObject.image_url);
+      return visualObject.image_url;
+    }
+    
+    // For individual images in widget mode, check if they have a pre-constructed URL
+    if (widgetMode && image?.image_url) {
+      console.log('🔗 Using pre-constructed image URL from image object:', image.image_url);
+      return image.image_url;
+    }
+
+    // Fallback to manual URL construction
+    const cloudflareImageId = image?.cloudflare_image_id || image?.cloudflareImageId;
+    const variant = image?.variant || image?.image_variant || 'public';
+    
+    if (!cloudflareImageId) {
+      console.error('❌ No Cloudflare image ID found:', image);
+      return null;
+    }
+    
+    // Get account hash from environment or widget data
     const accountHash = widgetMode
       ? (typeof window !== 'undefined' && (window as any).__E1_WIDGET_DATA?.cloudflareAccountHash)
       : process.env.NEXT_PUBLIC_CLOUDFLARE_ACCOUNT_HASH;
       
-    console.log('🔧 Cloudflare config:', {
+    console.log('🔧 Fallback to manual URL construction:', {
       widgetMode,
-      accountHash: accountHash
-        ? `${accountHash.substring(0, 8)}...`
-        : 'MISSING',
+      accountHash: accountHash ? `${accountHash.substring(0, 8)}...` : 'MISSING',
       cloudflareImageId,
-      variant,
-      source: widgetMode ? '__E1_WIDGET_DATA.cloudflareAccountHash' : 'process.env'
+      variant
     });
 
     if (!accountHash) {
-      console.error('❌ Missing Cloudflare account hash:', {
-        widgetMode,
-        checkedLocation: widgetMode ? '__E1_WIDGET_DATA.cloudflareAccountHash' : 'process.env.NEXT_PUBLIC_CLOUDFLARE_ACCOUNT_HASH'
-      });
+      console.error('❌ Missing Cloudflare account hash for manual construction');
       return null;
     }
+    
     const url = `https://imagedelivery.net/${accountHash}/${cloudflareImageId}/${variant}`;
-    console.log('🔗 Generated image URL:', url);
+    console.log('🔗 Manually constructed image URL:', url);
     return url;
   };
 
@@ -184,9 +196,7 @@ export function VisualSupport({
           visualImages.length > 0 &&
           !loadingImages &&
           (() => {
-            const imageUrl = getCloudflareImageUrl(
-              visualImages[0].cloudflare_image_id
-            );
+            const imageUrl = getImageUrl(visualImages[0]);
             return imageUrl ? (
               <div
                 style={{
@@ -286,11 +296,12 @@ export function VisualSupport({
             }}
           >
             {visualImages.map((image, index) => {
-              const imageUrl = getCloudflareImageUrl(image.cloudflare_image_id);
+              const imageUrl = getImageUrl(image);
               console.log(`🖼️ Rendering image ${index + 1}:`, {
                 imageId: image.id,
-                cloudflareId: image.cloudflare_image_id,
+                cloudflareId: image.cloudflare_image_id || image.cloudflareImageId,
                 generatedUrl: imageUrl,
+                imageObject: image
               });
               return imageUrl ? (
                 <img

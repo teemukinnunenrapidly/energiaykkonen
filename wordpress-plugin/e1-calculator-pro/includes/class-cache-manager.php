@@ -76,7 +76,7 @@ class Cache_Manager {
             // Save metadata
             $meta = [
                 'version' => $bundle['version'] ?? 'unknown',
-                'checksum' => $bundle['checksum'] ?? '',
+                'checksum' => $bundle['checksum'] ?? null,
                 'generated_at' => $bundle['generated_at'] ?? '',
                 'cached_at' => current_time('mysql'),
                 'cache_timestamp' => time(),
