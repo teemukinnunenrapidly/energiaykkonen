@@ -77,8 +77,8 @@ register_deactivation_hook(__FILE__, function() {
     delete_option('e1_calculator_temp_data');
 });
 
-// Uninstall cleanup (only if explicitly uninstalled)
-register_uninstall_hook(__FILE__, function() {
+// Uninstall cleanup function
+function e1_calculator_uninstall() {
     // Remove all plugin options
     delete_option('e1_calculator_options');
     delete_option('e1_calculator_version');
@@ -87,4 +87,7 @@ register_uninstall_hook(__FILE__, function() {
     // (commented out to preserve user data)
     // $cache_manager = new E1_Calculator\Cache_Manager();
     // $cache_manager->clear_cache();
-});
+}
+
+// Uninstall cleanup (only if explicitly uninstalled)
+register_uninstall_hook(__FILE__, 'e1_calculator_uninstall');
