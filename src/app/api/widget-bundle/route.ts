@@ -67,7 +67,7 @@ async function fetchCardData() {
   );
 
   try {
-    // Fetch card templates with their fields using joins (same as working widget/cards endpoint)
+    // Fetch active card templates with fields (exact same query as working widget/cards endpoint)
     const { data: cards, error: cardsError } = await supabase
       .from('card_templates')
       .select(`
@@ -78,6 +78,7 @@ async function fetchCardData() {
         display_order,
         visual_object_id,
         config,
+        reveal_condition,
         card_fields (
           id,
           name,
@@ -90,6 +91,18 @@ async function fetchCardData() {
           options,
           display_order,
           config
+        ),
+        visual_objects (
+          id,
+          name,
+          title,
+          description,
+          visual_object_images (
+            id,
+            cloudflare_image_id,
+            image_variant,
+            display_order
+          )
         )
       `)
       .eq('is_active', true)
@@ -97,34 +110,28 @@ async function fetchCardData() {
 
     if (cardsError) throw cardsError;
 
-    // Fetch visual objects with their images
-    const { data: visuals, error: visualsError } = await supabase
-      .from('visual_objects')
-      .select(`
-        *,
-        visual_object_images (
-          id,
-          image_url,
-          image_variant
-        )
-      `)
-      .eq('is_active', true);
-
-    if (visualsError) {
-      console.error('Visual objects query error:', visualsError);
-    } else {
-      console.log('Fetched visual objects:', visuals?.length || 0);
+    // Visual objects are now included in the cards query above
+    console.log('Fetched cards:', cards?.length || 0);
+    if (cards && cards.length > 0) {
+      console.log('Sample card fields:', cards[0]?.card_fields?.length || 0);
     }
 
-    console.log('Fetched from Supabase:', {
-      cards: cards?.length || 0,
-      visuals: visuals?.length || 0,
-      cardSample: cards?.[0]?.name || 'none'
+    // Extract unique visual objects from cards
+    const allVisuals = [];
+    cards?.forEach(card => {
+      if (card.visual_objects && card.visual_objects.length > 0) {
+        allVisuals.push(...card.visual_objects);
+      }
     });
+    
+    // Remove duplicates
+    const uniqueVisuals = allVisuals.filter((visual, index, self) => 
+      index === self.findIndex(v => v.id === visual.id)
+    );
 
     return {
       cards: cards || [],
-      visuals: visuals || [],
+      visuals: uniqueVisuals,
     };
   } catch (error) {
     console.error('Error fetching card data from Supabase:', error);
@@ -390,15 +397,23 @@ async function buildWidgetBundle() {
         })),
     }));
 
-    // Transform visual objects
+    // Transform visual objects (now comes from cards query)
     const transformedVisuals = (visuals || []).map((visual: any) => ({
       id: visual.id,
       name: visual.name,
       title: visual.title,
       description: visual.description,
       content: visual.content,
-      image_url: visual.visual_object_images?.[0]?.image_url || null,
-      images: visual.visual_object_images || [],
+      images: (visual.visual_object_images || [])
+        .sort((a: any, b: any) => a.display_order - b.display_order)
+        .map((img: any) => ({
+          id: img.id,
+          cloudflareImageId: img.cloudflare_image_id,
+          variant: img.image_variant
+        })),
+      image_url: visual.visual_object_images?.[0]?.cloudflare_image_id ? 
+        `https://imagedelivery.net/${process.env.NEXT_PUBLIC_CLOUDFLARE_ACCOUNT_HASH}/${visual.visual_object_images[0].cloudflare_image_id}/${visual.visual_object_images[0].image_variant || 'public'}` : 
+        null,
     }));
 
     // Configuration with real data from Supabase and design tokens
