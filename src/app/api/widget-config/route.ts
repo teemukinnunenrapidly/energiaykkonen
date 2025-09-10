@@ -92,7 +92,76 @@ export async function GET(request: NextRequest) {
         adminEndpoint: `${baseUrl}/api/admin`,
       },
 
-      // Card data from Supabase - requirement #1
+      // Data object containing all widget data (WordPress plugin compatibility)
+      data: {
+        cards: cards.map(card => ({
+        id: card.id,
+        name: card.name,
+        title: card.title,
+        type: card.type,
+        display_order: card.display_order,
+        config: card.config || {},
+        styling: card.styling || {},
+        completion_rules: card.completion_rules || {},
+        reveal_timing: card.reveal_timing || {},
+        visual_object_id: card.visual_object_id,
+        is_active: card.is_active,
+        fields: (card.card_fields || []).map((field: any) => ({
+          id: field.id,
+          field_name: field.field_name,
+          field_type: field.field_type,
+          label: field.label,
+          placeholder: field.placeholder,
+          help_text: field.help_text,
+          validation_rules: field.validation_rules || {},
+          width: field.width,
+          display_order: field.display_order,
+          options: field.options || [],
+          required: field.required,
+        })),
+        visual_object: card.visual_objects ? {
+          id: card.visual_objects.id,
+          title: card.visual_objects.title,
+          description: card.visual_objects.description,
+          type: card.visual_objects.type,
+          content_data: card.visual_objects.content_data || {},
+        } : null,
+      })),
+
+        // Visual objects from Supabase - requirement #2
+        visuals: visuals.map(visual => ({
+        id: visual.id,
+        title: visual.title,
+        description: visual.description,
+        type: visual.type,
+        content_data: visual.content_data || {},
+        display_config: visual.display_config || {},
+        is_active: visual.is_active,
+        created_at: visual.created_at,
+        images: (visual.visual_object_images || []).map((img: any) => ({
+          id: img.id,
+          image_url: img.image_url,
+          alt_text: img.alt_text,
+          display_order: img.display_order,
+          image_variant: img.image_variant,
+        })),
+      })),
+
+        // Formulas from Supabase - requirement #3
+        formulas: formulas.map(formula => ({
+        id: formula.id,
+        name: formula.name,
+        description: formula.description,
+        formula_code: formula.formula_code,
+        input_parameters: formula.input_parameters || {},
+        output_format: formula.output_format || {},
+        category: formula.category || 'general',
+        is_active: formula.is_active,
+        created_at: formula.created_at,
+        })),
+      },
+
+      // Also include at root level for backward compatibility  
       cards: cards.map(card => ({
         id: card.id,
         name: card.name,
@@ -127,7 +196,6 @@ export async function GET(request: NextRequest) {
         } : null,
       })),
 
-      // Visual objects from Supabase - requirement #2
       visuals: visuals.map(visual => ({
         id: visual.id,
         title: visual.title,
@@ -146,7 +214,6 @@ export async function GET(request: NextRequest) {
         })),
       })),
 
-      // Formulas from Supabase - requirement #3
       formulas: formulas.map(formula => ({
         id: formula.id,
         name: formula.name,
