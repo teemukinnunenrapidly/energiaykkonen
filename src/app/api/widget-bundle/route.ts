@@ -67,48 +67,75 @@ async function fetchCardData() {
   );
 
   try {
-    // Fetch active card templates with fields (exact same query as working widget/cards endpoint)
+    // Fetch card templates with correct table names
+    console.log('Fetching from public.card_templates...');
     const { data: cards, error: cardsError } = await supabase
       .from('card_templates')
-      .select(`
-        id,
-        name,
-        title,
-        type,
-        display_order,
-        visual_object_id,
-        config,
-        reveal_condition,
-        card_fields (
-          id,
-          name,
-          type,
-          label,
-          placeholder,
-          required,
-          min_value,
-          max_value,
-          options,
-          display_order,
-          config
-        ),
-        visual_objects (
-          id,
-          name,
-          title,
-          description,
-          visual_object_images (
-            id,
-            cloudflare_image_id,
-            image_variant,
-            display_order
-          )
-        )
-      `)
+      .select('id, name, title, type, display_order, visual_object_id, config, is_active')
       .eq('is_active', true)
       .order('display_order');
 
-    if (cardsError) throw cardsError;
+    if (cardsError) {
+      console.error('Card templates query error:', cardsError);
+      throw cardsError;
+    }
+
+    console.log('Found', cards?.length || 0, 'card templates');
+
+    // Fetch card fields separately using card_id relationship
+    let cardFields = [];
+    if (cards && cards.length > 0) {
+      const cardIds = cards.map(card => card.id);
+      console.log('Fetching card fields for card IDs:', cardIds);
+      
+      const { data: fields, error: fieldsError } = await supabase
+        .from('card_fields')
+        .select('*')
+        .in('card_id', cardIds)
+        .order('display_order');
+      
+      if (fieldsError) {
+        console.error('Card fields query error:', fieldsError);
+        cardFields = [];
+      } else {
+        cardFields = fields || [];
+        console.log('Found', cardFields.length, 'card fields');
+      }
+    }
+
+    // Fetch visual objects
+    console.log('Fetching visual objects...');
+    const { data: visuals, error: visualsError } = await supabase
+      .from('visual_objects')
+      .select('*')
+      .eq('is_active', true);
+
+    if (visualsError) {
+      console.error('Visual objects query error:', visualsError);
+    } else {
+      console.log('Found', visuals?.length || 0, 'visual objects');
+    }
+
+    // Fetch visual object images
+    let visualImages = [];
+    if (visuals && visuals.length > 0) {
+      const visualIds = visuals.map(visual => visual.id);
+      console.log('Fetching images for visual object IDs:', visualIds);
+      
+      const { data: images, error: imagesError } = await supabase
+        .from('visual_object_images')
+        .select('*')
+        .in('visual_object_id', visualIds)
+        .order('display_order');
+      
+      if (imagesError) {
+        console.error('Visual object images query error:', imagesError);
+        visualImages = [];
+      } else {
+        visualImages = images || [];
+        console.log('Found', visualImages.length, 'visual object images');
+      }
+    }
 
     // Visual objects are now included in the cards query above
     console.log('Fetched cards:', cards?.length || 0);
@@ -116,22 +143,11 @@ async function fetchCardData() {
       console.log('Sample card fields:', cards[0]?.card_fields?.length || 0);
     }
 
-    // Extract unique visual objects from cards
-    const allVisuals = [];
-    cards?.forEach(card => {
-      if (card.visual_objects && card.visual_objects.length > 0) {
-        allVisuals.push(...card.visual_objects);
-      }
-    });
-    
-    // Remove duplicates
-    const uniqueVisuals = allVisuals.filter((visual, index, self) => 
-      index === self.findIndex(v => v.id === visual.id)
-    );
-
     return {
       cards: cards || [],
-      visuals: uniqueVisuals,
+      visuals: visuals || [],
+      cardFields: cardFields || [],
+      visualImages: visualImages || [],
     };
   } catch (error) {
     console.error('Error fetching card data from Supabase:', error);
@@ -139,6 +155,8 @@ async function fetchCardData() {
     return {
       cards: [],
       visuals: [],
+      cardFields: [],
+      visualImages: [],
     };
   }
 }
@@ -151,7 +169,7 @@ async function buildWidgetBundle() {
 
   try {
     // Fetch card data from Supabase
-    const { cards, visuals } = await fetchCardData();
+    const { cards, visuals, cardFields, visualImages } = await fetchCardData();
     // Lue buildatut tiedostot dist-kansiosta
     const distPath = path.join(process.cwd(), 'dist');
 
@@ -374,7 +392,7 @@ async function buildWidgetBundle() {
   `;
     }
 
-    // Transform card data to widget format
+    // Transform card data to widget format with proper field relationships
     const transformedCards = cards.map((card: any, index: number) => ({
       id: card.id,
       name: card.name,
@@ -382,7 +400,8 @@ async function buildWidgetBundle() {
       type: card.type,
       visual_object_id: card.visual_object_id,
       config: card.config,
-      fields: (card.card_fields || [])
+      fields: cardFields
+        .filter((field: any) => field.card_id === card.id)
         .sort((a: any, b: any) => a.display_order - b.display_order)
         .map((field: any) => ({
           id: field.id,
@@ -397,24 +416,29 @@ async function buildWidgetBundle() {
         })),
     }));
 
-    // Transform visual objects (now comes from cards query)
-    const transformedVisuals = (visuals || []).map((visual: any) => ({
-      id: visual.id,
-      name: visual.name,
-      title: visual.title,
-      description: visual.description,
-      content: visual.content,
-      images: (visual.visual_object_images || [])
-        .sort((a: any, b: any) => a.display_order - b.display_order)
-        .map((img: any) => ({
+    // Transform visual objects with proper image relationships
+    const transformedVisuals = (visuals || []).map((visual: any) => {
+      // Find images for this visual object
+      const visualObjectImages = visualImages
+        .filter((img: any) => img.visual_object_id === visual.id)
+        .sort((a: any, b: any) => a.display_order - b.display_order);
+
+      return {
+        id: visual.id,
+        name: visual.name,
+        title: visual.title,
+        description: visual.description,
+        content: visual.content,
+        images: visualObjectImages.map((img: any) => ({
           id: img.id,
           cloudflareImageId: img.cloudflare_image_id,
           variant: img.image_variant
         })),
-      image_url: visual.visual_object_images?.[0]?.cloudflare_image_id ? 
-        `https://imagedelivery.net/${process.env.NEXT_PUBLIC_CLOUDFLARE_ACCOUNT_HASH}/${visual.visual_object_images[0].cloudflare_image_id}/${visual.visual_object_images[0].image_variant || 'public'}` : 
-        null,
-    }));
+        image_url: visualObjectImages[0]?.cloudflare_image_id ? 
+          `https://imagedelivery.net/${process.env.NEXT_PUBLIC_CLOUDFLARE_ACCOUNT_HASH}/${visualObjectImages[0].cloudflare_image_id}/${visualObjectImages[0].image_variant || 'public'}` : 
+          null,
+      };
+    });
 
     // Configuration with real data from Supabase and design tokens
     const config = {
