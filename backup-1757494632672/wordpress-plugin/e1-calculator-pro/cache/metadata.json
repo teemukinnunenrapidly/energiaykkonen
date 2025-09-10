@@ -1,0 +1,19 @@
+{
+  "version": "3.3.2",
+  "buildTime": "2025-09-09T19:38:00.000Z",
+  "files": [
+    "widget.js",
+    "widget.css"
+  ],
+  "bundleSize": {
+    "js": 280835,
+    "css": 7301,
+    "config": 15161
+  },
+  "dataStats": {
+    "cards": 9,
+    "visualObjects": 2,
+    "formulas": 8,
+    "lookupTables": 2
+  }
+}

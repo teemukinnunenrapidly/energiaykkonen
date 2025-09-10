@@ -492,7 +492,8 @@
       const {
         containerId,
         useShadowDOM = 'auto',
-        configUrl = '/wp-content/uploads/e1-calculator-cache/config.json'
+        configUrl = '/wp-content/uploads/e1-calculator-cache/config.json',
+        apiUrl
       } = config;
 
       Logger.startTimer(`widget-init-${containerId}`);
@@ -538,7 +539,8 @@
         // Render widget
         const instance = await this.renderWidget(mountPoint, configData, {
           useShadowDOM: shouldUseShadowDOM,
-          containerId
+          containerId,
+          apiUrl // Pass API URL to enhanced widget
         });
 
         // Store instance
@@ -769,7 +771,8 @@
           const config = {
             containerId: container.id || `e1-calc-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
             useShadowDOM: container.dataset.shadow || 'auto',
-            configUrl: container.dataset.configUrl
+            configUrl: container.dataset.configUrl,
+            apiUrl: container.dataset.apiUrl // Pass API URL from data attribute
           };
           
           // Set ID if missing

@@ -35,6 +35,9 @@ const CONFIG = {
     url: 'https://xfqmllsvdxejloecwlaq.supabase.co',
     anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhmcW1sbHN2ZHhlamxvZWN3bGFxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTYwNTE1NjAsImV4cCI6MjA3MTYyNzU2MH0.ZE4YOoVjqs4fGQs4gA3CJoQ4nEzfRqK4K2MO_bERGvM'
   },
+  apis: {
+    leadSubmissionUrl: 'https://energiaykkonen-calculator.vercel.app/api/submit-lead'
+  },
   version: '2.1.0',
   buildId: Date.now().toString(),
   security: {
@@ -490,6 +493,7 @@ class AssetManager {
   
   static async createConfigFiles(supabaseData, cssIntegrity, assetInfo) {
     console.log('   📋 Creating configuration files...');
+    console.log(`   📤 Lead API URL: ${CONFIG.apis.leadSubmissionUrl}`);
     
     const config = {
       version: `${CONFIG.version}-${CONFIG.buildId}`,
@@ -517,7 +521,8 @@ class AssetManager {
         fallbackMode: 'namespace',
         cloudflareAccountHash: 'AkEHl6uYQM8NNRufIXHzFw',
         corsEnabled: true,
-        securityNonce: crypto.randomBytes(16).toString('hex')
+        securityNonce: crypto.randomBytes(16).toString('hex'),
+        leadApiUrl: CONFIG.apis.leadSubmissionUrl // Lead submission endpoint
       },
       security: {
         allowedOrigins: CONFIG.security.corsOrigins,

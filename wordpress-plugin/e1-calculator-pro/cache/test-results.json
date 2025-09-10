@@ -1,31 +1,31 @@
 {
-  "timestamp": "2025-09-10T10:17:17.936Z",
+  "timestamp": "2025-09-10T12:38:49.485Z",
   "tests": [
     {
       "name": "File Access: widget.js",
       "status": "passed",
       "duration": 0,
-      "details": "File exists (289KB)",
+      "details": "File exists (44KB)",
       "metrics": {
-        "fileSize": 295874
+        "fileSize": 44627
       }
     },
     {
       "name": "File Access: widget.css",
       "status": "passed",
       "duration": 0,
-      "details": "File exists (11KB)",
+      "details": "File exists (19KB)",
       "metrics": {
-        "fileSize": 11122
+        "fileSize": 19410
       }
     },
     {
       "name": "File Access: widget-namespaced.css",
       "status": "passed",
       "duration": 0,
-      "details": "File exists (14KB)",
+      "details": "File exists (23KB)",
       "metrics": {
-        "fileSize": 14805
+        "fileSize": 23992
       }
     },
     {
@@ -34,16 +34,16 @@
       "duration": 0,
       "details": "File exists (15KB)",
       "metrics": {
-        "fileSize": 15493
+        "fileSize": 15637
       }
     },
     {
       "name": "File Access: config.json",
       "status": "passed",
       "duration": 0,
-      "details": "File exists (27KB)",
+      "details": "File exists (28KB)",
       "metrics": {
-        "fileSize": 28132
+        "fileSize": 28213
       }
     },
     {
@@ -61,7 +61,7 @@
       "duration": 0,
       "details": "Valid JSON with 7 root properties",
       "metrics": {
-        "configSize": 28013
+        "configSize": 28094
       }
     },
     {
@@ -79,13 +79,13 @@
     {
       "name": "Bundle Size Performance",
       "status": "passed",
-      "duration": 1,
-      "details": "Total bundle size: 314KB (target: <500KB)",
+      "duration": 0,
+      "details": "Total bundle size: 86KB (target: <500KB)",
       "metrics": {
-        "totalSizeKB": 314,
-        "jsSizeKB": 289,
-        "cssSizeKB": 11,
-        "namespacedCssSizeKB": 14
+        "totalSizeKB": 86,
+        "jsSizeKB": 44,
+        "cssSizeKB": 19,
+        "namespacedCssSizeKB": 23
       }
     },
     {
@@ -108,10 +108,10 @@
   },
   "performance": {
     "Bundle Size Performance": {
-      "totalSizeKB": 314,
-      "jsSizeKB": 289,
-      "cssSizeKB": 11,
-      "namespacedCssSizeKB": 14
+      "totalSizeKB": 86,
+      "jsSizeKB": 44,
+      "cssSizeKB": 19,
+      "namespacedCssSizeKB": 23
     },
     "Config Loading Performance": {
       "loadTimeMs": 1,

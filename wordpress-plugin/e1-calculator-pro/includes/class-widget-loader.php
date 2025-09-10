@@ -157,9 +157,19 @@ class Widget_Loader {
             $container_style = sprintf('style="min-height: %spx;"', esc_attr($atts['height']));
         }
         
-        // Palauta container HTML - simpler without embedded config!
+        // Get plugin settings for API URL
+        $plugin_settings = get_option('e1_calculator_options', []);
+        $api_url = $plugin_settings['vercel_api_url'] ?? '';
+        
+        // Prepare data attributes
+        $data_attrs = '';
+        if (!empty($api_url)) {
+            $data_attrs = sprintf(' data-api-url="%s"', esc_attr($api_url));
+        }
+        
+        // Palauta container HTML with API URL data attribute
         return sprintf(
-            '<div id="%s" class="e1-calculator-widget-container %s" data-type="%s" data-theme="%s" %s>
+            '<div id="%s" class="e1-calculator-widget-container %s" data-type="%s" data-theme="%s"%s %s>
                 <div class="e1-calculator-loading">
                     <div class="e1-loading-spinner"></div>
                     <p>%s</p>
@@ -174,6 +184,7 @@ class Widget_Loader {
             esc_attr($atts['class']),
             esc_attr($atts['type']),
             esc_attr($atts['theme']),
+            $data_attrs,
             $container_style,
             __('Ladataan laskuria...', 'e1-calculator'),
             __('Tämä laskuri vaatii JavaScriptin toimiakseen. Ole hyvä ja ota JavaScript käyttöön selaimessasi.', 'e1-calculator')
@@ -242,12 +253,24 @@ class Widget_Loader {
                     var loadingEl = container.querySelector('.e1-calculator-loading');
                     if (loadingEl) loadingEl.style.display = 'none';
                     
+                    // Get API URL from data attribute
+                    var apiUrl = container.getAttribute('data-api-url');
+                    
+                    // Prepare config options
+                    var configOptions = {
+                        configUrl: '<?php echo E1_CALC_CACHE_URL; ?>config.json',
+                        showVisualSupport: true,
+                        theme: instances[widgetId].theme || 'light'
+                    };
+                    
+                    // Add API URL if available (widget will use for dynamic fetching)
+                    if (apiUrl) {
+                        configOptions.apiUrl = apiUrl;
+                        console.log('📡 API URL configured for widget:', widgetId, '- URL:', apiUrl);
+                    }
+                    
                     try {
-                        window.E1Calculator.init(widgetId, {
-                            configUrl: '<?php echo E1_CALC_CACHE_URL; ?>config.json',
-                            showVisualSupport: true,
-                            theme: instances[widgetId].theme || 'light'
-                        });
+                        window.E1Calculator.init(widgetId, configOptions);
                         console.log('✅ Widget initialized:', widgetId);
                     } catch (error) {
                         console.error('❌ Widget init failed for ' + widgetId + ':', error);
@@ -487,16 +510,74 @@ class Widget_Loader {
         header('Content-Type: application/json');
         
         try {
-            // Load config from cache
-            $bundle = $this->cache_manager->get_bundle();
-            $config = $bundle['config'] ?? [];
+            // Check if Vercel API is configured for dynamic fetching
+            $options = get_option('e1_calculator_options', []);
+            $vercel_url = $options['vercel_api_url'] ?? '';
+            $use_dynamic_fetching = !empty($vercel_url);
+            
+            $config = [];
+            $source = 'cache';
+            
+            if ($use_dynamic_fetching) {
+                // Try to fetch fresh data from Vercel API
+                try {
+                    $response = wp_remote_get($vercel_url, [
+                        'timeout' => 15, // Shorter timeout for frontend calls
+                        'headers' => [
+                            'Accept' => 'application/json',
+                            'User-Agent' => 'E1-Calculator-Widget/' . E1_CALC_VERSION
+                        ]
+                    ]);
+                    
+                    if (!is_wp_error($response)) {
+                        $status_code = wp_remote_retrieve_response_code($response);
+                        if ($status_code === 200) {
+                            $body = wp_remote_retrieve_body($response);
+                            $api_config = json_decode($body, true);
+                            
+                            if (json_last_error() === JSON_ERROR_NONE && !empty($api_config)) {
+                                $config = $api_config;
+                                $source = 'vercel-api';
+                                
+                                // Optionally update cache with fresh data in background
+                                if (($options['debug_mode'] ?? false)) {
+                                    error_log('E1 Calculator: Fresh config loaded from Vercel API');
+                                }
+                            }
+                        }
+                    }
+                } catch (Exception $e) {
+                    if (($options['debug_mode'] ?? false)) {
+                        error_log('E1 Calculator: Vercel API fetch failed, falling back to cache: ' . $e->getMessage());
+                    }
+                }
+            }
+            
+            // Fallback to cache if Vercel API failed or not configured
+            if (empty($config)) {
+                $bundle = $this->cache_manager->get_bundle();
+                $config = $bundle['config'] ?? [];
+                $source = 'cache-fallback';
+            }
             
             if (empty($config)) {
-                wp_send_json_error(['message' => 'Config not found']);
+                wp_send_json_error(['message' => 'Config not found in cache or API']);
                 return;
             }
             
-            wp_send_json_success($config);
+            // Add metadata about config source
+            $response_data = [
+                'config' => $config,
+                'meta' => [
+                    'source' => $source,
+                    'timestamp' => time(),
+                    'version' => $config['version'] ?? 'unknown',
+                    'dynamic_fetching' => $use_dynamic_fetching
+                ]
+            ];
+            
+            wp_send_json_success($response_data);
+            
         } catch (Exception $e) {
             wp_send_json_error(['message' => $e->getMessage()]);
         }

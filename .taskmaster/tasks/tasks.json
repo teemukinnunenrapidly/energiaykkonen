@@ -1,0 +1,921 @@
+{
+  "master": {
+    "tasks": [
+      {
+        "id": 1,
+        "title": "Update and Audit NPM Dependencies",
+        "description": "Ensure all required NPM dependencies are up to date and installed for the widget build and deployment pipeline.",
+        "details": "Update all devDependencies in package.json to the latest stable versions, especially postcss, postcss-loader, postcss-prefixwrap, autoprefixer, css-loader, mini-css-extract-plugin, css-minimizer-webpack-plugin, terser-webpack-plugin. Run 'npm install' and verify no vulnerabilities or peer dependency issues. Document any breaking changes or migration steps if newer major versions are required.",
+        "testStrategy": "Run 'npm install' and 'npm audit'. Ensure all dependencies are installed without errors or critical vulnerabilities. Confirm that 'npm run build:widget' completes successfully.",
+        "priority": "high",
+        "dependencies": [],
+        "status": "pending",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Audit Current NPM Dependencies and Identify Updates",
+            "description": "Review all devDependencies in package.json, focusing on core build and CSS pipeline packages. Identify outdated packages and note which require major, minor, or patch updates.",
+            "dependencies": [],
+            "details": "Use tools like npm outdated and npm-check to generate a list of outdated dependencies, with special attention to postcss, postcss-loader, postcss-prefixwrap, autoprefixer, css-loader, mini-css-extract-plugin, css-minimizer-webpack-plugin, and terser-webpack-plugin. Document current vs. latest versions and flag any major version changes.",
+            "status": "pending",
+            "testStrategy": "Run 'npm outdated' and 'npm-check -u'. Confirm the list matches the package.json and includes all relevant devDependencies."
+          },
+          {
+            "id": 2,
+            "title": "Update Dependencies and Resolve Peer/Compatibility Issues",
+            "description": "Upgrade all identified dependencies to their latest stable versions, resolving any peer dependency or compatibility issues that arise during installation.",
+            "dependencies": [
+              "1.1"
+            ],
+            "details": "Update package.json with new versions. Run 'npm install' and address any peer dependency warnings or errors. For major upgrades, review changelogs for breaking changes and update related configuration files (e.g., webpack, postcss) as needed.",
+            "status": "pending",
+            "testStrategy": "Run 'npm install' and verify that all dependencies are installed without errors. Check for peer dependency warnings and resolve them. Ensure 'npm run build:widget' completes successfully."
+          },
+          {
+            "id": 3,
+            "title": "Audit for Security Vulnerabilities and Apply Fixes",
+            "description": "Run a full security audit on the updated dependencies and remediate any vulnerabilities, prioritizing high and critical issues.",
+            "dependencies": [
+              "1.2"
+            ],
+            "details": "Execute 'npm audit' to generate a vulnerability report. Use 'npm audit fix' and, if necessary, 'npm audit fix --force' to resolve vulnerabilities. For unresolved issues, investigate manual upgrades or patches. Document any vulnerabilities that cannot be fixed automatically.",
+            "status": "pending",
+            "testStrategy": "Run 'npm audit' after installation. Confirm that no high or critical vulnerabilities remain. Document any remaining issues and their remediation status."
+          },
+          {
+            "id": 4,
+            "title": "Document Breaking Changes and Migration Steps",
+            "description": "For any major version upgrades or significant changes, document breaking changes, migration steps, and required code/configuration updates.",
+            "dependencies": [
+              "1.2"
+            ],
+            "details": "Review release notes and changelogs for all upgraded packages. Summarize breaking changes and provide step-by-step migration instructions for the build and deployment pipeline, including webpack and PostCSS configuration updates.",
+            "status": "pending",
+            "testStrategy": "Verify that documentation covers all major changes and migration steps. Peer review documentation for clarity and completeness."
+          },
+          {
+            "id": 5,
+            "title": "Verify Build, Deployment, and Widget Functionality Post-Update",
+            "description": "Ensure the widget build and deployment pipeline works as expected after dependency updates, including Shadow DOM isolation, CSS namespace fallback, and WordPress loader integration.",
+            "dependencies": [
+              "1.3",
+              "1.4"
+            ],
+            "details": "Run 'npm run build:widget' and deploy to a test WordPress environment. Test widget rendering in modern and legacy browsers, verify dual CSS outputs, and confirm loader and Gutenberg block integration. Check for performance, security (XSS/CORS/nonce), and browser compatibility issues.",
+            "status": "pending",
+            "testStrategy": "Perform end-to-end tests: build, deploy, and load the widget in all supported browsers and WordPress contexts. Confirm no regressions, style leakage, or security warnings. Document test results and sign off."
+          }
+        ]
+      },
+      {
+        "id": 2,
+        "title": "Implement Shadow DOM Reset Styles",
+        "description": "Create and verify the shadow-reset.css file to ensure widget style isolation within Shadow DOM.",
+        "details": "Create src/widget/styles/shadow-reset.css with :host and * selectors to reset all inherited styles and ensure box-sizing and layout containment. Use modern CSS best practices for Shadow DOM isolation. Confirm that the CSS is loaded and injected into the ShadowRoot during widget initialization.",
+        "testStrategy": "Mount the widget in a test page with conflicting global styles. Verify via browser dev tools that styles inside the ShadowRoot are isolated and unaffected by external CSS.",
+        "priority": "high",
+        "dependencies": [
+          1
+        ],
+        "status": "pending",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Design Shadow DOM Reset CSS File",
+            "description": "Create src/widget/styles/shadow-reset.css using :host and * selectors to reset inherited styles, enforce box-sizing, and ensure layout containment for Shadow DOM isolation.",
+            "dependencies": [],
+            "details": "Draft a minimal, modern CSS reset tailored for Shadow DOM. Include rules for :host, *, and key HTML elements to neutralize browser defaults and inherited styles. Ensure box-sizing: border-box and layout containment are enforced. Reference best practices to avoid unnecessary bloat and duplication.",
+            "status": "pending",
+            "testStrategy": "Review the CSS file for coverage of all relevant selectors. Compare with established resets (e.g., Normalize.css) and ensure only essential rules are included for widget isolation."
+          },
+          {
+            "id": 2,
+            "title": "Implement Shadow DOM Style Injection Logic",
+            "description": "Ensure the shadow-reset.css is programmatically loaded and injected into the ShadowRoot during widget initialization using constructable stylesheets or <style> tags.",
+            "dependencies": [
+              "2.1"
+            ],
+            "details": "Update widget initialization code to load shadow-reset.css and inject it into the ShadowRoot using adoptedStyleSheets or a <style> element. Ensure compatibility with browsers supporting constructable stylesheets and provide a fallback for others.",
+            "status": "pending",
+            "testStrategy": "Mount the widget and inspect the ShadowRoot in browser dev tools to confirm the reset styles are present and applied."
+          },
+          {
+            "id": 3,
+            "title": "Verify Style Isolation Against External and Global Styles",
+            "description": "Test the widget in environments with conflicting global styles to confirm Shadow DOM isolation and that no external styles bleed into the widget.",
+            "dependencies": [
+              "2.2"
+            ],
+            "details": "Create test pages with aggressive global CSS (e.g., body { all: unset; }, * { color: red; }) and mount the widget. Verify that the widget's appearance is unaffected by outside styles, confirming effective isolation.",
+            "status": "pending",
+            "testStrategy": "Use browser dev tools to inspect computed styles inside and outside the ShadowRoot. Document any style leakage or conflicts."
+          },
+          {
+            "id": 4,
+            "title": "Integrate CSS Namespace Fallback and Dual Output Generation",
+            "description": "Configure build scripts to generate both normal and namespaced CSS outputs using PostCSS prefixwrap, supporting environments without Shadow DOM.",
+            "dependencies": [
+              "2.1"
+            ],
+            "details": "Update the build pipeline to process shadow-reset.css with PostCSS and postcss-prefixwrap, producing a namespaced version (e.g., .e1-widget *). Ensure both outputs are available for loader logic to select based on environment capabilities.",
+            "status": "pending",
+            "testStrategy": "Run the build process and verify that both CSS files are generated and correctly prefixed. Confirm loader logic selects the appropriate file in Shadow DOM and fallback modes."
+          },
+          {
+            "id": 5,
+            "title": "Define Acceptance Criteria and Automated Verification Steps",
+            "description": "Document clear acceptance criteria and implement automated tests to verify Shadow DOM reset styles, isolation, and fallback behavior across supported browsers.",
+            "dependencies": [
+              "2.3",
+              "2.4"
+            ],
+            "details": "Specify acceptance criteria: (1) Widget styles are isolated in Shadow DOM, (2) No external/global styles affect the widget, (3) CSS namespace fallback works in non-Shadow DOM environments, (4) Both CSS outputs are generated and deployed. Implement browser-based automated tests to validate these criteria.",
+            "status": "pending",
+            "testStrategy": "Run automated browser tests in CI across Chrome, Firefox, Safari, and Edge. Check for style isolation, correct CSS injection, and fallback behavior. Review test reports for failures or regressions."
+          }
+        ]
+      },
+      {
+        "id": 3,
+        "title": "Enhance Webpack Build for Dual CSS Output and Namespace Support",
+        "description": "Update webpack.widget.config.js to support both normal and namespaced CSS outputs using PostCSS and prefixwrap.",
+        "details": "Configure webpack to use MiniCssExtractPlugin, css-loader with CSS modules, and postcss-loader with autoprefixer and postcss-prefixwrap. Ensure that both widget.css (for Shadow DOM) and widget-namespaced.css (for fallback) are generated. Validate that CSS is minimized and hashed appropriately for production builds.",
+        "testStrategy": "Run 'npm run build:widget'. Check dist/ for both CSS files. Inspect output CSS for correct namespacing and minification. Confirm no style leakage in fallback mode.",
+        "priority": "high",
+        "dependencies": [
+          1,
+          2
+        ],
+        "status": "pending",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Configure Webpack Entry Points for Dual CSS Outputs",
+            "description": "Update webpack.widget.config.js to define separate entry points for normal and namespaced CSS outputs, ensuring both widget.css and widget-namespaced.css are generated.",
+            "dependencies": [],
+            "details": "Set up multiple entry points in the webpack configuration to handle both standard and namespaced CSS files. Use MiniCssExtractPlugin to extract CSS into distinct files for Shadow DOM and fallback scenarios.",
+            "status": "pending",
+            "testStrategy": "Run 'npm run build:widget' and verify that both widget.css and widget-namespaced.css are present in the dist/ directory."
+          },
+          {
+            "id": 2,
+            "title": "Integrate PostCSS with Autoprefixer and postcss-prefixwrap",
+            "description": "Configure postcss-loader in webpack to apply autoprefixer and postcss-prefixwrap for namespaced CSS output.",
+            "dependencies": [
+              "3.1"
+            ],
+            "details": "Add postcss-loader to the webpack rules and set up PostCSS plugins: autoprefixer for browser compatibility and postcss-prefixwrap for CSS namespacing. Ensure that the namespaced output uses the correct selector prefix for fallback mode.",
+            "status": "pending",
+            "testStrategy": "Inspect widget-namespaced.css to confirm that all selectors are correctly prefixed and vendor prefixes are applied."
+          },
+          {
+            "id": 3,
+            "title": "Enable CSS Modules and Minification for Production",
+            "description": "Configure css-loader with CSS Modules and ensure CSS is minimized and hashed for production builds.",
+            "dependencies": [
+              "3.1"
+            ],
+            "details": "Set css-loader options to enable CSS Modules for style encapsulation. Use MiniCssExtractPlugin and css-minimizer-webpack-plugin to minimize CSS and apply content hashes to output filenames for cache busting.",
+            "status": "pending",
+            "testStrategy": "Check that output CSS files are minimized, hashed, and that class names are scoped. Validate no style leakage in fallback mode."
+          },
+          {
+            "id": 4,
+            "title": "Validate Dual CSS Output Integration with Widget and Fallback",
+            "description": "Ensure both CSS outputs are correctly loaded and applied in Shadow DOM and fallback scenarios within the widget.",
+            "dependencies": [
+              "3.2",
+              "3.3"
+            ],
+            "details": "Test widget initialization in environments supporting Shadow DOM and those requiring namespaced fallback. Confirm that the correct CSS file is loaded and styles are applied without leakage.",
+            "status": "pending",
+            "testStrategy": "Initialize the widget in both Shadow DOM and fallback modes. Use browser dev tools to verify style isolation and correct application."
+          },
+          {
+            "id": 5,
+            "title": "Implement Acceptance Criteria and Verification Steps",
+            "description": "Define and execute acceptance criteria and verification steps for dual CSS output, namespacing, minification, and production readiness.",
+            "dependencies": [
+              "3.4"
+            ],
+            "details": "Document acceptance criteria for CSS output, namespacing, minification, and integration. Perform manual and automated checks to verify all requirements are met before marking the task complete.",
+            "status": "pending",
+            "testStrategy": "Review build artifacts, run browser tests, and confirm all acceptance criteria are satisfied. Document verification results for reproducibility."
+          }
+        ]
+      },
+      {
+        "id": 4,
+        "title": "Develop Robust WordPress Loader Script",
+        "description": "Implement src/widget/wordpress-loader.js to handle widget initialization, dependency checks, error handling, and retry logic in WordPress environments.",
+        "details": "Write a loader that waits for DOM readiness, WordPress jQuery, and block editor context. Implement retry logic for slow-loading dependencies. Support both Shadow DOM and CSS namespace fallback. Ensure robust error handling and user feedback. Use ES6+ syntax and avoid global namespace pollution.",
+        "testStrategy": "Test widget initialization in various WordPress themes and editors (classic, block/Gutenberg). Simulate slow/failed dependency loading and verify retry and error UI. Confirm no duplicate initialization occurs.",
+        "priority": "high",
+        "dependencies": [
+          1,
+          2,
+          3
+        ],
+        "status": "pending",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Implement DOM Readiness and WordPress Dependency Checks",
+            "description": "Develop logic in src/widget/wordpress-loader.js to wait for DOM readiness, ensure WordPress jQuery is loaded, and detect block editor context before initializing the widget.",
+            "dependencies": [],
+            "details": "Use event listeners and polling to confirm DOMContentLoaded, window.jQuery availability, and block editor context. Prevent initialization until all dependencies are confirmed. Avoid global namespace pollution by encapsulating logic.",
+            "status": "pending",
+            "testStrategy": "Test widget initialization in classic and block editor environments. Simulate delayed jQuery and block editor loading to verify correct waiting and initialization."
+          },
+          {
+            "id": 2,
+            "title": "Add Retry Logic for Slow-Loading Dependencies",
+            "description": "Implement robust retry logic to handle slow or failed loading of required dependencies, ensuring the loader attempts re-initialization with exponential backoff and maximum retry limits.",
+            "dependencies": [
+              "4.1"
+            ],
+            "details": "Use setTimeout or requestAnimationFrame to periodically check for dependencies. Track retry attempts and implement exponential backoff. Display user feedback if dependencies fail to load after maximum retries.",
+            "status": "pending",
+            "testStrategy": "Simulate slow or missing dependencies in various WordPress themes. Verify retry attempts, backoff timing, and error feedback UI."
+          },
+          {
+            "id": 3,
+            "title": "Support Shadow DOM Isolation and CSS Namespace Fallback",
+            "description": "Detect Shadow DOM support and initialize the widget in a ShadowRoot when available, falling back to CSS namespace isolation for legacy browsers or block editor contexts.",
+            "dependencies": [
+              "4.1"
+            ],
+            "details": "Check for ShadowRoot support and create a Shadow DOM for widget rendering. If unsupported, apply CSS namespace fallback using PostCSS prefixwrap. Ensure both modes avoid global CSS conflicts.",
+            "status": "pending",
+            "testStrategy": "Test widget rendering in modern browsers (Shadow DOM) and legacy browsers (namespace fallback). Confirm correct style isolation and event handling in both contexts."
+          },
+          {
+            "id": 4,
+            "title": "Implement Robust Error Handling and User Feedback",
+            "description": "Add comprehensive error handling for all initialization steps, including dependency failures and rendering errors, with clear user feedback and logging for diagnostics.",
+            "dependencies": [
+              "4.2",
+              "4.3"
+            ],
+            "details": "Catch and log errors during initialization and rendering. Display user-friendly error messages in the widget container. Ensure errors do not cause duplicate initialization or memory leaks.",
+            "status": "pending",
+            "testStrategy": "Force errors at various stages (dependency check, rendering) and verify error messages, logging, and absence of duplicate widgets or event listeners."
+          },
+          {
+            "id": 5,
+            "title": "Verify Loader Integration and Compatibility Across WordPress Contexts",
+            "description": "Ensure the loader script works seamlessly in classic themes, block/Gutenberg editor, and with multiple widget instances, supporting auto-init and avoiding duplicate initialization.",
+            "dependencies": [
+              "4.4"
+            ],
+            "details": "Test loader in different WordPress environments, including dynamic block editor updates. Use MutationObserver to detect context changes and re-initialize as needed. Confirm compatibility with plugin loader and widget cleanup logic.",
+            "status": "pending",
+            "testStrategy": "Install and activate the widget in test WordPress sites. Add/remove widgets via shortcode and Gutenberg block. Monitor DOM and memory usage, verify auto-init, and confirm no duplicate widgets or event listeners."
+          }
+        ]
+      },
+      {
+        "id": 5,
+        "title": "Update Standalone Widget for Shadow DOM and Namespace Fallback",
+        "description": "Refactor src/widget/standalone-widget.tsx to support Shadow DOM isolation and CSS namespace fallback for legacy browsers.",
+        "details": "Implement logic to detect Shadow DOM support and fallback to namespaced CSS if unavailable or in block editor context. Inject shadow-reset.css and widget styles into ShadowRoot. Use React 18+ and ReactDOM.createRoot for rendering. Ensure widget instance management and event dispatching are robust.",
+        "testStrategy": "Test widget rendering in modern browsers (Shadow DOM) and legacy browsers (namespace fallback). Use browser compatibility tools to simulate IE11 and verify fallback. Confirm correct event firing and cleanup.",
+        "priority": "high",
+        "dependencies": [
+          1,
+          2,
+          3
+        ],
+        "status": "pending",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Implement Shadow DOM Isolation in standalone-widget.tsx",
+            "description": "Refactor the widget to detect Shadow DOM support at runtime, attach a ShadowRoot to the widget host, and render the React component tree inside the ShadowRoot using React 18+ and ReactDOM.createRoot.",
+            "dependencies": [],
+            "details": "Use feature detection (e.g., 'attachShadow' in Element.prototype) to determine Shadow DOM support. If supported, create a ShadowRoot in 'open' mode and render the widget inside it. Ensure all widget markup and logic are encapsulated within the ShadowRoot. Handle widget instance management and event dispatching robustly within this context.",
+            "status": "pending",
+            "testStrategy": "Mount the widget in modern browsers and verify via browser dev tools that the widget is rendered inside a ShadowRoot. Confirm that global styles do not leak into the widget and that widget events are dispatched and handled correctly."
+          },
+          {
+            "id": 2,
+            "title": "Implement CSS Namespace Fallback for Legacy Browsers and Block Editor",
+            "description": "Add logic to fallback to namespaced CSS when Shadow DOM is unavailable or when running inside the WordPress block editor context.",
+            "dependencies": [
+              "5.1"
+            ],
+            "details": "Detect lack of Shadow DOM support or block editor context and apply a unique CSS namespace (e.g., '.e1-widget') to all widget elements. Ensure that widget-namespaced.css is loaded and applied in this mode. Update rendering logic to add the namespace class to the widget root and all relevant descendants.",
+            "status": "pending",
+            "testStrategy": "Simulate legacy browsers (e.g., IE11) and block editor context. Verify that the widget renders correctly with namespaced styles, and that no style leakage occurs from global CSS."
+          },
+          {
+            "id": 3,
+            "title": "Inject shadow-reset.css and Widget Styles into ShadowRoot",
+            "description": "Ensure that shadow-reset.css and widget styles are injected into the ShadowRoot for style isolation, and that the correct CSS file is loaded based on the rendering mode.",
+            "dependencies": [
+              "5.1"
+            ],
+            "details": "On Shadow DOM mode, programmatically inject <style> tags for shadow-reset.css and widget.css into the ShadowRoot before rendering the React tree. In fallback mode, ensure widget-namespaced.css is loaded globally. Confirm that style injection order prevents specificity issues.",
+            "status": "pending",
+            "testStrategy": "Inspect the ShadowRoot in browser dev tools to confirm both shadow-reset.css and widget styles are present and applied. In fallback mode, verify that only namespaced CSS is loaded and applied."
+          },
+          {
+            "id": 4,
+            "title": "Enhance Widget Instance Management and Event Dispatching",
+            "description": "Refactor widget initialization to robustly manage multiple widget instances, ensure proper cleanup, and dispatch custom events for lifecycle and interaction.",
+            "dependencies": [
+              "5.1",
+              "5.2"
+            ],
+            "details": "Track widget instances to prevent duplicate mounting. Implement cleanup logic on unmount (e.g., remove event listeners, clear timers). Dispatch custom events (e.g., 'widget:ready', 'widget:error') from the widget root or ShadowRoot as appropriate. Ensure compatibility with both Shadow DOM and fallback modes.",
+            "status": "pending",
+            "testStrategy": "Mount and unmount multiple widget instances in various contexts. Use browser dev tools to verify event dispatching and cleanup. Confirm no memory leaks or orphaned event listeners."
+          },
+          {
+            "id": 5,
+            "title": "Comprehensive Verification: Browser, Security, and Performance Testing",
+            "description": "Test the widget across modern and legacy browsers, verify security (XSS/CORS/nonce), and check performance. Ensure compatibility with WordPress Gutenberg block editor and fallback scenarios.",
+            "dependencies": [
+              "5.1",
+              "5.2",
+              "5.3",
+              "5.4"
+            ],
+            "details": "Use browser compatibility tools and real devices to test Shadow DOM and fallback rendering. Run security audits for XSS, CORS, and nonce handling. Measure widget load and render performance. Test widget in WordPress frontend and block editor, verifying correct behavior in all supported environments.",
+            "status": "pending",
+            "testStrategy": "Execute automated and manual browser tests (including IE11 simulation). Run security audit tools and review code for vulnerabilities. Profile widget performance. Document and resolve any compatibility or security issues found."
+          }
+        ]
+      },
+      {
+        "id": 6,
+        "title": "Automate Dual CSS Generation and Deployment Script",
+        "description": "Implement scripts/deploy-to-wordpress.js to generate both normal and namespaced CSS, fetch Supabase data, and deploy assets to WordPress.",
+        "details": "Use postcss and postcss-prefixwrap to generate widget-namespaced.css. Fetch data from Supabase (cards, visual_objects, formulas) and generate config.json. Copy/minify JS and CSS assets to the WordPress plugin cache directory. Ensure environment variables are respected for paths and credentials.",
+        "testStrategy": "Run 'npm run deploy:wordpress' with all required env vars set. Verify that all assets (widget.js, loader.js, widget.css, widget-namespaced.css, config.json) are present in the WordPress cache directory. Confirm config.json contains up-to-date data.",
+        "priority": "high",
+        "dependencies": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "status": "pending",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Generate Normal and Namespaced CSS Using PostCSS",
+            "description": "Implement logic in scripts/deploy-to-wordpress.js to process widget.css with PostCSS and postcss-prefixwrap, producing both standard and widget-namespaced.css outputs.",
+            "dependencies": [],
+            "details": "Configure PostCSS pipeline to generate two CSS files: one unmodified (widget.css) and one with a namespace prefix (widget-namespaced.css) using postcss-prefixwrap. Ensure both outputs are minified and ready for deployment. Respect environment variables for input/output paths.",
+            "status": "pending",
+            "testStrategy": "Run the script and verify that both widget.css and widget-namespaced.css are generated in the build directory. Confirm that the namespaced file correctly wraps all selectors and both files are minified."
+          },
+          {
+            "id": 2,
+            "title": "Fetch Supabase Data and Generate config.json",
+            "description": "Integrate Supabase client logic to fetch cards, visual_objects, and formulas, then serialize and write the data to config.json.",
+            "dependencies": [
+              "6.1"
+            ],
+            "details": "Use Supabase client with credentials from environment variables to fetch required tables. Validate and transform data as needed, then output a config.json file in the build directory. Handle errors and log failures for missing or malformed data.",
+            "status": "pending",
+            "testStrategy": "Run the script with valid Supabase credentials. Inspect config.json to ensure it contains up-to-date, correctly structured data for all required entities."
+          },
+          {
+            "id": 3,
+            "title": "Copy and Minify JS/CSS Assets to WordPress Plugin Cache Directory",
+            "description": "Automate copying and minification of all JS and CSS assets, including widget.js, loader.js, widget.css, widget-namespaced.css, and config.json, to the WordPress plugin cache directory.",
+            "dependencies": [
+              "6.2"
+            ],
+            "details": "Implement file operations to copy and minify all relevant assets to the target WordPress cache directory, as specified by environment variables. Ensure atomic writes and clean up old assets if necessary.",
+            "status": "pending",
+            "testStrategy": "After running the script, verify that all assets are present, minified, and up-to-date in the WordPress plugin cache directory. Confirm no stale files remain."
+          },
+          {
+            "id": 4,
+            "title": "Implement Performance, Security, and Fallback Checks",
+            "description": "Add script logic to verify asset integrity, check for XSS/CORS/nonce issues, and ensure CSS namespace fallback is available for legacy browsers.",
+            "dependencies": [
+              "6.3"
+            ],
+            "details": "Integrate static analysis or runtime checks for XSS and CORS vulnerabilities in generated assets. Validate that nonce attributes are present where required. Confirm that both normal and namespaced CSS are available and fallback logic is documented.",
+            "status": "pending",
+            "testStrategy": "Run automated security and performance checks as part of the deployment script. Manually inspect output for nonce and CORS headers. Test fallback by simulating legacy browser environments."
+          },
+          {
+            "id": 5,
+            "title": "Automate End-to-End Verification and Browser Testing",
+            "description": "Integrate comprehensive browser tests and verification steps to ensure all deployed assets function correctly in WordPress, including Shadow DOM isolation and namespace fallback.",
+            "dependencies": [
+              "6.4"
+            ],
+            "details": "Set up automated browser tests (e.g., using Playwright or Cypress) to load the deployed plugin in WordPress, verify Shadow DOM isolation, namespace fallback, and asset loading. Include error/retry handling in the loader and log results.",
+            "status": "pending",
+            "testStrategy": "Run the test suite after deployment. Confirm that widgets render correctly in both modern and legacy browsers, all assets load without errors, and loader retry/error handling works as expected."
+          }
+        ]
+      },
+      {
+        "id": 7,
+        "title": "Update WordPress Plugin Loader for Enhanced Initialization and Gutenberg Support",
+        "description": "Modify class-e1-calculator-loader.php to enqueue scripts, handle shortcodes, AJAX config, and register Gutenberg block with correct attributes.",
+        "details": "Ensure loader enqueues both loader and widget scripts, localizes config, and supports auto-init. Implement AJAX endpoint for config.json with nonce verification. Register Gutenberg block with shadow, height, and theme attributes. Add robust error handling and compatibility checks for Shadow DOM support.",
+        "testStrategy": "Install plugin in a test WordPress site. Add widget via shortcode and Gutenberg block. Test AJAX config endpoint with and without nonce. Verify scripts load in both frontend and block editor. Check for errors in browser console.",
+        "priority": "high",
+        "dependencies": [
+          6
+        ],
+        "status": "pending",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Refactor Loader to Enqueue Scripts and Localize Config",
+            "description": "Update class-e1-calculator-loader.php to enqueue both loader and widget scripts for frontend and block editor, and localize configuration data for auto-initialization.",
+            "dependencies": [],
+            "details": "Ensure scripts are registered and enqueued with correct dependencies and versioning. Use wp_localize_script to pass configuration and nonce data to JavaScript. Support both classic and block editor contexts. Implement robust error handling for script loading failures.",
+            "status": "pending",
+            "testStrategy": "Activate the plugin and verify that scripts are loaded in both frontend and Gutenberg editor. Check that localized config is available in the JS context and auto-init works. Simulate script loading errors and confirm error handling."
+          },
+          {
+            "id": 2,
+            "title": "Implement AJAX Endpoint for Secure Config Retrieval",
+            "description": "Add a WordPress AJAX endpoint in the loader to serve config.json with nonce verification and CORS/XSS protections.",
+            "dependencies": [
+              "7.1"
+            ],
+            "details": "Register a custom AJAX action for both authenticated and unauthenticated users. Validate the nonce before returning config data. Set appropriate headers to prevent CORS and XSS vulnerabilities. Log and handle errors gracefully.",
+            "status": "pending",
+            "testStrategy": "Request the AJAX endpoint with and without a valid nonce. Confirm correct config is returned only with valid nonce. Inspect headers for security. Attempt XSS/CORS attacks and verify protection."
+          },
+          {
+            "id": 3,
+            "title": "Register Gutenberg Block with Enhanced Attributes and Shadow DOM Support",
+            "description": "Register a dynamic Gutenberg block with shadow, height, and theme attributes, supporting Shadow DOM isolation and fallback for legacy browsers.",
+            "dependencies": [
+              "7.1"
+            ],
+            "details": "Use register_block_type to define the block and its attributes. Integrate block editor scripts and styles. Implement logic to detect Shadow DOM support and fallback to namespaced CSS if unavailable. Ensure block renders correctly in both editor and frontend.",
+            "status": "pending",
+            "testStrategy": "Add the block in the Gutenberg editor and set various attributes. Preview and publish the post. Verify correct rendering, attribute handling, and Shadow DOM isolation or fallback as appropriate."
+          },
+          {
+            "id": 4,
+            "title": "Integrate Robust Error Handling and Compatibility Checks",
+            "description": "Enhance loader and block scripts with error handling for script failures, AJAX errors, and Shadow DOM compatibility, including retry logic and user feedback.",
+            "dependencies": [
+              "7.1",
+              "7.2",
+              "7.3"
+            ],
+            "details": "Implement try/catch and error boundary logic in JS and PHP. Add compatibility checks for Shadow DOM and fallback mechanisms. Provide user-visible error messages and retry options where feasible. Log errors for debugging.",
+            "status": "pending",
+            "testStrategy": "Simulate script and AJAX failures, and unsupported browser scenarios. Confirm errors are caught, logged, and user feedback is shown. Test retry logic and fallback behavior."
+          },
+          {
+            "id": 5,
+            "title": "Validate Loader Security, Performance, and Deployment",
+            "description": "Audit and optimize the loader for security (nonce, XSS, CORS), performance (script loading, caching), and automate deployment to WordPress cache.",
+            "dependencies": [
+              "7.1",
+              "7.2",
+              "7.3",
+              "7.4"
+            ],
+            "details": "Review code for security best practices, including nonce verification and output escaping. Optimize script loading and caching headers. Implement or update deployment scripts to push assets to WordPress cache/CDN. Document acceptance and verification steps.",
+            "status": "pending",
+            "testStrategy": "Run security scans and manual code review. Measure script load times and cache effectiveness. Deploy to a staging site and verify asset delivery and cache behavior. Confirm all acceptance criteria are met."
+          }
+        ]
+      },
+      {
+        "id": 8,
+        "title": "Implement and Validate Widget Initialization and Cleanup Logic",
+        "description": "Ensure widget can be initialized and destroyed cleanly in all supported contexts, including multiple instances and dynamic block editor updates.",
+        "details": "Implement E1Calculator.init, initAll, destroy, and destroyAll methods. Use MutationObserver to detect block editor changes and re-initialize as needed. Ensure no memory leaks or duplicate widgets. Support auto-init via data-e1-auto-init attribute.",
+        "testStrategy": "Add and remove widgets dynamically in Gutenberg and classic editors. Use browser dev tools to monitor DOM and memory usage. Confirm no duplicate widgets or event listeners remain after destroy.",
+        "priority": "medium",
+        "dependencies": [
+          4,
+          5,
+          7
+        ],
+        "status": "pending",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Implement Widget Initialization and Cleanup Methods",
+            "description": "Develop the E1Calculator.init, initAll, destroy, and destroyAll methods to ensure widgets can be initialized and destroyed cleanly in all supported contexts, including multiple instances.",
+            "dependencies": [],
+            "details": "Implement robust logic to handle widget lifecycle, ensuring no memory leaks or duplicate widgets. Support auto-initialization via the data-e1-auto-init attribute. Ensure that destroy methods remove all event listeners and DOM references.",
+            "status": "pending",
+            "testStrategy": "Dynamically add and remove widgets in both Gutenberg and classic editors. Use browser dev tools to monitor DOM and memory usage. Confirm no duplicate widgets or lingering event listeners remain after destroy."
+          },
+          {
+            "id": 2,
+            "title": "Integrate MutationObserver for Dynamic Block Editor Updates",
+            "description": "Use MutationObserver to detect changes in the block editor and trigger re-initialization or cleanup of widgets as needed.",
+            "dependencies": [
+              "8.1"
+            ],
+            "details": "Configure MutationObserver to monitor relevant DOM changes in Gutenberg and classic editors. Ensure widgets are re-initialized or destroyed appropriately when blocks are added, removed, or updated.",
+            "status": "pending",
+            "testStrategy": "Simulate block additions, removals, and updates in the editor. Verify widgets are correctly initialized and destroyed in response to DOM mutations without memory leaks or duplicates."
+          },
+          {
+            "id": 3,
+            "title": "Implement Shadow DOM Isolation and CSS Namespace Fallback",
+            "description": "Add Shadow DOM isolation for widgets and provide a CSS namespace fallback for environments where Shadow DOM is not supported.",
+            "dependencies": [
+              "8.1"
+            ],
+            "details": "Inject widget markup into a ShadowRoot when supported. Use PostCSS prefixwrap to generate namespaced CSS as a fallback. Ensure both CSS outputs (normal and namespaced) are available and loaded as needed.",
+            "status": "pending",
+            "testStrategy": "Mount widgets in test pages with conflicting global styles. Verify style isolation inside ShadowRoot and correct fallback behavior when Shadow DOM is unavailable."
+          },
+          {
+            "id": 4,
+            "title": "Develop Robust WordPress Loader with Retry and Error Handling",
+            "description": "Create a WordPress loader script that manages widget initialization, dependency checks, error handling, and retry logic in WordPress environments.",
+            "dependencies": [
+              "8.1",
+              "8.2",
+              "8.3"
+            ],
+            "details": "Implement loader to wait for DOM readiness, WordPress jQuery, and block editor context. Add retry logic for slow-loading dependencies and robust error handling with user feedback. Avoid global namespace pollution.",
+            "status": "pending",
+            "testStrategy": "Test widget initialization in various WordPress themes and editors. Simulate slow or failed dependency loading and verify retry and error UI. Confirm no duplicate initialization occurs."
+          },
+          {
+            "id": 5,
+            "title": "Perform Comprehensive Performance, Security, and Browser Validation",
+            "description": "Conduct thorough performance and security checks (including XSS, CORS, nonce validation) and comprehensive browser tests to ensure robust widget behavior.",
+            "dependencies": [
+              "8.1",
+              "8.2",
+              "8.3",
+              "8.4"
+            ],
+            "details": "Audit widget for memory leaks, performance bottlenecks, and security vulnerabilities. Validate correct operation across all supported browsers and WordPress contexts. Ensure deployment script updates WordPress cache as needed.",
+            "status": "pending",
+            "testStrategy": "Use automated and manual browser tests to verify widget behavior. Run security scans and performance profiling. Confirm cache deployment and verify no security issues are present."
+          }
+        ]
+      },
+      {
+        "id": 9,
+        "title": "Test Widget Isolation and CSS Fallback in Multiple Browsers",
+        "description": "Validate that the widget is visually and functionally isolated in both Shadow DOM and namespace fallback modes across all supported browsers.",
+        "details": "Use npm scripts (test:widget, test:shadow, test:namespace) to automate testing. Manually test in Chrome, Firefox, Safari, Edge, and IE11. Check for style leakage, layout issues, and correct fallback behavior. Use BrowserStack or Sauce Labs for cross-browser automation if available.",
+        "testStrategy": "Run all test scripts and manually verify widget appearance and isolation in each browser. Document any issues and regressions. Use screenshots for before/after comparisons.",
+        "priority": "high",
+        "dependencies": [
+          8
+        ],
+        "status": "pending",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Automate Widget Isolation Tests for Shadow DOM and Namespace Fallback",
+            "description": "Develop and configure npm scripts to automate testing of widget isolation in both Shadow DOM and CSS namespace fallback modes, ensuring compatibility with all supported browsers.",
+            "dependencies": [],
+            "details": "Expand existing npm scripts (test:widget, test:shadow, test:namespace) to cover both isolation strategies. Integrate with BrowserStack or Sauce Labs for automated cross-browser execution, including Chrome, Firefox, Safari, Edge, and IE11. Ensure scripts trigger both normal and namespaced CSS outputs.",
+            "status": "pending",
+            "testStrategy": "Run all automated scripts across target browsers. Capture and compare screenshots for visual regressions. Log and report any failures in style isolation, layout, or fallback behavior."
+          },
+          {
+            "id": 2,
+            "title": "Manual Cross-Browser Verification of Widget Isolation and Fallback",
+            "description": "Manually verify widget appearance, isolation, and fallback behavior in all supported browsers, focusing on style leakage, layout issues, and correct CSS fallback.",
+            "dependencies": [
+              "9.1"
+            ],
+            "details": "Test the widget in Chrome, Firefox, Safari, Edge, and IE11. Validate both Shadow DOM and namespace fallback modes. Check for style leakage, layout inconsistencies, and correct application of fallback CSS. Use screenshots for before/after comparisons.",
+            "status": "pending",
+            "testStrategy": "Document manual test results for each browser and mode. Attach screenshots and note any discrepancies or regressions. Confirm that fallback CSS is applied in browsers lacking Shadow DOM support."
+          },
+          {
+            "id": 3,
+            "title": "Validate Robust WordPress Loader and Block Editor Integration",
+            "description": "Test the WordPress loader script for correct initialization, retry/error handling, and compatibility with both classic and Gutenberg editors, ensuring widget isolation is preserved.",
+            "dependencies": [
+              "9.1"
+            ],
+            "details": "Simulate slow or failed dependency loading in various WordPress themes and editors. Verify loader retry logic, error UI, and prevention of duplicate initialization. Confirm support for both Shadow DOM and namespace fallback in block editor contexts.",
+            "status": "pending",
+            "testStrategy": "Test widget initialization and cleanup in classic and block editors. Simulate dependency failures and observe loader behavior. Confirm no duplicate widgets or event listeners remain after destroy."
+          },
+          {
+            "id": 4,
+            "title": "Verify Dual CSS Outputs and PostCSS Prefixwrap Integration",
+            "description": "Ensure that both normal and namespaced CSS outputs are generated via PostCSS prefixwrap, and that the correct styles are applied based on browser capabilities and editor context.",
+            "dependencies": [
+              "9.1"
+            ],
+            "details": "Check build outputs for both standard and namespaced CSS files. Validate that Shadow DOM mode uses unprefixed styles and fallback mode uses namespaced styles. Confirm correct injection of styles in both modes.",
+            "status": "pending",
+            "testStrategy": "Inspect generated CSS files and verify correct application in browser tests. Use browser dev tools to confirm style scoping and absence of leakage."
+          },
+          {
+            "id": 5,
+            "title": "Conduct Performance, Security, and Compliance Checks",
+            "description": "Perform performance profiling, XSS/CORS/nonce security validation, and compliance checks for widget isolation and fallback across all supported browsers.",
+            "dependencies": [
+              "9.2",
+              "9.3",
+              "9.4"
+            ],
+            "details": "Profile widget load and render times. Validate that security measures (XSS, CORS, nonce) are effective in both isolation modes. Ensure compliance with accessibility and browser compatibility requirements.",
+            "status": "pending",
+            "testStrategy": "Use Lighthouse or WebPageTest for performance metrics. Run security audits and manual penetration tests. Document compliance with acceptance criteria for isolation, fallback, and security."
+          }
+        ]
+      },
+      {
+        "id": 10,
+        "title": "Implement and Test Error Handling and Retry Logic",
+        "description": "Ensure robust error handling for config loading, dependency failures, and initialization errors with user-friendly UI and retry mechanisms.",
+        "details": "Display clear error messages in the widget container on failure. Implement retry logic for config and dependency loading (max 3 retries, exponential backoff). Log errors to console for debugging. Ensure fallback UI is accessible and styled.",
+        "testStrategy": "Simulate network failures and slow responses. Verify error UI appears and retries occur as specified. Check that errors are logged and do not crash the page.",
+        "priority": "medium",
+        "dependencies": [
+          4,
+          5,
+          7
+        ],
+        "status": "pending",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Design Error State UI and Fallback Accessibility",
+            "description": "Define and implement clear, user-friendly error messages and fallback UI for config loading, dependency failures, and initialization errors within the widget container, ensuring accessibility and consistent styling.",
+            "dependencies": [],
+            "details": "Specify error message formats, ARIA roles, and visual cues for error states. Ensure fallback UI is keyboard-navigable and screen-reader friendly. Integrate with Shadow DOM and CSS namespace fallback mechanisms.",
+            "status": "pending",
+            "testStrategy": "Simulate various error scenarios (e.g., missing config, failed dependency load) and verify that the error UI appears, is accessible, and matches design requirements."
+          },
+          {
+            "id": 2,
+            "title": "Implement Robust Error Detection and Logging",
+            "description": "Develop mechanisms to detect errors during config loading, dependency resolution, and widget initialization, and log detailed error information to the browser console for debugging.",
+            "dependencies": [
+              "10.1"
+            ],
+            "details": "Use try/catch blocks and error event listeners to capture failures. Log error objects, stack traces, and relevant context. Integrate with WordPress error handling conventions (e.g., WP_Error) where applicable.",
+            "status": "pending",
+            "testStrategy": "Trigger known error conditions and verify that errors are logged with sufficient detail in the console without exposing sensitive data."
+          },
+          {
+            "id": 3,
+            "title": "Develop Retry Logic with Exponential Backoff",
+            "description": "Implement retry mechanisms for config and dependency loading, limiting to a maximum of 3 attempts with exponential backoff delays between retries.",
+            "dependencies": [
+              "10.2"
+            ],
+            "details": "Create a utility for retrying asynchronous operations with configurable backoff (e.g., 500ms, 1000ms, 2000ms). Ensure retries are aborted after 3 failures and error UI is displayed.",
+            "status": "pending",
+            "testStrategy": "Simulate intermittent network failures and verify that retries occur as specified, with increasing delays, and that the process stops after 3 attempts."
+          },
+          {
+            "id": 4,
+            "title": "Integrate Error Handling and Retry Logic into Widget Lifecycle",
+            "description": "Wire error detection, logging, and retry logic into the widget's initialization and dependency loading flows, ensuring seamless user experience and robust recovery from failures.",
+            "dependencies": [
+              "10.3"
+            ],
+            "details": "Update widget and WordPress loader scripts to invoke retry logic on failure, display error UI on unrecoverable errors, and clean up any partial state. Ensure compatibility with Shadow DOM and Gutenberg block contexts.",
+            "status": "pending",
+            "testStrategy": "Test widget initialization in classic and block editors, including slow or failed dependency loads, and verify correct error handling and recovery."
+          },
+          {
+            "id": 5,
+            "title": "Verify Comprehensive Error Handling via Automated and Manual Tests",
+            "description": "Develop and execute test cases to validate all error handling, retry, and fallback UI scenarios across supported browsers and WordPress environments.",
+            "dependencies": [
+              "10.4"
+            ],
+            "details": "Create automated browser tests to simulate network errors, dependency failures, and initialization issues. Perform manual accessibility and UI checks. Document acceptance criteria and verification steps.",
+            "status": "pending",
+            "testStrategy": "Run tests in CI and local environments, review logs, and confirm that all acceptance criteria for error handling, retry logic, and fallback UI are met."
+          }
+        ]
+      },
+      {
+        "id": 11,
+        "title": "Validate Security: XSS, CORS, and Nonce Verification",
+        "description": "Audit and test all widget and plugin code for XSS, CORS, and CSRF vulnerabilities, ensuring compliance with WordPress and React security best practices.",
+        "details": "Sanitize all config.json data before rendering. Ensure React escapes all strings. Confirm AJAX endpoints require valid nonces and reject unauthorized requests. Test CORS headers and same-origin policy for all API calls.",
+        "testStrategy": "Run security scanning tools (e.g., npm audit, WPScan). Manually test for XSS by injecting scripts into config data. Attempt unauthorized AJAX requests and verify rejection. Review network requests for proper CORS headers.",
+        "priority": "high",
+        "dependencies": [
+          7,
+          9,
+          10
+        ],
+        "status": "pending",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Audit and Sanitize Widget and Plugin Data for XSS",
+            "description": "Review all widget and plugin code to identify locations where user-supplied or config.json data is rendered. Implement robust input sanitization and output escaping using WordPress and React best practices to prevent XSS vulnerabilities.",
+            "dependencies": [],
+            "details": "Apply WordPress functions like sanitize_text_field(), esc_html(), and esc_attr() for PHP, and use libraries such as DOMPurify for React components. Ensure React does not use dangerouslySetInnerHTML unless content is sanitized. Document all sanitization points and verify no unsanitized data reaches the DOM.",
+            "status": "pending",
+            "testStrategy": "Inject malicious scripts into config.json and user inputs. Confirm that rendered output escapes or strips scripts in both WordPress and React contexts. Use automated security scanners and manual inspection to verify no XSS vectors remain."
+          },
+          {
+            "id": 2,
+            "title": "Verify and Harden CORS Policies for All API Endpoints",
+            "description": "Review all AJAX and API endpoints used by widgets and plugins to ensure CORS headers are correctly configured, restricting access to trusted origins and enforcing the same-origin policy where appropriate.",
+            "dependencies": [],
+            "details": "Check server-side CORS configuration for endpoints, ensuring Access-Control-Allow-Origin is set to specific trusted domains. For endpoints requiring credentials, confirm Access-Control-Allow-Credentials is set and origins are not wildcards. Document all CORS settings and update as needed.",
+            "status": "pending",
+            "testStrategy": "Use browser dev tools and network inspection to verify CORS headers on all API responses. Attempt cross-origin requests from unauthorized origins and confirm they are blocked. Run automated tests to simulate various origin scenarios."
+          },
+          {
+            "id": 3,
+            "title": "Enforce Nonce Verification and CSRF Protection on AJAX Endpoints",
+            "description": "Ensure all AJAX endpoints require valid WordPress nonces and reject unauthorized or malformed requests to prevent CSRF attacks.",
+            "dependencies": [],
+            "details": "Audit all AJAX handlers to confirm they check for valid nonces using check_ajax_referer or equivalent. Update endpoints to return appropriate errors for invalid or missing nonces. Document nonce usage and ensure nonces are generated and passed securely in all client requests.",
+            "status": "pending",
+            "testStrategy": "Attempt AJAX requests with missing, invalid, or expired nonces and verify the server rejects them. Use automated tools to simulate CSRF attacks. Review server logs for unauthorized access attempts."
+          },
+          {
+            "id": 4,
+            "title": "Integrate Security Checks into Build and Deployment Pipeline",
+            "description": "Automate security scanning and verification for XSS, CORS, and nonce/CSRF vulnerabilities as part of the build and deployment process.",
+            "dependencies": [],
+            "details": "Configure npm audit, WPScan, and ESLint security plugins to run on every build. Add scripts to check for insecure dependencies, improper CORS headers, and missing nonce checks. Fail builds on critical security issues and require resolution before deployment.",
+            "status": "pending",
+            "testStrategy": "Run all security tools on CI/CD pipelines and verify they catch intentional vulnerabilities. Review build logs for security warnings and confirm that deployments are blocked on unresolved issues."
+          },
+          {
+            "id": 5,
+            "title": "Conduct Comprehensive Browser and Manual Security Testing",
+            "description": "Perform end-to-end browser tests and manual penetration testing to validate that XSS, CORS, and nonce protections are effective across all supported environments, including Shadow DOM and CSS namespace fallback modes.",
+            "dependencies": [],
+            "details": "Use automated browser tests to simulate attacks in modern and legacy browsers. Manually test widget isolation, script injection, cross-origin requests, and unauthorized AJAX calls. Document all findings and remediation steps.",
+            "status": "pending",
+            "testStrategy": "Run browser automation scripts and manual test cases for each security vector. Capture screenshots and logs for all test scenarios. Verify that no security vulnerabilities are exploitable in any supported browser or WordPress context."
+          }
+        ]
+      },
+      {
+        "id": 12,
+        "title": "Performance Optimization and Bundle Size Validation",
+        "description": "Optimize widget bundle and CSS size, ensure fast load and render times, and validate against performance targets.",
+        "details": "Bundle React with the widget using webpack. Minimize and tree-shake all JS and CSS. Validate that gzipped bundle size is <200KB and CSS <50KB. Use Lighthouse or WebPageTest to measure First Contentful Paint and Time to Interactive. Optimize config.json loading and caching.",
+        "testStrategy": "Run 'npm run build:widget' and measure output sizes. Use Lighthouse to check FCP and TTI. Profile network requests and widget initialization time. Document results and optimize as needed.",
+        "priority": "medium",
+        "dependencies": [
+          9,
+          10
+        ],
+        "status": "pending",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Webpack Bundle Optimization and Tree Shaking",
+            "description": "Configure webpack to bundle React with the widget, enable tree shaking, and minimize all JS and CSS assets to reduce bundle size.",
+            "dependencies": [],
+            "details": "Set webpack mode to 'production', use optimization plugins (e.g., Terser, CSS Minimizer), and ensure only required imports are included. Remove unused dependencies and leverage tree shaking for dead code elimination.",
+            "status": "pending",
+            "testStrategy": "Run 'npm run build:widget', analyze output with webpack-bundle-analyzer, and verify gzipped JS bundle size is <200KB and CSS <50KB."
+          },
+          {
+            "id": 2,
+            "title": "Performance Measurement and Validation",
+            "description": "Measure widget load and render times using Lighthouse and WebPageTest, focusing on First Contentful Paint (FCP) and Time to Interactive (TTI).",
+            "dependencies": [
+              "12.1"
+            ],
+            "details": "Profile network requests, widget initialization, and rendering in various browsers. Document FCP and TTI results and compare against performance targets.",
+            "status": "pending",
+            "testStrategy": "Run Lighthouse and WebPageTest on deployed widget, record FCP and TTI, and ensure results meet defined thresholds."
+          },
+          {
+            "id": 3,
+            "title": "Config.json Loading and Caching Optimization",
+            "description": "Optimize loading and caching of config.json to minimize network overhead and improve widget initialization speed.",
+            "dependencies": [
+              "12.1"
+            ],
+            "details": "Implement efficient fetch logic using native Fetch API, leverage HTTP caching headers, and ensure config.json is loaded only when necessary.",
+            "status": "pending",
+            "testStrategy": "Profile network requests during widget initialization, verify config.json is cached, and measure impact on load times."
+          },
+          {
+            "id": 4,
+            "title": "Shadow DOM Isolation and CSS Namespace Fallback Integration",
+            "description": "Integrate Shadow DOM isolation for modern browsers and implement CSS namespace fallback for legacy browsers and block editor contexts.",
+            "dependencies": [
+              "12.1"
+            ],
+            "details": "Detect Shadow DOM support, inject styles into ShadowRoot, and use PostCSS prefixwrap for dual CSS outputs. Ensure robust fallback logic and compatibility.",
+            "status": "pending",
+            "testStrategy": "Test widget rendering in modern and legacy browsers, verify correct style isolation, and confirm fallback behavior in block editor."
+          },
+          {
+            "id": 5,
+            "title": "Deployment, Security, and Browser Compatibility Verification",
+            "description": "Deploy optimized widget to WordPress cache, perform security checks (XSS, CORS, nonce), and run comprehensive browser tests for compatibility.",
+            "dependencies": [
+              "12.2",
+              "12.3",
+              "12.4"
+            ],
+            "details": "Use deployment scripts to push assets, validate security headers and nonce usage, and execute browser tests across supported environments.",
+            "status": "pending",
+            "testStrategy": "Deploy to staging WordPress, run automated and manual browser tests, and verify security compliance and widget functionality."
+          }
+        ]
+      },
+      {
+        "id": 13,
+        "title": "Documentation and Deployment Checklist Verification",
+        "description": "Update project documentation and verify all deployment checklist items are complete before production release.",
+        "details": "Document all build, test, and deployment steps. Ensure README and inline code comments are up to date. Verify all checklist items (npm install, build, deploy, test in all browsers, etc.) are completed and signed off.",
+        "testStrategy": "Review documentation for completeness and clarity. Walk through deployment checklist step by step. Confirm all steps can be reproduced by a new developer.",
+        "priority": "medium",
+        "dependencies": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12
+        ],
+        "status": "pending",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Update and Audit Project Documentation",
+            "description": "Review and update all project documentation, including README, build/test/deployment guides, and inline code comments to reflect the latest E1 Calculator Widget isolation implementation and deployment process.",
+            "dependencies": [],
+            "details": "Ensure documentation covers Shadow DOM isolation, CSS namespace fallback, WordPress loader enhancements, Gutenberg block support, dual CSS outputs, deployment scripts, and security/performance considerations. Include implementation steps, acceptance criteria, and verification steps for each feature.",
+            "status": "pending",
+            "testStrategy": "Have a new developer follow the documentation to set up, build, and deploy the widget. Confirm all steps are clear, accurate, and reproducible."
+          },
+          {
+            "id": 2,
+            "title": "Verify Shadow DOM and CSS Namespace Isolation Implementation",
+            "description": "Confirm that Shadow DOM isolation and CSS namespace fallback are implemented, documented, and function as intended across all supported environments.",
+            "dependencies": [
+              "13.1"
+            ],
+            "details": "Check that shadow-reset.css is present and loaded into the ShadowRoot, and that PostCSS prefixwrap generates a namespaced CSS fallback. Document the implementation and verification steps for both approaches.",
+            "status": "pending",
+            "testStrategy": "Mount the widget in test pages with conflicting global styles and verify style isolation in all supported browsers. Confirm both Shadow DOM and namespaced CSS fallback work as documented."
+          },
+          {
+            "id": 3,
+            "title": "Review and Test Robust WordPress Loader and Gutenberg Block Support",
+            "description": "Ensure the WordPress loader script includes retry/error handling, dependency checks, and supports both classic and Gutenberg/block editor contexts.",
+            "dependencies": [
+              "13.2"
+            ],
+            "details": "Document loader initialization logic, error/retry flows, and block editor integration. Include acceptance criteria for loader robustness and block compatibility.",
+            "status": "pending",
+            "testStrategy": "Test widget initialization in various WordPress themes and editors, simulating slow/failed dependency loading. Verify retry logic, error UI, and block support as per documentation."
+          },
+          {
+            "id": 4,
+            "title": "Validate Dual CSS Output Generation and Deployment Script",
+            "description": "Check that the deployment script generates both normal and namespaced CSS, fetches Supabase data, and deploys all assets to the WordPress cache directory as specified.",
+            "dependencies": [
+              "13.3"
+            ],
+            "details": "Document the deployment process, environment variable requirements, and asset verification steps. Ensure PostCSS and prefixwrap are correctly configured for dual CSS outputs.",
+            "status": "pending",
+            "testStrategy": "Run the deployment script with required environment variables. Confirm widget.js, loader.js, widget.css, widget-namespaced.css, and config.json are present and up to date in the WordPress cache directory."
+          },
+          {
+            "id": 5,
+            "title": "Perform Comprehensive Deployment Checklist and Browser/Performance/Security Verification",
+            "description": "Walk through the full deployment checklist, including npm install, build, deploy, browser compatibility, performance, and security (XSS, CORS, nonce) checks. Ensure all items are completed and signed off.",
+            "dependencies": [
+              "13.4"
+            ],
+            "details": "Document each checklist item with implementation, acceptance, and verification steps. Include Lighthouse and manual browser tests, and verify security best practices are followed.",
+            "status": "pending",
+            "testStrategy": "Complete the checklist step by step, testing in all supported browsers and using tools for performance and security validation. Confirm all items are signed off before production release."
+          }
+        ]
+      }
+    ],
+    "metadata": {
+      "created": "2025-09-10T09:04:07.720Z",
+      "updated": "2025-09-10T09:04:07.720Z",
+      "description": "Tasks for master context"
+    }
+  }
+}

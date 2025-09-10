@@ -25,6 +25,7 @@ class Admin_Settings {
         // AJAX toiminnot
         add_action('wp_ajax_e1_clear_cache', [$this, 'ajax_clear_cache']);
         add_action('wp_ajax_e1_test_widget', [$this, 'ajax_test_widget']);
+        add_action('wp_ajax_e1_sync_widget', [$this, 'ajax_sync_widget']);
         
         // Admin käyttöliittymä
         add_action('admin_enqueue_scripts', [$this, 'enqueue_admin_scripts']);
@@ -89,6 +90,15 @@ class Admin_Settings {
             'e1_critical_settings'
         );
         
+        // Vercel API URL
+        add_settings_field(
+            'vercel_api_url',
+            'Vercel API URL',
+            [$this, 'vercel_api_url_callback'],
+            'e1-calculator-settings',
+            'e1_critical_settings'
+        );
+        
         // Cache asetukset osio
         add_settings_section(
             'e1_cache_settings',
@@ -125,6 +135,26 @@ class Admin_Settings {
         
         // Debug Mode: boolean
         $sanitized['debug_mode'] = isset($input['debug_mode']) ? (bool)$input['debug_mode'] : false;
+        
+        // Vercel API URL: validate URL format
+        if (isset($input['vercel_api_url'])) {
+            $url = trim($input['vercel_api_url']);
+            if (empty($url)) {
+                $sanitized['vercel_api_url'] = '';
+            } elseif (filter_var($url, FILTER_VALIDATE_URL)) {
+                $sanitized['vercel_api_url'] = esc_url_raw($url);
+            } else {
+                $sanitized['vercel_api_url'] = '';
+                add_settings_error(
+                    'e1_calculator_options',
+                    'invalid_vercel_url',
+                    'Invalid Vercel API URL format. Please enter a valid URL.',
+                    'error'
+                );
+            }
+        } else {
+            $sanitized['vercel_api_url'] = '';
+        }
         
         // Cache viimeksi tyhjennetty (ei muokattavissa käyttäjän toimesta)
         $current_options = get_option('e1_calculator_options', []);
@@ -395,6 +425,26 @@ class Admin_Settings {
     }
     
     /**
+     * Vercel API URL callback
+     */
+    public function vercel_api_url_callback() {
+        $options = get_option('e1_calculator_options', []);
+        $vercel_url = $options['vercel_api_url'] ?? '';
+        ?>
+        <input type="url" 
+               name="e1_calculator_options[vercel_api_url]" 
+               id="vercel_api_url" 
+               value="<?php echo esc_attr($vercel_url); ?>"
+               class="regular-text code"
+               placeholder="https://your-app.vercel.app/api/widget-config">
+        <p class="description">
+            Widget hakee config-tiedot tästä Vercel API-endpointista. Jos tyhjä, käytetään staattista config.json tiedostoa.
+            <br><strong>Esimerkki:</strong> https://your-app.vercel.app/api/widget-config
+        </p>
+        <?php
+    }
+    
+    /**
      * Cache asetusten osion kuvaus
      */
     public function cache_settings_section_callback() {
@@ -433,6 +483,31 @@ class Admin_Settings {
             <?php if (!empty($options['cache_last_cleared'])): ?>
                 <p><small><strong>Viimeksi tyhjennetty:</strong> <?php echo $options['cache_last_cleared']; ?></small></p>
             <?php endif; ?>
+            
+            <div class="e1-sync-section" style="margin-top: 20px; padding-top: 20px; border-top: 1px solid #ddd;">
+                <h4>Synkronoi Widget Vercel:sta</h4>
+                <p class="description">
+                    Hakee tuoreimman widget-konfiguraation Vercel API:sta ja tallentaa cacheen. 
+                    Käytä tätä kun tiedot on päivitetty Vercel-palvelimella.
+                </p>
+                
+                <?php $vercel_url = $options['vercel_api_url'] ?? ''; ?>
+                <?php if (empty($vercel_url)): ?>
+                    <p style="color: #d63638;">
+                        ⚠️ <strong>Vercel API URL ei ole määritelty.</strong> 
+                        Määritä URL yllä ensin ennen synkronointia.
+                    </p>
+                <?php else: ?>
+                    <button type="button" 
+                            id="e1-sync-widget" 
+                            class="button button-secondary"
+                            data-api-url="<?php echo esc_attr($vercel_url); ?>">
+                        <span class="dashicons dashicons-update"></span>
+                        Synkronoi Widget Vercel:sta
+                    </button>
+                    <div id="sync-status" style="margin-top: 10px;"></div>
+                <?php endif; ?>
+            </div>
         </div>
         <?php
     }
@@ -515,6 +590,89 @@ class Admin_Settings {
         }
         
         wp_send_json_success($test_results);
+    }
+    
+    /**
+     * AJAX: Synkronoi widget Vercel API:sta
+     */
+    public function ajax_sync_widget() {
+        // Tarkista nonce ja oikeudet
+        if (!check_ajax_referer('e1_admin_nonce', 'nonce', false) || !current_user_can('manage_options')) {
+            wp_send_json_error(['message' => 'Ei oikeuksia']);
+            return;
+        }
+        
+        // Hae asetukset
+        $options = get_option('e1_calculator_options', []);
+        $vercel_url = $options['vercel_api_url'] ?? '';
+        
+        if (empty($vercel_url)) {
+            wp_send_json_error(['message' => 'Vercel API URL ei ole määritelty']);
+            return;
+        }
+        
+        try {
+            // Hae data Vercel API:sta
+            $response = wp_remote_get($vercel_url, [
+                'timeout' => 30,
+                'headers' => [
+                    'Accept' => 'application/json',
+                    'User-Agent' => 'E1-Calculator-WordPress/' . E1_CALC_VERSION
+                ]
+            ]);
+            
+            if (is_wp_error($response)) {
+                throw new Exception('Vercel API kutsu epäonnistui: ' . $response->get_error_message());
+            }
+            
+            $status_code = wp_remote_retrieve_response_code($response);
+            if ($status_code !== 200) {
+                throw new Exception('Vercel API palautti virheen: HTTP ' . $status_code);
+            }
+            
+            $body = wp_remote_retrieve_body($response);
+            $config_data = json_decode($body, true);
+            
+            if (json_last_error() !== JSON_ERROR_NONE) {
+                throw new Exception('Virheellinen JSON-vastaus Vercel API:sta');
+            }
+            
+            if (empty($config_data)) {
+                throw new Exception('Tyhjä vastaus Vercel API:sta');
+            }
+            
+            // Tallenna cache
+            $bundle = [
+                'config' => $config_data,
+                'version' => $config_data['version'] ?? 'vercel-sync',
+                'checksum' => md5($body),
+                'generated_at' => current_time('mysql'),
+                'source' => 'vercel-api',
+                'api_url' => $vercel_url
+            ];
+            
+            $result = $this->cache_manager->save_bundle($bundle);
+            
+            if (!$result) {
+                throw new Exception('Cachen tallennus epäonnistui');
+            }
+            
+            // Päivitä asetukset
+            $options['cache_last_synced'] = current_time('d.m.Y H:i:s');
+            update_option('e1_calculator_options', $options);
+            
+            wp_send_json_success([
+                'message' => 'Widget synkronoitu onnistuneesti Vercel:sta! ✅',
+                'synced_at' => $options['cache_last_synced'],
+                'cards_count' => isset($config_data['data']['cards']) ? count($config_data['data']['cards']) : 0,
+                'visual_objects_count' => isset($config_data['data']['visualObjects']) ? count($config_data['data']['visualObjects']) : 0,
+                'version' => $bundle['version']
+            ]);
+            
+        } catch (Exception $e) {
+            error_log('E1 Calculator Vercel sync error: ' . $e->getMessage());
+            wp_send_json_error(['message' => $e->getMessage()]);
+        }
     }
     
     /**

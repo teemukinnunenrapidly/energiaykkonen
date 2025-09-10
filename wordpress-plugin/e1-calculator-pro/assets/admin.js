@@ -168,6 +168,68 @@ jQuery(document).ready(function($) {
     });
     
     /**
+     * Sync Widget from Vercel API
+     */
+    $('#e1-sync-widget').on('click', function() {
+        const $button = $(this);
+        const $status = $('#sync-status');
+        const originalText = $button.text();
+        const apiUrl = $button.data('api-url');
+        
+        // Disable button and show loading
+        $button.prop('disabled', true);
+        $button.html('<span class="dashicons dashicons-update spin"></span> Synkronoidaan...');
+        
+        $status.html('<div class="e1-loading">🔄 Haetaan tietoja Vercel API:sta...</div>');
+        
+        $.ajax({
+            url: e1AdminAjax.ajaxurl,
+            type: 'POST',
+            data: {
+                action: 'e1_sync_widget',
+                nonce: e1AdminAjax.nonce
+            },
+            timeout: 45000, // Longer timeout for API call
+            success: function(response) {
+                if (response.success) {
+                    const data = response.data;
+                    showNotice('Widget synkronoitu onnistuneesti Vercel:sta! ✅', 'success');
+                    
+                    let statusHtml = `
+                        <div class="e1-success">
+                            <h4>✅ ${data.message}</h4>
+                            <ul style="margin: 10px 0; padding-left: 20px;">
+                                <li><strong>Synkronoitu:</strong> ${data.synced_at}</li>
+                                <li><strong>Kortit:</strong> ${data.cards_count} kpl</li>
+                                <li><strong>Visuaaliset objektit:</strong> ${data.visual_objects_count} kpl</li>
+                                <li><strong>Versio:</strong> ${data.version}</li>
+                            </ul>
+                        </div>
+                    `;
+                    
+                    $status.html(statusHtml);
+                    
+                    // Update cache status in main panel
+                    updateCacheStatus();
+                } else {
+                    showNotice('Synkronointi epäonnistui: ' + response.data.message, 'error');
+                    $status.html('<div class="e1-error">❌ ' + response.data.message + '</div>');
+                }
+            },
+            error: function(xhr, status, error) {
+                const errorMsg = 'Synkronointi epäonnistui: ' + (error || status);
+                showNotice(errorMsg, 'error');
+                $status.html('<div class="e1-error">❌ ' + errorMsg + '</div>');
+            },
+            complete: function() {
+                // Restore button
+                $button.prop('disabled', false);
+                $button.html('<span class="dashicons dashicons-update"></span> ' + originalText);
+            }
+        });
+    });
+    
+    /**
      * Update cache status in main panel
      */
     function updateCacheStatus() {

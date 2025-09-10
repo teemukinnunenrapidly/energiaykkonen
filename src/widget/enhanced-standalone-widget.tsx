@@ -21,6 +21,7 @@ interface WidgetConfig {
   customTokens?: any;
   progressiveImageLoading?: boolean;
   configUrl?: string;
+  apiUrl?: string; // Vercel API URL for dynamic fetching
   useShadowDOM?: boolean;
   data?: any;
   
@@ -259,27 +260,45 @@ const E1CalculatorWidget: React.FC<{
       
       // Try multiple data sources with error handling
       try {
-        // 1. Check for WordPress config data
-        if (typeof window !== 'undefined') {
+        // 1. Try API URL first if available (for real-time data)
+        if (!data && config.apiUrl) {
+          try {
+            console.log('🚀 Attempting to load fresh data from Vercel API:', config.apiUrl);
+            const loadedConfig = await loadConfigDataWithRetry(config.apiUrl, elementId);
+            data = loadedConfig.data || loadedConfig;
+            console.log('✅ Successfully loaded data from Vercel API');
+            
+            if (loadedConfig.cloudflareAccountHash) {
+              (window as any).__E1_CLOUDFLARE_HASH = loadedConfig.cloudflareAccountHash;
+              process.env.NEXT_PUBLIC_CLOUDFLARE_ACCOUNT_HASH = loadedConfig.cloudflareAccountHash;
+            }
+          } catch (apiError) {
+            console.warn('⚠️ API URL failed, falling back to config.json:', apiError);
+            // Continue to fallback methods below
+          }
+        }
+        
+        // 2. Check for WordPress config data (fallback)
+        if (!data && typeof window !== 'undefined') {
           const configKeys = Object.keys(window).filter(key => key.startsWith('E1_WIDGET_CONFIG_'));
           if (configKeys.length > 0) {
             const wpConfig = (window as any)[configKeys[0]];
             if (wpConfig && (wpConfig.data || wpConfig.cards)) {
-              console.log('✅ Using WordPress config data');
+              console.log('✅ Using WordPress config data as fallback');
               data = wpConfig.data || wpConfig;
             }
           }
         }
         
-        // 2. Check provided data
+        // 3. Check provided data (fallback)
         if (!data && config.data) {
-          console.log('✅ Using provided config data');
+          console.log('✅ Using provided config data as fallback');
           data = config.data;
         }
         
-        // 3. Load from URL with retry logic
+        // 4. Load from config URL with retry logic (fallback)
         if (!data && config.configUrl) {
-          console.log('🔄 Loading data from URL with retry logic');
+          console.log('🔄 Loading data from config.json URL as fallback');
           const loadedConfig = await loadConfigDataWithRetry(config.configUrl, elementId);
           data = loadedConfig.data || loadedConfig;
           
@@ -289,17 +308,17 @@ const E1CalculatorWidget: React.FC<{
           }
         }
         
-        // 4. Try default WordPress plugin location
+        // 5. Try default WordPress plugin location (fallback)
         if (!data) {
           try {
             const defaultUrl = '/wp-content/plugins/e1-calculator-pro/cache/config.json';
-            console.log('🔄 Trying default WordPress location');
+            console.log('🔄 Trying default WordPress location as final fallback');
             const loadedConfig = await loadConfigDataWithRetry(defaultUrl, elementId);
             data = loadedConfig.data || loadedConfig;
           } catch (defaultError) {
             console.warn('Default location failed, checking for mock data');
             
-            // 5. Check for mock data in development
+            // 6. Check for mock data in development (last resort)
             if ((window as any).__E1_MOCK_DATA) {
               console.log('✅ Using mock data for development');
               data = (window as any).__E1_MOCK_DATA;
