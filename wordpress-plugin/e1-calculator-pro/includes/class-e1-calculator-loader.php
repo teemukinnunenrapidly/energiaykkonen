@@ -1101,9 +1101,9 @@ class E1_Calculator_Loader {
     private function get_cache_status() { return []; }
     private function get_csp_config() { return []; }
     private function get_allowed_origins() { return ['*']; }
-    private function add_performance_monitoring() { /* Add performance monitoring */ }
-    private function add_fallback_styles() { /* Add fallback CSS */ }
-    private function clear_cache() { /* Cache clearing logic */ }
+    public function add_performance_monitoring() { /* Add performance monitoring */ }
+    public function add_fallback_styles() { /* Add fallback CSS */ }
+    public function clear_cache() { /* Cache clearing logic */ }
 }
 
 // Initialize enhanced loader

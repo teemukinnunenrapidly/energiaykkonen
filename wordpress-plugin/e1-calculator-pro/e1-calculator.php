@@ -39,7 +39,7 @@ add_action('init', function() {
     $cache_manager = new E1_Calculator\Cache_Manager();
     
     // Initialize widget loader
-    $widget_loader = new E1_Calculator\E1_Calculator_Loader($cache_manager);
+    $widget_loader = new E1_Calculator_Loader($cache_manager);
     
     // Initialize admin settings (only in admin)
     if (is_admin()) {
