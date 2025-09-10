@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { headers } from 'next/headers';
 import { supabase } from '@/lib/supabase';
+import fs from 'fs/promises';
+import path from 'path';
 
 /**
  * Widget Config API Endpoint
@@ -43,22 +45,25 @@ export async function GET(request: NextRequest) {
     };
 
     // Parallel data fetching for performance
-    const [cardsResult, visualsResult, formulasResult] = await Promise.allSettled([
+    const [cardsResult, visualsResult, formulasResult, widgetFilesResult] = await Promise.allSettled([
       fetchCardData(),
       fetchVisualData(), 
-      fetchFormulaData()
+      fetchFormulaData(),
+      fetchWidgetFiles()
     ]);
 
     console.log('📊 Data fetch results:', {
       cards: cardsResult.status === 'fulfilled' ? `${cardsResult.value.length} cards` : 'failed',
       visuals: visualsResult.status === 'fulfilled' ? `${visualsResult.value.length} visuals` : 'failed',
-      formulas: formulasResult.status === 'fulfilled' ? `${formulasResult.value.length} formulas` : 'failed'
+      formulas: formulasResult.status === 'fulfilled' ? `${formulasResult.value.length} formulas` : 'failed',
+      widgetFiles: widgetFilesResult.status === 'fulfilled' ? 'loaded' : 'failed'
     });
 
     // Handle partial failures gracefully - requirement #7
     const cards = cardsResult.status === 'fulfilled' ? cardsResult.value : [];
     const visuals = visualsResult.status === 'fulfilled' ? visualsResult.value : [];
     const formulas = formulasResult.status === 'fulfilled' ? formulasResult.value : [];
+    const widgetFiles = widgetFilesResult.status === 'fulfilled' ? widgetFilesResult.value : { js: '', css: '' };
 
     // Get base URL for API endpoints - requirement #4
     const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://energiaykkonen-calculator.vercel.app';
@@ -69,6 +74,12 @@ export async function GET(request: NextRequest) {
       version: '2.0.0',
       lastUpdated: new Date().toISOString(),
       buildTimestamp: process.env.BUILD_TIMESTAMP || new Date().toISOString(),
+
+      // Widget files for WordPress plugin caching
+      widget: {
+        js: widgetFiles.js,
+        css: widgetFiles.css
+      },
       
       // Calculator metadata
       calculator: {
@@ -471,4 +482,40 @@ async function fetchFormulaData() {
 
   console.log(`✅ Fetched ${data?.length || 0} active formulas`);
   return data || [];
+}
+
+async function fetchWidgetFiles() {
+  console.log('📂 Fetching widget files from dist directory...');
+  
+  try {
+    const distPath = path.join(process.cwd(), 'dist');
+    
+    // Read JavaScript file
+    const jsContent = await fs.readFile(
+      path.join(distPath, 'e1-calculator-widget.min.js'),
+      'utf-8'
+    );
+    
+    // Read CSS file  
+    const cssContent = await fs.readFile(
+      path.join(distPath, 'e1-calculator-widget.min.css'),
+      'utf-8'
+    );
+
+    console.log(`✅ Loaded widget files: JS (${jsContent.length} chars), CSS (${cssContent.length} chars)`);
+    
+    return {
+      js: jsContent,
+      css: cssContent
+    };
+    
+  } catch (error) {
+    console.error('❌ Error loading widget files:', error);
+    
+    // Return fallback empty widget
+    return {
+      js: '// Widget files not available',
+      css: '/* Widget styles not available */'
+    };
+  }
 }
