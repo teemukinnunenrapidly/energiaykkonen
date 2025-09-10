@@ -14,9 +14,29 @@
     "prepare": "husky",
     "test:email": "node scripts/validate-email-system.js",
     "test:email:full": "node scripts/validate-email-system.js --mode full",
-    "build:widget": "webpack --config webpack.widget.config.js",
-    "watch:widget": "webpack --config webpack.widget.config.js --watch",
-    "deploy:wordpress": "npm run build:widget && node scripts/deploy-to-wordpress.js"
+    "build:widget": "webpack --config webpack.widget.config.js --mode production",
+    "build:widget:dev": "webpack --config webpack.widget.config.js --mode development",
+    "watch:widget": "webpack --config webpack.widget.config.js --watch --mode development",
+    "deploy:wordpress": "npm run build:widget && node scripts/deploy-to-wordpress.js",
+    "test:widget": "npm run build:widget:dev && serve dist",
+    "test:isolation": "npm run build:widget && npm run test:shadow && npm run test:namespace",
+    "test:css-outputs": "npm run build:widget && node scripts/verify-css-outputs.js",
+    "verify:build": "npm run build:widget && npm run test:css-outputs",
+    "cleanup:old": "node scripts/cleanup-old-files.js",
+    "test:browsers": "node scripts/browser-testing.js",
+    "test:browsers:chrome": "node scripts/browser-testing.js --browser=chrome",
+    "test:browsers:firefox": "node scripts/browser-testing.js --browser=firefox",
+    "test:browsers:safari": "node scripts/browser-testing.js --browser=safari",
+    "test:browsers:edge": "node scripts/browser-testing.js --browser=edge",
+    "test:browsers:ie11": "node scripts/browser-testing.js --browser=ie11",
+    "test:isolation": "npm run build:widget && npm run test:browsers",
+    "test:manual": "npm run build:widget && node scripts/browser-testing.js --generate-pages && open test-pages/shadow-dom-test.html",
+    "test:wordpress": "node scripts/test-wordpress-integration.js",
+    "test:performance": "node scripts/performance-profiler.js",
+    "test:css-isolation": "node scripts/css-isolation-tester.js",
+    "test:error-handling": "node scripts/error-scenario-tester.js",
+    "test:error-unit": "jest src/components/error-handling/__tests__/",
+    "test:error-all": "npm run test:error-unit && npm run build:widget && npm run test:error-handling"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",
@@ -90,7 +110,9 @@
     "null-loader": "^4.0.1",
     "os-browserify": "^0.3.0",
     "path-browserify": "^1.0.1",
+    "postcss": "^8.5.6",
     "postcss-loader": "^8.2.0",
+    "postcss-prefixwrap": "^1.57.0",
     "prettier": "^3.6.2",
     "process": "^0.11.10",
     "stream-browserify": "^3.0.0",
@@ -103,5 +125,10 @@
     "util": "^0.12.5",
     "webpack": "^5.101.3",
     "webpack-cli": "^6.0.1"
-  }
+  },
+  "browserslist": [
+    "> 1%",
+    "last 2 versions",
+    "not ie <= 10"
+  ]
 }

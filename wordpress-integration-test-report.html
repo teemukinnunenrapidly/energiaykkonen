@@ -1,0 +1,375 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>E1 Calculator - WordPress Integration Test Report</title>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, sans-serif; margin: 0; padding: 20px; background: #f0f6fc; }
+        .header { background: linear-gradient(135deg, #2271b1 0%, #135e96 100%); color: white; padding: 30px; border-radius: 10px; margin-bottom: 30px; }
+        .test-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 20px; }
+        .test-card { background: white; border: 1px solid #c3dcf1; border-radius: 8px; padding: 20px; }
+        .test-passed { border-left: 4px solid #00a32a; }
+        .test-failed { border-left: 4px solid #d63638; }
+        .test-details { background: #f6f7f7; padding: 15px; border-radius: 4px; margin: 10px 0; }
+        .test-links { margin-top: 30px; background: white; padding: 20px; border-radius: 8px; }
+        .test-links a { display: inline-block; margin: 5px 10px; padding: 10px 20px; background: #2271b1; color: white; text-decoration: none; border-radius: 4px; }
+        .test-links a:hover { background: #135e96; }
+        pre { background: #23282d; color: #eee; padding: 15px; border-radius: 4px; overflow-x: auto; font-size: 12px; }
+        .summary { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-bottom: 30px; }
+        .summary-card { background: white; border: 1px solid #c3dcf1; border-radius: 8px; padding: 20px; text-align: center; }
+        .passed { color: #00a32a; }
+        .failed { color: #d63638; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>E1 Calculator WordPress Integration Test Report</h1>
+        <p>Generated: 2025-09-10T10:35:05.993Z</p>
+    </div>
+    
+    <div class="summary">
+        <div class="summary-card">
+            <h3>Total Tests</h3>
+            <div style="font-size: 2em; font-weight: bold;">7</div>
+        </div>
+        <div class="summary-card">
+            <h3>Passed</h3>
+            <div style="font-size: 2em; font-weight: bold; color: #00a32a;">6</div>
+        </div>
+        <div class="summary-card">
+            <h3>Failed</h3>
+            <div style="font-size: 2em; font-weight: bold; color: #d63638;">1</div>
+        </div>
+    </div>
+    
+    <div class="test-grid">
+        
+            <div class="test-card test-passed">
+                <h3>plugin files ✅</h3>
+                <div class="test-details">
+                    
+                        <p><strong>e1-calculator.php:</strong> exists</p>
+                    
+                        <p><strong>includes/class-e1-calculator-loader.php:</strong> exists</p>
+                    
+                        <p><strong>plugin header:</strong> valid</p>
+                    
+                        <p><strong>version:</strong> correct</p>
+                    
+                        <p><strong>constant E1 CALC VERSION:</strong> defined</p>
+                    
+                        <p><strong>constant E1 CALC PLUGIN DIR:</strong> defined</p>
+                    
+                        <p><strong>method enqueue scripts:</strong> exists</p>
+                    
+                        <p><strong>method register gutenberg block:</strong> exists</p>
+                    
+                        <p><strong>method ajax get config:</strong> exists</p>
+                    
+                        <p><strong>method render shortcode:</strong> exists</p>
+                    
+                    
+                </div>
+            </div>
+        
+            <div class="test-card test-passed">
+                <h3>classic editor ✅</h3>
+                <div class="test-details">
+                    
+                        <p><strong>shortcode registered:</strong> true</p>
+                    
+                        <p><strong>render callback:</strong> true</p>
+                    
+                        <p><strong>attr shadow:</strong> true</p>
+                    
+                        <p><strong>attr height:</strong> true</p>
+                    
+                        <p><strong>attr theme:</strong> true</p>
+                    
+                        <p><strong>attr class:</strong> true</p>
+                    
+                        <p><strong>attributes supported:</strong> 4/4</p>
+                    
+                        <p><strong>proper html attributes:</strong> true</p>
+                    
+                        <p><strong>noscript fallback:</strong> true</p>
+                    
+                    
+                </div>
+            </div>
+        
+            <div class="test-card test-passed">
+                <h3>gutenberg block ✅</h3>
+                <div class="test-details">
+                    
+                        <p><strong>block registered:</strong> true</p>
+                    
+                        <p><strong>attr shadow:</strong> true</p>
+                    
+                        <p><strong>attr height:</strong> true</p>
+                    
+                        <p><strong>attr theme:</strong> true</p>
+                    
+                        <p><strong>attr autoInit:</strong> true</p>
+                    
+                        <p><strong>attr showVisualSupport:</strong> true</p>
+                    
+                        <p><strong>attr enableCache:</strong> true</p>
+                    
+                        <p><strong>attr debugMode:</strong> true</p>
+                    
+                        <p><strong>attr mobileHeight:</strong> true</p>
+                    
+                        <p><strong>attr breakpoint:</strong> true</p>
+                    
+                        <p><strong>attr lazyLoad:</strong> true</p>
+                    
+                        <p><strong>attr loadPriority:</strong> true</p>
+                    
+                        <p><strong>attr ariaLabel:</strong> true</p>
+                    
+                        <p><strong>attr tabIndex:</strong> true</p>
+                    
+                        <p><strong>attributes count:</strong> 13/13</p>
+                    
+                        <p><strong>supports config:</strong> true</p>
+                    
+                        <p><strong>render callback:</strong> true</p>
+                    
+                        <p><strong>editor scripts:</strong> true</p>
+                    
+                    
+                </div>
+            </div>
+        
+            <div class="test-card test-passed">
+                <h3>shortcode system ✅</h3>
+                <div class="test-details">
+                    
+                        <p><strong>attribute parsing:</strong> true</p>
+                    
+                        <p><strong>default shadow:</strong> true</p>
+                    
+                        <p><strong>default height:</strong> true</p>
+                    
+                        <p><strong>default theme:</strong> true</p>
+                    
+                        <p><strong>defaults configured:</strong> 3/3</p>
+                    
+                        <p><strong>output sanitization:</strong> true</p>
+                    
+                        <p><strong>unique ids:</strong> true</p>
+                    
+                    
+                </div>
+            </div>
+        
+            <div class="test-card test-passed">
+                <h3>ajax endpoints ✅</h3>
+                <div class="test-details">
+                    
+                        <p><strong>wp ajax e1 calculator get config:</strong> true</p>
+                    
+                        <p><strong>wp ajax nopriv e1 calculator get config:</strong> true</p>
+                    
+                        <p><strong>wp ajax e1 calculator validate cache:</strong> true</p>
+                    
+                        <p><strong>wp ajax e1 calculator get compatibility:</strong> true</p>
+                    
+                        <p><strong>ajax actions:</strong> 4/4</p>
+                    
+                        <p><strong>nonce verification:</strong> true</p>
+                    
+                        <p><strong>error handling:</strong> true</p>
+                    
+                        <p><strong>rate limiting:</strong> true</p>
+                    
+                        <p><strong>config endpoint:</strong> true</p>
+                    
+                        <p><strong>enhanced security:</strong> true</p>
+                    
+                    
+                </div>
+            </div>
+        
+            <div class="test-card test-failed">
+                <h3>multiple instances ❌</h3>
+                <div class="test-details">
+                    
+                        <p><strong>instance counting:</strong> true</p>
+                    
+                        <p><strong>post id integration:</strong> true</p>
+                    
+                        <p><strong>bulk initialization:</strong> true</p>
+                    
+                    
+                        <h4 style="color: #d63638;">Issues:</h4>
+                        <ul>
+                            <li>Cleanup support missing</li>
+                        </ul>
+                    
+                </div>
+            </div>
+        
+            <div class="test-card test-passed">
+                <h3>wordpress hooks ✅</h3>
+                <div class="test-details">
+                    
+                        <p><strong>hook wp enqueue scripts:</strong> true</p>
+                    
+                        <p><strong>hook admin enqueue scripts:</strong> true</p>
+                    
+                        <p><strong>hook init:</strong> true</p>
+                    
+                        <p><strong>wordpress hooks:</strong> 3/3</p>
+                    
+                        <p><strong>admin notices:</strong> true</p>
+                    
+                        <p><strong>activation hook:</strong> true</p>
+                    
+                        <p><strong>deactivation hook:</strong> true</p>
+                    
+                        <p><strong>performance hooks:</strong> true</p>
+                    
+                    
+                </div>
+            </div>
+        
+    </div>
+    
+    <div class="test-links">
+        <h2>Manual WordPress Test Pages</h2>
+        <p>Use these pages to manually verify WordPress integration:</p>
+        <a href="test-pages/wordpress/classic-editor-test.html" target="_blank">Classic Editor Test</a>
+        <a href="test-pages/wordpress/gutenberg-block-test.html" target="_blank">Gutenberg Block Test</a>
+        <a href="test-pages/wordpress/multiple-instances-test.html" target="_blank">Multiple Instances Test</a>
+        <a href="test-pages/wordpress/ajax-endpoints-test.html" target="_blank">AJAX Endpoints Test</a>
+    </div>
+    
+    <details style="margin-top: 30px; background: white; padding: 20px; border-radius: 8px;">
+        <summary><h2 style="margin: 0;">Full Test Data (JSON)</h2></summary>
+        <pre>{
+  "timestamp": "2025-09-10T10:35:05.993Z",
+  "tests": {
+    "plugin_files": {
+      "passed": true,
+      "details": {
+        "e1-calculator.php": "exists",
+        "includes/class-e1-calculator-loader.php": "exists",
+        "plugin_header": "valid",
+        "version": "correct",
+        "constant_E1_CALC_VERSION": "defined",
+        "constant_E1_CALC_PLUGIN_DIR": "defined",
+        "method_enqueue_scripts": "exists",
+        "method_register_gutenberg_block": "exists",
+        "method_ajax_get_config": "exists",
+        "method_render_shortcode": "exists"
+      },
+      "issues": []
+    },
+    "classic_editor": {
+      "passed": true,
+      "details": {
+        "shortcode_registered": true,
+        "render_callback": true,
+        "attr_shadow": true,
+        "attr_height": true,
+        "attr_theme": true,
+        "attr_class": true,
+        "attributes_supported": "4/4",
+        "proper_html_attributes": true,
+        "noscript_fallback": true
+      },
+      "issues": []
+    },
+    "gutenberg_block": {
+      "passed": true,
+      "details": {
+        "block_registered": true,
+        "attr_shadow": true,
+        "attr_height": true,
+        "attr_theme": true,
+        "attr_autoInit": true,
+        "attr_showVisualSupport": true,
+        "attr_enableCache": true,
+        "attr_debugMode": true,
+        "attr_mobileHeight": true,
+        "attr_breakpoint": true,
+        "attr_lazyLoad": true,
+        "attr_loadPriority": true,
+        "attr_ariaLabel": true,
+        "attr_tabIndex": true,
+        "attributes_count": "13/13",
+        "supports_config": true,
+        "render_callback": true,
+        "editor_scripts": true
+      },
+      "issues": []
+    },
+    "shortcode_system": {
+      "passed": true,
+      "details": {
+        "attribute_parsing": true,
+        "default_shadow": true,
+        "default_height": true,
+        "default_theme": true,
+        "defaults_configured": "3/3",
+        "output_sanitization": true,
+        "unique_ids": true
+      },
+      "issues": []
+    },
+    "ajax_endpoints": {
+      "passed": true,
+      "details": {
+        "wp_ajax_e1_calculator_get_config": true,
+        "wp_ajax_nopriv_e1_calculator_get_config": true,
+        "wp_ajax_e1_calculator_validate_cache": true,
+        "wp_ajax_e1_calculator_get_compatibility": true,
+        "ajax_actions": "4/4",
+        "nonce_verification": true,
+        "error_handling": true,
+        "rate_limiting": true,
+        "config_endpoint": true,
+        "enhanced_security": true
+      },
+      "issues": []
+    },
+    "multiple_instances": {
+      "passed": false,
+      "details": {
+        "instance_counting": true,
+        "post_id_integration": true,
+        "bulk_initialization": true
+      },
+      "issues": [
+        "Cleanup support missing"
+      ]
+    },
+    "wordpress_hooks": {
+      "passed": true,
+      "details": {
+        "hook_wp_enqueue_scripts": true,
+        "hook_admin_enqueue_scripts": true,
+        "hook_init": true,
+        "wordpress_hooks": "3/3",
+        "admin_notices": true,
+        "activation_hook": true,
+        "deactivation_hook": true,
+        "performance_hooks": true
+      },
+      "issues": []
+    }
+  },
+  "summary": {
+    "total": 7,
+    "passed": 6,
+    "failed": 1
+  }
+}</pre>
+    </details>
+</body>
+</html>
+        

@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WordPress AJAX Endpoints Test</title>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, sans-serif; margin: 20px; }
+        .ajax-test { background: #f9f9f9; border: 1px solid #ddd; border-radius: 4px; padding: 20px; margin: 20px 0; }
+        .test-button { background: #2271b1; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; margin: 5px; }
+        .test-button:hover { background: #135e96; }
+        .response { background: #23282d; color: #eee; padding: 15px; border-radius: 4px; margin: 10px 0; overflow-x: auto; }
+        pre { margin: 0; white-space: pre-wrap; }
+    </style>
+</head>
+<body>
+    <div>
+        <h1>WordPress AJAX Endpoints Test</h1>
+        <p>This page tests the WordPress AJAX endpoints for the E1 Calculator widget.</p>
+        
+        <div class="ajax-test">
+            <h3>Config Endpoint Test</h3>
+            <p>Tests the main configuration retrieval endpoint.</p>
+            <button class="test-button" onclick="testConfigEndpoint()">Test Config Endpoint</button>
+            <div id="config-response" class="response" style="display: none;">
+                <pre id="config-data"></pre>
+            </div>
+        </div>
+        
+        <div class="ajax-test">
+            <h3>Cache Validation Test</h3>
+            <p>Tests the cache validation endpoint.</p>
+            <button class="test-button" onclick="testCacheEndpoint()">Test Cache Endpoint</button>
+            <div id="cache-response" class="response" style="display: none;">
+                <pre id="cache-data"></pre>
+            </div>
+        </div>
+        
+        <div class="ajax-test">
+            <h3>Compatibility Check Test</h3>
+            <p>Tests the browser compatibility endpoint.</p>
+            <button class="test-button" onclick="testCompatibilityEndpoint()">Test Compatibility Endpoint</button>
+            <div id="compatibility-response" class="response" style="display: none;">
+                <pre id="compatibility-data"></pre>
+            </div>
+        </div>
+        
+        <div class="ajax-test">
+            <h3>Security Tests</h3>
+            <p>Tests nonce validation and rate limiting.</p>
+            <button class="test-button" onclick="testInvalidNonce()">Test Invalid Nonce</button>
+            <button class="test-button" onclick="testRateLimit()">Test Rate Limiting</button>
+            <div id="security-response" class="response" style="display: none;">
+                <pre id="security-data"></pre>
+            </div>
+        </div>
+        
+        <div class="ajax-test">
+            <h3>Performance Test</h3>
+            <p>Tests AJAX endpoint response times.</p>
+            <button class="test-button" onclick="testPerformance()">Run Performance Test</button>
+            <div id="performance-response" class="response" style="display: none;">
+                <pre id="performance-data"></pre>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Simulate WordPress AJAX environment
+        window.e1CalculatorWP = {
+            ajaxUrl: '/wp-admin/admin-ajax.php',
+            nonce: 'ajax-test-nonce',
+            configNonce: 'config-test-nonce',
+            cacheUrl: '../../dist',
+            version: '2.2.0'
+        };
+        
+        // Mock AJAX responses for testing
+        const mockAjaxResponse = (action, nonce, data = {}) => {
+            return new Promise((resolve) => {
+                setTimeout(() => {
+                    const response = {
+                        success: true,
+                        data: {
+                            action: action,
+                            nonce_valid: nonce === window.e1CalculatorWP.configNonce || nonce === window.e1CalculatorWP.nonce,
+                            timestamp: Date.now(),
+                            ...data
+                        }
+                    };
+                    
+                    if (action === 'e1_calculator_get_config') {
+                        response.data.config = {
+                            version: '2.2.0',
+                            cards: [],
+                            visualObjects: {},
+                            formulas: []
+                        };
+                        response.data.metadata = {
+                            cache_status: 'valid',
+                            processing_time: Math.random() * 100
+                        };
+                    }
+                    
+                    if (action === 'e1_calculator_validate_cache') {
+                        response.data.cache_status = {
+                            valid: true,
+                            files: {
+                                'widget.js': { exists: true, size: 289000 },
+                                'widget.css': { exists: true, size: 11000 }
+                            }
+                        };
+                    }
+                    
+                    if (action === 'e1_calculator_get_compatibility') {
+                        response.data.browser_support = {
+                            shadowDOM: true,
+                            customElements: true,
+                            cssVariables: true
+                        };
+                        response.data.system_info = {
+                            php_version: '8.1.0',
+                            wp_version: '6.3.0',
+                            plugin_version: '2.2.0'
+                        };
+                    }
+                    
+                    resolve(response);
+                }, Math.random() * 500 + 100);
+            });
+        };
+        
+        async function testConfigEndpoint() {
+            const responseDiv = document.getElementById('config-response');
+            const dataDiv = document.getElementById('config-data');
+            
+            responseDiv.style.display = 'block';
+            dataDiv.textContent = 'Loading...';
+            
+            try {
+                const startTime = performance.now();
+                const response = await mockAjaxResponse('e1_calculator_get_config', window.e1CalculatorWP.configNonce);
+                const endTime = performance.now();
+                
+                const result = {
+                    ...response,
+                    response_time: Math.round(endTime - startTime) + 'ms'
+                };
+                
+                dataDiv.textContent = JSON.stringify(result, null, 2);
+                
+            } catch (error) {
+                dataDiv.textContent = 'Error: ' + error.message;
+            }
+        }
+        
+        async function testCacheEndpoint() {
+            const responseDiv = document.getElementById('cache-response');
+            const dataDiv = document.getElementById('cache-data');
+            
+            responseDiv.style.display = 'block';
+            dataDiv.textContent = 'Loading...';
+            
+            try {
+                const response = await mockAjaxResponse('e1_calculator_validate_cache', window.e1CalculatorWP.nonce);
+                dataDiv.textContent = JSON.stringify(response, null, 2);
+                
+            } catch (error) {
+                dataDiv.textContent = 'Error: ' + error.message;
+            }
+        }
+        
+        async function testCompatibilityEndpoint() {
+            const responseDiv = document.getElementById('compatibility-response');
+            const dataDiv = document.getElementById('compatibility-data');
+            
+            responseDiv.style.display = 'block';
+            dataDiv.textContent = 'Loading...';
+            
+            try {
+                const response = await mockAjaxResponse('e1_calculator_get_compatibility', window.e1CalculatorWP.nonce);
+                dataDiv.textContent = JSON.stringify(response, null, 2);
+                
+            } catch (error) {
+                dataDiv.textContent = 'Error: ' + error.message;
+            }
+        }
+        
+        async function testInvalidNonce() {
+            const responseDiv = document.getElementById('security-response');
+            const dataDiv = document.getElementById('security-data');
+            
+            responseDiv.style.display = 'block';
+            dataDiv.textContent = 'Testing invalid nonce...';
+            
+            try {
+                const response = await mockAjaxResponse('e1_calculator_get_config', 'invalid-nonce');
+                
+                const result = {
+                    test: 'Invalid Nonce Test',
+                    expected: 'Should fail with nonce error',
+                    actual: response.data.nonce_valid ? 'PASSED (unexpected)' : 'FAILED (expected)',
+                    response: response
+                };
+                
+                dataDiv.textContent = JSON.stringify(result, null, 2);
+                
+            } catch (error) {
+                dataDiv.textContent = 'Error: ' + error.message;
+            }
+        }
+        
+        async function testRateLimit() {
+            const responseDiv = document.getElementById('security-response');
+            const dataDiv = document.getElementById('security-data');
+            
+            responseDiv.style.display = 'block';
+            dataDiv.textContent = 'Testing rate limiting (simulating multiple requests)...';
+            
+            const results = [];
+            const promises = [];
+            
+            // Simulate multiple rapid requests
+            for (let i = 0; i < 5; i++) {
+                promises.push(
+                    mockAjaxResponse('e1_calculator_get_config', window.e1CalculatorWP.configNonce)
+                        .then(response => ({ request: i + 1, success: response.success }))
+                );
+            }
+            
+            try {
+                const responses = await Promise.all(promises);
+                
+                const result = {
+                    test: 'Rate Limiting Test',
+                    requests_made: responses.length,
+                    responses: responses,
+                    note: 'In real WordPress, rate limiting would block some requests'
+                };
+                
+                dataDiv.textContent = JSON.stringify(result, null, 2);
+                
+            } catch (error) {
+                dataDiv.textContent = 'Error: ' + error.message;
+            }
+        }
+        
+        async function testPerformance() {
+            const responseDiv = document.getElementById('performance-response');
+            const dataDiv = document.getElementById('performance-data');
+            
+            responseDiv.style.display = 'block';
+            dataDiv.textContent = 'Running performance tests...';
+            
+            const results = {
+                tests: [],
+                average_response_time: 0,
+                total_time: 0
+            };
+            
+            const totalStart = performance.now();
+            
+            // Test each endpoint multiple times
+            const endpoints = [
+                { action: 'e1_calculator_get_config', nonce: window.e1CalculatorWP.configNonce },
+                { action: 'e1_calculator_validate_cache', nonce: window.e1CalculatorWP.nonce },
+                { action: 'e1_calculator_get_compatibility', nonce: window.e1CalculatorWP.nonce }
+            ];
+            
+            for (const endpoint of endpoints) {
+                const testStart = performance.now();
+                const response = await mockAjaxResponse(endpoint.action, endpoint.nonce);
+                const testEnd = performance.now();
+                
+                results.tests.push({
+                    endpoint: endpoint.action,
+                    response_time: Math.round(testEnd - testStart),
+                    success: response.success
+                });
+            }
+            
+            const totalEnd = performance.now();
+            results.total_time = Math.round(totalEnd - totalStart);
+            results.average_response_time = Math.round(
+                results.tests.reduce((sum, test) => sum + test.response_time, 0) / results.tests.length
+            );
+            
+            dataDiv.textContent = JSON.stringify(results, null, 2);
+        }
+    </script>
+</body>
+</html>

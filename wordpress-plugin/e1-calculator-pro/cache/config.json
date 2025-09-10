@@ -1,23 +1,19 @@
 {
-  "version": "2.0.0",
-  "name": "E1Calculator",
-  "cloudflareAccountHash": "AkEHl6uYQM8NNRufIXHzFw",
-  "features": {
-    "visualSupport": true,
-    "blurredCards": false,
-    "animations": true,
-    "progressiveImageLoading": true,
-    "offlineMode": true
+  "version": "2.1.0-1757499436916",
+  "generated_at": "2025-09-10T10:17:17.923Z",
+  "build_info": {
+    "buildId": "1757499436916",
+    "nodeVersion": "v24.5.0",
+    "platform": "darwin"
   },
   "data": {
     "cards": [
       {
         "id": "24190a7b-d1f3-4f9f-b55d-c26394b43b5a",
         "name": "new_card_2",
-        "title": "Talon tiedot",
-        "type": "form",
         "display_order": 1,
-        "visual_object_id": null,
+        "type": "form",
+        "title": "Talon tiedot",
         "config": {
           "linked_visual_object_id": "0361026f-6e79-40ec-8050-bb125b3b987e"
         },
@@ -29,7 +25,22 @@
             ]
           }
         ],
+        "styling": {},
+        "visual_object_id": null,
         "is_active": true,
+        "created_at": "2025-08-27T07:23:02.757+00:00",
+        "updated_at": "2025-09-09T11:47:33.449416+00:00",
+        "reveal_next_conditions": {
+          "type": "all_complete"
+        },
+        "completion_rules": {
+          "form_completion": {
+            "type": "all_fields"
+          }
+        },
+        "reveal_timing": {
+          "timing": "immediately"
+        },
         "card_fields": [
           {
             "id": "c1944f9c-01a2-4a7d-a1bd-f64eaf7e872d",
@@ -38,8 +49,10 @@
             "options": [],
             "required": true,
             "help_text": "Syötä lämmitettävien asuinneliöiden määrä",
+            "created_at": "2025-08-27T07:48:03.006+00:00",
             "field_name": "neliot",
             "field_type": "number",
+            "updated_at": "2025-09-09T11:47:35.090741+00:00",
             "placeholder": "Esim. 120",
             "display_order": 0,
             "validation_rules": {}
@@ -51,8 +64,10 @@
             "options": [],
             "required": true,
             "help_text": "Syötä pelkkä metrimäärä, yleensä vaihtoehdot ovat 2.3 | 2.5 | 2.7. Laita keskiarvo jos et ole varma",
+            "created_at": "2025-08-27T07:50:36.891+00:00",
             "field_name": "huonekorkeus",
             "field_type": "text",
+            "updated_at": "2025-09-09T11:47:35.113259+00:00",
             "placeholder": "esim. 2.5",
             "display_order": 1,
             "validation_rules": {}
@@ -63,15 +78,23 @@
       {
         "id": "ccf26568-553c-43f9-9f4f-7989a5d209ff",
         "name": "new_card_9",
-        "title": "Lisätiedot",
-        "type": "form",
         "display_order": 2,
-        "visual_object_id": null,
+        "type": "form",
+        "title": "Lisätiedot",
         "config": {
           "linked_visual_object_id": "0361026f-6e79-40ec-8050-bb125b3b987e"
         },
         "reveal_conditions": [],
+        "styling": {},
+        "visual_object_id": null,
         "is_active": true,
+        "created_at": "2025-09-05T10:15:44.427+00:00",
+        "updated_at": "2025-09-09T11:47:33.676572+00:00",
+        "reveal_next_conditions": {
+          "type": "immediately"
+        },
+        "completion_rules": null,
+        "reveal_timing": null,
         "card_fields": [
           {
             "id": "579b068f-e938-404f-a6a1-384e0e5403ed",
@@ -80,8 +103,10 @@
             "options": [],
             "required": false,
             "help_text": "",
+            "created_at": "2025-09-05T10:22:03.74272+00:00",
             "field_name": "rakennusvuosi",
             "field_type": "number",
+            "updated_at": "2025-09-09T11:47:35.160105+00:00",
             "placeholder": "Syötä vuosiluku",
             "display_order": 0,
             "validation_rules": {}
@@ -93,8 +118,10 @@
             "options": [],
             "required": true,
             "help_text": "",
+            "created_at": "2025-09-05T10:22:03.74272+00:00",
             "field_name": "henkilomaara",
             "field_type": "number",
+            "updated_at": "2025-09-09T11:47:35.088423+00:00",
             "placeholder": "Syötä numero",
             "display_order": 1,
             "validation_rules": {}
@@ -105,15 +132,29 @@
       {
         "id": "61ed1e69-b03a-4698-b780-0c13bde7ae43",
         "name": "new_card_6",
-        "title": "Onko talossasi?",
-        "type": "form",
         "display_order": 3,
-        "visual_object_id": null,
+        "type": "form",
+        "title": "Onko talossasi?",
         "config": {
           "linked_visual_object_id": "57bdb3c1-f205-4e90-8ca9-d3313d017eb3"
         },
         "reveal_conditions": [],
+        "styling": {},
+        "visual_object_id": null,
         "is_active": true,
+        "created_at": "2025-08-28T06:48:10.397+00:00",
+        "updated_at": "2025-09-09T11:47:33.848191+00:00",
+        "reveal_next_conditions": {
+          "type": "all_complete"
+        },
+        "completion_rules": {
+          "form_completion": {
+            "type": "all_fields"
+          }
+        },
+        "reveal_timing": {
+          "timing": "immediately"
+        },
         "card_fields": [
           {
             "id": "31b15f22-c3b2-454c-9168-533d9dadcf81",
@@ -131,8 +172,10 @@
             ],
             "required": true,
             "help_text": "",
+            "created_at": "2025-08-28T06:59:52.216582+00:00",
             "field_name": "vesikiertoinen",
             "field_type": "buttons",
+            "updated_at": "2025-09-09T11:47:35.164585+00:00",
             "placeholder": "",
             "display_order": 0,
             "validation_rules": {
@@ -145,10 +188,9 @@
       {
         "id": "98916461-c1a2-447f-b998-8c09a21b0dfb",
         "name": "new_card_3",
-        "title": "Talosi laskennallinen energiantarve vuodessa",
-        "type": "calculation",
         "display_order": 4,
-        "visual_object_id": null,
+        "type": "calculation",
+        "title": "Talosi laskennallinen energiantarve vuodessa",
         "config": {
           "field_name": "laskennallinenenergiantarve",
           "edit_prompt": "Syötä lukema",
@@ -158,20 +200,51 @@
           "linked_visual_object_id": "0361026f-6e79-40ec-8050-bb125b3b987e"
         },
         "reveal_conditions": [],
+        "styling": {},
+        "visual_object_id": null,
         "is_active": true,
+        "created_at": "2025-08-27T08:42:50.875+00:00",
+        "updated_at": "2025-09-09T11:47:33.980496+00:00",
+        "reveal_next_conditions": {
+          "type": "all_complete"
+        },
+        "completion_rules": {
+          "calculation_completion": {
+            "type": "on_success"
+          }
+        },
+        "reveal_timing": {
+          "timing": "after_delay",
+          "delay_seconds": 3
+        },
         "card_fields": [],
         "visual_objects": null
       },
       {
         "id": "90551056-85a6-4dbb-8734-87242cb168b4",
         "name": "new_card_7",
-        "title": "Valitse nykyinen lämmitysmuoto",
-        "type": "form",
         "display_order": 5,
-        "visual_object_id": null,
+        "type": "form",
+        "title": "Valitse nykyinen lämmitysmuoto",
         "config": {},
         "reveal_conditions": [],
+        "styling": {},
+        "visual_object_id": null,
         "is_active": true,
+        "created_at": "2025-08-28T07:20:42.592+00:00",
+        "updated_at": "2025-09-09T11:47:34.148104+00:00",
+        "reveal_next_conditions": {
+          "type": "all_complete"
+        },
+        "completion_rules": {
+          "form_completion": {
+            "type": "any_field"
+          }
+        },
+        "reveal_timing": {
+          "timing": "after_delay",
+          "delay_seconds": 3
+        },
         "card_fields": [
           {
             "id": "2d53d105-f808-4dfa-bcdd-90336030aa52",
@@ -197,8 +270,10 @@
             ],
             "required": false,
             "help_text": "",
+            "created_at": "2025-08-28T07:20:44.941443+00:00",
             "field_name": "lammitysmuoto",
             "field_type": "buttons",
+            "updated_at": "2025-09-09T11:47:35.121703+00:00",
             "placeholder": "",
             "display_order": 0,
             "validation_rules": {
@@ -211,10 +286,9 @@
       {
         "id": "297f6cda-90bd-4ae5-8b5e-94c81b6314c2",
         "name": "new_card_8",
-        "title": "Arvio kokonaiskulutuksesta vuositasolla",
-        "type": "calculation",
         "display_order": 6,
-        "visual_object_id": null,
+        "type": "calculation",
+        "title": "Arvio kokonaiskulutuksesta vuositasolla",
         "config": {
           "field_name": "kokonaismenekki",
           "edit_prompt": "Syötä lukema",
@@ -223,37 +297,72 @@
           "enable_edit_mode": true
         },
         "reveal_conditions": [],
+        "styling": {},
+        "visual_object_id": null,
         "is_active": true,
+        "created_at": "2025-08-28T08:07:11.019+00:00",
+        "updated_at": "2025-09-09T11:47:34.320058+00:00",
+        "reveal_next_conditions": {
+          "type": "all_complete"
+        },
+        "completion_rules": {
+          "calculation_completion": {
+            "type": "on_success"
+          }
+        },
+        "reveal_timing": {
+          "timing": "immediately"
+        },
         "card_fields": [],
         "visual_objects": null
       },
       {
         "id": "33b4f690-576a-457e-8e9e-2b32f7048d76",
         "name": "new_card_9",
-        "title": "Energian hinta vuodessa",
-        "type": "calculation",
         "display_order": 7,
-        "visual_object_id": null,
+        "type": "calculation",
+        "title": "Energian hinta vuodessa",
         "config": {
           "field_name": "menekinhintavuosi",
           "main_result": "[lookup:menekin-hinta]",
           "enable_edit_mode": true
         },
         "reveal_conditions": [],
+        "styling": {},
+        "visual_object_id": null,
         "is_active": true,
+        "created_at": "2025-08-29T11:59:38.127+00:00",
+        "updated_at": "2025-09-09T11:47:34.509384+00:00",
+        "reveal_next_conditions": {
+          "type": "immediately"
+        },
+        "completion_rules": null,
+        "reveal_timing": null,
         "card_fields": [],
         "visual_objects": null
       },
       {
         "id": "1b133b91-296b-4e32-b2b9-fb2fd0d0da86",
         "name": "new_card_10",
-        "title": "Valitse haluamasi tukimuoto",
-        "type": "form",
         "display_order": 8,
-        "visual_object_id": null,
+        "type": "form",
+        "title": "Valitse haluamasi tukimuoto",
         "config": {},
         "reveal_conditions": [],
+        "styling": {},
+        "visual_object_id": null,
         "is_active": true,
+        "created_at": "2025-08-29T12:26:10.295+00:00",
+        "updated_at": "2025-09-09T11:47:34.667767+00:00",
+        "reveal_next_conditions": {
+          "type": "immediately"
+        },
+        "completion_rules": {
+          "form_completion": {
+            "type": "all_fields"
+          }
+        },
+        "reveal_timing": null,
         "card_fields": [
           {
             "id": "ac18846c-c5ab-4263-bb28-2b39b1b29482",
@@ -275,8 +384,10 @@
             ],
             "required": false,
             "help_text": "Autamme sinua tekemään onnistuneen hakemuksen",
+            "created_at": "2025-08-29T12:26:15.25816+00:00",
             "field_name": "valittutukimuoto",
             "field_type": "buttons",
+            "updated_at": "2025-09-09T11:47:35.085859+00:00",
             "placeholder": "",
             "display_order": 0,
             "validation_rules": {
@@ -289,10 +400,9 @@
       {
         "id": "4ac93031-eb70-41fc-9ec7-ea454e8a522b",
         "name": "new_card_11",
-        "title": "Lataa säästölaskelma ",
-        "type": "form",
         "display_order": 9,
-        "visual_object_id": null,
+        "type": "form",
+        "title": "Lataa säästölaskelma ",
         "config": {
           "description": "Haluaisitko tietää, kuinka paljon säästäisit pitkässä juoksussa ilmavesilämpöpumpulla? Lataa kulutukseesi räätälöity säästölaskelma sähköpostiisi.",
           "has_submit_button": true,
@@ -300,7 +410,19 @@
           "submit_success_message": "Säästölaskelma on lähetetty antamaasi sähköpostiin!"
         },
         "reveal_conditions": [],
+        "styling": {},
+        "visual_object_id": null,
         "is_active": true,
+        "created_at": "2025-08-29T12:29:32.394+00:00",
+        "updated_at": "2025-09-09T11:47:34.807728+00:00",
+        "reveal_next_conditions": {
+          "type": "immediately"
+        },
+        "completion_rules": null,
+        "reveal_timing": {
+          "timing": "after_delay",
+          "delay_seconds": 3
+        },
         "card_fields": [
           {
             "id": "5f56570e-cf15-47bd-8177-b18c02220dd0",
@@ -309,8 +431,10 @@
             "options": [],
             "required": true,
             "help_text": "",
+            "created_at": "2025-08-29T12:31:09.703995+00:00",
             "field_name": "nimi",
             "field_type": "text",
+            "updated_at": "2025-09-09T11:47:35.10423+00:00",
             "placeholder": "Syötä nimesi",
             "display_order": 0,
             "validation_rules": {}
@@ -322,8 +446,10 @@
             "options": [],
             "required": true,
             "help_text": "",
+            "created_at": "2025-08-29T12:31:09.891529+00:00",
             "field_name": "sahkoposti",
             "field_type": "email",
+            "updated_at": "2025-09-09T11:47:35.096005+00:00",
             "placeholder": "Sähköposti",
             "display_order": 1,
             "validation_rules": {}
@@ -335,8 +461,10 @@
             "options": [],
             "required": true,
             "help_text": "",
+            "created_at": "2025-08-29T12:31:09.797801+00:00",
             "field_name": "puhelinnumero",
             "field_type": "number",
+            "updated_at": "2025-09-09T11:47:35.167386+00:00",
             "placeholder": "Puhelinnumero",
             "display_order": 2,
             "validation_rules": {}
@@ -348,8 +476,10 @@
             "options": [],
             "required": true,
             "help_text": "",
+            "created_at": "2025-08-29T12:31:10.102088+00:00",
             "field_name": "paikkakunta",
             "field_type": "text",
+            "updated_at": "2025-09-09T11:47:35.161629+00:00",
             "placeholder": "Paikkakunta",
             "display_order": 3,
             "validation_rules": {}
@@ -361,8 +491,10 @@
             "options": [],
             "required": true,
             "help_text": "",
+            "created_at": "2025-08-29T12:31:10.00276+00:00",
             "field_name": "osoite",
             "field_type": "text",
+            "updated_at": "2025-09-09T11:47:35.165016+00:00",
             "placeholder": "Syötä osoitteesi",
             "display_order": 4,
             "validation_rules": {}
@@ -433,6 +565,36 @@
     },
     "formulas": [
       {
+        "id": "88d9e665-b12e-4a27-adfb-299d152c7ab7",
+        "name": "kaasun-menekki-vuodessa",
+        "description": "Laskee kaasun menekin MWH talon vuosittaisesta energiantarpeesta.",
+        "formula_text": "[calc:laskennallinen-energiantarve-kwh]/1000",
+        "formula_type": "energy_calculation",
+        "variables": {},
+        "is_active": true,
+        "created_by": null,
+        "created_at": "2025-08-28T13:06:48.249351+00:00",
+        "updated_at": "2025-09-09T07:28:20.117729+00:00",
+        "version": 1,
+        "tags": [],
+        "unit": "mWh"
+      },
+      {
+        "id": "e793fe1c-4a93-4c6d-9872-ed2bf9451ea2",
+        "name": "laskennallinen-energiantarve-kwh",
+        "description": "",
+        "formula_text": "[field:neliot]*[field:huonekorkeus]*17*3.2+(1500*[field:henkilomaara])",
+        "formula_type": "energy_calculation",
+        "variables": {},
+        "is_active": true,
+        "created_by": null,
+        "created_at": "2025-08-25T10:30:32.258096+00:00",
+        "updated_at": "2025-09-05T10:13:08.508497+00:00",
+        "version": 1,
+        "tags": [],
+        "unit": "kWH"
+      },
+      {
         "id": "e877ec6a-4726-413b-8de5-e619297c1d7b",
         "name": "menekin-hinta-kaasu",
         "description": "",
@@ -448,21 +610,6 @@
         "unit": "€"
       },
       {
-        "id": "1346f75a-83a3-408c-8d2a-4a7ead4eb006",
-        "name": "oljyn-menekki-vuodessa-tuplapesakattila",
-        "description": "",
-        "formula_text": "([calc:laskennallinen-energiantarve-kwh]/10)*0.8",
-        "formula_type": "energy_calculation",
-        "variables": {},
-        "is_active": true,
-        "created_by": null,
-        "created_at": "2025-09-09T07:36:32.898093+00:00",
-        "updated_at": "2025-09-09T07:36:43.679163+00:00",
-        "version": 1,
-        "tags": [],
-        "unit": "Öljylitraa"
-      },
-      {
         "id": "34d97b0f-1307-4f0e-888f-7b3bfb1d98e9",
         "name": "menekin-hinta-oljy",
         "description": "",
@@ -473,6 +620,21 @@
         "created_by": null,
         "created_at": "2025-08-29T06:27:02.119511+00:00",
         "updated_at": "2025-08-29T07:34:13.89729+00:00",
+        "version": 1,
+        "tags": [],
+        "unit": "€"
+      },
+      {
+        "id": "bba06ccc-7816-4536-8aca-3fbef454e473",
+        "name": "menekin-hinta-puu",
+        "description": "",
+        "formula_text": "[calc:puun-menekki-vuodessa]*75",
+        "formula_type": "energy_calculation",
+        "variables": {},
+        "is_active": true,
+        "created_by": null,
+        "created_at": "2025-09-09T07:30:40.441345+00:00",
+        "updated_at": "2025-09-09T07:30:40.441345+00:00",
         "version": 1,
         "tags": [],
         "unit": "€"
@@ -493,19 +655,19 @@
         "unit": "öljylitraa"
       },
       {
-        "id": "e793fe1c-4a93-4c6d-9872-ed2bf9451ea2",
-        "name": "laskennallinen-energiantarve-kwh",
+        "id": "1346f75a-83a3-408c-8d2a-4a7ead4eb006",
+        "name": "oljyn-menekki-vuodessa-tuplapesakattila",
         "description": "",
-        "formula_text": "[field:neliot]*[field:huonekorkeus]*17*3.2+(1500*[field:henkilomaara])",
+        "formula_text": "([calc:laskennallinen-energiantarve-kwh]/10)*0.8",
         "formula_type": "energy_calculation",
         "variables": {},
         "is_active": true,
         "created_by": null,
-        "created_at": "2025-08-25T10:30:32.258096+00:00",
-        "updated_at": "2025-09-05T10:13:08.508497+00:00",
+        "created_at": "2025-09-09T07:36:32.898093+00:00",
+        "updated_at": "2025-09-09T07:36:43.679163+00:00",
         "version": 1,
         "tags": [],
-        "unit": "kWH"
+        "unit": "Öljylitraa"
       },
       {
         "id": "ea168a5b-0578-40e9-b4f3-a1b1df6aad63",
@@ -521,86 +683,41 @@
         "version": 1,
         "tags": [],
         "unit": "mottia puuta"
-      },
-      {
-        "id": "88d9e665-b12e-4a27-adfb-299d152c7ab7",
-        "name": "kaasun-menekki-vuodessa",
-        "description": "Laskee kaasun menekin MWH talon vuosittaisesta energiantarpeesta.",
-        "formula_text": "[calc:laskennallinen-energiantarve-kwh]/1000",
-        "formula_type": "energy_calculation",
-        "variables": {},
-        "is_active": true,
-        "created_by": null,
-        "created_at": "2025-08-28T13:06:48.249351+00:00",
-        "updated_at": "2025-09-09T07:28:20.117729+00:00",
-        "version": 1,
-        "tags": [],
-        "unit": "mWh"
-      },
-      {
-        "id": "bba06ccc-7816-4536-8aca-3fbef454e473",
-        "name": "menekin-hinta-puu",
-        "description": "",
-        "formula_text": "[calc:puun-menekki-vuodessa]*75",
-        "formula_type": "energy_calculation",
-        "variables": {},
-        "is_active": true,
-        "created_by": null,
-        "created_at": "2025-09-09T07:30:40.441345+00:00",
-        "updated_at": "2025-09-09T07:30:40.441345+00:00",
-        "version": 1,
-        "tags": [],
-        "unit": "€"
       }
     ],
     "lookupTables": [
       {
-        "id": "c9c80829-9fb3-402f-87d6-2e83b55a8a0d",
+        "id": "11c27393-c5d2-4d18-98a2-a3dbd41cfd12",
         "name": "kokonaismenekki",
-        "title": "kokonaismenekki",
         "description": "",
-        "condition_field": "lammitysmuoto",
-        "lookup_values": [
+        "is_active": true,
+        "created_at": "2025-08-29T07:09:10.055904+00:00",
+        "updated_at": "2025-08-29T07:09:10.055904+00:00",
+        "conditions": [
           {
-            "condition_value": "Öljylämmitys",
-            "return_value": "[calc:oljyn-menekki-vuodessa]"
+            "id": "5ef118fe-5ab4-40bc-b2ab-54c74f3e0d96"
           },
           {
-            "condition_value": "Puulämmitys",
-            "return_value": "[calc:puun-menekki-vuodessa]"
+            "id": "e740001e-e888-494f-8e9d-760146fafb92"
           },
           {
-            "condition_value": "Kaasulämmitys",
-            "return_value": "[calc:kaasun-menekki-vuodessa]"
-          },
-          {
-            "condition_value": "Öljy+puu (tuplapesäkattila)",
-            "return_value": "[calc:oljyn-menekki-vuodessa-tuplapesakattila]"
+            "id": "aff1ac8b-9cef-4b97-b279-9078fddbc6e5"
           }
         ]
       },
       {
-        "id": "25fb8836-bdd6-4a7a-8e84-f44523f0ce34",
+        "id": "b09e716d-6562-41a8-a73f-499328f76faf",
         "name": "menekin-hinta",
-        "title": "Energian hinta vuodessa",
-        "description": "Laskee vuotuisen energiakustannuksen lämmitysmuodon perusteella",
-        "condition_field": "lammitysmuoto",
-        "lookup_values": [
+        "description": "",
+        "is_active": true,
+        "created_at": "2025-08-29T07:37:04.552647+00:00",
+        "updated_at": "2025-08-29T07:37:04.552647+00:00",
+        "conditions": [
           {
-            "condition_value": "Öljylämmitys",
-            "return_value": "[calc:menekin-hinta-oljy]"
+            "id": "b9dbc002-403d-48ed-9bd4-cd17d7155f1b"
           },
           {
-            "condition_value": "Puulämmitys",
-            "return_value": "[calc:menekin-hinta-puu]"
-          },
-          {
-            "condition_value": "Öljy+puu (tuplapesäkattila)",
-            "return_value": "[calc:menekin-hinta-oljy]/1.25"
-          },
-          {
-            "condition_value": "Kaasulämmitys",
-            "return_value": "[calc:menekin-hinta-kaasu]"
+            "id": "d1fb5bbe-e9f4-4ecd-998a-e73aaabf8faa"
           }
         ]
       }
@@ -643,15 +760,72 @@
       "updated_at": "2025-08-31T11:57:08.077518+00:00"
     }
   },
-  "visualAssets": {
-    "defaultVariant": "public",
-    "variants": [
-      "public",
-      "thumbnail",
-      "avatar",
-      "cover"
-    ]
+  "assets": {
+    "js": [
+      {
+        "source": "e1-calculator-widget.min.js",
+        "target": "widget.js",
+        "size": 295874,
+        "type": "js"
+      },
+      {
+        "source": "wordpress-loader.min.js",
+        "target": "wordpress-loader.js",
+        "size": 15493,
+        "type": "js"
+      }
+    ],
+    "css": [
+      {
+        "source": "e1-calculator-widget.min.css",
+        "target": "widget.css",
+        "size": 11122,
+        "type": "css"
+      },
+      {
+        "source": "widget-namespaced.min.css",
+        "target": "widget-namespaced.css",
+        "size": 14805,
+        "type": "css"
+      }
+    ],
+    "totalSize": 337294,
+    "integrity": {
+      "shadowDOM": {
+        "sha256": "1c5fab85c056c4f3c3590f384d94f39707c6ab1dea7f5953a77742cd688bcad4",
+        "size": 11122,
+        "timestamp": "2025-09-10T10:17:17.095Z"
+      },
+      "namespaced": {
+        "sha256": "5aa8991fa66315911af625df01129293e61ac1ccbd3d84f50fa5f06fd82de8fd",
+        "size": 14805,
+        "timestamp": "2025-09-10T10:17:17.095Z"
+      }
+    }
   },
-  "buildTime": "2025-09-09T18:36:33.667Z",
-  "dataFetchedAt": "2025-09-09T18:36:33.667Z"
+  "settings": {
+    "shadowDomEnabled": true,
+    "fallbackMode": "namespace",
+    "cloudflareAccountHash": "AkEHl6uYQM8NNRufIXHzFw",
+    "corsEnabled": true,
+    "securityNonce": "cf9fd5dc1000ffe0c0b9aaa2111846e8"
+  },
+  "security": {
+    "allowedOrigins": [
+      "*"
+    ],
+    "maxFileSize": 5242880,
+    "checksums": {
+      "shadowDOM": {
+        "sha256": "1c5fab85c056c4f3c3590f384d94f39707c6ab1dea7f5953a77742cd688bcad4",
+        "size": 11122,
+        "timestamp": "2025-09-10T10:17:17.095Z"
+      },
+      "namespaced": {
+        "sha256": "5aa8991fa66315911af625df01129293e61ac1ccbd3d84f50fa5f06fd82de8fd",
+        "size": 14805,
+        "timestamp": "2025-09-10T10:17:17.095Z"
+      }
+    }
+  }
 }

@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="fi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>E1 Calculator - Error Handling Demo</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: #f8f9fa;
+            color: #1a1a1a;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .header {
+            background: linear-gradient(135deg, #dc3545 0%, #fd7e14 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        .demo-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 30px;
+        }
+        .demo-card {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        .demo-title {
+            color: #dc3545;
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .demo-description {
+            color: #6c757d;
+            font-size: 14px;
+            margin-bottom: 20px;
+            line-height: 1.5;
+        }
+        .widget-container {
+            min-height: 300px;
+            border: 2px dashed #e9ecef;
+            border-radius: 8px;
+            padding: 20px;
+            background: #f8f9fa;
+        }
+        .controls {
+            margin-top: 15px;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .btn {
+            padding: 8px 16px;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            background: #f8f9fa;
+            color: #495057;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.2s ease;
+        }
+        .btn:hover {
+            background: #e9ecef;
+            border-color: #adb5bd;
+        }
+        .btn.primary {
+            background: #007bff;
+            border-color: #007bff;
+            color: white;
+        }
+        .btn.primary:hover {
+            background: #0056b3;
+            border-color: #0056b3;
+        }
+        .status {
+            margin-top: 10px;
+            padding: 8px 12px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-family: monospace;
+        }
+        .status.info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        .status.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .log-panel {
+            background: #2d3748;
+            color: #e2e8f0;
+            border-radius: 8px;
+            padding: 16px;
+            margin-top: 20px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        .log-entry {
+            margin-bottom: 4px;
+        }
+        .log-entry.error { color: #feb2b2; }
+        .log-entry.warn { color: #f6e05e; }
+        .log-entry.info { color: #90cdf4; }
+        .log-entry.success { color: #9ae6b4; }
+        code {
+            background: #e9ecef;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+            font-size: 11px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔧 E1 Calculator Error Handling Demo</h1>
+            <p>Demonstroi kattavan virheenkäsittelyjärjestelmän toimivuutta eri virheskenaarioissa</p>
+        </div>
+
+        <div class="demo-grid">
+            <!-- Network Error Demo -->
+            <div class="demo-card">
+                <div class="demo-title">
+                    🌐 Verkkovirhe
+                </div>
+                <div class="demo-description">
+                    Simuloi verkkoyhteyden katkeamista tai palvelinongelmaa. Näyttää verkkovirheen ja tarjoaa yritys uudelleen -painikkeen.
+                </div>
+                <div id="network-error-widget" class="widget-container"></div>
+                <div class="controls">
+                    <button class="btn primary" onclick="testNetworkError()">Testaa verkkovirhe</button>
+                    <button class="btn" onclick="clearWidget('network-error-widget')">Tyhjennä</button>
+                </div>
+                <div id="network-status" class="status info">Odottaa testiä...</div>
+            </div>
+
+            <!-- Config Error Demo -->
+            <div class="demo-card">
+                <div class="demo-title">
+                    ⚙️ Asetusvirhe
+                </div>
+                <div class="demo-description">
+                    Simuloi puuttuvaa tai virheellistä config.json-tiedostoa. Näyttää asetusvirheen ja retry-toiminnon.
+                </div>
+                <div id="config-error-widget" class="widget-container"></div>
+                <div class="controls">
+                    <button class="btn primary" onclick="testConfigError()">Testaa asetusvirhe</button>
+                    <button class="btn" onclick="clearWidget('config-error-widget')">Tyhjennä</button>
+                </div>
+                <div id="config-status" class="status info">Odottaa testiä...</div>
+            </div>
+
+            <!-- Timeout Error Demo -->
+            <div class="demo-card">
+                <div class="demo-title">
+                    ⏱️ Aikakatkaisuvirhe
+                </div>
+                <div class="demo-description">
+                    Simuloi hitaan palvelinvastauksen aiheuttamaa aikakatkaisua. Näyttää timeout-virheen ja exponential backoff retry-logiikan.
+                </div>
+                <div id="timeout-error-widget" class="widget-container"></div>
+                <div class="controls">
+                    <button class="btn primary" onclick="testTimeoutError()">Testaa aikakatkaisu</button>
+                    <button class="btn" onclick="clearWidget('timeout-error-widget')">Tyhjennä</button>
+                </div>
+                <div id="timeout-status" class="status info">Odottaa testiä...</div>
+            </div>
+
+            <!-- Validation Error Demo -->
+            <div class="demo-card">
+                <div class="demo-title">
+                    🔍 Validointivirhe
+                </div>
+                <div class="demo-description">
+                    Simuloi virheellistä dataa ilman cards-taulukkoa. Näyttää validointivirheen, joka ei ole retry-kelpoinen.
+                </div>
+                <div id="validation-error-widget" class="widget-container"></div>
+                <div class="controls">
+                    <button class="btn primary" onclick="testValidationError()">Testaa validointivirhe</button>
+                    <button class="btn" onclick="clearWidget('validation-error-widget')">Tyhjennä</button>
+                </div>
+                <div id="validation-status" class="status info">Odottaa testiä...</div>
+            </div>
+
+            <!-- Successful Load Demo -->
+            <div class="demo-card">
+                <div class="demo-title">
+                    ✅ Onnistunut lataus
+                </div>
+                <div class="demo-description">
+                    Näyttää onnistuneen widget-latauksen ilman virheitä. Käyttää mock-dataa demonstroidakseen normaalia toimintaa.
+                </div>
+                <div id="success-widget" class="widget-container"></div>
+                <div class="controls">
+                    <button class="btn primary" onclick="testSuccessfulLoad()">Testaa onnistunut lataus</button>
+                    <button class="btn" onclick="clearWidget('success-widget')">Tyhjennä</button>
+                </div>
+                <div id="success-status" class="status info">Odottaa testiä...</div>
+            </div>
+
+            <!-- Retry Success Demo -->
+            <div class="demo-card">
+                <div class="demo-title">
+                    🔄 Retry-onnistuminen
+                </div>
+                <div class="demo-description">
+                    Simuloi tilannetta, jossa ensimmäinen yritys epäonnistuu mutta retry onnistuu. Demonstroi exponential backoff -logiikan.
+                </div>
+                <div id="retry-success-widget" class="widget-container"></div>
+                <div class="controls">
+                    <button class="btn primary" onclick="testRetrySuccess()">Testaa retry-onnistuminen</button>
+                    <button class="btn" onclick="clearWidget('retry-success-widget')">Tyhjennä</button>
+                </div>
+                <div id="retry-status" class="status info">Odottaa testiä...</div>
+            </div>
+        </div>
+
+        <!-- Global Error Log -->
+        <div class="demo-card" style="margin-top: 30px;">
+            <div class="demo-title">
+                📋 Globaali virheloki
+            </div>
+            <div class="demo-description">
+                Näyttää kaikki widget-tapahtumat ja virheet reaaliajassa. Auttaa ymmärtämään virheenkäsittelyn toimintaa.
+            </div>
+            <div class="controls">
+                <button class="btn" onclick="clearLog()">Tyhjennä loki</button>
+                <button class="btn" onclick="exportLog()">Vie loki</button>
+            </div>
+            <div id="error-log" class="log-panel">
+                <div class="log-entry info">[INFO] Error Handling Demo käynnistetty</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Load widget script -->
+    <script src="../dist/e1-calculator-widget.min.js"></script>
+    
+    <script>
+        // Global error log
+        const errorLog = document.getElementById('error-log');
+        
+        function logMessage(level, message) {
+            const timestamp = new Date().toISOString().split('T')[1].split('.')[0];
+            const logEntry = document.createElement('div');
+            logEntry.className = `log-entry ${level}`;
+            logEntry.innerHTML = `[${timestamp}] [${level.toUpperCase()}] ${message}`;
+            errorLog.appendChild(logEntry);
+            errorLog.scrollTop = errorLog.scrollHeight;
+        }
+
+        function clearLog() {
+            errorLog.innerHTML = '<div class="log-entry info">[INFO] Loki tyhjennetty</div>';
+        }
+
+        function exportLog() {
+            const logText = Array.from(errorLog.children).map(entry => entry.textContent).join('\n');
+            const blob = new Blob([logText], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `error-log-${new Date().toISOString().split('T')[0]}.txt`;
+            a.click();
+            URL.revokeObjectURL(url);
+            logMessage('info', 'Loki viety tiedostoon');
+        }
+
+        function clearWidget(widgetId) {
+            const widget = document.getElementById(widgetId);
+            widget.innerHTML = '';
+            const statusId = widgetId.replace('-widget', '-status');
+            const status = document.getElementById(statusId);
+            if (status) {
+                status.className = 'status info';
+                status.textContent = 'Widget tyhjennetty';
+            }
+            logMessage('info', `Widget ${widgetId} tyhjennetty`);
+        }
+
+        function updateStatus(widgetId, level, message) {
+            const statusId = widgetId.replace('-widget', '-status');
+            const status = document.getElementById(statusId);
+            if (status) {
+                status.className = `status ${level}`;
+                status.textContent = message;
+            }
+        }
+
+        // Mock data for successful load
+        window.__E1_MOCK_DATA = {
+            cards: [
+                {
+                    id: 1,
+                    name: 'Demo Card',
+                    card_fields: []
+                }
+            ],
+            visualObjects: {},
+            formulas: []
+        };
+
+        // Global error event listener
+        document.addEventListener('e1-calculator-error', (event) => {
+            const error = event.detail.error;
+            logMessage('error', `Widget Error: ${error.type} - ${error.message}`);
+        });
+
+        document.addEventListener('e1-calculator-loaded', (event) => {
+            logMessage('success', `Widget loaded successfully (retry count: ${event.detail.retryCount || 0})`);
+        });
+
+        document.addEventListener('e1-calculator-ready', (event) => {
+            logMessage('success', `Widget ready: ${event.detail.elementId} (${event.detail.isolationMode} mode)`);
+        });
+
+        // Test functions
+        async function testNetworkError() {
+            logMessage('info', 'Aloitetaan verkkovirheen testaus...');
+            updateStatus('network-error-widget', 'info', 'Testataan verkkovirhettä...');
+            
+            try {
+                await E1Calculator.init('network-error-widget', {
+                    configUrl: 'https://nonexistent-server-12345.com/config.json',
+                    enableRetry: true,
+                    maxRetries: 2
+                });
+                updateStatus('network-error-widget', 'success', 'Widget latautunut (ei odotettua)');
+            } catch (error) {
+                updateStatus('network-error-widget', 'error', `Verkkovirhe havaittu: ${error.type || 'unknown'}`);
+                logMessage('warn', 'Verkkovirhe käsitelty onnistuneesti');
+            }
+        }
+
+        async function testConfigError() {
+            logMessage('info', 'Aloitetaan asetusvirheen testaus...');
+            updateStatus('config-error-widget', 'info', 'Testataan asetusvirhettä...');
+            
+            try {
+                await E1Calculator.init('config-error-widget', {
+                    configUrl: '/nonexistent/config.json',
+                    enableRetry: true
+                });
+                updateStatus('config-error-widget', 'success', 'Widget latautunut (ei odotettua)');
+            } catch (error) {
+                updateStatus('config-error-widget', 'error', `Asetusvirhe havaittu: ${error.type || 'unknown'}`);
+                logMessage('warn', 'Asetusvirhe käsitelty onnistuneesti');
+            }
+        }
+
+        async function testTimeoutError() {
+            logMessage('info', 'Aloitetaan aikakatkaisuirheen testaus...');
+            updateStatus('timeout-error-widget', 'info', 'Testataan aikakatkaisua...');
+            
+            // Create a promise that never resolves to simulate timeout
+            try {
+                await E1Calculator.init('timeout-error-widget', {
+                    configUrl: 'data:application/json,', // Invalid data URL to cause immediate error
+                    enableRetry: true,
+                    maxRetries: 1
+                });
+                updateStatus('timeout-error-widget', 'success', 'Widget latautunut (ei odotettua)');
+            } catch (error) {
+                updateStatus('timeout-error-widget', 'error', `Aikakatkaisuvirhe havaittu: ${error.type || 'unknown'}`);
+                logMessage('warn', 'Aikakatkaisuvirhe käsitelty onnistuneesti');
+            }
+        }
+
+        async function testValidationError() {
+            logMessage('info', 'Aloitetaan validointivirheen testaus...');
+            updateStatus('validation-error-widget', 'info', 'Testataan validointivirhettä...');
+            
+            try {
+                await E1Calculator.init('validation-error-widget', {
+                    data: {
+                        // Virheellinen data ilman cards-taulukkoa
+                        visualObjects: {},
+                        formulas: []
+                    },
+                    enableRetry: false
+                });
+                updateStatus('validation-error-widget', 'success', 'Widget latautunut (ei odotettua)');
+            } catch (error) {
+                updateStatus('validation-error-widget', 'error', `Validointivirhe havaittu: ${error.type || 'unknown'}`);
+                logMessage('warn', 'Validointivirhe käsitelty onnistuneesti');
+            }
+        }
+
+        async function testSuccessfulLoad() {
+            logMessage('info', 'Aloitetaan onnistuneen latauksen testaus...');
+            updateStatus('success-widget', 'info', 'Ladataan widgetiä...');
+            
+            try {
+                const instance = await E1Calculator.init('success-widget', {
+                    data: window.__E1_MOCK_DATA,
+                    theme: 'light',
+                    showVisualSupport: true
+                });
+                
+                if (instance) {
+                    updateStatus('success-widget', 'success', 'Widget latautunut onnistuneesti!');
+                    logMessage('success', 'Onnistunut lataus toteutettu');
+                } else {
+                    updateStatus('success-widget', 'error', 'Widget palautti null');
+                    logMessage('error', 'Widget init palautti null');
+                }
+            } catch (error) {
+                updateStatus('success-widget', 'error', `Odottamaton virhe: ${error.message}`);
+                logMessage('error', `Odottamaton virhe onnistuneessa latauksessa: ${error.message}`);
+            }
+        }
+
+        async function testRetrySuccess() {
+            logMessage('info', 'Aloitetaan retry-onnistumisen testaus...');
+            updateStatus('retry-success-widget', 'info', 'Testataan retry-logiikkaa...');
+            
+            // Simulate retry by first failing, then succeeding
+            let attemptCount = 0;
+            const originalFetch = window.fetch;
+            
+            window.fetch = function(url, options) {
+                if (url.includes('/temp-fail/')) {
+                    attemptCount++;
+                    if (attemptCount < 2) {
+                        return Promise.reject(new Error('Temporary network failure'));
+                    } else {
+                        // Return success on retry
+                        return Promise.resolve(new Response(JSON.stringify(window.__E1_MOCK_DATA), {
+                            status: 200,
+                            headers: { 'Content-Type': 'application/json' }
+                        }));
+                    }
+                }
+                return originalFetch.apply(this, arguments);
+            };
+            
+            try {
+                const instance = await E1Calculator.init('retry-success-widget', {
+                    configUrl: '/temp-fail/config.json',
+                    enableRetry: true,
+                    maxRetries: 3
+                });
+                
+                if (instance) {
+                    updateStatus('retry-success-widget', 'success', `Retry onnistui! (${attemptCount} yritystä)`);
+                    logMessage('success', `Retry-logiikka toimi: ${attemptCount} yritystä`);
+                } else {
+                    updateStatus('retry-success-widget', 'error', 'Widget palautti null');
+                }
+            } catch (error) {
+                updateStatus('retry-success-widget', 'error', `Retry epäonnistui: ${error.type || 'unknown'}`);
+                logMessage('error', `Retry epäonnistui: ${error.message}`);
+            } finally {
+                // Restore original fetch
+                window.fetch = originalFetch;
+            }
+        }
+
+        // Initialize demo
+        logMessage('success', 'Error Handling Demo valmis käytettäväksi');
+        logMessage('info', 'Klikkaa testipainikkeita kokeillaksesi eri virheskenaaroja');
+    </script>
+</body>
+</html>

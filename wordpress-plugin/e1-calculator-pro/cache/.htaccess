@@ -1,6 +1,16 @@
-# E1 Calculator Widget Cache
-# Allow access to widget files
+# E1 Calculator Widget Cache Security
+# Generated: 2025-09-10T10:17:17.934Z
 
+# Security Headers
+<IfModule mod_headers.c>
+  Header always set X-Content-Type-Options "nosniff"
+  Header always set X-Frame-Options "SAMEORIGIN"
+  Header always set X-XSS-Protection "1; mode=block"
+  Header always set Referrer-Policy "strict-origin-when-cross-origin"
+  Header always set Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' https:;"
+</IfModule>
+
+# File Access Control
 <FilesMatch "\.(js|css|json)$">
   <IfModule mod_authz_core.c>
     Require all granted
@@ -11,22 +21,43 @@
   </IfModule>
 </FilesMatch>
 
-# Set proper MIME types
+# Block sensitive files
+<FilesMatch "\.(log|bak|backup|sql|md|txt)$">
+  <IfModule mod_authz_core.c>
+    Require all denied
+  </IfModule>
+  <IfModule !mod_authz_core.c>
+    Order Deny,Allow
+    Deny from all
+  </IfModule>
+</FilesMatch>
+
+# MIME Types
 AddType application/javascript .js
 AddType text/css .css
 AddType application/json .json
 
-# Enable caching
+# Caching with integrity
 <IfModule mod_expires.c>
   ExpiresActive On
-  ExpiresByType application/javascript "access plus 1 week"
-  ExpiresByType text/css "access plus 1 week"
+  ExpiresByType application/javascript "access plus 7 days"
+  ExpiresByType text/css "access plus 7 days"
   ExpiresByType application/json "access plus 1 hour"
 </IfModule>
 
-# Enable gzip compression
+# Compression
 <IfModule mod_deflate.c>
   AddOutputFilterByType DEFLATE application/javascript
   AddOutputFilterByType DEFLATE text/css
   AddOutputFilterByType DEFLATE application/json
+</IfModule>
+
+# Rate Limiting (if mod_evasive is available)
+<IfModule mod_evasive24.c>
+  DOSHashTableSize    10000
+  DOSPageCount        10
+  DOSSiteCount        50
+  DOSPageInterval     1
+  DOSSiteInterval     1
+  DOSBlockingPeriod   300
 </IfModule>

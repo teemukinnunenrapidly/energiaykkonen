@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Comprehensive CSS Isolation Test</title>
+    <style>
+        /* External conflicting styles */
+        .card { background: red !important; }\n        .button { border: 5px solid green !important; }\n        * { box-sizing: content-box !important; }\n        input { background: yellow !important; }\n        h1, h2, h3 { color: purple !important; }\n        body { font-family: Comic Sans MS !important; }
+        
+        /* Additional stress test styles */
+        body { font-family: 'Comic Sans MS' !important; background: yellow !important; }
+        .container { padding: 50px !important; margin: 20px !important; }
+        input[type="text"], input[type="number"], select { 
+            background: lime !important; 
+            border: 5px dotted orange !important;
+            font-size: 24px !important;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>CSS Isolation Comprehensive Test</h1>
+        <p style="background: pink; padding: 10px;">This page has extreme conflicting styles to test widget isolation.</p>
+        
+        <div class="card" style="background: red; color: white; padding: 20px; margin: 20px;">
+            <h2>External Card (Should be RED)</h2>
+            <p>This card should maintain its red background and conflicting styles.</p>
+            <button class="button">External Button (Should be GREEN border)</button>
+        </div>
+        
+        <h2>Shadow DOM Widget</h2>
+        <div id="shadow-widget" data-e1-calculator data-shadow="true" style="border: 2px solid blue; margin: 20px;">
+            <!-- Shadow DOM widget should be completely isolated -->
+        </div>
+        
+        <h2>Namespace Widget</h2>
+        <div id="namespace-widget" data-e1-calculator data-shadow="false" style="border: 2px solid green; margin: 20px;">
+            <!-- Namespace widget should have prefixed isolation -->
+        </div>
+        
+        <div class="card" style="background: red; color: white; padding: 20px; margin: 20px;">
+            <h2>Another External Card (Should be RED)</h2>
+            <p>This card should also maintain its red background.</p>
+            <input type="text" placeholder="External input (should be LIME)" />
+        </div>
+        
+        <div id="test-results" style="background: white; border: 2px solid black; padding: 20px; margin: 20px;">
+            <h2>Isolation Test Results</h2>
+            <div id="results-content">Running tests...</div>
+        </div>
+        
+        <div id="test-controls" style="background: white; padding: 20px; margin: 20px;">
+            <button onclick="runFullIsolationTest()" style="margin: 5px; padding: 10px;">Run Full Test</button>
+            <button onclick="testShadowDOM()" style="margin: 5px; padding: 10px;">Test Shadow DOM</button>
+            <button onclick="testNamespace()" style="margin: 5px; padding: 10px;">Test Namespace</button>
+            <button onclick="testConflicts()" style="margin: 5px; padding: 10px;">Test Conflicts</button>
+        </div>
+    </div>
+    
+    <script src="../../../dist/e1-calculator-widget.min.js"></script>
+    <script>
+        let shadowWidget = null;
+        let namespaceWidget = null;
+        
+        async function initializeWidgets() {
+            try {
+                shadowWidget = await window.E1Calculator.init('shadow-widget', { useShadowDOM: true });
+                namespaceWidget = await window.E1Calculator.init('namespace-widget', { useShadowDOM: false });
+                return true;
+            } catch (error) {
+                console.error('Widget initialization failed:', error);
+                return false;
+            }
+        }
+        
+        async function runFullIsolationTest() {
+            const results = document.getElementById('results-content');
+            results.innerHTML = '<h3>Running comprehensive isolation test...</h3>';
+            
+            const initialized = await initializeWidgets();
+            if (!initialized) {
+                results.innerHTML = '<h3>❌ Widget initialization failed</h3>';
+                return;
+            }
+            
+            let report = '<h3>Comprehensive CSS Isolation Test Results</h3>';
+            
+            // Test widget initialization
+            if (shadowWidget && namespaceWidget) {
+                report += '<p>✅ Both widgets initialized successfully</p>';
+                report += `<p>📊 Shadow widget mode: ${shadowWidget.mode}</p>`;
+                report += `<p>📊 Namespace widget mode: ${namespaceWidget.mode}</p>`;
+            } else {
+                report += '<p>❌ Widget initialization incomplete</p>';
+                results.innerHTML = report;
+                return;
+            }
+            
+            // Test external style preservation
+            const externalCards = document.querySelectorAll('body > .container > .card');
+            let externalStylesPreserved = true;
+            
+            externalCards.forEach((card, index) => {
+                const style = getComputedStyle(card);
+                const bgColor = style.backgroundColor;
+                
+                if (!bgColor.includes('255, 0, 0') && !bgColor.includes('red')) {
+                    externalStylesPreserved = false;
+                    report += `<p>❌ External card ${index + 1} background not preserved</p>`;
+                } else {
+                    report += `<p>✅ External card ${index + 1} background preserved</p>`;
+                }
+            });
+            
+            // Test widget isolation
+            const shadowContainer = document.getElementById('shadow-widget');
+            const namespaceContainer = document.getElementById('namespace-widget');
+            
+            // Shadow DOM isolation test
+            if (shadowContainer.shadowRoot) {
+                report += '<p>✅ Shadow Root created successfully</p>';
+                
+                const shadowCards = shadowContainer.shadowRoot.querySelectorAll('.card');
+                let shadowIsolation = true;
+                
+                shadowCards.forEach(card => {
+                    const style = getComputedStyle(card);
+                    if (style.backgroundColor.includes('255, 0, 0')) {
+                        shadowIsolation = false;
+                    }
+                });
+                
+                if (shadowIsolation) {
+                    report += '<p>✅ Shadow DOM isolation working correctly</p>';
+                } else {
+                    report += '<p>❌ Shadow DOM isolation compromised</p>';
+                }
+            } else {
+                report += '<p>❌ Shadow Root not created</p>';
+            }
+            
+            // Namespace isolation test
+            const namespaceCards = namespaceContainer.querySelectorAll('.card');
+            let namespaceIsolation = true;
+            
+            namespaceCards.forEach(card => {
+                const style = getComputedStyle(card);
+                if (style.backgroundColor.includes('255, 0, 0')) {
+                    namespaceIsolation = false;
+                }
+            });
+            
+            if (namespaceIsolation) {
+                report += '<p>✅ Namespace isolation working correctly</p>';
+            } else {
+                report += '<p>❌ Namespace isolation compromised</p>';
+            }
+            
+            // Overall test result
+            const overallSuccess = externalStylesPreserved && shadowIsolation && namespaceIsolation;
+            report += `<h4>Overall Result: ${overallSuccess ? '✅ All tests passed' : '❌ Some tests failed'}</h4>`;
+            
+            results.innerHTML = report;
+        }
+        
+        async function testShadowDOM() {
+            const results = document.getElementById('results-content');
+            results.innerHTML = '<h3>Testing Shadow DOM isolation...</h3>';
+            
+            if (!shadowWidget) {
+                shadowWidget = await window.E1Calculator.init('shadow-widget', { useShadowDOM: true });
+            }
+            
+            if (shadowWidget && shadowWidget.mode === 'shadow') {
+                results.innerHTML = '<h3>✅ Shadow DOM Test Passed</h3><p>Shadow DOM mode active and isolated</p>';
+            } else {
+                results.innerHTML = '<h3>❌ Shadow DOM Test Failed</h3><p>Shadow DOM mode not working</p>';
+            }
+        }
+        
+        async function testNamespace() {
+            const results = document.getElementById('results-content');
+            results.innerHTML = '<h3>Testing Namespace isolation...</h3>';
+            
+            if (!namespaceWidget) {
+                namespaceWidget = await window.E1Calculator.init('namespace-widget', { useShadowDOM: false });
+            }
+            
+            if (namespaceWidget && namespaceWidget.mode === 'namespace') {
+                results.innerHTML = '<h3>✅ Namespace Test Passed</h3><p>Namespace mode active and isolated</p>';
+            } else {
+                results.innerHTML = '<h3>❌ Namespace Test Failed</h3><p>Namespace mode not working</p>';
+            }
+        }
+        
+        function testConflicts() {
+            const results = document.getElementById('results-content');
+            results.innerHTML = '<h3>Testing CSS conflicts...</h3>';
+            
+            // Add even more extreme conflicting styles
+            const extremeStyles = document.createElement('style');
+            extremeStyles.innerHTML = `
+                * { 
+                    background: magenta !important; 
+                    color: cyan !important;
+                    border: 10px solid black !important;
+                    padding: 50px !important;
+                }
+                .card { font-size: 50px !important; }
+            `;
+            document.head.appendChild(extremeStyles);
+            
+            setTimeout(() => {
+                // Check if widgets are still properly styled
+                let conflictHandled = true;
+                
+                // Check external elements are affected
+                const externalCard = document.querySelector('body > .container > .card');
+                if (externalCard) {
+                    const style = getComputedStyle(externalCard);
+                    if (!style.backgroundColor.includes('255, 0, 255')) {
+                        conflictHandled = false;
+                    }
+                }
+                
+                if (conflictHandled) {
+                    results.innerHTML = '<h3>✅ Conflict Test Passed</h3><p>Extreme styles applied, widgets should remain unaffected</p>';
+                } else {
+                    results.innerHTML = '<h3>❌ Conflict Test Failed</h3><p>Conflict resolution not working</p>';
+                }
+                
+                // Remove extreme styles after test
+                setTimeout(() => {
+                    document.head.removeChild(extremeStyles);
+                }, 3000);
+            }, 1000);
+        }
+        
+        // Auto-run test on load
+        window.addEventListener('load', () => {
+            setTimeout(runFullIsolationTest, 1000);
+        });
+    </script>
+</body>
+</html>

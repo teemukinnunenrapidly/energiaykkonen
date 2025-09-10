@@ -49,7 +49,7 @@ class Plugin {
         require_once E1_CALC_PLUGIN_DIR . 'includes/class-cache-manager.php';
         require_once E1_CALC_PLUGIN_DIR . 'includes/class-sync-manager.php';
         require_once E1_CALC_PLUGIN_DIR . 'includes/class-widget.php';
-        require_once E1_CALC_PLUGIN_DIR . 'includes/class-widget-loader.php';
+        require_once E1_CALC_PLUGIN_DIR . 'includes/class-e1-calculator-loader.php';
         require_once E1_CALC_PLUGIN_DIR . 'includes/class-security.php';
         
         // Include AJAX handler for widget form submissions
@@ -69,7 +69,7 @@ class Plugin {
         $this->cache_manager = new Cache_Manager();
         $this->sync_manager = new Sync_Manager();
         $this->widget = new Widget($this->cache_manager);
-        $this->widget_loader = new Widget_Loader($this->cache_manager);
+        $this->widget_loader = new E1_Calculator_Loader();
         
         
         if (is_admin()) {
@@ -87,8 +87,8 @@ class Plugin {
         // Shortcode is now registered by Widget_Loader
         // add_shortcode('e1_calculator', array($this->widget, 'render')); // DEPRECATED
         
-        // Scripts and styles
-        add_action('wp_enqueue_scripts', array($this, 'enqueue_scripts'));
+        // Scripts and styles are handled by Widget_Loader class
+        // add_action('wp_enqueue_scripts', array($this, 'enqueue_scripts')); // REMOVED - handled by Widget_Loader
         
         // AJAX endpoints  
         add_action('wp_ajax_e1_clear_cache', array($this, 'ajax_clear_cache'));
@@ -231,9 +231,15 @@ class Plugin {
             wp_mkdir_p(E1_CALC_CACHE_DIR);
         }
         
-        // Setup proper .htaccess rules
-        require_once E1_CALC_PLUGIN_DIR . 'includes/class-widget-loader.php';
-        Widget_Loader::setup_cache_directory();
+        // Setup proper .htaccess rules - simplified for new system
+        if (!file_exists(E1_CALC_CACHE_DIR . '.htaccess')) {
+            $htaccess_content = "# E1 Calculator Cache Directory\n";
+            $htaccess_content .= "Options -Indexes\n";
+            $htaccess_content .= "<FilesMatch \"\\.(js|css|json)$\">\n";
+            $htaccess_content .= "    Require all granted\n";
+            $htaccess_content .= "</FilesMatch>\n";
+            file_put_contents(E1_CALC_CACHE_DIR . '.htaccess', $htaccess_content);
+        }
         
         // Set default options
         add_option('e1_calculator_api_url', 'https://energiaykkonen-calculator.vercel.app/api/widget-bundle');

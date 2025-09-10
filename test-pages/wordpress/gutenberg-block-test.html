@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WordPress Gutenberg Block Test</title>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, sans-serif; margin: 20px; }
+        .wp-block { max-width: 800px; margin: 0 auto; }
+        .block-demo { background: #f0f6fc; padding: 20px; border: 1px solid #c3dcf1; margin: 20px 0; border-radius: 6px; }
+        .block-attributes { background: #fff; border: 1px solid #ddd; padding: 15px; margin: 10px 0; border-radius: 4px; }
+        pre { font-size: 12px; background: #23282d; color: #eee; padding: 10px; border-radius: 4px; }
+    </style>
+</head>
+<body>
+    <div class="wp-block">
+        <h1>WordPress Gutenberg Block Integration Test</h1>
+        
+        <h2>Basic Block</h2>
+        <div class="block-demo">
+            <h4>Block Configuration:</h4>
+            <div class="block-attributes">
+                <strong>Shadow DOM:</strong> true<br>
+                <strong>Height:</strong> 600px<br>
+                <strong>Theme:</strong> default
+            </div>
+            <div id="gutenberg-basic" data-e1-calculator data-shadow="true" data-height="600px" data-theme="default">
+                <!-- Basic Gutenberg block -->
+            </div>
+        </div>
+        
+        <h2>Advanced Block with All Attributes</h2>
+        <div class="block-demo">
+            <h4>Block Configuration:</h4>
+            <div class="block-attributes">
+                <strong>Shadow DOM:</strong> false<br>
+                <strong>Height:</strong> 500px (desktop), 400px (mobile)<br>
+                <strong>Theme:</strong> energiaykkonen<br>
+                <strong>Visual Support:</strong> true<br>
+                <strong>Cache:</strong> true<br>
+                <strong>Debug:</strong> false<br>
+                <strong>Lazy Load:</strong> false<br>
+                <strong>ARIA Label:</strong> Advanced Energy Calculator
+            </div>
+            <div id="gutenberg-advanced" 
+                 data-e1-calculator 
+                 data-shadow="false"
+                 data-height="500px"
+                 data-mobile-height="400px"
+                 data-theme="energiaykkonen"
+                 data-show-visual-support="true"
+                 data-enable-cache="true"
+                 data-debug="false"
+                 data-lazy-load="false"
+                 aria-label="Advanced Energy Calculator">
+                <!-- Advanced Gutenberg block -->
+            </div>
+        </div>
+        
+        <h2>Block with Custom Styling</h2>
+        <div class="block-demo">
+            <h4>Block Configuration:</h4>
+            <div class="block-attributes">
+                <strong>Container Class:</strong> custom-calculator-block<br>
+                <strong>Custom CSS:</strong> Applied<br>
+                <strong>Background:</strong> Linear gradient
+            </div>
+            <div id="gutenberg-custom" 
+                 data-e1-calculator 
+                 class="custom-calculator-block"
+                 data-theme="light"
+                 style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 20px; border-radius: 10px;">
+                <!-- Styled Gutenberg block -->
+            </div>
+        </div>
+        
+        <h2>Test Results</h2>
+        <div id="test-results" style="padding: 20px; border: 1px solid #ccc; border-radius: 4px;">
+            <h3>Loading...</h3>
+        </div>
+    </div>
+    
+    <!-- Simulate WordPress Gutenberg environment -->
+    <script>
+        window.e1CalculatorWP = {
+            ajaxUrl: '/wp-admin/admin-ajax.php',
+            nonce: 'gutenberg-nonce',
+            configNonce: 'config-nonce',
+            cacheUrl: '../../dist',
+            version: '2.2.0',
+            isAdmin: false,
+            isBlockEditor: true
+        };
+    </script>
+    
+    <script src="../../dist/e1-calculator-widget.min.js"></script>
+    <script>
+        async function testGutenbergBlocks() {
+            const results = document.getElementById('test-results');
+            results.innerHTML = '<h3>Testing Gutenberg Block Integration...</h3>';
+            
+            try {
+                // Initialize all widgets
+                const instances = await window.E1Calculator.initAll();
+                
+                let report = '<h3>Gutenberg Block Test Results</h3>';
+                report += `<p>✅ Block instances initialized: ${instances.length}</p>`;
+                
+                // Test basic block
+                const basicBlock = instances.find(i => i.elementId === 'gutenberg-basic');
+                if (basicBlock) {
+                    report += `<p>✅ Basic block: ${basicBlock.mode} mode</p>`;
+                } else {
+                    report += '<p>❌ Basic block initialization failed</p>';
+                }
+                
+                // Test advanced block with attributes
+                const advancedBlock = instances.find(i => i.elementId === 'gutenberg-advanced');
+                if (advancedBlock) {
+                    report += `<p>✅ Advanced block: ${advancedBlock.mode} mode</p>`;
+                    
+                    // Test namespace fallback
+                    if (advancedBlock.mode === 'namespace') {
+                        report += '<p>✅ Namespace fallback working</p>';
+                    }
+                } else {
+                    report += '<p>❌ Advanced block initialization failed</p>';
+                }
+                
+                // Test custom styling block
+                const customBlock = instances.find(i => i.elementId === 'gutenberg-custom');
+                if (customBlock) {
+                    report += '<p>✅ Custom styling block initialized</p>';
+                    
+                    // Check if custom styling is preserved
+                    const container = document.getElementById('gutenberg-custom');
+                    const hasGradient = container.style.background.includes('linear-gradient');
+                    if (hasGradient) {
+                        report += '<p>✅ Custom styling preserved</p>';
+                    } else {
+                        report += '<p>⚠️ Custom styling may be affected</p>';
+                    }
+                } else {
+                    report += '<p>❌ Custom styling block initialization failed</p>';
+                }
+                
+                // Test attribute inheritance
+                report += '<h4>Attribute Processing Test</h4>';
+                const containers = document.querySelectorAll('[data-e1-calculator]');
+                let attributesProcessed = 0;
+                
+                containers.forEach(container => {
+                    const attrs = ['data-shadow', 'data-theme', 'data-height'];
+                    attrs.forEach(attr => {
+                        if (container.hasAttribute(attr)) {
+                            attributesProcessed++;
+                        }
+                    });
+                });
+                
+                report += `<p>📊 Attributes processed: ${attributesProcessed} found</p>`;
+                
+                results.innerHTML = report;
+                
+            } catch (error) {
+                results.innerHTML = '<h3>Test Failed</h3><p>' + error.message + '</p>';
+            }
+        }
+        
+        window.addEventListener('load', testGutenbergBlocks);
+    </script>
+</body>
+</html>

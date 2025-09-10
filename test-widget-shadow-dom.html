@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>E1 Calculator Widget - Shadow DOM Test</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 20px;
+      background: #f5f5f5;
+    }
+    
+    .test-container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    
+    .test-section {
+      background: white;
+      margin: 20px 0;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    
+    .widget-container {
+      margin: 20px 0;
+      padding: 20px;
+      border: 2px dashed #ccc;
+      border-radius: 8px;
+      min-height: 200px;
+    }
+    
+    .test-controls {
+      margin: 10px 0;
+    }
+    
+    button {
+      margin: 5px;
+      padding: 8px 16px;
+      border: 1px solid #ccc;
+      background: white;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    
+    button:hover {
+      background: #f0f0f0;
+    }
+    
+    .log-output {
+      background: #1e1e1e;
+      color: #fff;
+      padding: 15px;
+      border-radius: 4px;
+      font-family: 'Courier New', monospace;
+      font-size: 12px;
+      max-height: 200px;
+      overflow-y: auto;
+      margin-top: 15px;
+    }
+    
+    .browser-info {
+      background: #e8f4f8;
+      padding: 15px;
+      border-radius: 4px;
+      margin: 10px 0;
+    }
+    
+    .status {
+      display: inline-block;
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-weight: bold;
+      margin-left: 10px;
+    }
+    
+    .status.supported {
+      background: #d4edda;
+      color: #155724;
+    }
+    
+    .status.not-supported {
+      background: #f8d7da;
+      color: #721c24;
+    }
+  </style>
+</head>
+<body>
+  <div class="test-container">
+    <h1>E1 Calculator Widget - Shadow DOM & Browser Compatibility Test</h1>
+    
+    <div class="test-section">
+      <h2>Browser Compatibility</h2>
+      <div class="browser-info" id="browser-info">
+        <p><strong>User Agent:</strong> <span id="user-agent"></span></p>
+        <p><strong>Shadow DOM Support:</strong> <span id="shadow-support"></span></p>
+        <p><strong>CSS Variables:</strong> <span id="css-variables"></span></p>
+        <p><strong>Custom Elements:</strong> <span id="custom-elements"></span></p>
+        <p><strong>Fetch API:</strong> <span id="fetch-api"></span></p>
+        <p><strong>ES6 Support:</strong> <span id="es6-support"></span></p>
+      </div>
+      
+      <div class="test-controls">
+        <button onclick="runBrowserTests()">Run Browser Tests</button>
+        <button onclick="clearLog()">Clear Log</button>
+      </div>
+      
+      <div class="log-output" id="log-output">
+        Browser test results will appear here...
+      </div>
+    </div>
+    
+    <div class="test-section">
+      <h2>Widget Test 1: Shadow DOM Mode (Default)</h2>
+      <p>This widget should use Shadow DOM isolation if supported by the browser.</p>
+      
+      <div class="test-controls">
+        <button onclick="initShadowWidget()">Initialize Shadow DOM Widget</button>
+        <button onclick="destroyWidget('shadow-test')">Destroy Widget</button>
+        <button onclick="inspectWidget('shadow-test')">Inspect Widget</button>
+      </div>
+      
+      <div class="widget-container" id="shadow-test" data-e1-calculator data-shadow="true">
+        <!-- Widget will be rendered here -->
+      </div>
+    </div>
+    
+    <div class="test-section">
+      <h2>Widget Test 2: Namespace Mode (Fallback)</h2>
+      <p>This widget should use namespace isolation (fallback mode).</p>
+      
+      <div class="test-controls">
+        <button onclick="initNamespaceWidget()">Initialize Namespace Widget</button>
+        <button onclick="destroyWidget('namespace-test')">Destroy Widget</button>
+        <button onclick="inspectWidget('namespace-test')">Inspect Widget</button>
+      </div>
+      
+      <div class="widget-container" id="namespace-test" data-e1-calculator data-shadow="false">
+        <!-- Widget will be rendered here -->
+      </div>
+    </div>
+    
+    <div class="test-section">
+      <h2>Multiple Widgets Test</h2>
+      <p>Test multiple widget instances on the same page.</p>
+      
+      <div class="test-controls">
+        <button onclick="initMultipleWidgets()">Initialize Multiple Widgets</button>
+        <button onclick="destroyAllWidgets()">Destroy All Widgets</button>
+        <button onclick="inspectAllWidgets()">Inspect All Widgets</button>
+      </div>
+      
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 20px;">
+        <div class="widget-container" id="multi-widget-1" data-e1-calculator>
+          <!-- Widget 1 -->
+        </div>
+        <div class="widget-container" id="multi-widget-2" data-e1-calculator>
+          <!-- Widget 2 -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Mock data for testing -->
+  <script>
+    window.__E1_MOCK_DATA = {
+      cards: [
+        {
+          id: 1,
+          name: "Test Card 1",
+          type: "form",
+          card_fields: [
+            {
+              name: "test_field",
+              type: "text",
+              label: "Test Field",
+              required: true
+            }
+          ]
+        },
+        {
+          id: 2,
+          name: "Test Card 2",
+          type: "info",
+          content: "This is a test information card."
+        }
+      ],
+      visualObjects: {
+        "test-visual": {
+          name: "Test Visual",
+          description: "Test visual object",
+          images: []
+        }
+      }
+    };
+    
+    window.__E1_CLOUDFLARE_HASH = "test-hash-123";
+  </script>
+
+  <!-- Load the widget script -->
+  <script src="dist/e1-calculator-widget.min.js"></script>
+  
+  <script>
+    let logOutput = document.getElementById('log-output');
+    
+    function log(message, type = 'info') {
+      const timestamp = new Date().toLocaleTimeString();
+      const color = type === 'error' ? '#ff6b6b' : type === 'success' ? '#51cf66' : '#74c0fc';
+      logOutput.innerHTML += `<div style="color: ${color}">[${timestamp}] ${message}</div>`;
+      logOutput.scrollTop = logOutput.scrollHeight;
+      console.log(message);
+    }
+    
+    function clearLog() {
+      logOutput.innerHTML = '';
+    }
+    
+    async function runBrowserTests() {
+      log('🧪 Starting browser compatibility tests...', 'info');
+      
+      if (window.E1Calculator && window.E1Calculator.testBrowser) {
+        const results = await window.E1Calculator.testBrowser();
+        
+        // Update UI with results
+        document.getElementById('user-agent').textContent = results.userAgent;
+        document.getElementById('shadow-support').innerHTML = results.shadowDOM ? 
+          '<span class="status supported">✅ Supported</span>' : 
+          '<span class="status not-supported">❌ Not Supported</span>';
+        document.getElementById('css-variables').innerHTML = results.cssVariables ? 
+          '<span class="status supported">✅ Supported</span>' : 
+          '<span class="status not-supported">❌ Not Supported</span>';
+        document.getElementById('custom-elements').innerHTML = results.customElements ? 
+          '<span class="status supported">✅ Supported</span>' : 
+          '<span class="status not-supported">❌ Not Supported</span>';
+        document.getElementById('fetch-api').innerHTML = results.fetch ? 
+          '<span class="status supported">✅ Supported</span>' : 
+          '<span class="status not-supported">❌ Not Supported</span>';
+        document.getElementById('es6-support').innerHTML = results.es6 ? 
+          '<span class="status supported">✅ Supported</span>' : 
+          '<span class="status not-supported">❌ Not Supported</span>';
+        
+        log('✅ Browser tests completed', 'success');
+        Object.entries(results).forEach(([key, value]) => {
+          if (key !== 'userAgent') {
+            log(`  ${key}: ${value ? '✅' : '❌'}`, value ? 'success' : 'error');
+          }
+        });
+      } else {
+        log('❌ Widget not loaded or testBrowser method not available', 'error');
+      }
+    }
+    
+    async function initShadowWidget() {
+      log('🔐 Initializing Shadow DOM widget...', 'info');
+      
+      if (window.E1Calculator) {
+        try {
+          const instance = await window.E1Calculator.init('shadow-test', {
+            useShadowDOM: true,
+            theme: 'light',
+            showVisualSupport: true
+          });
+          
+          if (instance) {
+            log(`✅ Shadow DOM widget initialized: ${instance.mode} mode`, 'success');
+          } else {
+            log('❌ Failed to initialize Shadow DOM widget', 'error');
+          }
+        } catch (error) {
+          log(`❌ Error initializing Shadow DOM widget: ${error.message}`, 'error');
+        }
+      } else {
+        log('❌ Widget not loaded', 'error');
+      }
+    }
+    
+    async function initNamespaceWidget() {
+      log('📦 Initializing namespace widget...', 'info');
+      
+      if (window.E1Calculator) {
+        try {
+          const instance = await window.E1Calculator.init('namespace-test', {
+            useShadowDOM: false,
+            theme: 'light',
+            showVisualSupport: true
+          });
+          
+          if (instance) {
+            log(`✅ Namespace widget initialized: ${instance.mode} mode`, 'success');
+          } else {
+            log('❌ Failed to initialize namespace widget', 'error');
+          }
+        } catch (error) {
+          log(`❌ Error initializing namespace widget: ${error.message}`, 'error');
+        }
+      } else {
+        log('❌ Widget not loaded', 'error');
+      }
+    }
+    
+    async function initMultipleWidgets() {
+      log('🚀 Initializing multiple widgets...', 'info');
+      
+      if (window.E1Calculator) {
+        try {
+          const instances = await window.E1Calculator.initAll();
+          log(`✅ Initialized ${instances.length} widgets`, 'success');
+        } catch (error) {
+          log(`❌ Error initializing multiple widgets: ${error.message}`, 'error');
+        }
+      } else {
+        log('❌ Widget not loaded', 'error');
+      }
+    }
+    
+    function destroyWidget(elementId) {
+      log(`🗑️ Destroying widget: ${elementId}`, 'info');
+      
+      if (window.E1Calculator) {
+        const success = window.E1Calculator.destroy(elementId);
+        if (success) {
+          log(`✅ Widget destroyed: ${elementId}`, 'success');
+        } else {
+          log(`❌ Failed to destroy widget: ${elementId}`, 'error');
+        }
+      }
+    }
+    
+    function destroyAllWidgets() {
+      log('🗑️ Destroying all widgets...', 'info');
+      
+      if (window.E1Calculator) {
+        const destroyed = window.E1Calculator.destroyAll();
+        log(`✅ Destroyed ${destroyed.length} widgets`, 'success');
+      }
+    }
+    
+    function inspectWidget(elementId) {
+      log(`🔍 Inspecting widget: ${elementId}`, 'info');
+      
+      if (window.E1Calculator) {
+        const instances = window.E1Calculator.getInstances();
+        const instance = instances.find(i => i.elementId === elementId);
+        
+        if (instance) {
+          log(`Widget ${elementId}:`, 'info');
+          log(`  Mode: ${instance.mode}`, 'info');
+          log(`  Has Shadow Root: ${instance.hasShadowRoot}`, 'info');
+        } else {
+          log(`❌ Widget not found: ${elementId}`, 'error');
+        }
+      }
+    }
+    
+    function inspectAllWidgets() {
+      log('🔍 Inspecting all widgets...', 'info');
+      
+      if (window.E1Calculator) {
+        const instances = window.E1Calculator.getInstances();
+        log(`Found ${instances.length} widget instances:`, 'info');
+        
+        instances.forEach(instance => {
+          log(`  ${instance.elementId}: ${instance.mode} mode, Shadow: ${instance.hasShadowRoot}`, 'info');
+        });
+      }
+    }
+    
+    // Listen for widget events
+    window.addEventListener('e1-calculator-ready', (event) => {
+      const { elementId, isolationMode, browserSupport } = event.detail;
+      log(`🎉 Widget ready: ${elementId} (${isolationMode} mode)`, 'success');
+    });
+    
+    window.addEventListener('e1-calculator-destroyed', (event) => {
+      const { elementId, isolationMode } = event.detail;
+      log(`💥 Widget destroyed: ${elementId} (${isolationMode} mode)`, 'info');
+    });
+    
+    window.addEventListener('e1-calculator-all-ready', (event) => {
+      const { total, successful } = event.detail;
+      log(`🎊 All widgets ready: ${successful}/${total} successful`, 'success');
+    });
+    
+    // Initialize browser info on load
+    window.addEventListener('load', () => {
+      document.getElementById('user-agent').textContent = navigator.userAgent;
+      runBrowserTests();
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,294 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>E1 Calculator - CSS Isolation Test Report</title>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, sans-serif; margin: 0; padding: 20px; background: #f8f9fa; }
+        .header { background: linear-gradient(135deg, #6f42c1 0%, #e83e8c 100%); color: white; padding: 30px; border-radius: 10px; margin-bottom: 30px; }
+        .test-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 20px; margin-bottom: 30px; }
+        .test-card { background: white; border: 1px solid #dee2e6; border-radius: 8px; padding: 20px; }
+        .test-passed { border-left: 4px solid #28a745; }
+        .test-failed { border-left: 4px solid #dc3545; }
+        .summary { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-bottom: 30px; }
+        .summary-card { background: white; border: 1px solid #dee2e6; border-radius: 8px; padding: 20px; text-align: center; }
+        .test-details { background: #f8f9fa; padding: 15px; border-radius: 4px; margin: 10px 0; }
+        .test-links { background: white; border: 1px solid #dee2e6; border-radius: 8px; padding: 20px; margin-top: 30px; }
+        .test-links a { display: inline-block; margin: 5px 10px; padding: 10px 20px; background: #6f42c1; color: white; text-decoration: none; border-radius: 4px; }
+        .test-links a:hover { background: #5a32a3; }
+        pre { background: #23282d; color: #eee; padding: 15px; border-radius: 4px; overflow-x: auto; font-size: 12px; }
+        .passed { color: #28a745; }
+        .failed { color: #dc3545; }
+        .css-metrics { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; margin: 20px 0; }
+        .metric-card { background: #e9ecef; padding: 15px; border-radius: 4px; text-align: center; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>E1 Calculator CSS Isolation Test Report</h1>
+        <p>Generated: 2025-09-10T10:35:55.378Z</p>
+    </div>
+    
+    <div class="summary">
+        <div class="summary-card">
+            <h3>Total Tests</h3>
+            <div style="font-size: 2em; font-weight: bold;">6</div>
+        </div>
+        <div class="summary-card">
+            <h3>Passed</h3>
+            <div style="font-size: 2em; font-weight: bold; color: #28a745;">2</div>
+        </div>
+        <div class="summary-card">
+            <h3>Failed</h3>
+            <div style="font-size: 2em; font-weight: bold; color: #dc3545;">4</div>
+        </div>
+    </div>
+    
+    <div class="test-grid">
+        
+            <div class="test-card test-failed">
+                <h3>shadow dom isolation ❌</h3>
+                <div class="test-details">
+                    
+                        <p><strong>shadow css exists:</strong> true</p>
+                    
+                        <p><strong>host rules:</strong> true</p>
+                    
+                        <p><strong>no namespace prefixes:</strong> true</p>
+                    
+                        <p><strong>containment properties:</strong> true</p>
+                    
+                        <p><strong>css size:</strong> 11KB</p>
+                    
+                        <p><strong>size optimized:</strong> true</p>
+                    
+                    
+                        <h4 style="color: #dc3545; margin: 15px 0 10px 0;">Issues:</h4>
+                        <ul style="margin: 0;">
+                            <li style="color: #dc3545;">Missing CSS reset for isolation</li>
+                        </ul>
+                    
+                </div>
+            </div>
+        
+            <div class="test-card test-failed">
+                <h3>namespace isolation ❌</h3>
+                <div class="test-details">
+                    
+                        <p><strong>namespace css exists:</strong> true</p>
+                    
+                        <p><strong>namespace prefix:</strong> true</p>
+                    
+                        <p><strong>prefixed rules count:</strong> 0</p>
+                    
+                        <p><strong>css size:</strong> 14KB</p>
+                    
+                        <p><strong>size increase:</strong> 32%</p>
+                    
+                        <p><strong>size reasonable:</strong> true</p>
+                    
+                    
+                        <h4 style="color: #dc3545; margin: 15px 0 10px 0;">Issues:</h4>
+                        <ul style="margin: 0;">
+                            <li style="color: #dc3545;">Insufficient namespace prefixing</li><li style="color: #dc3545;">Host rules should be converted for namespace mode</li>
+                        </ul>
+                    
+                </div>
+            </div>
+        
+            <div class="test-card test-failed">
+                <h3>css specificity ❌</h3>
+                <div class="test-details">
+                    
+                        <p><strong>specificity checks passed:</strong> 0/3</p>
+                    
+                        <p><strong>important declarations:</strong> 0</p>
+                    
+                        <p><strong>important usage reasonable:</strong> true</p>
+                    
+                    
+                        <h4 style="color: #dc3545; margin: 15px 0 10px 0;">Issues:</h4>
+                        <ul style="margin: 0;">
+                            <li style="color: #dc3545;">Missing Card elements have proper specificity</li><li style="color: #dc3545;">Missing Button elements have proper specificity</li><li style="color: #dc3545;">Missing Input elements have proper specificity</li>
+                        </ul>
+                    
+                </div>
+            </div>
+        
+            <div class="test-card test-failed">
+                <h3>dual css generation ❌</h3>
+                <div class="test-details">
+                    
+                        <p><strong>both files exist:</strong> true</p>
+                    
+                        <p><strong>shadow rules:</strong> 0</p>
+                    
+                        <p><strong>namespace rules:</strong> 0</p>
+                    
+                        <p><strong>files not empty:</strong> true</p>
+                    
+                        <p><strong>files recent:</strong> true</p>
+                    
+                    
+                        <h4 style="color: #dc3545; margin: 15px 0 10px 0;">Issues:</h4>
+                        <ul style="margin: 0;">
+                            <li style="color: #dc3545;">Significant rule count difference between CSS files</li>
+                        </ul>
+                    
+                </div>
+            </div>
+        
+            <div class="test-card test-passed">
+                <h3>style switching ✅</h3>
+                <div class="test-details">
+                    
+                        <p><strong>style switching method:</strong> true</p>
+                    
+                        <p><strong>fallback detection:</strong> true</p>
+                    
+                        <p><strong>browser detection:</strong> true</p>
+                    
+                        <p><strong>css path logic:</strong> true</p>
+                    
+                    
+                </div>
+            </div>
+        
+            <div class="test-card test-passed">
+                <h3>conflict resolution ✅</h3>
+                <div class="test-details">
+                    
+                        <p><strong>conflict scenarios:</strong> 3</p>
+                    
+                        <p><strong>card protection:</strong> true</p>
+                    
+                        <p><strong>box sizing protection:</strong> true</p>
+                    
+                        <p><strong>protection mechanisms:</strong> 2/3</p>
+                    
+                        <p><strong>sufficient protection:</strong> true</p>
+                    
+                    
+                </div>
+            </div>
+        
+    </div>
+    
+    <div class="css-metrics">
+        <div class="metric-card">
+            <h4>Shadow DOM CSS</h4>
+            <p>File: e1-calculator-widget.min.css</p>
+            <p>Optimized for complete isolation</p>
+        </div>
+        <div class="metric-card">
+            <h4>Namespace CSS</h4>
+            <p>File: widget-namespaced.min.css</p>
+            <p>Prefixed for compatibility</p>
+        </div>
+    </div>
+    
+    <div class="test-links">
+        <h2>Manual CSS Isolation Test Pages</h2>
+        <p>Use these pages to manually verify CSS isolation across different scenarios:</p>
+        <a href="test-pages/css-isolation/comprehensive-isolation-test.html" target="_blank">Comprehensive Isolation Test</a>
+        <a href="test-pages/css-isolation/conflict-stress-test.html" target="_blank">Conflict Stress Test</a>
+        <a href="test-pages/css-isolation/side-by-side-comparison.html" target="_blank">Shadow vs Namespace Comparison</a>
+        <a href="test-pages/css-isolation/browser-compatibility-test.html" target="_blank">Browser Compatibility Test</a>
+    </div>
+    
+    <details style="margin-top: 30px; background: white; padding: 20px; border-radius: 8px; border: 1px solid #dee2e6;">
+        <summary><h2 style="margin: 0;">Full CSS Test Data (JSON)</h2></summary>
+        <pre>{
+  "timestamp": "2025-09-10T10:35:55.378Z",
+  "tests": {
+    "shadow_dom_isolation": {
+      "passed": false,
+      "details": {
+        "shadow_css_exists": true,
+        "host_rules": true,
+        "no_namespace_prefixes": true,
+        "containment_properties": true,
+        "css_size": "11KB",
+        "size_optimized": true
+      },
+      "issues": [
+        "Missing CSS reset for isolation"
+      ]
+    },
+    "namespace_isolation": {
+      "passed": false,
+      "details": {
+        "namespace_css_exists": true,
+        "namespace_prefix": true,
+        "prefixed_rules_count": 0,
+        "css_size": "14KB",
+        "size_increase": "32%",
+        "size_reasonable": true
+      },
+      "issues": [
+        "Insufficient namespace prefixing",
+        "Host rules should be converted for namespace mode"
+      ]
+    },
+    "css_specificity": {
+      "passed": false,
+      "details": {
+        "specificity_checks_passed": "0/3",
+        "important_declarations": 0,
+        "important_usage_reasonable": true
+      },
+      "issues": [
+        "Missing Card elements have proper specificity",
+        "Missing Button elements have proper specificity",
+        "Missing Input elements have proper specificity"
+      ]
+    },
+    "dual_css_generation": {
+      "passed": false,
+      "details": {
+        "both_files_exist": true,
+        "shadow_rules": 0,
+        "namespace_rules": 0,
+        "files_not_empty": true,
+        "files_recent": true
+      },
+      "issues": [
+        "Significant rule count difference between CSS files"
+      ]
+    },
+    "style_switching": {
+      "passed": true,
+      "details": {
+        "style_switching_method": true,
+        "fallback_detection": true,
+        "browser_detection": true,
+        "css_path_logic": true
+      },
+      "issues": []
+    },
+    "conflict_resolution": {
+      "passed": true,
+      "details": {
+        "conflict_scenarios": 3,
+        "card_protection": true,
+        "box_sizing_protection": true,
+        "protection_mechanisms": "2/3",
+        "sufficient_protection": true
+      },
+      "issues": []
+    }
+  },
+  "isolation_modes": {},
+  "browsers": {},
+  "summary": {
+    "total": 6,
+    "passed": 2,
+    "failed": 4
+  }
+}</pre>
+    </details>
+</body>
+</html>
+        

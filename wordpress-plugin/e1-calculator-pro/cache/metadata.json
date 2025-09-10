@@ -1,19 +1,24 @@
 {
-  "version": "3.3.2",
-  "buildTime": "2025-09-09T19:38:00.000Z",
-  "files": [
-    "widget.js",
-    "widget.css"
-  ],
-  "bundleSize": {
-    "js": 280835,
-    "css": 7301,
-    "config": 15161
+  "deployment": {
+    "timestamp": "2025-09-10T10:17:17.926Z",
+    "version": "2.1.0-1757499436916",
+    "buildId": "1757499436916"
   },
-  "dataStats": {
-    "cards": 9,
-    "visualObjects": 2,
-    "formulas": 8,
-    "lookupTables": 2
+  "statistics": {
+    "dataRecords": {
+      "cards": 9,
+      "visualObjects": 2,
+      "formulas": 8,
+      "lookupTables": 2
+    },
+    "bundleSize": {
+      "totalKB": 329,
+      "files": 4
+    }
+  },
+  "health": {
+    "lastDeployment": "2025-09-10T10:17:17.926Z",
+    "status": "healthy",
+    "errors": []
   }
 }

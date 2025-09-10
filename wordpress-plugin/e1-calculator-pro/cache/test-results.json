@@ -1,0 +1,123 @@
+{
+  "timestamp": "2025-09-10T10:17:17.936Z",
+  "tests": [
+    {
+      "name": "File Access: widget.js",
+      "status": "passed",
+      "duration": 0,
+      "details": "File exists (289KB)",
+      "metrics": {
+        "fileSize": 295874
+      }
+    },
+    {
+      "name": "File Access: widget.css",
+      "status": "passed",
+      "duration": 0,
+      "details": "File exists (11KB)",
+      "metrics": {
+        "fileSize": 11122
+      }
+    },
+    {
+      "name": "File Access: widget-namespaced.css",
+      "status": "passed",
+      "duration": 0,
+      "details": "File exists (14KB)",
+      "metrics": {
+        "fileSize": 14805
+      }
+    },
+    {
+      "name": "File Access: wordpress-loader.js",
+      "status": "passed",
+      "duration": 0,
+      "details": "File exists (15KB)",
+      "metrics": {
+        "fileSize": 15493
+      }
+    },
+    {
+      "name": "File Access: config.json",
+      "status": "passed",
+      "duration": 0,
+      "details": "File exists (27KB)",
+      "metrics": {
+        "fileSize": 28132
+      }
+    },
+    {
+      "name": "File Access: metadata.json",
+      "status": "passed",
+      "duration": 0,
+      "details": "File exists (0KB)",
+      "metrics": {
+        "fileSize": 455
+      }
+    },
+    {
+      "name": "Config JSON Validity",
+      "status": "passed",
+      "duration": 0,
+      "details": "Valid JSON with 7 root properties",
+      "metrics": {
+        "configSize": 28013
+      }
+    },
+    {
+      "name": "Widget JavaScript Syntax",
+      "status": "passed",
+      "duration": 0,
+      "details": "Widget exports detected in JavaScript bundle"
+    },
+    {
+      "name": "Widget CSS Validity",
+      "status": "passed",
+      "duration": 0,
+      "details": "CSS contains expected widget selectors"
+    },
+    {
+      "name": "Bundle Size Performance",
+      "status": "passed",
+      "duration": 1,
+      "details": "Total bundle size: 314KB (target: <500KB)",
+      "metrics": {
+        "totalSizeKB": 314,
+        "jsSizeKB": 289,
+        "cssSizeKB": 11,
+        "namespacedCssSizeKB": 14
+      }
+    },
+    {
+      "name": "Config Loading Performance",
+      "status": "passed",
+      "duration": 1,
+      "details": "Config loaded in 1ms (target: <100ms)",
+      "metrics": {
+        "loadTimeMs": 1,
+        "configSizeKB": 27,
+        "recordCount": 9
+      }
+    }
+  ],
+  "summary": {
+    "total": 11,
+    "passed": 11,
+    "failed": 0,
+    "skipped": 0
+  },
+  "performance": {
+    "Bundle Size Performance": {
+      "totalSizeKB": 314,
+      "jsSizeKB": 289,
+      "cssSizeKB": 11,
+      "namespacedCssSizeKB": 14
+    },
+    "Config Loading Performance": {
+      "loadTimeMs": 1,
+      "configSizeKB": 27,
+      "recordCount": 9
+    }
+  },
+  "errors": []
+}

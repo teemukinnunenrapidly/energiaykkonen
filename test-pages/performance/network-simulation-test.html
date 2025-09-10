@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Network Performance Simulation</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .network-conditions { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px; margin: 20px 0; }
+        .condition { border: 1px solid #ddd; border-radius: 8px; padding: 15px; background: #f9f9f9; }
+        .condition h4 { margin: 0 0 10px 0; color: #333; }
+        .condition .speed { font-weight: bold; color: #2196f3; }
+        .condition .result { margin-top: 10px; padding: 8px; background: white; border-radius: 4px; }
+        .test-controls { margin: 20px 0; }
+        .test-controls button { margin: 5px; padding: 10px 15px; border: none; background: #ff9800; color: white; border-radius: 4px; cursor: pointer; }
+        .progress-bar { width: 100%; height: 10px; background: #e0e0e0; border-radius: 5px; overflow: hidden; margin: 10px 0; }
+        .progress-fill { height: 100%; background: #4caf50; width: 0%; transition: width 0.3s; }
+    </style>
+</head>
+<body>
+    <h1>Network Performance Simulation Test</h1>
+    <p>This page simulates different network conditions to test widget loading performance.</p>
+    
+    <div class="test-controls">
+        <button onclick="testAllConditions()">Test All Conditions</button>
+        <button onclick="testCondition('wifi')">Test WiFi</button>
+        <button onclick="testCondition('4g')">Test 4G</button>
+        <button onclick="testCondition('fast-3g')">Test Fast 3G</button>
+        <button onclick="testCondition('slow-3g')">Test Slow 3G</button>
+        <button onclick="clearResults()">Clear Results</button>
+    </div>
+    
+    <div class="progress-bar" id="progress-bar">
+        <div class="progress-fill" id="progress-fill"></div>
+    </div>
+    
+    <div class="network-conditions" id="network-conditions">
+        <div class="condition">
+            <h4>WiFi Connection</h4>
+            <div class="speed">⚡ 30 Mbps down, 15 Mbps up</div>
+            <div class="result" id="wifi-result">Not tested</div>
+        </div>
+        
+        <div class="condition">
+            <h4>4G Connection</h4>
+            <div class="speed">📱 9 Mbps down, 9 Mbps up</div>
+            <div class="result" id="4g-result">Not tested</div>
+        </div>
+        
+        <div class="condition">
+            <h4>Fast 3G</h4>
+            <div class="speed">📶 1.5 Mbps down, 750 Kbps up</div>
+            <div class="result" id="fast-3g-result">Not tested</div>
+        </div>
+        
+        <div class="condition">
+            <h4>Slow 3G</h4>
+            <div class="speed">🐌 500 Kbps down, 500 Kbps up</div>
+            <div class="result" id="slow-3g-result">Not tested</div>
+        </div>
+    </div>
+    
+    <div id="network-widget" data-e1-calculator style="border: 1px solid #ccc; border-radius: 4px; margin: 20px 0; min-height: 200px;">
+        <!-- Widget will be loaded here during tests -->
+    </div>
+    
+    <div id="network-log" style="background: #f5f5f5; padding: 15px; border-radius: 4px; font-family: monospace; white-space: pre-wrap; max-height: 400px; overflow-y: auto;"></div>
+    
+    <script>
+        const networkConditions = {
+            'wifi': { downloadSpeed: 30000, uploadSpeed: 15000, latency: 28, label: 'WiFi' },
+            '4g': { downloadSpeed: 9000, uploadSpeed: 9000, latency: 85, label: '4G' },
+            'fast-3g': { downloadSpeed: 1500, uploadSpeed: 750, latency: 562.5, label: 'Fast 3G' },
+            'slow-3g': { downloadSpeed: 500, uploadSpeed: 500, latency: 2000, label: 'Slow 3G' }
+        };
+        
+        function log(message) {
+            const timestamp = new Date().toLocaleTimeString();
+            const logElement = document.getElementById('network-log');
+            logElement.textContent += `[${timestamp}] ${message}\n`;
+            logElement.scrollTop = logElement.scrollHeight;
+        }
+        
+        function updateProgress(percentage) {
+            document.getElementById('progress-fill').style.width = percentage + '%';
+        }
+        
+        async function simulateNetworkDelay(condition) {
+            // Simulate network latency
+            await new Promise(resolve => setTimeout(resolve, condition.latency));
+        }
+        
+        async function simulateDownloadTime(fileSize, downloadSpeed) {
+            // Calculate download time based on file size and speed
+            const downloadTimeMs = (fileSize / 1024) / (downloadSpeed / 1000) * 1000;
+            
+            // Simulate progressive download with visual feedback
+            const steps = 10;
+            const stepTime = downloadTimeMs / steps;
+            
+            for (let i = 0; i < steps; i++) {
+                await new Promise(resolve => setTimeout(resolve, stepTime));
+                updateProgress((i + 1) / steps * 100);
+            }
+            
+            return downloadTimeMs;
+        }
+        
+        async function testCondition(conditionName) {
+            const condition = networkConditions[conditionName];
+            log(`Testing ${condition.label} network condition...`);
+            
+            const startTime = performance.now();
+            
+            try {
+                // Reset widget
+                if (window.E1Calculator) {
+                    window.E1Calculator.destroy('network-widget');
+                }
+                
+                // Simulate network latency for initial request
+                await simulateNetworkDelay(condition);
+                
+                // Simulate downloading widget files
+                const files = [
+                    { name: 'wordpress-loader.js', size: 15 * 1024 }, // 15KB
+                    { name: 'widget.js', size: 289 * 1024 }, // 289KB
+                    { name: 'widget.css', size: 11 * 1024 } // 11KB
+                ];
+                
+                let totalDownloadTime = 0;
+                
+                for (const file of files) {
+                    const downloadTime = await simulateDownloadTime(file.size, condition.downloadSpeed);
+                    totalDownloadTime += downloadTime;
+                    log(`  ${file.name}: ${Math.round(downloadTime)}ms`);
+                }
+                
+                // Simulate widget initialization
+                const initStart = performance.now();
+                
+                // Load widget script if not already loaded
+                if (!window.E1Calculator) {
+                    await loadScript('../../dist/e1-calculator-widget.min.js');
+                }
+                
+                const instance = await window.E1Calculator.init('network-widget');
+                const initEnd = performance.now();
+                const initTime = initEnd - initStart;
+                
+                const totalTime = performance.now() - startTime;
+                
+                // Update result display
+                const resultElement = document.getElementById(`${conditionName}-result`);
+                const userExperience = totalTime < 3000 ? '✅ Good' : 
+                                     totalTime < 6000 ? '⚠️ Acceptable' : '❌ Poor';
+                
+                resultElement.innerHTML = `
+                    <strong>Total: ${Math.round(totalTime)}ms</strong><br>
+                    Download: ${Math.round(totalDownloadTime)}ms<br>
+                    Init: ${Math.round(initTime)}ms<br>
+                    UX: ${userExperience}
+                `;
+                
+                log(`${condition.label} test completed: ${Math.round(totalTime)}ms total`);
+                
+                // Reset progress bar
+                setTimeout(() => updateProgress(0), 1000);
+                
+                return {
+                    condition: conditionName,
+                    totalTime: Math.round(totalTime),
+                    downloadTime: Math.round(totalDownloadTime),
+                    initTime: Math.round(initTime),
+                    userExperience
+                };
+                
+            } catch (error) {
+                log(`${condition.label} test failed: ${error.message}`);
+                
+                const resultElement = document.getElementById(`${conditionName}-result`);
+                resultElement.innerHTML = '<strong style="color: red;">Test Failed</strong>';
+                
+                updateProgress(0);
+                throw error;
+            }
+        }
+        
+        async function testAllConditions() {
+            log('Starting comprehensive network testing...');
+            const results = [];
+            
+            for (const conditionName of Object.keys(networkConditions)) {
+                try {
+                    const result = await testCondition(conditionName);
+                    results.push(result);
+                    
+                    // Brief pause between tests
+                    await new Promise(resolve => setTimeout(resolve, 1000));
+                    
+                } catch (error) {
+                    log(`Skipping ${conditionName} due to error`);
+                }
+            }
+            
+            // Generate summary
+            if (results.length > 0) {
+                const fastestResult = results.reduce((fastest, current) => 
+                    current.totalTime < fastest.totalTime ? current : fastest
+                );
+                const slowestResult = results.reduce((slowest, current) => 
+                    current.totalTime > slowest.totalTime ? current : slowest
+                );
+                
+                log('\n📊 Network Testing Summary:');
+                log(`Fastest: ${networkConditions[fastestResult.condition].label} (${fastestResult.totalTime}ms)`);
+                log(`Slowest: ${networkConditions[slowestResult.condition].label} (${slowestResult.totalTime}ms)`);
+                
+                const avgTime = Math.round(results.reduce((sum, r) => sum + r.totalTime, 0) / results.length);
+                log(`Average: ${avgTime}ms`);
+            }
+            
+            log('All network tests completed.');
+        }
+        
+        function clearResults() {
+            Object.keys(networkConditions).forEach(condition => {
+                document.getElementById(`${condition}-result`).innerHTML = 'Not tested';
+            });
+            
+            document.getElementById('network-log').textContent = '';
+            updateProgress(0);
+            log('Results cleared');
+        }
+        
+        function loadScript(src) {
+            return new Promise((resolve, reject) => {
+                // Check if already loaded
+                if (window.E1Calculator) {
+                    resolve();
+                    return;
+                }
+                
+                const script = document.createElement('script');
+                script.src = src;
+                script.onload = resolve;
+                script.onerror = reject;
+                document.head.appendChild(script);
+            });
+        }
+        
+        // Auto-run basic test
+        window.addEventListener('load', () => {
+            log('Network simulation test page loaded');
+            log('Click "Test All Conditions" to run comprehensive network testing');
+        });
+    </script>
+</body>
+</html>

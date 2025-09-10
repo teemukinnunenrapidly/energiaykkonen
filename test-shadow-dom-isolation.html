@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="fi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>E1 Calculator - Shadow DOM Isolation Test</title>
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            margin: 20px;
+            background: #f0f0f0;
+            font-size: 18px;
+        }
+        
+        h1, h2, h3 {
+            color: #2c3e50;
+            margin: 20px 0;
+        }
+        
+        .test-section {
+            background: white;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 12px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        
+        .test-info {
+            background: #e8f4fd;
+            padding: 15px;
+            margin: 10px 0;
+            border-left: 4px solid #3498db;
+            border-radius: 4px;
+        }
+        
+        .widget-container {
+            border: 3px dashed #bbb;
+            padding: 20px;
+            margin: 15px 0;
+            border-radius: 8px;
+            position: relative;
+        }
+        
+        .widget-container::before {
+            content: "Widget Container";
+            position: absolute;
+            top: -10px;
+            left: 10px;
+            background: white;
+            padding: 0 10px;
+            font-size: 12px;
+            color: #666;
+            font-weight: bold;
+        }
+        
+        /* AGGRESSIVE HOST STYLES TO TEST ISOLATION */
+        .aggressive-host-styles * {
+            color: red !important;
+            background-color: yellow !important;
+            font-family: "Comic Sans MS", cursive !important;
+            font-size: 24px !important;
+            font-weight: bold !important;
+            text-transform: uppercase !important;
+            border: 3px solid purple !important;
+            margin: 10px !important;
+            padding: 15px !important;
+        }
+        
+        /* More aggressive overrides */
+        .aggressive-host-styles div,
+        .aggressive-host-styles p,
+        .aggressive-host-styles span,
+        .aggressive-host-styles button,
+        .aggressive-host-styles input {
+            background: linear-gradient(45deg, lime, cyan) !important;
+            color: magenta !important;
+            transform: rotate(2deg) !important;
+            animation: wobble 1s infinite !important;
+        }
+        
+        @keyframes wobble {
+            0% { transform: rotate(2deg) scale(1); }
+            50% { transform: rotate(-2deg) scale(1.05); }
+            100% { transform: rotate(2deg) scale(1); }
+        }
+        
+        /* Test different CSS specificity levels */
+        #specific-test div div div {
+            font-style: italic !important;
+            text-decoration: underline !important;
+        }
+        
+        /* CSS custom properties that could leak */
+        :root {
+            --global-color: orange;
+            --global-bg: darkblue;
+            --global-font: "Times New Roman";
+        }
+        
+        .css-variables-test {
+            color: var(--global-color) !important;
+            background: var(--global-bg) !important;
+            font-family: var(--global-font) !important;
+        }
+    </style>
+</head>
+<body>
+    <h1>E1 Calculator Shadow DOM Isolation Test</h1>
+    
+    <div class="test-info">
+        <h3>🔬 Test Environment</h3>
+        <p><strong>Browser:</strong> <span id="browser-info"></span></p>
+        <p><strong>Shadow DOM Support:</strong> <span id="shadow-support"></span></p>
+        <p><strong>Test Purpose:</strong> Verify that aggressive host styles don't leak into the Shadow DOM widget</p>
+    </div>
+
+    <div class="test-section">
+        <h2>Test 1: Normal Environment</h2>
+        <div class="test-info">
+            <p>Widget in normal environment - should display with clean styles</p>
+        </div>
+        <div class="widget-container">
+            <div id="e1-calculator-normal" 
+                 class="e1-calculator-container"
+                 data-shadow="true"
+                 data-e1-auto-init="false"
+                 data-config-url="./wp-content/uploads/e1-calculator-cache/config.json">
+                <div class="e1-calculator-loading">
+                    <div class="spinner" style="border: 3px solid #f3f3f3; border-top: 3px solid #3498db; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 0 auto;"></div>
+                    <p style="text-align: center; color: #666; margin-top: 10px;">Loading calculator...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="test-section aggressive-host-styles" id="specific-test">
+        <h2>Test 2: Aggressive Host Styles 🚨</h2>
+        <div class="test-info css-variables-test">
+            <p>Widget surrounded by aggressive styles - Shadow DOM should protect it completely</p>
+            <p>Host page styles include:</p>
+            <ul>
+                <li>Red text, yellow background</li>
+                <li>Comic Sans font, large size</li>
+                <li>Purple borders everywhere</li>
+                <li>CSS animations and transforms</li>
+                <li>High CSS specificity selectors</li>
+                <li>CSS custom properties</li>
+            </ul>
+        </div>
+        <div class="widget-container css-variables-test">
+            <div id="e1-calculator-aggressive" 
+                 class="e1-calculator-container aggressive-styles"
+                 data-shadow="true"
+                 data-e1-auto-init="false"
+                 data-config-url="./wp-content/uploads/e1-calculator-cache/config.json">
+                <div class="e1-calculator-loading">
+                    <div class="spinner"></div>
+                    <p>Loading calculator...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="test-section">
+        <h2>Test 3: Namespace Fallback Mode</h2>
+        <div class="test-info">
+            <p>Widget with namespace isolation (fallback mode) - should still maintain most isolation</p>
+        </div>
+        <div class="widget-container aggressive-host-styles">
+            <div id="e1-calculator-namespace" 
+                 class="e1-calculator-container"
+                 data-shadow="false"
+                 data-e1-auto-init="false"
+                 data-config-url="./wp-content/uploads/e1-calculator-cache/config.json">
+                <div class="e1-calculator-loading">
+                    <div class="spinner"></div>
+                    <p>Loading calculator...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="test-section">
+        <h2>Test Results</h2>
+        <div id="test-results">
+            <p>Test results will appear here...</p>
+        </div>
+    </div>
+
+    <!-- Load widget scripts -->
+    <script src="./dist/wordpress-loader.min.js"></script>
+    <script src="./dist/e1-calculator-widget.min.js"></script>
+
+    <style>
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+
+    <script>
+        // Browser detection
+        document.getElementById('browser-info').textContent = navigator.userAgent;
+        document.getElementById('shadow-support').textContent = 
+            Element.prototype.attachShadow ? '✅ Supported' : '❌ Not supported';
+
+        // Test results container
+        const results = document.getElementById('test-results');
+        
+        function addTestResult(test, status, message) {
+            const div = document.createElement('div');
+            div.style.cssText = `
+                padding: 12px; 
+                margin: 8px 0; 
+                border-radius: 6px;
+                border-left: 4px solid ${status === 'pass' ? '#27ae60' : 
+                                        status === 'fail' ? '#e74c3c' : '#f39c12'};
+                background: ${status === 'pass' ? '#d5f4e6' : 
+                            status === 'fail' ? '#fadbd8' : '#fef5e7'};
+                color: #2c3e50;
+                font-size: 14px;
+                line-height: 1.4;
+            `;
+            div.innerHTML = `<strong>${test}:</strong> ${message}`;
+            results.appendChild(div);
+        }
+
+        // Wait for E1Calculator to load
+        function runIsolationTests() {
+            if (typeof window.E1Calculator === 'undefined') {
+                addTestResult('Widget Loading', 'fail', 'E1Calculator not found');
+                return;
+            }
+            
+            addTestResult('Widget Loading', 'pass', 'E1Calculator loaded successfully');
+            
+            // Test 1: Normal Shadow DOM widget
+            try {
+                window.E1Calculator.init({
+                    containerId: 'e1-calculator-normal',
+                    useShadowDOM: true,
+                    configUrl: './wp-content/uploads/e1-calculator-cache/config.json'
+                });
+                addTestResult('Normal Shadow DOM', 'pass', 'Normal widget initialized');
+            } catch (error) {
+                addTestResult('Normal Shadow DOM', 'fail', 'Error: ' + error.message);
+            }
+            
+            // Test 2: Aggressive styles Shadow DOM widget
+            try {
+                window.E1Calculator.init({
+                    containerId: 'e1-calculator-aggressive',
+                    useShadowDOM: true,
+                    configUrl: './wp-content/uploads/e1-calculator-cache/config.json'
+                });
+                addTestResult('Aggressive Styles Test', 'pass', 'Shadow DOM widget initialized in aggressive environment');
+                
+                // Check shadow isolation after delay
+                setTimeout(() => {
+                    const aggressiveContainer = document.getElementById('e1-calculator-aggressive');
+                    if (aggressiveContainer && aggressiveContainer.shadowRoot) {
+                        addTestResult('Shadow Root Creation', 'pass', 'Shadow root created successfully');
+                        
+                        // Check if styles are isolated
+                        const shadowContent = aggressiveContainer.shadowRoot.innerHTML;
+                        if (shadowContent.includes(':host')) {
+                            addTestResult('Style Isolation', 'pass', 'Shadow DOM contains :host reset styles');
+                        } else {
+                            addTestResult('Style Isolation', 'warn', 'Unable to verify :host styles in shadow content');
+                        }
+                    } else {
+                        addTestResult('Shadow Root Creation', 'warn', 'Shadow root not found - may have fallen back');
+                    }
+                }, 1000);
+                
+            } catch (error) {
+                addTestResult('Aggressive Styles Test', 'fail', 'Error: ' + error.message);
+            }
+            
+            // Test 3: Namespace fallback widget
+            try {
+                window.E1Calculator.init({
+                    containerId: 'e1-calculator-namespace',
+                    useShadowDOM: false,
+                    configUrl: './wp-content/uploads/e1-calculator-cache/config.json'
+                });
+                addTestResult('Namespace Fallback', 'pass', 'Namespace widget initialized');
+            } catch (error) {
+                addTestResult('Namespace Fallback', 'fail', 'Error: ' + error.message);
+            }
+        }
+        
+        // Run tests when everything is loaded
+        if (document.readyState === 'complete') {
+            setTimeout(runIsolationTests, 1000);
+        } else {
+            window.addEventListener('load', () => setTimeout(runIsolationTests, 1000));
+        }
+    </script>
+</body>
+</html>

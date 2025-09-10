@@ -1,0 +1,361 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>E1 Calculator - Performance Test Report</title>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, sans-serif; margin: 0; padding: 20px; background: #f5f7fa; }
+        .header { background: linear-gradient(135deg, #ff6b6b 0%, #4ecdc4 100%); color: white; padding: 30px; border-radius: 10px; margin-bottom: 30px; }
+        .summary { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 30px; }
+        .summary-card { background: white; border: 1px solid #e1e5e9; border-radius: 8px; padding: 20px; text-align: center; }
+        .performance-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 20px; margin-bottom: 30px; }
+        .performance-card { background: white; border: 1px solid #e1e5e9; border-radius: 8px; padding: 20px; }
+        .excellent { border-left: 4px solid #4caf50; }
+        .good { border-left: 4px solid #8bc34a; }
+        .fair { border-left: 4px solid #ff9800; }
+        .poor { border-left: 4px solid #f44336; }
+        .metric-details { background: #f8f9fa; padding: 15px; border-radius: 4px; margin: 10px 0; }
+        .test-links { background: white; border: 1px solid #e1e5e9; border-radius: 8px; padding: 20px; margin-top: 30px; }
+        .test-links a { display: inline-block; margin: 5px 10px; padding: 10px 20px; background: #ff6b6b; color: white; text-decoration: none; border-radius: 4px; }
+        .test-links a:hover { background: #ff5252; }
+        .chart-placeholder { height: 200px; background: #f0f0f0; border-radius: 4px; display: flex; align-items: center; justify-content: center; color: #666; }
+        pre { background: #23282d; color: #eee; padding: 15px; border-radius: 4px; overflow-x: auto; font-size: 12px; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>E1 Calculator Performance Test Report</h1>
+        <p>Generated: 2025-09-10T10:36:57.087Z</p>
+    </div>
+    
+    <div class="summary">
+        <div class="summary-card">
+            <h3>Bundle Size</h3>
+            <div style="font-size: 2em; font-weight: bold;">329KB</div>
+        </div>
+        <div class="summary-card">
+            <h3>Load Performance</h3>
+            <div style="font-size: 2em; font-weight: bold;">excellent</div>
+        </div>
+        <div class="summary-card">
+            <h3>Memory Usage</h3>
+            <div style="font-size: 2em; font-weight: bold;">3072KB</div>
+        </div>
+        <div class="summary-card">
+            <h3>Rendering</h3>
+            <div style="font-size: 2em; font-weight: bold;">excellent</div>
+        </div>
+    </div>
+    
+    <div class="performance-grid">
+        <div class="performance-card good">
+            <h3>Bundle Analysis 📦</h3>
+            <div class="metric-details">
+                <p><strong>e1-calculator-widget.min.js:</strong> 289KB (javascript)</p><p><strong>wordpress-loader.min.js:</strong> 15KB (javascript)</p><p><strong>e1-calculator-widget.min.css:</strong> 11KB (css)</p><p><strong>widget-namespaced.min.css:</strong> 14KB (css)</p><p><strong>Total Size:</strong> 329KB</p><p><strong>Optimization Suggestions:</strong> 0</p>
+            </div>
+        </div>
+        
+        <div class="performance-card excellent">
+            <h3>Load Performance 🚀</h3>
+            <div class="metric-details">
+                
+            <p><strong>Cold Load:</strong> 1895ms</p>
+            <p><strong>Warm Load:</strong> 938ms</p>
+            <p><strong>Multiple Instances:</strong> 1800ms</p>
+            <p><strong>Score:</strong> excellent</p>
+        
+            </div>
+        </div>
+        
+        <div class="performance-card">
+            <h3>Memory Usage 🧠</h3>
+            <div class="metric-details">
+                
+            <p><strong>Single Widget:</strong> 3072KB</p>
+            <p><strong>Multiple Widgets:</strong> 15360KB</p>
+            <p><strong>Memory Leaks:</strong> None</p>
+            <p><strong>Efficiency:</strong> poor</p>
+        
+            </div>
+        </div>
+        
+        <div class="performance-card">
+            <h3>Rendering Performance 🎨</h3>
+            <div class="metric-details">
+                
+            <p><strong>Initial Render:</strong> 104ms</p>
+            <p><strong>Reflow Performance:</strong> 26ms</p>
+            <p><strong>Animation FPS:</strong> 59</p>
+            <p><strong>Overall Score:</strong> excellent</p>
+        
+            </div>
+        </div>
+        
+        <div class="performance-card">
+            <h3>Isolation Comparison ⚖️</h3>
+            <div class="metric-details">
+                
+            <p><strong>Shadow DOM:</strong> 1256ms</p>
+            <p><strong>Namespace:</strong> 1450ms</p>
+            <p><strong>Winner:</strong> shadow dom</p>
+            <p><strong>Difference:</strong> 194ms</p>
+        
+            </div>
+        </div>
+        
+        <div class="performance-card">
+            <h3>Network Performance 🌐</h3>
+            <div class="metric-details">
+                <p><strong>fast 3g:</strong> 220590ms (poor)</p><p><strong>4g:</strong> 37173ms (poor)</p><p><strong>wifi:</strong> 11504ms (poor)</p><p><strong>slow 3g:</strong> 661082ms (poor)</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="test-links">
+        <h2>Interactive Performance Test Pages</h2>
+        <p>Use these pages to run detailed performance tests:</p>
+        <a href="test-pages/performance/load-performance-test.html" target="_blank">Load Performance Test</a>
+        <a href="test-pages/performance/memory-usage-test.html" target="_blank">Memory Usage Test</a>
+        <a href="test-pages/performance/rendering-performance-test.html" target="_blank">Rendering Performance Test</a>
+        <a href="test-pages/performance/network-simulation-test.html" target="_blank">Network Simulation Test</a>
+    </div>
+    
+    <details style="margin-top: 30px; background: white; padding: 20px; border-radius: 8px; border: 1px solid #e1e5e9;">
+        <summary><h2 style="margin: 0;">Full Performance Data (JSON)</h2></summary>
+        <pre>{
+  "timestamp": "2025-09-10T10:36:57.087Z",
+  "bundle_analysis": {
+    "files": {
+      "e1-calculator-widget.min.js": {
+        "size": 295874,
+        "size_kb": 289,
+        "type": "javascript",
+        "critical": true,
+        "compression_ratio": 0.65,
+        "last_modified": "2025-09-10T10:03:15.283Z",
+        "estimated_parse_time": 28,
+        "contains_sourcemap": false
+      },
+      "wordpress-loader.min.js": {
+        "size": 15493,
+        "size_kb": 15,
+        "type": "javascript",
+        "critical": false,
+        "compression_ratio": 0.7,
+        "last_modified": "2025-09-10T10:03:15.284Z",
+        "estimated_parse_time": 1,
+        "contains_sourcemap": false
+      },
+      "e1-calculator-widget.min.css": {
+        "size": 11122,
+        "size_kb": 11,
+        "type": "css",
+        "critical": true,
+        "compression_ratio": 0.75,
+        "last_modified": "2025-09-10T10:03:15.283Z",
+        "rules_count": 94,
+        "media_queries": 1
+      },
+      "widget-namespaced.min.css": {
+        "size": 14705,
+        "size_kb": 14,
+        "type": "css",
+        "critical": false,
+        "compression_ratio": 0.75,
+        "last_modified": "2025-09-10T10:17:16.242Z",
+        "rules_count": 93,
+        "media_queries": 1
+      }
+    },
+    "total_size": 337194,
+    "compressed_estimates": {
+      "gzip_savings": 236036,
+      "brotli_savings": 252896
+    },
+    "optimization_suggestions": [],
+    "total_size_kb": 329,
+    "total_size_mb": 0.32
+  },
+  "load_performance": {
+    "cold_load": {
+      "type": "cold",
+      "total_time": 1895,
+      "script_parse_time": 450,
+      "style_parse_time": 150,
+      "dom_ready_time": 600,
+      "widget_init_time": 300
+    },
+    "warm_load": {
+      "type": "warm",
+      "total_time": 938,
+      "script_parse_time": 240,
+      "style_parse_time": 80,
+      "dom_ready_time": 320,
+      "widget_init_time": 160
+    },
+    "multiple_instances": {
+      "instance_count": 5,
+      "total_time": 1800,
+      "per_instance_overhead": 150,
+      "efficiency_score": "good"
+    },
+    "critical_path": {
+      "critical_resources": [
+        {
+          "resource": "wordpress-loader.js",
+          "load_time": 200,
+          "blocking": true
+        },
+        {
+          "resource": "e1-calculator-widget.min.js",
+          "load_time": 800,
+          "blocking": false
+        },
+        {
+          "resource": "widget.css",
+          "load_time": 150,
+          "blocking": true
+        }
+      ],
+      "total_critical_path": 350,
+      "optimization_opportunities": [
+        "Preload critical CSS",
+        "Consider inlining small CSS files"
+      ]
+    },
+    "average_cold_load": 1895,
+    "average_warm_load": 938,
+    "performance_score": "excellent"
+  },
+  "memory_usage": {
+    "baseline": {
+      "heap_size": 15728640,
+      "dom_nodes": 100,
+      "event_listeners": 5
+    },
+    "single_widget": {
+      "total_memory": 18874368,
+      "widget_memory": 3072,
+      "dom_nodes": 150,
+      "event_listeners": 15
+    },
+    "multiple_widgets": {
+      "total_memory": 31457280,
+      "widget_memory": 15360,
+      "dom_nodes": 350,
+      "event_listeners": 55
+    },
+    "memory_leaks": {
+      "detected": false,
+      "leak_size": 0,
+      "leak_source": null
+    },
+    "memory_per_widget": {
+      "single": 3072,
+      "multiple": 3072,
+      "efficiency": "poor"
+    }
+  },
+  "rendering_performance": {
+    "initial_render": {
+      "time": 104,
+      "dom_nodes_created": 45,
+      "style_recalculations": 3
+    },
+    "reflow_performance": {
+      "time": 26,
+      "reflow_count": 2,
+      "repaint_count": 1
+    },
+    "animation_performance": {
+      "fps": 59,
+      "frame_drops": 1,
+      "smooth": true
+    },
+    "dom_manipulation": {
+      "time": 26,
+      "operations_count": 10,
+      "efficiency": "good"
+    },
+    "rendering_score": "excellent"
+  },
+  "comparison": {
+    "shadow_dom": {
+      "mode": "shadow",
+      "total_time": 1256,
+      "initialization_time": 440,
+      "style_processing_time": 330,
+      "dom_creation_time": 330,
+      "memory_usage": 3196,
+      "css_rules_processed": 150
+    },
+    "namespace": {
+      "mode": "namespace",
+      "total_time": 1450,
+      "initialization_time": 520,
+      "style_processing_time": 390,
+      "dom_creation_time": 390,
+      "memory_usage": 3515,
+      "css_rules_processed": 180
+    },
+    "recommendations": [
+      "Shadow DOM shows significantly better performance"
+    ],
+    "performance_winner": "shadow_dom",
+    "time_difference": 194,
+    "significant_difference": true,
+    "memory_winner": "shadow_dom",
+    "memory_difference": 319
+  },
+  "network_tests": {
+    "fast-3g": {
+      "condition": "fast-3g",
+      "download_speed": 1500,
+      "latency": 562.5,
+      "download_time": 219527,
+      "total_time": 220590,
+      "user_experience": "poor"
+    },
+    "4g": {
+      "condition": "4g",
+      "download_speed": 9000,
+      "latency": 85,
+      "download_time": 36588,
+      "total_time": 37173,
+      "user_experience": "poor"
+    },
+    "wifi": {
+      "condition": "wifi",
+      "download_speed": 30000,
+      "latency": 28,
+      "download_time": 10976,
+      "total_time": 11504,
+      "user_experience": "poor"
+    },
+    "slow-3g": {
+      "condition": "slow-3g",
+      "download_speed": 500,
+      "latency": 2000,
+      "download_time": 658582,
+      "total_time": 661082,
+      "user_experience": "poor"
+    },
+    "performance_summary": {
+      "best_condition": {
+        "name": "wifi",
+        "time": 11504
+      },
+      "worst_condition": {
+        "name": "slow-3g",
+        "time": 661082
+      }
+    }
+  },
+  "summary": {}
+}</pre>
+    </details>
+</body>
+</html>
+        

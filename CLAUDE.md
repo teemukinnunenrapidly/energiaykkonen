@@ -208,3 +208,7 @@ git push origin main
 - Rate limiting on form submissions
 - Never commit secrets - use environment variables
 - Cloudflare API operations only via server-side routes
+
+## Task Master AI Instructions
+**Import Task Master's development workflow commands and guidelines, treat as if import is in the main CLAUDE.md file.**
+@./.taskmaster/CLAUDE.md
