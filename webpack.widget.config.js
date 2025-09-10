@@ -187,7 +187,9 @@ module.exports = (env, argv) => {
       name: 'shadow-dom-widget',
     },
     {
-      ...getBaseConfig('shadow', 'wordpress-loader', './src/widget/wordpress-loader.js', 'E1Calculator'),
+      // Use a distinct global name for the loader library to avoid overwriting
+      // the real runtime API we intentionally attach to window.E1Calculator inside the loader code
+      ...getBaseConfig('shadow', 'wordpress-loader', './src/widget/wordpress-loader.js', 'E1CalculatorLoaderLib'),
       name: 'shadow-dom-loader',
     },
     // Namespace builds (prefixed CSS)
@@ -211,7 +213,8 @@ module.exports = (env, argv) => {
       },
     },
     {
-      ...getBaseConfig('namespaced', 'wordpress-loader', './src/widget/wordpress-loader.js', 'E1Calculator'),
+      // Same as above for the namespaced build
+      ...getBaseConfig('namespaced', 'wordpress-loader', './src/widget/wordpress-loader.js', 'E1CalculatorLoaderLib'),
       name: 'namespaced-loader',
     },
   ];

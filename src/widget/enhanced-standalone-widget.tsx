@@ -595,3 +595,17 @@ const init = (options: { container: HTMLElement | string; config: any; [key: str
 // Export enhanced components and utilities
 export { E1CalculatorWidget, StyleManager, init };
 export type { WidgetConfig, WidgetInstance };
+
+// Expose init on the global for WordPress loader compatibility
+declare global {
+  interface Window {
+    E1CalculatorWidget?: any;
+  }
+}
+
+if (typeof window !== 'undefined') {
+  (window as any).E1CalculatorWidget = (window as any).E1CalculatorWidget || {};
+  if (typeof (window as any).E1CalculatorWidget.init !== 'function') {
+    (window as any).E1CalculatorWidget.init = init;
+  }
+}
