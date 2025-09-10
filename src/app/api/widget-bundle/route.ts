@@ -137,11 +137,8 @@ async function fetchCardData() {
       }
     }
 
-    // Visual objects are now included in the cards query above
     console.log('Fetched cards:', cards?.length || 0);
-    if (cards && cards.length > 0) {
-      console.log('Sample card fields:', cards[0]?.card_fields?.length || 0);
-    }
+    console.log('Fetched card fields:', cardFields?.length || 0);
 
     return {
       cards: cards || [],
