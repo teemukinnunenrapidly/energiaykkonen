@@ -128,31 +128,65 @@ export function CardProvider({
             await updateCardCompletion(fieldCard.id, sessionId, true, fieldName);
           }
         } else {
-          // Widget mode: Check completion locally using the newFormData
-          const allFields = fieldCard.card_fields || [];
-          const requiredFields = allFields.filter(f => f.required);
-          
-          // If there are required fields, check they are all filled
-          if (requiredFields.length > 0) {
-            shouldBeComplete = requiredFields.every(field => 
-              newFormData[field.field_name] && newFormData[field.field_name] !== ''
-            );
-          } else {
-            // If no required fields, consider complete if at least one field has a value
-            // This matches the database logic for cards with no required fields
-            shouldBeComplete = allFields.some(field => 
-              newFormData[field.field_name] && newFormData[field.field_name] !== ''
-            );
-          }
-          
-          console.log(
-            `📋 Card "${fieldCard.name}" local completion check: ${shouldBeComplete}`,
-            { 
-              requiredFields: requiredFields.length,
-              totalFields: allFields.length,
-              filledFields: allFields.filter(f => newFormData[f.field_name]).length,
-              formData: newFormData
+          // Widget mode: Check completion locally using the configured completion_rules
+          const fields = fieldCard.card_fields || [];
+          const rules = fieldCard.completion_rules?.form_completion?.type as
+            | 'all_fields'
+            | 'any_field'
+            | 'required_fields'
+            | undefined;
+
+          const valueFor = (name: string) => newFormData[name];
+
+          if (rules === 'all_fields') {
+            shouldBeComplete = fields.length === 0
+              ? true
+              : fields.every(f => {
+                  const v = valueFor(f.field_name);
+                  return v !== undefined && v !== null && v !== '';
+                });
+          } else if (rules === 'any_field') {
+            shouldBeComplete = fields.some(f => {
+              const v = valueFor(f.field_name);
+              return v !== undefined && v !== null && v !== '';
+            });
+          } else if (rules === 'required_fields') {
+            const requiredNames =
+              fieldCard.completion_rules?.form_completion?.required_field_names || [];
+            if (requiredNames.length > 0) {
+              shouldBeComplete = requiredNames.every(name => {
+                const v = valueFor(name);
+                return v !== undefined && v !== null && v !== '';
+              });
+            } else {
+              // Fallback to field-level required flags
+              const requiredFields = fields.filter(f => f.required);
+              shouldBeComplete = requiredFields.length === 0
+                ? fields.some(f => {
+                    const v = valueFor(f.field_name);
+                    return v !== undefined && v !== null && v !== '';
+                  })
+                : requiredFields.every(f => {
+                    const v = valueFor(f.field_name);
+                    return v !== undefined && v !== null && v !== '';
+                  });
             }
+          } else {
+            // No explicit rules: preserve current UX - require all required fields; if none, any field
+            const requiredFields = fields.filter(f => f.required);
+            shouldBeComplete = requiredFields.length === 0
+              ? fields.some(f => {
+                  const v = valueFor(f.field_name);
+                  return v !== undefined && v !== null && v !== '';
+                })
+              : requiredFields.every(f => {
+                  const v = valueFor(f.field_name);
+                  return v !== undefined && v !== null && v !== '';
+                });
+          }
+
+          console.log(
+            `📋 Card "${fieldCard.name}" local completion (rules=${rules || 'default'}) -> ${shouldBeComplete}`
           );
         }
         

@@ -151,6 +151,7 @@ export async function GET(request: NextRequest) {
         styling: card.styling || {},
         completion_rules: card.completion_rules || {},
         reveal_timing: card.reveal_timing || {},
+        reveal_next_conditions: card.reveal_next_conditions || {},
         visual_object_id: card.visual_object_id,
         is_active: card.is_active,
         fields: (card.card_fields || []).map((field: any) => ({
@@ -233,6 +234,7 @@ export async function GET(request: NextRequest) {
         styling: card.styling || {},
         completion_rules: card.completion_rules || {},
         reveal_timing: card.reveal_timing || {},
+        reveal_next_conditions: card.reveal_next_conditions || {},
         visual_object_id: card.visual_object_id,
         is_active: card.is_active,
         fields: (card.card_fields || []).map((field: any) => ({
