@@ -36,7 +36,7 @@ const CONFIG = {
     anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhmcW1sbHN2ZHhlamxvZWN3bGFxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTYwNTE1NjAsImV4cCI6MjA3MTYyNzU2MH0.ZE4YOoVjqs4fGQs4gA3CJoQ4nEzfRqK4K2MO_bERGvM'
   },
   apis: {
-    leadSubmissionUrl: 'https://energiaykkonen-calculator.vercel.app/api/submit-lead'
+    leadSubmissionUrl: process.env.LEAD_API_URL || 'https://energiaykkonen-calculator.vercel.app/api/submit-lead'
   },
   version: '2.1.0',
   buildId: Date.now().toString(),

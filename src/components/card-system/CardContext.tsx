@@ -454,30 +454,59 @@ export function CardProvider({
 
   const submitData = useCallback(
     async (emailTemplate?: string) => {
-      // In widget mode, submit via WordPress AJAX (secure)
+      // In widget mode (WordPress), prefer posting to Vercel API if configured
       if (widgetMode) {
-        console.log('📧 Widget mode: Submitting via WordPress AJAX', {
-          formData,
-          emailTemplate
-        });
-        
         try {
-          // Get WordPress config with nonce and AJAX URL
+          const globalCfg = (window as any).__E1_WIDGET_DATA || {};
+          // Gather possible sources for lead endpoint
+          let leadApiUrl: string =
+            globalCfg?.settings?.leadApiUrl ||
+            (window as any).__E1_WIDGET_SETTINGS__?.leadApiUrl ||
+            globalCfg?.api?.submitEndpoint ||
+            (window as any).__E1_WIDGET_API__?.submitEndpoint ||
+            '';
+
+          // Ensure absolute URL; fallback to production API if missing
+          if (!leadApiUrl) {
+            leadApiUrl = 'https://energiaykkonen-calculator.vercel.app/api/submit-lead';
+          } else if (leadApiUrl.startsWith('/')) {
+            // If relative, prefix with Vercel origin (prevents posting to WP origin)
+            const defaultOrigin = 'https://energiaykkonen-calculator.vercel.app';
+            leadApiUrl = defaultOrigin + leadApiUrl;
+          }
+
+          if (leadApiUrl) {
+            console.log('📧 Widget mode: Submitting to lead API', { leadApiUrl });
+            const payload = {
+              ...formData,
+              submit_email_template: emailTemplate || '',
+              session_id: sessionId,
+            };
+
+            const res = await fetch(leadApiUrl, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(payload),
+              mode: 'cors',
+              credentials: 'omit',
+            });
+
+            if (!res.ok) {
+              const text = await res.text().catch(() => '');
+              throw new Error(`Lead API error (${res.status}): ${text || res.statusText}`);
+            }
+
+            console.log('✅ Lead submitted successfully to Vercel API');
+            return;
+          }
+
+          // Fallback to WordPress AJAX if API not configured
+          console.log('ℹ️ Lead API not configured, falling back to WordPress AJAX');
           const wpConfig = (window as any).e1_widget_config;
           if (!wpConfig?.nonce) {
-            console.error('❌ WordPress nonce not found');
             throw new Error('WordPress configuration not found');
           }
-          
-          // Get calculated results from context
-          const calculatedResults = Object.entries(cardStates)
-            .filter(([_, state]) => state.data && Object.keys(state.data).length > 0)
-            .reduce((acc, [cardId, state]) => ({
-              ...acc,
-              [cardId]: state.data
-            }), {});
-          
-          // Submit via WordPress AJAX using configured URL
+
           const response = await fetch(wpConfig.ajax_url || '/wp-admin/admin-ajax.php', {
             method: 'POST',
             headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
@@ -485,22 +514,15 @@ export function CardProvider({
               action: 'e1_submit_form',
               nonce: wpConfig.nonce,
               formData: JSON.stringify(formData),
-              calculations: JSON.stringify(calculatedResults),
               emailTemplate: emailTemplate || ''
             })
           });
-          
           if (!response.ok) {
             throw new Error('WordPress submission failed');
           }
-          
-          const result = await response.json();
-          if (!result.success) {
-            throw new Error(result.data || 'Submission failed');
-          }
-          
+          await response.json().catch(() => ({}));
           console.log('✅ Widget form submitted successfully via WordPress');
-          return result.data;
+          return;
         } catch (error) {
           console.error('❌ Widget submission error:', error);
           throw error;

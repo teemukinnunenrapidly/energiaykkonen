@@ -257,6 +257,7 @@ const E1CalculatorWidget: React.FC<{
       }
       
       let data = null;
+      let rootConfig: any = null; // store last loaded root config (for settings/api)
       
       // Try multiple data sources with error handling
       try {
@@ -265,6 +266,7 @@ const E1CalculatorWidget: React.FC<{
           try {
             console.log('🚀 Attempting to load fresh data from Vercel API:', config.apiUrl);
             const loadedConfig = await loadConfigDataWithRetry(config.apiUrl, elementId);
+            rootConfig = loadedConfig;
             data = loadedConfig.data || loadedConfig;
             console.log('✅ Successfully loaded data from Vercel API');
             
@@ -300,11 +302,17 @@ const E1CalculatorWidget: React.FC<{
         if (!data && config.configUrl) {
           console.log('🔄 Loading data from config.json URL as fallback');
           const loadedConfig = await loadConfigDataWithRetry(config.configUrl, elementId);
+          rootConfig = loadedConfig;
           data = loadedConfig.data || loadedConfig;
           
           if (loadedConfig.cloudflareAccountHash) {
             (window as any).__E1_CLOUDFLARE_HASH = loadedConfig.cloudflareAccountHash;
             process.env.NEXT_PUBLIC_CLOUDFLARE_ACCOUNT_HASH = loadedConfig.cloudflareAccountHash;
+          }
+          // Expose settings/api from root-level config so submit flow can find leadApiUrl
+          if (loadedConfig.settings || loadedConfig.api) {
+            (window as any).__E1_WIDGET_SETTINGS__ = loadedConfig.settings || {};
+            (window as any).__E1_WIDGET_API__ = loadedConfig.api || {};
           }
         }
         
@@ -346,6 +354,9 @@ const E1CalculatorWidget: React.FC<{
           lookupTables: data.lookupTables || {},
           theme: data.theme || {},
           cloudflareAccountHash: config.cloudflareAccountHash || (window as any).__E1_CLOUDFLARE_HASH,
+          // Bubble up lead API configuration for submission logic
+          settings: (window as any).__E1_WIDGET_SETTINGS__ || rootConfig?.settings || {},
+          api: (window as any).__E1_WIDGET_API__ || rootConfig?.api || {},
           ...data
         };
         

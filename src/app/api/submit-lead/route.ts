@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { headers } from 'next/headers';
 import React from 'react';
-import { supabase } from '@/lib/supabase';
+import { createClient } from '@supabase/supabase-js';
 import { calculateHeatPumpSavings } from '@/lib/calculations';
 import { sendLeadEmails } from '@/lib/email-service';
 import { defaultRateLimiter, securityLogger } from '@/lib/input-sanitizer';
@@ -13,6 +13,24 @@ import { EmailAttachment } from '@/lib/resend';
 
 // Enhanced rate limiting with security logging
 const RATE_LIMIT = 10;
+
+// Create a Supabase admin client for server-side writes (bypass RLS)
+const supabaseAdmin = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
+);
+
+// CORS helper
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Methods': 'POST, OPTIONS',
+  'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+  'Access-Control-Allow-Credentials': 'false'
+};
+
+export async function OPTIONS() {
+  return NextResponse.json({}, { status: 200, headers: corsHeaders });
+}
 
 export async function POST(request: NextRequest) {
   try {
@@ -68,7 +86,7 @@ export async function POST(request: NextRequest) {
           status: 'error',
           code: 'VALIDATION_ERROR',
         },
-        { status: 400 }
+        { status: 400, headers: corsHeaders }
       );
     }
 
@@ -123,7 +141,7 @@ export async function POST(request: NextRequest) {
     // Calculate all values needed for PDF generation
     const calculationResults = await calculatePDFValues(
       formData,
-      body.sessionId
+      body.sessionId || body.session_id
     );
 
     console.log('📊 Calculation results for PDF:', calculationResults);
@@ -148,7 +166,7 @@ export async function POST(request: NextRequest) {
     };
 
     // Insert lead into Supabase
-    const { data: insertedLead, error: insertError } = await supabase
+    const { data: insertedLead, error: insertError } = await supabaseAdmin
       .from('leads')
       .insert([leadData])
       .select()
@@ -162,7 +180,7 @@ export async function POST(request: NextRequest) {
           status: 'error',
           code: 'DATABASE_ERROR',
         },
-        { status: 500 }
+        { status: 500, headers: corsHeaders }
       );
     }
 
@@ -195,7 +213,7 @@ export async function POST(request: NextRequest) {
       const pdfFileName = `${insertedLead.id}/saastolaskelma-${pdfData.calculationNumber || Date.now()}.pdf`;
 
       try {
-        const { data: uploadData, error: uploadError } = await supabase.storage
+        const { data: uploadData, error: uploadError } = await supabaseAdmin.storage
           .from('lead-pdfs')
           .upload(pdfFileName, pdfBuffer, {
             contentType: 'application/pdf',
@@ -209,7 +227,7 @@ export async function POST(request: NextRequest) {
           console.log('✅ PDF uploaded to storage:', uploadData.path);
 
           // Get the public URL for the PDF
-          const { data: urlData } = supabase.storage
+          const { data: urlData } = supabaseAdmin.storage
             .from('lead-pdfs')
             .getPublicUrl(pdfFileName);
 
@@ -222,7 +240,7 @@ export async function POST(request: NextRequest) {
             pdf_generated_at: new Date().toISOString(),
           };
 
-          const { error: updateError } = await supabase
+          const { error: updateError } = await supabaseAdmin
             .from('leads')
             .update({
               form_data: updatedFormData,
@@ -304,6 +322,7 @@ export async function POST(request: NextRequest) {
       {
         status: 201,
         headers: {
+          ...corsHeaders,
           'X-RateLimit-Limit': RATE_LIMIT.toString(),
           'X-RateLimit-Remaining': rateLimit.remaining.toString(),
         },
@@ -318,7 +337,7 @@ export async function POST(request: NextRequest) {
         status: 'error',
         code: 'INTERNAL_ERROR',
       },
-      { status: 500 }
+      { status: 500, headers: corsHeaders }
     );
   }
 }
