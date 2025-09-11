@@ -65,22 +65,24 @@ class E1_Calculator_Loader {
         
         $start_time = microtime(true);
         
-        // 1. WordPress Loader Script (loads first, in head for immediate availability)
-        wp_enqueue_script(
-            'e1-calculator-loader',
-            $this->cache_url . '/wordpress-loader.js',
-            [],
-            $this->version,
-            false // Load in head for immediate initialization
-        );
-        
-        // 2. Main Widget Script (loads after loader, with dependency)
+        // 1. Main Widget Script (loads first, MUST be in footer)
+        // Load directly from cached bundle
         wp_enqueue_script(
             'e1-calculator-widget',
             $this->cache_url . '/widget.js',
-            ['e1-calculator-loader'],
+            [],
             $this->version,
-            true // Load in footer after DOM
+            true
+        );
+        
+        // 2. WordPress Loader Script (loads after widget, with dependency)
+        // Load directly from cached bundle
+        wp_enqueue_script(
+            'e1-calculator-loader',
+            $this->cache_url . '/wordpress-loader.js',
+            ['e1-calculator-widget'],
+            $this->version,
+            true
         );
         
         // 3. Enqueue appropriate CSS based on browser support
@@ -263,6 +265,50 @@ class E1_Calculator_Loader {
                     </div>
                 </div>
             </div>
+            
+            
+            
+            <!-- Emergency fallback initialization script -->
+            <script>
+            (function() {
+                let attempts = 0;
+                const maxAttempts = 50; // 5 seconds max
+                
+                function tryInit() {
+                    attempts++;
+                    console.log('Widget init attempt ' + attempts);
+                    
+                    // Check for different possible widget exports
+                    const widget = window.E1Calculator || window.E1CalculatorWidget;
+                    
+                    if (widget) {
+                        console.log('Found widget object:', widget);
+                        
+                        // Try different init methods
+                        if (widget.initAll && 
+                        typeof widget.initAll === 'function') {
+                            console.log('Using initAll method');
+                            widget.initAll({configUrl: '<?php echo esc_js($this->cache_url); ?>/config.json'});
+                        } else if (widget.init && typeof widget.init === 'function') {
+                            console.log('Using init method');
+                            widget.init({configUrl: '<?php echo esc_js($this->cache_url); ?>/config.json'});
+                        } else {
+                            console.log('No suitable init method found');
+                        }
+                        return;
+                    }
+                    
+                    if (attempts < maxAttempts) {
+                        setTimeout(tryInit, 100);
+                    } else {
+                        console.error('Widget initialization failed after ' + attempts + ' attempts');
+                    }
+                }
+                
+                // Start trying after a short delay
+                setTimeout(tryInit, 500);
+            })();
+            </script>
             <?php else: ?>
             <!-- Lazy loading placeholder -->
             <div class="e1-calculator-lazy-placeholder" role="button" tabindex="0" 
@@ -631,15 +677,76 @@ class E1_Calculator_Loader {
     }
     
     /**
+     * Serve cached assets via AJAX to ensure correct Content-Type in local dev
+     */
+    public function ajax_serve_asset() {
+        // Validate input
+        $file = isset($_GET['file']) ? basename($_GET['file']) : '';
+        if (!$file || !preg_match('/^[a-z0-9\-_.]+$/i', $file)) {
+            status_header(400);
+            exit;
+        }
+        
+        // Resolve candidate paths robustly
+        $candidates = [];
+        $candidates[] = trailingslashit($this->cache_path) . $file;
+        if (defined('E1_CALC_CACHE_DIR')) {
+            $candidates[] = trailingslashit(E1_CALC_CACHE_DIR) . $file;
+        }
+        $uploads = wp_upload_dir();
+        if (!empty($uploads['basedir'])) {
+            $candidates[] = trailingslashit($uploads['basedir']) . 'e1-calculator-cache/' . $file;
+        }
+        // Fallback to plugin-bundled cache directory (useful for local/dev)
+        if (defined('E1_CALC_PLUGIN_DIR')) {
+            $candidates[] = trailingslashit(E1_CALC_PLUGIN_DIR) . 'cache/' . $file;
+        }
+        
+        $path = '';
+        foreach ($candidates as $candidate) {
+            if (file_exists($candidate) && is_readable($candidate)) {
+                $path = $candidate;
+                break;
+            }
+        }
+        
+        if (!$path) {
+            // Log the paths we tried for easier debugging in debug.log
+            error_log('E1 Calculator asset not found: ' . $file . ' | tried: ' . implode(' | ', $candidates));
+            status_header(404);
+            exit;
+        }
+        
+        // Set MIME types explicitly
+        $ext = pathinfo($path, PATHINFO_EXTENSION);
+        $types = [
+            'js' => 'application/javascript; charset=UTF-8',
+            'css' => 'text/css; charset=UTF-8',
+            'json' => 'application/json; charset=UTF-8'
+        ];
+        $ctype = isset($types[$ext]) ? $types[$ext] : 'application/octet-stream';
+        
+        if (!headers_sent()) {
+            header('Content-Type: ' . $ctype);
+            header('Cache-Control: public, max-age=600');
+        }
+        
+        readfile($path);
+        exit;
+    }
+    
+    /**
      * Enhanced cache URL and path management
      */
     private function get_cache_url() {
         $upload_dir = wp_upload_dir();
         $cache_url = $upload_dir['baseurl'] . '/e1-calculator-cache';
         
-        // Ensure HTTPS in admin/secure contexts
-        if (is_admin() || is_ssl()) {
-            $cache_url = str_replace('http://', 'https://', $cache_url);
+        // Honor current scheme; don't force https in admin if the server isn't using it
+        if (is_ssl()) {
+            $cache_url = set_url_scheme($cache_url, 'https');
+        } else {
+            $cache_url = set_url_scheme($cache_url, 'http');
         }
         
         return $cache_url;
@@ -682,8 +789,8 @@ class E1_Calculator_Loader {
             return false; // Don't load in REST context
         }
         
-        // Check query parameters
-        $editor_params = ['action' => 'edit', 'post_type', 'page'];
+        // Check query parameters (only treat edit flows as block context)
+        $editor_params = ['action' => 'edit', 'post_type'];
         foreach ($editor_params as $param) {
             if (isset($_GET[$param])) {
                 return true;
