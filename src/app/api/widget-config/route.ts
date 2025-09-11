@@ -45,10 +45,11 @@ export async function GET(request: NextRequest) {
     };
 
     // Parallel data fetching for performance
-    const [cardsResult, visualsResult, formulasResult, widgetFilesResult] = await Promise.allSettled([
+    const [cardsResult, visualsResult, formulasResult, lookupsResult, widgetFilesResult] = await Promise.allSettled([
       fetchCardData(),
       fetchVisualData(), 
       fetchFormulaData(),
+      fetchLookupTables(),
       fetchWidgetFiles()
     ]);
 
@@ -63,6 +64,7 @@ export async function GET(request: NextRequest) {
     const cards = cardsResult.status === 'fulfilled' ? cardsResult.value : [];
     const visuals = visualsResult.status === 'fulfilled' ? visualsResult.value : [];
     const formulas = formulasResult.status === 'fulfilled' ? formulasResult.value : [];
+    const lookupTables = lookupsResult.status === 'fulfilled' ? lookupsResult.value : [];
     const widgetFiles = widgetFilesResult.status === 'fulfilled' ? widgetFilesResult.value : { js: '', css: '' };
 
     // Get base URL for API endpoints - requirement #4
@@ -215,6 +217,9 @@ export async function GET(request: NextRequest) {
         is_active: formula.is_active,
         created_at: formula.created_at,
         })),
+
+        // Lookup tables for widget-mode conditional selection
+        lookupTables: lookupTables,
         
         // (array alias removed to avoid duplicate key; using id-keyed map above)
       },
@@ -296,6 +301,9 @@ export async function GET(request: NextRequest) {
         is_active: formula.is_active,
         created_at: formula.created_at,
       })),
+
+      // Also expose lookup tables at root for other clients
+      lookupTables: lookupTables,
 
       // Widget features and settings
       features: {
@@ -542,6 +550,47 @@ async function fetchFormulaData() {
 
   console.log(`✅ Fetched ${data?.length || 0} active formulas`);
   return data || [];
+}
+
+// Fetch lookup tables plus their conditions to let the widget decide calculations
+async function fetchLookupTables() {
+  console.log('🔎 Fetching lookup tables and conditions from Supabase...');
+  try {
+    const { data: lookups, error: lookupErr } = await supabase
+      .from('formula_lookups')
+      .select('*')
+      .eq('is_active', true)
+      .order('name');
+
+    if (lookupErr) throw lookupErr;
+
+    const { data: conditions, error: condErr } = await supabase
+      .from('formula_lookup_conditions')
+      .select('*')
+      .eq('is_active', true)
+      .order('lookup_id', { ascending: true });
+
+    if (condErr) throw condErr;
+
+    const grouped = (lookups || []).map((l: any) => ({
+      ...l,
+      conditions: (conditions || [])
+        .filter((c: any) => c.lookup_id === l.id)
+        .map((c: any) => ({
+          id: c.id,
+          condition_field: c.condition_field,
+          condition_operator: c.condition_operator,
+          condition_value: c.condition_value,
+          return_value: c.return_value,
+        }))
+    }));
+
+    console.log(`✅ Fetched ${grouped.length} lookup tables with conditions`);
+    return grouped;
+  } catch (error) {
+    console.error('❌ Error fetching lookup tables:', error);
+    return [];
+  }
 }
 
 async function fetchWidgetFiles() {
