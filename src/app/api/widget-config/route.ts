@@ -68,6 +68,30 @@ export async function GET(request: NextRequest) {
     // Get base URL for API endpoints - requirement #4
     const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://energiaykkonen-calculator.vercel.app';
 
+    // Build helper: map of visual objects keyed by id (widget expects object access by id)
+    const visualObjectsMap = Object.fromEntries(
+      visuals.map((visual: any) => [
+        visual.id,
+        {
+          id: visual.id,
+          title: visual.title,
+          description: visual.description,
+          type: visual.type,
+          content_data: visual.content_data || {},
+          display_config: visual.display_config || {},
+          is_active: visual.is_active,
+          created_at: visual.created_at,
+          images: (visual.visual_object_images || []).map((img: any) => ({
+            id: img.id,
+            image_url: img.image_url,
+            alt_text: img.alt_text,
+            display_order: img.display_order,
+            image_variant: img.image_variant,
+          })),
+        },
+      ])
+    );
+
     // Consolidated configuration object - requirement #8
     const config = {
       // Version management - requirement #9
@@ -111,7 +135,15 @@ export async function GET(request: NextRequest) {
         title: card.title,
         type: card.type,
         display_order: card.display_order,
-        config: card.config || {},
+        // Ensure widget compatibility: mirror visual_object_id into config.linked_visual_object_id
+        config: {
+          ...(card.config || {}),
+          linked_visual_object_id:
+            (card.config?.linked_visual_object_id as string | undefined) ||
+            (card.visual_object_id as string | undefined) ||
+            (card.visual_objects?.id as string | undefined) ||
+            null,
+        },
         styling: card.styling || {},
         completion_rules: card.completion_rules || {},
         reveal_timing: card.reveal_timing || {},
@@ -139,7 +171,7 @@ export async function GET(request: NextRequest) {
         } : null,
       })),
 
-        // Visual objects from Supabase - requirement #2
+        // Visual objects from Supabase - requirement #2 (array form kept for other clients)
         visuals: visuals.map(visual => ({
         id: visual.id,
         title: visual.title,
@@ -157,6 +189,9 @@ export async function GET(request: NextRequest) {
           image_variant: img.image_variant,
         })),
       })),
+
+        // Widget compatibility: visuals as an object keyed by id for O(1) lookup
+        visualObjects: visualObjectsMap,
 
         // Formulas from Supabase - requirement #3
         formulas: formulas.map(formula => ({
@@ -198,7 +233,15 @@ export async function GET(request: NextRequest) {
         title: card.title,
         type: card.type,
         display_order: card.display_order,
-        config: card.config || {},
+        // mirror linked_visual_object_id here as well
+        config: {
+          ...(card.config || {}),
+          linked_visual_object_id:
+            (card.config?.linked_visual_object_id as string | undefined) ||
+            (card.visual_object_id as string | undefined) ||
+            (card.visual_objects?.id as string | undefined) ||
+            null,
+        },
         styling: card.styling || {},
         completion_rules: card.completion_rules || {},
         reveal_timing: card.reveal_timing || {},
