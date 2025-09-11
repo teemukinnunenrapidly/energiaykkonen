@@ -74,6 +74,15 @@ class E1_Calculator_Loader {
             $this->version,
             true
         );
+
+        // If an AMD loader (e.g., RequireJS) is present on the page, UMD bundles
+        // register as AMD modules and do NOT expose globals. Temporarily disable
+        // AMD during widget.js execution to force a global export (window.E1CalculatorWidget).
+        wp_add_inline_script(
+            'e1-calculator-widget',
+            'try { window.__e1AMD_backup__ = window.define; window.define = undefined; } catch (e) {}',
+            'before'
+        );
         
         // 2. WordPress Loader Script (loads after widget, with dependency)
         // Enqueue only if the file exists in cache (optional during local/dev)
@@ -128,7 +137,14 @@ class E1_Calculator_Loader {
             ],
         ]);
         
-        // 5. Enhanced auto-initialization with error handling
+        // Restore AMD if it was present before loading widget.js
+        wp_add_inline_script(
+            'e1-calculator-widget',
+            '(function(){ try { if (window.__e1AMD_backup__) { window.define = window.__e1AMD_backup__; } else { try { delete window.define; } catch(e) {} } } finally { try { delete window.__e1AMD_backup__; } catch(e) {} } })();',
+            'after'
+        );
+
+        // 5. Enhanced auto-initialization with error handling (runs after restore)
         wp_add_inline_script(
             'e1-calculator-widget',
             $this->get_initialization_script(),
