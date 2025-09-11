@@ -14,11 +14,15 @@ import { EmailAttachment } from '@/lib/resend';
 // Enhanced rate limiting with security logging
 const RATE_LIMIT = 10;
 
-// Create a Supabase admin client for server-side writes (bypass RLS)
-const supabaseAdmin = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
+// Lazy admin client creator to avoid build-time env errors
+function getSupabaseAdmin() {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  if (!url || !serviceKey) {
+    throw new Error('Supabase admin env vars missing');
+  }
+  return createClient(url, serviceKey);
+}
 
 // CORS helper
 const corsHeaders = {
@@ -166,6 +170,7 @@ export async function POST(request: NextRequest) {
     };
 
     // Insert lead into Supabase
+    const supabaseAdmin = getSupabaseAdmin();
     const { data: insertedLead, error: insertError } = await supabaseAdmin
       .from('leads')
       .insert([leadData])
