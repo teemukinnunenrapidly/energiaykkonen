@@ -660,9 +660,61 @@ class Admin_Settings {
                 throw new Exception('Tyhjä vastaus Vercel API:sta');
             }
             
-            // Tallenna cache
+            // Hae myös widget.js ja widget.css tiedostot Vercelin domainin /cache/-polusta
+            // Huom: vercel_api_url viittaa API:in (esim. /api/widget-config). Staattiset assetit ovat domainin juuressa /cache/
+            $widget_files = [];
+            $cache_base_url = '';
+
+            $parsed = wp_parse_url($vercel_url);
+            if ($parsed && !empty($parsed['scheme']) && !empty($parsed['host'])) {
+                $origin = $parsed['scheme'] . '://' . $parsed['host'] . (isset($parsed['port']) ? ':' . $parsed['port'] : '');
+                $cache_base_url = rtrim($origin, '/') . '/cache/';
+            } else {
+                // Fallback: käytä alkuperäistä URL:ia ja yritä suhteellista polkua (saattaa epäonnistua)
+                $cache_base_url = rtrim($vercel_url, '/') . '/cache/';
+            }
+
+            // Hae widget.js
+            $js_response = wp_remote_get($cache_base_url . 'widget.js', [
+                'timeout' => 30,
+                'headers' => ['User-Agent' => 'E1-Calculator-WordPress/' . E1_CALC_VERSION]
+            ]);
+
+            if (!is_wp_error($js_response) && wp_remote_retrieve_response_code($js_response) === 200) {
+                $widget_files['js'] = wp_remote_retrieve_body($js_response);
+            }
+
+            // Hae widget.css
+            $css_response = wp_remote_get($cache_base_url . 'widget.css', [
+                'timeout' => 30,
+                'headers' => ['User-Agent' => 'E1-Calculator-WordPress/' . E1_CALC_VERSION]
+            ]);
+
+            if (!is_wp_error($css_response) && wp_remote_retrieve_response_code($css_response) === 200) {
+                $widget_files['css'] = wp_remote_retrieve_body($css_response);
+            }
+
+            // Viimeinen turvaverkko: jos Vercel ei palauta assetteja, täydennä pluginin bundled cache -kansiosta
+            $plugin_cache = trailingslashit(E1_CALC_PLUGIN_DIR) . 'cache/';
+            if (empty($widget_files['js'])) {
+                $local_js = $plugin_cache . 'widget.js';
+                if (file_exists($local_js) && is_readable($local_js)) {
+                    $widget_files['js'] = file_get_contents($local_js);
+                    error_log('E1 Calculator: Filled missing widget.js from plugin cache (admin sync)');
+                }
+            }
+            if (empty($widget_files['css'])) {
+                $local_css = $plugin_cache . 'widget.css';
+                if (file_exists($local_css) && is_readable($local_css)) {
+                    $widget_files['css'] = file_get_contents($local_css);
+                    error_log('E1 Calculator: Filled missing widget.css from plugin cache (admin sync)');
+                }
+            }
+            
+            // Tallenna cache - sisältää nyt myös JS ja CSS
             $bundle = [
                 'config' => $config_data,
+                'widget' => $widget_files, // Tämä on avain muutos!
                 'version' => $config_data['version'] ?? 'vercel-sync',
                 'checksum' => md5($body),
                 'generated_at' => current_time('mysql'),
@@ -680,12 +732,19 @@ class Admin_Settings {
             $options['cache_last_synced'] = current_time('d.m.Y H:i:s');
             update_option('e1_calculator_options', $options);
             
+            // Laske synkronoidut tiedostot
+            $synced_files = ['config.json'];
+            if (!empty($widget_files['js'])) $synced_files[] = 'widget.js';
+            if (!empty($widget_files['css'])) $synced_files[] = 'widget.css';
+            
             wp_send_json_success([
                 'message' => 'Widget synkronoitu onnistuneesti Vercel:sta! ✅',
                 'synced_at' => $options['cache_last_synced'],
                 'cards_count' => isset($config_data['data']['cards']) ? count($config_data['data']['cards']) : 0,
                 'visual_objects_count' => isset($config_data['data']['visualObjects']) ? count($config_data['data']['visualObjects']) : 0,
-                'version' => $bundle['version']
+                'version' => $bundle['version'],
+                'synced_files' => $synced_files,
+                'files_count' => count($synced_files)
             ]);
             
         } catch (Exception $e) {

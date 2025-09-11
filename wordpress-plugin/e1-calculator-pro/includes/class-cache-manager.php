@@ -33,12 +33,15 @@ class Cache_Manager {
         $htaccess = E1_CALC_CACHE_DIR . '.htaccess';
         $rules = <<<HTACCESS
 # E1 Calculator cache rules
-<IfModule mod_authz_core.c>
-    Require all denied
+<IfModule mod_headers.c>
+    Header set X-Content-Type-Options nosniff
+    Header set X-Frame-Options SAMEORIGIN
 </IfModule>
-<IfModule !mod_authz_core.c>
-    Deny from all
-</IfModule>
+
+# Serve JS/CSS/JSON with correct MIME types
+AddType application/javascript .js
+AddType text/css .css
+AddType application/json .json
 
 # Allow public access to widget assets
 <FilesMatch "^(widget\\.js|widget\\.css|config\\.json)$">
@@ -153,7 +156,10 @@ HTACCESS;
             error_log('E1 Calculator: Cache bundle loaded with config containing:');
             // Check the correct nested structure: config.data.cards
             error_log('  - Cards: ' . (isset($bundle['config']['data']['cards']) ? count($bundle['config']['data']['cards']) : 'MISSING'));
-            error_log('  - VisualObjects: ' . (isset($bundle['config']['data']['visualObjects']) ? count($bundle['config']['data']['visualObjects']) : 'MISSING'));
+            $visualObjects = isset($bundle['config']['data']['visualObjects']) ? count($bundle['config']['data']['visualObjects']) : 0;
+            $visuals = isset($bundle['config']['data']['visuals']) ? count($bundle['config']['data']['visuals']) : 0;
+            error_log('  - VisualObjects: ' . ($visualObjects > 0 ? $visualObjects : 'MISSING'));
+            error_log('  - Visuals (fallback): ' . ($visuals > 0 ? $visuals : 'MISSING'));
             
             // If cards are empty, debug the structure
             if (empty($bundle['config']['data']['cards'])) {
@@ -256,10 +262,13 @@ HTACCESS;
             }
         }
         
-        // Also clear temp files
-        $temp_files = glob(E1_CALC_CACHE_DIR . 'temp/*.tmp');
-        foreach ($temp_files as $file) {
-            @unlink($file);
+        // Also clear temp files (be tolerant if temp/ doesn't exist)
+        $temp_dir = E1_CALC_CACHE_DIR . 'temp/';
+        if (file_exists($temp_dir)) {
+            $temp_files = glob($temp_dir . '*.tmp') ?: [];
+            foreach ($temp_files as $file) {
+                @unlink($file);
+            }
         }
         
         error_log('E1 Calculator: Cache cleared completely');

@@ -1,0 +1,37 @@
+# E1 Calculator Cache - Force correct MIME types
+
+# Force specific handlers for each file type
+<FilesMatch "\.(js)$">
+    SetHandler default-handler
+    ForceType application/javascript
+</FilesMatch>
+
+<FilesMatch "\.(css)$">
+    SetHandler default-handler
+    ForceType text/css
+</FilesMatch>
+
+<FilesMatch "\.(json)$">
+    SetHandler default-handler
+    ForceType application/json
+</FilesMatch>
+
+# Allow proxy PHP files for JavaScript serving
+<FilesMatch "(widget-proxy|loader-proxy)\.php$">
+    SetHandler php-script
+    SetEnv no-gzip
+    Order allow,deny
+    Allow from all
+</FilesMatch>
+
+# Allow all files in this directory
+<Files "*">
+  Order allow,deny
+  Allow from all
+</Files>
+
+# Block other PHP files for security
+<Files "*.php">
+  Order deny,allow
+  Deny from all
+</Files>

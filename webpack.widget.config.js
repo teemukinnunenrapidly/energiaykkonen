@@ -22,6 +22,7 @@ module.exports = (env, argv) => {
       },
       globalObject: 'this',
       clean: false, // Disable clean to avoid file conflicts
+      publicPath: '', // Fixed publicPath to avoid "Automatic publicPath is not supported" error
     },
     module: {
       rules: [

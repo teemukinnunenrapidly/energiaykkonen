@@ -572,16 +572,85 @@ async function fetchLookupTables() {
 
     if (condErr) throw condErr;
 
-    const grouped = (lookups || []).map((l: any) => ({
-      ...l,
-      conditions: (conditions || [])
+    // Try enhanced lookup rules view if available. This view is expected to
+    // expose rules that include parsed condition fields and an action_config
+    // describing which calculation shortcode to run.
+    let enhancedRules: any[] = [];
+    try {
+      const { data: enhanced, error: enhancedErr } = await supabase
+        .from('enhanced_lookup_rules_view')
+        .select('*');
+      if (enhancedErr) {
+        console.warn('⚠️ Enhanced lookup rules view not available:', enhancedErr.message);
+      } else {
+        enhancedRules = enhanced || [];
+        console.log(`✅ Fetched ${enhancedRules.length} enhanced lookup rule rows`);
+      }
+    } catch (e) {
+      console.warn('⚠️ Error querying enhanced_lookup_rules_view (ignored):', (e as Error).message);
+      enhancedRules = [];
+    }
+
+    // Helper to derive a [calc:...] return value from an action_config object/string
+    const deriveReturnValueFromAction = (row: any): string | undefined => {
+      const raw = row?.action_config ?? row?.action ?? row?.target_shortcode;
+      if (!raw) return undefined;
+
+      const tryString = (val: any): string | undefined => {
+        if (typeof val !== 'string') return undefined;
+        // If it's already a shortcode, return as-is
+        const m = val.match(/\[calc:([^\]]+)\]/);
+        if (m) return val;
+        // If it looks like a plain calc name, wrap it
+        if (val && /[a-zA-Z]/.test(val)) return `[calc:${val.trim()}]`;
+        return undefined;
+      };
+
+      // 1) If string
+      const direct = tryString(raw);
+      if (direct) return direct;
+
+      // 2) If JSON or object, probe common keys
+      let obj: any = raw;
+      if (typeof raw === 'string') {
+        try {
+          obj = JSON.parse(raw);
+        } catch {
+          obj = undefined;
+        }
+      }
+      const candidates = [
+        obj?.run_formula,
+        obj?.formula,
+        obj?.formula_name,
+        obj?.shortcode,
+        obj?.calc,
+        obj?.target_shortcode,
+      ];
+      for (const c of candidates) {
+        const s = tryString(c);
+        if (s) return s;
+      }
+      return undefined;
+    };
+
+    // Build a quick index of enhanced rules by lookup title
+    const enhancedByTitle = new Map<string, any[]>();
+    for (const row of enhancedRules) {
+      const title = String(row.lookup_title || row.lookup || row.title || '').trim();
+      if (!title) continue;
+      if (!enhancedByTitle.has(title)) enhancedByTitle.set(title, []);
+      enhancedByTitle.get(title)!.push(row);
+    }
+
+    const grouped = (lookups || []).map((l: any) => {
+      // Start from legacy conditions
+      const legacyConditions = (conditions || [])
         .filter((c: any) => c.lookup_id === l.id)
         .map((c: any) => {
-          // Preserve raw rule fields from DB for maximum compatibility
           const rawRule = (c as any).condition_rule;
           const rawTarget = (c as any).target_shortcode;
 
-          // Try to extract field and value from a rule like: [field:lammitysmuoto] == "Öljylämmitys"
           let parsedField: string | undefined;
           let parsedValue: string | undefined;
           if (typeof rawRule === 'string') {
@@ -592,24 +661,94 @@ async function fetchLookupTables() {
             }
           }
 
-          // Prefer explicit columns if they exist, otherwise use parsed
-          const condition_field = (c as any).condition_field || parsedField;
-          const condition_operator = (c as any).condition_operator || 'eq';
-          const condition_value = (c as any).condition_value || parsedValue;
-          const return_value = (c as any).return_value || rawTarget;
-
           return {
             id: c.id,
+            condition_field: (c as any).condition_field || parsedField,
+            condition_operator: (c as any).condition_operator || 'eq',
+            condition_value: (c as any).condition_value || parsedValue,
+            return_value: (c as any).return_value || rawTarget,
+            condition_rule: rawRule,
+            target_shortcode: rawTarget,
+          };
+        });
+
+      // If we have enhanced rows for this lookup, prefer them
+      const titleCandidates = [l.name, l.title, l.shortcode]
+        .map((s: any) => (s ? String(s).trim() : ''))
+        .filter(Boolean);
+      let enhancedForLookup: any[] = [];
+      for (const t of titleCandidates) {
+        const rows = enhancedByTitle.get(t);
+        if (rows && rows.length) { enhancedForLookup = rows; break; }
+      }
+
+      const enhancedConditions = enhancedForLookup.map((row: any, idx: number) => {
+        const rule = row.condition_rule || row.rule || '';
+        let parsedField: string | undefined;
+        let parsedValue: string | undefined;
+        if (typeof rule === 'string') {
+          const m = rule.match(/\[field:([^\]]+)\]\s*==\s*"([^"]+)"/);
+          if (m) {
+            parsedField = m[1];
+            parsedValue = m[2];
+          }
+        }
+        const condition_field = row.condition_field || parsedField;
+        const condition_operator = row.condition_operator || 'eq';
+        const condition_value = row.condition_value || parsedValue;
+        const return_value = deriveReturnValueFromAction(row) || row.target_shortcode || row.return_value;
+        return {
+          id: row.id || `${l.id || l.name}-enhanced-${idx}`,
+          condition_field,
+          condition_operator,
+          condition_value,
+          return_value,
+          condition_rule: rule,
+          target_shortcode: row.target_shortcode,
+        };
+      });
+
+      return {
+        ...l,
+        conditions: enhancedConditions.length > 0 ? enhancedConditions : legacyConditions,
+      };
+    });
+
+    // If enhanced contains lookups not present in base list, append them
+    for (const [title, rows] of enhancedByTitle.entries()) {
+      const already = grouped.find((g: any) => [g.name, g.title, g.shortcode].some((s: any) => (s ? String(s).trim() : '') === title));
+      if (already) continue;
+      grouped.push({
+        id: `enhanced-${title}`,
+        name: title,
+        title,
+        conditions: rows.map((row: any, idx: number) => {
+          const rule = row.condition_rule || row.rule || '';
+          let parsedField: string | undefined;
+          let parsedValue: string | undefined;
+          if (typeof rule === 'string') {
+            const m = rule.match(/\[field:([^\]]+)\]\s*==\s*"([^"]+)"/);
+            if (m) {
+              parsedField = m[1];
+              parsedValue = m[2];
+            }
+          }
+          const condition_field = row.condition_field || parsedField;
+          const condition_operator = row.condition_operator || 'eq';
+          const condition_value = row.condition_value || parsedValue;
+          const return_value = deriveReturnValueFromAction(row) || row.target_shortcode || row.return_value;
+          return {
+            id: row.id || `enhanced-${title}-${idx}`,
             condition_field,
             condition_operator,
             condition_value,
             return_value,
-            // Keep raw fields too for clients that prefer to parse
-            condition_rule: rawRule,
-            target_shortcode: rawTarget,
+            condition_rule: rule,
+            target_shortcode: row.target_shortcode,
           };
         })
-    }));
+      });
+    }
 
     console.log(`✅ Fetched ${grouped.length} lookup tables with conditions`);
     return grouped;

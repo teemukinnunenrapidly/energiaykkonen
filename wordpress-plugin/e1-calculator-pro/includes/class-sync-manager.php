@@ -51,6 +51,8 @@ class Sync_Manager {
                 
                 try {
                     $bundle = $api_client->fetch_widget_bundle();
+                    // Täydennä mahdollisesti puuttuvat widget assetit ENNEN validointia
+                    $bundle = $this->ensure_widget_assets_present($bundle);
                     
                     if ($bundle && $this->validate_bundle($bundle)) {
                         break; // Success!
@@ -69,13 +71,19 @@ class Sync_Manager {
             }
             
             // 4. Checksum validation removed - not essential for basic functionality
-            
+
+            // 4.1 Varmista että widget.js ja widget.css ovat olemassa bundlessa.
+            $bundle = $this->ensure_widget_assets_present($bundle);
+
             // 5. ATOMINEN KIRJOITUS
             $write_success = $this->atomic_write_bundle($bundle);
             
             if (!$write_success) {
                 throw new \Exception('Failed to write bundle to cache');
             }
+            
+            // 5.1 Varmuuskopio: jos jompikumpi asset puuttuu, kopioi pluginin cachesta
+            $this->guarantee_assets_in_uploads();
             
             // 6. TESTAA ETTÄ TIEDOSTOT TOIMIVAT
             if (!$this->verify_cache_integrity()) {
@@ -106,6 +114,66 @@ class Sync_Manager {
         }
         
         return $result;
+    }
+
+    /**
+     * Täydennä bundlen puuttuvat widget.js ja widget.css -sisällöt
+     * jos API ei toimita niitä. Käytetään paikallista pluginin cache-kansiota
+     * kehitysympäristössä varmistamaan, että lataus toimii.
+     */
+    private function ensure_widget_assets_present($bundle) {
+        // Luo rakenne tarvittaessa
+        if (!isset($bundle['widget']) || !is_array($bundle['widget'])) {
+            $bundle['widget'] = [];
+        }
+
+        $jsMissing = !isset($bundle['widget']['js']) || !is_string($bundle['widget']['js']) || strlen($bundle['widget']['js']) < 100;
+        $cssMissing = !isset($bundle['widget']['css']) || !is_string($bundle['widget']['css']) || strlen($bundle['widget']['css']) < 10;
+
+        if ($jsMissing || $cssMissing) {
+            // Yritä lukea pluginin mukana tulevasta cache-kansiosta
+            $fallbackDir = trailingslashit(E1_CALC_PLUGIN_DIR) . 'cache/';
+            if ($jsMissing) {
+                $jsPath = $fallbackDir . 'widget.js';
+                if (file_exists($jsPath) && is_readable($jsPath)) {
+                    $bundle['widget']['js'] = file_get_contents($jsPath);
+                    error_log('E1 Calculator: Filled missing widget.js from plugin cache');
+                }
+            }
+            if ($cssMissing) {
+                $cssPath = $fallbackDir . 'widget.css';
+                if (file_exists($cssPath) && is_readable($cssPath)) {
+                    $bundle['widget']['css'] = file_get_contents($cssPath);
+                    error_log('E1 Calculator: Filled missing widget.css from plugin cache');
+                }
+            }
+        }
+
+        return $bundle;
+    }
+
+    /**
+     * Jos uploads-kansiosta puuttuu widget.js tai widget.css, kopioi ne pluginin
+     * bundled cache -kansiosta. Tämä on erityisesti dev-ympäristöjen varmistus.
+     */
+    private function guarantee_assets_in_uploads() {
+        $uploadsDir = $this->cache_dir;
+        $pluginCache = trailingslashit(E1_CALC_PLUGIN_DIR) . 'cache/';
+        
+        $map = [
+            'widget.js' => $pluginCache . 'widget.js',
+            'widget.css' => $pluginCache . 'widget.css',
+        ];
+        
+        foreach ($map as $name => $src) {
+            $dest = $uploadsDir . $name;
+            if (!file_exists($dest) && file_exists($src) && is_readable($src)) {
+                @copy($src, $dest);
+                if (file_exists($dest)) {
+                    error_log('E1 Calculator: Copied missing ' . $name . ' to uploads cache');
+                }
+            }
+        }
     }
     
     /**

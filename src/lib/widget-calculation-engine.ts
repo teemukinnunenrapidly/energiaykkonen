@@ -74,6 +74,31 @@ export class WidgetCalculationEngine {
   }
 
   /**
+   * Safely read a form field value with common synonym mapping.
+   * This helps when lookup conditions use legacy names like "valitse"
+   * while the actual form field is named "lammitysmuoto", etc.
+   */
+  private getFormValue(fieldName?: string): any {
+    if (!fieldName) return undefined;
+
+    const direct = this.context.formData[fieldName];
+    if (direct !== undefined && direct !== null && direct !== '') return direct;
+
+    const synonyms: Record<string, string[]> = {
+      valitse: ['lammitysmuoto', 'heating_type', 'vesikiertoinen', 'valitse'],
+      lammitysmuoto: ['lammitysmuoto', 'heating_type', 'valitse'],
+      heating_type: ['heating_type', 'lammitysmuoto', 'valitse'],
+    };
+
+    const candidates = synonyms[fieldName.toLowerCase?.() as string] || [];
+    for (const key of candidates) {
+      const v = this.context.formData[key];
+      if (v !== undefined && v !== null && v !== '') return v;
+    }
+    return undefined;
+  }
+
+  /**
    * Clear the processing cache - useful when form data changes
    */
   public clearCache(): void {
@@ -136,7 +161,7 @@ export class WidgetCalculationEngine {
             let matchRow: any | undefined;
             for (const r of rows) {
               const fName = r.condition_field || (lookupTable as any).condition_field;
-              const fVal = fName ? this.context.formData[fName] : undefined;
+              const fVal = this.getFormValue(fName);
               if (fVal === undefined) continue;
               if (String(r.condition_value) === String(fVal)) { matchRow = r; break; }
             }
@@ -151,6 +176,16 @@ export class WidgetCalculationEngine {
                 if (nestedFormula && nestedFormula.unit) {
                   unit = nestedFormula.unit;
                   console.log(`Setting unit from nested calc ${nestedName}:`, unit);
+                }
+              }
+            } else {
+              // No explicit match – infer nested calc name and set unit accordingly
+              const inferred = this.resolveLookupFallbackCalcName(lookupName);
+              if (inferred) {
+                const nestedFormula = this.formulas.find(f => f.name === inferred);
+                if (nestedFormula && nestedFormula.unit) {
+                  unit = nestedFormula.unit;
+                  console.log(`Setting unit from inferred calc ${inferred}:`, unit);
                 }
               }
             }
@@ -284,9 +319,22 @@ export class WidgetCalculationEngine {
         if (condField) {
           fieldDeps.add(condField);
           console.log(`Added lookup condition field ${condField} as dependency for ${lookupName}`);
+          // Add common synonyms to ensure recalculation triggers on real field
+          if (condField.toLowerCase() === 'valitse') {
+            fieldDeps.add('lammitysmuoto');
+            fieldDeps.add('heating_type');
+          }
         }
         const conds: any[] = (lookupTable as any).conditions || [];
-        conds.forEach(c => { if (c?.condition_field) fieldDeps.add(c.condition_field); });
+        conds.forEach(c => {
+          if (c?.condition_field) {
+            fieldDeps.add(c.condition_field);
+            if (String(c.condition_field).toLowerCase() === 'valitse') {
+              fieldDeps.add('lammitysmuoto');
+              fieldDeps.add('heating_type');
+            }
+          }
+        });
       }
     }
   }
@@ -527,23 +575,62 @@ export class WidgetCalculationEngine {
       }
       
       // Determine field/value sources (support both legacy lookup_values and new conditions)
-      const conditionField = (lookupTable as any).condition_field || (lookupTable as any).conditions?.[0]?.condition_field;
-      const conditionValue = conditionField ? this.context.formData[conditionField] : undefined;
-      console.log(`Lookup ${lookupName}: checking ${conditionField} = ${conditionValue}`);
-
       const lookupValues: any[] = (lookupTable as any).lookup_values || (lookupTable as any).conditions || [];
 
-      // Match by strict or string equality
-      let matchingValue = lookupValues.find((v: any) => v.condition_value === conditionValue);
-      if (!matchingValue) {
-        matchingValue = lookupValues.find((v: any) => String(v.condition_value) === String(conditionValue));
+      // Helper: normalize for case/whitespace
+      const norm = (v: any) => (v === undefined || v === null) ? '' : String(v).trim().toLowerCase();
+      const opEq = (a: any, b: any) => norm(a) === norm(b);
+      const opIn = (a: any, list: any) => {
+        if (Array.isArray(list)) return list.map(norm).includes(norm(a));
+        if (typeof list === 'string') return list.split(',').map(s => s.trim().toLowerCase()).includes(norm(a));
+        return false;
+      };
+
+      const parseConditionRule = (rule: any): { field?: string; value?: string } => {
+        if (typeof rule !== 'string') return {};
+        // Match formats like: [field:lammitysmuoto] == "Öljylämmitys"
+        const m = rule.match(/\[field:([^\]]+)\]\s*==\s*"([^"]+)"/);
+        if (m) {
+          return { field: m[1], value: m[2] };
+        }
+        return {};
+      };
+
+      // Evaluate each row using its own condition_field if present; fallback to table-level
+      let matchingValue: any | undefined;
+      for (const row of lookupValues) {
+        const parsed = parseConditionRule(row.condition_rule);
+        const rowField = row.condition_field || parsed.field || (lookupTable as any).condition_field;
+        const rowOperator = (row.condition_operator || 'eq').toLowerCase();
+        const rowExpected = row.condition_value ?? parsed.value;
+        const actual = this.getFormValue(rowField);
+        if (actual === undefined || actual === null || actual === '') continue;
+
+        let isMatch = false;
+        if (rowOperator === 'eq' || rowOperator === 'equals' || rowOperator === '===') {
+          isMatch = opEq(actual, rowExpected);
+        } else if (rowOperator === 'in') {
+          isMatch = opIn(actual, rowExpected);
+        } else if (rowOperator === 'contains') {
+          isMatch = norm(String(actual)).includes(norm(rowExpected));
+        } else {
+          // Default to eq
+          isMatch = opEq(actual, rowExpected);
+        }
+
+        if (isMatch) {
+          matchingValue = row;
+          break;
+        }
       }
+
+      // Fallback default row
       if (!matchingValue) {
         matchingValue = lookupValues.find((v: any) => v.condition_value === 'default' || v.is_default);
       }
 
-      if (matchingValue && matchingValue.return_value !== undefined) {
-        const rv = String(matchingValue.return_value);
+      if (matchingValue && (matchingValue.return_value !== undefined || matchingValue.target_shortcode !== undefined)) {
+        const rv = String(matchingValue.return_value ?? matchingValue.target_shortcode);
         const calcMatch = rv.match(/^\[calc:([^\]]+)\]$/);
         if (calcMatch) {
           return await this.processCalculation(calcMatch[1]);
