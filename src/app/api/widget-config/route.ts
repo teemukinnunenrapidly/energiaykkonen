@@ -208,6 +208,7 @@ export async function GET(request: NextRequest) {
         formula_text: (formula as any).formula_text || (formula as any).formula || (formula as any).formula_code || '',
         // Back-compat alias some data clients might look for
         formula: (formula as any).formula_text || (formula as any).formula || (formula as any).formula_code || '',
+        unit: ((formula as any).output_format && (formula as any).output_format.unit) || (formula as any).unit || (String((formula as any).name || '').toLowerCase().includes('kwh') ? 'kWh' : ''),
         input_parameters: formula.input_parameters || {},
         output_format: formula.output_format || {},
         category: formula.category || 'general',
@@ -288,6 +289,7 @@ export async function GET(request: NextRequest) {
         // Mirror expression fields at root as well for consumers using this path
         formula_text: (formula as any).formula_text || (formula as any).formula || (formula as any).formula_code || '',
         formula: (formula as any).formula_text || (formula as any).formula || (formula as any).formula_code || '',
+        unit: ((formula as any).output_format && (formula as any).output_format.unit) || (formula as any).unit || (String((formula as any).name || '').toLowerCase().includes('kwh') ? 'kWh' : ''),
         input_parameters: formula.input_parameters || {},
         output_format: formula.output_format || {},
         category: formula.category || 'general',
