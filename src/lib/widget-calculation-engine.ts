@@ -130,26 +130,27 @@ export class WidgetCalculationEngine {
             unit = '€';
             console.log('Setting unit for price lookup:', unit);
           } else {
-            // For other lookups, we need to resolve what they return to get the unit
-            // Get the condition field value
-            const conditionField = lookupTable.condition_field;
-            const conditionValue = this.context.formData[conditionField];
-            
-            // Find matching lookup value
-            const lookupValues = lookupTable.lookup_values || [];
-            const matchingValue = lookupValues.find((v: any) => 
-              v.condition_value === conditionValue
-            );
-            
-            if (matchingValue && matchingValue.return_value) {
-              // Check if the return value is a calc shortcode
-              const calcMatch = String(matchingValue.return_value).match(/^\[calc:([^\]]+)\]$/);
+            // For other lookups, inspect the matched return_value
+            const rows: any[] = (lookupTable as any).conditions || (lookupTable as any).lookup_values || [];
+            // Try to match by each row's own condition_field if present
+            let matchRow: any | undefined;
+            for (const r of rows) {
+              const fName = r.condition_field || (lookupTable as any).condition_field;
+              const fVal = fName ? this.context.formData[fName] : undefined;
+              if (fVal === undefined) continue;
+              if (String(r.condition_value) === String(fVal)) { matchRow = r; break; }
+            }
+            // Fallback to default row
+            if (!matchRow) matchRow = rows.find((r: any) => r.condition_value === 'default' || r.is_default);
+
+            if (matchRow && matchRow.return_value) {
+              const calcMatch = String(matchRow.return_value).match(/^\[calc:([^\]]+)\]$/);
               if (calcMatch) {
-                const nestedFormulaName = calcMatch[1];
-                const nestedFormula = this.formulas.find(f => f.name === nestedFormulaName);
+                const nestedName = calcMatch[1];
+                const nestedFormula = this.formulas.find(f => f.name === nestedName);
                 if (nestedFormula && nestedFormula.unit) {
                   unit = nestedFormula.unit;
-                  console.log(`Setting unit from nested calc ${nestedFormulaName}:`, unit);
+                  console.log(`Setting unit from nested calc ${nestedName}:`, unit);
                 }
               }
             }
