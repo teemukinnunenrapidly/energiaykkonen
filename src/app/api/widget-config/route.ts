@@ -576,13 +576,39 @@ async function fetchLookupTables() {
       ...l,
       conditions: (conditions || [])
         .filter((c: any) => c.lookup_id === l.id)
-        .map((c: any) => ({
-          id: c.id,
-          condition_field: c.condition_field,
-          condition_operator: c.condition_operator,
-          condition_value: c.condition_value,
-          return_value: c.return_value,
-        }))
+        .map((c: any) => {
+          // Preserve raw rule fields from DB for maximum compatibility
+          const rawRule = (c as any).condition_rule;
+          const rawTarget = (c as any).target_shortcode;
+
+          // Try to extract field and value from a rule like: [field:lammitysmuoto] == "Öljylämmitys"
+          let parsedField: string | undefined;
+          let parsedValue: string | undefined;
+          if (typeof rawRule === 'string') {
+            const m = rawRule.match(/\[field:([^\]]+)\]\s*==\s*"([^"]+)"/);
+            if (m) {
+              parsedField = m[1];
+              parsedValue = m[2];
+            }
+          }
+
+          // Prefer explicit columns if they exist, otherwise use parsed
+          const condition_field = (c as any).condition_field || parsedField;
+          const condition_operator = (c as any).condition_operator || 'eq';
+          const condition_value = (c as any).condition_value || parsedValue;
+          const return_value = (c as any).return_value || rawTarget;
+
+          return {
+            id: c.id,
+            condition_field,
+            condition_operator,
+            condition_value,
+            return_value,
+            // Keep raw fields too for clients that prefer to parse
+            condition_rule: rawRule,
+            target_shortcode: rawTarget,
+          };
+        })
     }));
 
     console.log(`✅ Fetched ${grouped.length} lookup tables with conditions`);
