@@ -204,7 +204,10 @@ export async function GET(request: NextRequest) {
         id: formula.id,
         name: formula.name,
         description: formula.description,
-        formula_code: formula.formula_code,
+        // Provide the actual expression under standard keys expected by the widget
+        formula_text: (formula as any).formula_text || (formula as any).formula || (formula as any).formula_code || '',
+        // Back-compat alias some data clients might look for
+        formula: (formula as any).formula_text || (formula as any).formula || (formula as any).formula_code || '',
         input_parameters: formula.input_parameters || {},
         output_format: formula.output_format || {},
         category: formula.category || 'general',
@@ -282,7 +285,9 @@ export async function GET(request: NextRequest) {
         id: formula.id,
         name: formula.name,
         description: formula.description,
-        formula_code: formula.formula_code,
+        // Mirror expression fields at root as well for consumers using this path
+        formula_text: (formula as any).formula_text || (formula as any).formula || (formula as any).formula_code || '',
+        formula: (formula as any).formula_text || (formula as any).formula || (formula as any).formula_code || '',
         input_parameters: formula.input_parameters || {},
         output_format: formula.output_format || {},
         category: formula.category || 'general',
