@@ -311,6 +311,7 @@ export function CardProvider({
       const nextCard = cards[currentCardIndex + 1];
 
       if (nextCard) {
+        // Treat missing or empty reveal_timing as immediate
         const revealTiming = card.reveal_timing;
         console.log(`🕐 Reveal timing settings:`, {
           reveal_timing: revealTiming,
@@ -318,7 +319,7 @@ export function CardProvider({
         });
 
         // Use reveal_timing (required for all cards)
-        if (revealTiming) {
+        if (revealTiming && (revealTiming as any).timing) {
           if (revealTiming.timing === 'immediately') {
             console.log(
               `⚡ Granting immediate reveal permission to "${nextCard.name}"`
@@ -583,6 +584,7 @@ export function CardProvider({
 
       if (nextCard) {
         const currentCard = cards[currentCardIndex];
+        // Treat missing or empty reveal_timing as immediate
         const revealTiming = currentCard.reveal_timing;
         console.log(
           `Card ${currentCard.name} completed, checking reveal timing for next card ${nextCard.name}:`,
@@ -590,7 +592,7 @@ export function CardProvider({
         );
 
         // Use reveal_timing (required for all cards)
-        if (revealTiming) {
+        if (revealTiming && (revealTiming as any).timing) {
           if (revealTiming.timing === 'immediately') {
             // Grant reveal permission immediately when current card completes
             console.log(
