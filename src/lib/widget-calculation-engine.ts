@@ -249,10 +249,14 @@ export class WidgetCalculationEngine {
       const lookupName = match[1];
       const lookupTable = this.lookupTables.find(t => t.name === lookupName);
       
-      if (lookupTable && lookupTable.condition_field) {
-        // Add the condition field as a dependency
-        fieldDeps.add(lookupTable.condition_field);
-        console.log(`Added lookup condition field ${lookupTable.condition_field} as dependency for ${lookupName}`);
+      if (lookupTable) {
+        const condField = (lookupTable as any).condition_field;
+        if (condField) {
+          fieldDeps.add(condField);
+          console.log(`Added lookup condition field ${condField} as dependency for ${lookupName}`);
+        }
+        const conds: any[] = (lookupTable as any).conditions || [];
+        conds.forEach(c => { if (c?.condition_field) fieldDeps.add(c.condition_field); });
       }
     }
   }
@@ -492,31 +496,31 @@ export class WidgetCalculationEngine {
         return '';
       }
       
-      // Get the condition field value from form data
-      const conditionField = lookupTable.condition_field;
-      const conditionValue = this.context.formData[conditionField];
-      
+      // Determine field/value sources (support both legacy lookup_values and new conditions)
+      const conditionField = (lookupTable as any).condition_field || (lookupTable as any).conditions?.[0]?.condition_field;
+      const conditionValue = conditionField ? this.context.formData[conditionField] : undefined;
       console.log(`Lookup ${lookupName}: checking ${conditionField} = ${conditionValue}`);
-      
-      // Find matching lookup value
-      const lookupValues = lookupTable.lookup_values || [];
-      const matchingValue = lookupValues.find((v: any) => 
-        v.condition_value === conditionValue
-      );
-      
-      if (matchingValue) {
-        return String(matchingValue.return_value || '0');
+
+      const lookupValues: any[] = (lookupTable as any).lookup_values || (lookupTable as any).conditions || [];
+
+      // Match by strict or string equality
+      let matchingValue = lookupValues.find((v: any) => v.condition_value === conditionValue);
+      if (!matchingValue) {
+        matchingValue = lookupValues.find((v: any) => String(v.condition_value) === String(conditionValue));
       }
-      
-      // Check for default value
-      const defaultValue = lookupValues.find((v: any) => 
-        v.condition_value === 'default' || v.is_default
-      );
-      
-      if (defaultValue) {
-        return String(defaultValue.return_value || '0');
+      if (!matchingValue) {
+        matchingValue = lookupValues.find((v: any) => v.condition_value === 'default' || v.is_default);
       }
-      
+
+      if (matchingValue && matchingValue.return_value !== undefined) {
+        const rv = String(matchingValue.return_value);
+        const calcMatch = rv.match(/^\[calc:([^\]]+)\]$/);
+        if (calcMatch) {
+          return await this.processCalculation(calcMatch[1]);
+        }
+        return rv;
+      }
+
       return '0';
     } catch (error) {
       console.error(`Error processing lookup ${lookupName}:`, error);
