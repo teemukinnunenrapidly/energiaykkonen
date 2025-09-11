@@ -76,14 +76,17 @@ class E1_Calculator_Loader {
         );
         
         // 2. WordPress Loader Script (loads after widget, with dependency)
-        // Load directly from cached bundle
-        wp_enqueue_script(
-            'e1-calculator-loader',
-            $this->cache_url . '/wordpress-loader.js',
-            ['e1-calculator-widget'],
-            $this->version,
-            true
-        );
+        // Enqueue only if the file exists in cache (optional during local/dev)
+        $loader_file = $this->cache_path . '/wordpress-loader.js';
+        if (file_exists($loader_file) && filesize($loader_file) > 0) {
+            wp_enqueue_script(
+                'e1-calculator-loader',
+                $this->cache_url . '/wordpress-loader.js',
+                ['e1-calculator-widget'],
+                $this->version,
+                true
+            );
+        }
         
         // 3. Enqueue appropriate CSS based on browser support
         $this->enqueue_widget_styles();
@@ -979,7 +982,8 @@ class E1_Calculator_Loader {
     }
     
     private function validate_cache_files() {
-        $required_files = ['wordpress-loader.js', 'widget.js', 'widget.css', 'config.json'];
+        // Only strictly require core assets; loader is optional
+        $required_files = ['widget.js', 'widget.css', 'config.json'];
         
         foreach ($required_files as $file) {
             $file_path = $this->cache_path . '/' . $file;
