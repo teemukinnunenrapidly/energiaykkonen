@@ -206,24 +206,7 @@ export async function GET(request: NextRequest) {
         created_at: formula.created_at,
         })),
         
-        // WordPress plugin compatibility - alias visuals as visualObjects
-        visualObjects: visuals.map(visual => ({
-        id: visual.id,
-        title: visual.title,
-        description: visual.description,
-        type: visual.type,
-        content_data: visual.content_data || {},
-        display_config: visual.display_config || {},
-        is_active: visual.is_active,
-        created_at: visual.created_at,
-        images: (visual.visual_object_images || []).map((img: any) => ({
-          id: img.id,
-          image_url: img.image_url,
-          alt_text: img.alt_text,
-          display_order: img.display_order,
-          image_variant: img.image_variant,
-        })),
-      })),
+        // (array alias removed to avoid duplicate key; using id-keyed map above)
       },
 
       // Also include at root level for backward compatibility  
