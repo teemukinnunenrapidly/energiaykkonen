@@ -156,7 +156,8 @@ export function CalculationCard({ card, widgetMode = false }: CalculationCardPro
               // Ensure we have a safe result string
               const safeResultString = resultString || '';
               
-              // Extract unit from result if it contains a space (e.g., "20820 kWh")
+              // Extract unit from result if it contains a space (e.g., "20820 kWh").
+              // Default to kWh when the formula name hints energy and unit is missing.
               let extractedUnit = '';
               let valueToFormat = safeResultString;
               
@@ -177,7 +178,12 @@ export function CalculationCard({ card, widgetMode = false }: CalculationCardPro
               
               setCalculatedResult(formattedResult);
               setOriginalResult(formattedResult);
-              setResultUnit(extractedUnit || result.unit || ''); // Use extracted unit, or result.unit, or empty
+              // Prefer explicit unit -> extracted text -> sensible default for energy calcs
+              let finalUnit = result.unit || extractedUnit || '';
+              if (!finalUnit && /energiantarve|kwh/i.test(card.title || card.name || '')) {
+                finalUnit = 'kWh';
+              }
+              setResultUnit(finalUnit);
               
               setFormulaName(null);
 
