@@ -83,6 +83,7 @@ export async function GET(request: NextRequest) {
           created_at: visual.created_at,
           images: (visual.visual_object_images || []).map((img: any) => ({
             id: img.id,
+            cloudflare_image_id: img.cloudflare_image_id,
             image_url: img.image_url,
             alt_text: img.alt_text,
             display_order: img.display_order,
