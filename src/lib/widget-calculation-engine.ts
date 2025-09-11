@@ -209,6 +209,35 @@ export class WidgetCalculationEngine {
     return Array.from(fieldDeps);
   }
 
+  /**
+   * Fallback resolver when lookup table rows are incomplete in config.json
+   * Tries to infer the correct nested calc name from current form data
+   */
+  private resolveLookupFallbackCalcName(lookupName: string): string | undefined {
+    const heatingMode: string = String(this.context.formData['lammitysmuoto'] || '').toLowerCase();
+    if (!heatingMode) return undefined;
+
+    const isOilAndWood = heatingMode.includes('öljy+puu');
+    const isOil = heatingMode.includes('öljy');
+    const isWood = heatingMode.includes('puu');
+    const isGas = heatingMode.includes('kaasu');
+
+    if (lookupName === 'kokonaismenekki') {
+      if (isOilAndWood) return 'oljyn-menekki-vuodessa-tuplapesakattila';
+      if (isOil) return 'oljyn-menekki-vuodessa';
+      if (isWood) return 'puun-menekki-vuodessa';
+      if (isGas) return 'kaasun-menekki-vuodessa';
+    }
+
+    if (lookupName === 'menekin-hinta') {
+      if (isOil || isOilAndWood) return 'menekin-hinta-oljy';
+      if (isWood) return 'menekin-hinta-puu';
+      if (isGas) return 'menekin-hinta-kaasu';
+    }
+
+    return undefined;
+  }
+
   private async _extractFieldDepsRecursive(
     content: string,
     fieldDeps: Set<string>,
@@ -520,6 +549,12 @@ export class WidgetCalculationEngine {
           return await this.processCalculation(calcMatch[1]);
         }
         return rv;
+      }
+
+      // Fallback: infer nested calc from form data if conditions are missing in config
+      const inferredCalc = this.resolveLookupFallbackCalcName(lookupName);
+      if (inferredCalc) {
+        return await this.processCalculation(inferredCalc);
       }
 
       return '0';
