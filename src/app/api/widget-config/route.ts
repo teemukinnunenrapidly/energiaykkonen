@@ -127,6 +127,9 @@ export async function GET(request: NextRequest) {
         adminEndpoint: `${baseUrl}/api/admin`,
       },
 
+      // Provide Cloudflare account hash for image URL construction in widget mode
+      cloudflareAccountHash: process.env.NEXT_PUBLIC_CLOUDFLARE_ACCOUNT_HASH || process.env.CLOUDFLARE_ACCOUNT_HASH || '',
+
       // Data object containing all widget data (WordPress plugin compatibility)
       data: {
         cards: cards.map(card => ({
@@ -183,6 +186,7 @@ export async function GET(request: NextRequest) {
         created_at: visual.created_at,
         images: (visual.visual_object_images || []).map((img: any) => ({
           id: img.id,
+          cloudflare_image_id: img.cloudflare_image_id,
           image_url: img.image_url,
           alt_text: img.alt_text,
           display_order: img.display_order,
@@ -263,6 +267,7 @@ export async function GET(request: NextRequest) {
         created_at: visual.created_at,
         images: (visual.visual_object_images || []).map((img: any) => ({
           id: img.id,
+          cloudflare_image_id: img.cloudflare_image_id,
           image_url: img.image_url,
           alt_text: img.alt_text,
           display_order: img.display_order,
