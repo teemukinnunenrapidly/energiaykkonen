@@ -503,6 +503,24 @@
           throw new Error(`Container element #${containerId} not found in DOM`);
         }
 
+        // Ensure no focus outline/border is shown on the host container
+        try {
+          container.classList.add('e1-no-focus-outline');
+          container.style.outline = 'none';
+          container.style.boxShadow = 'none';
+          const globalStyleId = 'e1-global-no-outline';
+          if (!document.getElementById(globalStyleId)) {
+            const styleEl = document.createElement('style');
+            styleEl.id = globalStyleId;
+            styleEl.textContent = `
+              .e1-no-focus-outline:focus,
+              .e1-no-focus-outline:focus-visible,
+              .e1-no-focus-outline:focus-within { outline: none !important; box-shadow: none !important; }
+            `;
+            document.head.appendChild(styleEl);
+          }
+        } catch (_) {}
+
         // Check for existing instance
         if (this.instances.has(containerId)) {
           Logger.info(`Widget ${containerId} already initialized, skipping`);
@@ -625,14 +643,15 @@
       const resetCSS = `
         /* E1 Calculator Shadow DOM Reset */
         :host {
-          all: initial;
+          /* Do NOT reset 'all' so CSS variables from the host/page cascade in */
           display: block;
           box-sizing: border-box;
           font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
           font-size: 16px;
           line-height: 1.5;
           color: #1a1a1a;
-          contain: layout style paint;
+          /* Avoid layout containment so position: sticky works across ancestors */
+          contain: paint style;
           isolation: isolate;
           width: 100%;
           min-height: 400px;
@@ -654,7 +673,8 @@
           position: relative;
           background: #ffffff;
           border-radius: 8px;
-          overflow: hidden;
+          /* Allow sticky descendants to track viewport/window scroll */
+          overflow: visible;
           z-index: 1;
         }
       `;

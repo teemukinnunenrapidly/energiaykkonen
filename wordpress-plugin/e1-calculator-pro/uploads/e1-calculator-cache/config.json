@@ -1,8 +1,8 @@
 {
-  "version": "2.1.0-1757659581067",
-  "generated_at": "2025-09-12T06:46:22.361Z",
+  "version": "2.1.0-1757661840393",
+  "generated_at": "2025-09-12T07:24:01.311Z",
   "build_info": {
-    "buildId": "1757659581067",
+    "buildId": "1757661840393",
     "nodeVersion": "v24.5.0",
     "platform": "darwin"
   },
@@ -773,13 +773,13 @@
       {
         "source": "e1-calculator-widget.min.js",
         "target": "widget.js",
-        "size": 295225,
+        "size": 295296,
         "type": "js"
       },
       {
         "source": "wordpress-loader.min.js",
         "target": "wordpress-loader.js",
-        "size": 15684,
+        "size": 15837,
         "type": "js"
       }
     ],
@@ -797,17 +797,17 @@
         "type": "css"
       }
     ],
-    "totalSize": 354311,
+    "totalSize": 354535,
     "integrity": {
       "shadowDOM": {
         "sha256": "817916dda4ff60fbed2b8aa707aa647beca4e380a660440738915b70ebeeac0a",
         "size": 19410,
-        "timestamp": "2025-09-12T06:46:21.284Z"
+        "timestamp": "2025-09-12T07:24:00.517Z"
       },
       "namespaced": {
         "sha256": "c26088b1cb94da1abfc83020311de302d3d590760bb24eafca5fe3c9756622b7",
         "size": 23992,
-        "timestamp": "2025-09-12T06:46:21.284Z"
+        "timestamp": "2025-09-12T07:24:00.517Z"
       }
     }
   },
@@ -816,7 +816,7 @@
     "fallbackMode": "namespace",
     "cloudflareAccountHash": "AkEHl6uYQM8NNRufIXHzFw",
     "corsEnabled": true,
-    "securityNonce": "437e160dc08ed5acd2bd58103368488b",
+    "securityNonce": "e3b581b9607d8ba3ab1158b5fc1965ab",
     "leadApiUrl": "https://energiaykkonen-calculator.vercel.app/api/submit-lead"
   },
   "security": {
@@ -828,12 +828,12 @@
       "shadowDOM": {
         "sha256": "817916dda4ff60fbed2b8aa707aa647beca4e380a660440738915b70ebeeac0a",
         "size": 19410,
-        "timestamp": "2025-09-12T06:46:21.284Z"
+        "timestamp": "2025-09-12T07:24:00.517Z"
       },
       "namespaced": {
         "sha256": "c26088b1cb94da1abfc83020311de302d3d590760bb24eafca5fe3c9756622b7",
         "size": 23992,
-        "timestamp": "2025-09-12T06:46:21.284Z"
+        "timestamp": "2025-09-12T07:24:00.517Z"
       }
     }
   }

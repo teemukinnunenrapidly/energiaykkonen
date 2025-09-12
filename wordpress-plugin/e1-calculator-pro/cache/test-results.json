@@ -1,5 +1,5 @@
 {
-  "timestamp": "2025-09-12T06:46:22.368Z",
+  "timestamp": "2025-09-12T07:24:01.318Z",
   "tests": [
     {
       "name": "File Access: widget.js",
@@ -7,7 +7,7 @@
       "duration": 0,
       "details": "File exists (288KB)",
       "metrics": {
-        "fileSize": 295225
+        "fileSize": 295296
       }
     },
     {
@@ -34,7 +34,7 @@
       "duration": 0,
       "details": "File exists (15KB)",
       "metrics": {
-        "fileSize": 15684
+        "fileSize": 15837
       }
     },
     {
@@ -79,7 +79,7 @@
     {
       "name": "Bundle Size Performance",
       "status": "passed",
-      "duration": 1,
+      "duration": 0,
       "details": "Total bundle size: 331KB (target: <500KB)",
       "metrics": {
         "totalSizeKB": 331,

@@ -23,8 +23,14 @@ export function VisualSupport({
   const [loadingImages, setLoadingImages] = useState(false);
   const [imageLoadStarted, setImageLoadStarted] = useState(false);
 
-  // Get the visual object from activeCard or visualConfig
-  const visualObject = visualConfig || activeCard?.visual_objects;
+  // Get the visual object from activeCard or visualConfig. In widget mode,
+  // also resolve by linked_visual_object_id from global widget data.
+  let visualObject = visualConfig || activeCard?.visual_objects;
+  if (!visualObject && widgetMode && activeCard?.config?.linked_visual_object_id) {
+    const widgetData = (typeof window !== 'undefined' && (window as any).__E1_WIDGET_DATA) || {};
+    const vo = widgetData.visualObjects?.[activeCard.config.linked_visual_object_id];
+    if (vo) visualObject = vo;
+  }
 
   // Debug logging
   console.log('🖼️ VisualSupport render:', {
@@ -248,7 +254,7 @@ export function VisualSupport({
     );
   }
 
-  // Desktop-versio - täysi paneeli
+  // Desktop version - image-only (remove text/info sections)
   return (
     <div
       style={{
@@ -257,31 +263,21 @@ export function VisualSupport({
         flexDirection: 'column',
       }}
     >
-      {/* Gradient content area */}
+      {/* Image area only */}
       <div
         style={{
           background: styles.visualSupport.content.background,
-          padding:
-            content.hasImages && visualImages.length > 0
-              ? '0'
-              : styles.visualSupport.content.padding, // No padding when image fills
-          display: styles.visualSupport.content.display || 'flex',
-          flexDirection: cssValue(styles.visualSupport.content.flexDirection) || 'column',
-          alignItems: styles.visualSupport.content.alignItems || 'center',
-          justifyContent: styles.visualSupport.content.justifyContent || 'center',
-          flex: styles.visualSupport.content.flex || '1', // Ensure it takes available space
-          minHeight: '400px', // Minimum height to ensure visibility
-          position: 'relative', // Enable absolute positioning for full-screen image
-          overflow: 'hidden', // Clip image to container bounds
+          padding: 0,
+          display: 'flex',
+          alignItems: 'stretch',
+          justifyContent: 'center',
+          flex: '1',
+          position: 'relative',
+          overflow: 'hidden',
         }}
       >
-        {/* Visual Content */}
-        {loadingImages ? (
-          <div style={{ textAlign: 'center', color: '#ffffff' }}>
-            Loading visual content...
-          </div>
-        ) : content.hasImages && visualImages.length > 0 ? (
-          /* Display actual visual object images - fill entire panel */
+        {/* Visual Content - image only */}
+        {loadingImages ? null : content.hasImages && visualImages.length > 0 ? (
           <div
             style={{
               position: 'absolute',
@@ -290,8 +286,7 @@ export function VisualSupport({
               right: 0,
               bottom: 0,
               display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
+              alignItems: 'stretch',
               justifyContent: 'center',
             }}
           >
@@ -310,9 +305,9 @@ export function VisualSupport({
                   alt={content.title || 'Visual content'}
                   loading="lazy" // Enable browser lazy loading
                   style={{
-                    width: styles.visualSupport.image.width || '100%',
-                    height: styles.visualSupport.image.height || '100%',
-                    objectFit: cssValue(styles.visualSupport.image.objectFit) || 'cover',
+                    width: '100%',
+                    height: '100%',
+                    objectFit: 'cover',
                     borderRadius: styles.visualSupport.image.borderRadius,
                   }}
                   onLoad={() => {
@@ -327,76 +322,7 @@ export function VisualSupport({
               ) : null;
             })}
           </div>
-        ) : (
-          /* Fallback content when no images */
-          <div style={{ textAlign: 'center' }}>
-            <div
-              style={{
-                fontSize: '64px',
-                marginBottom: '16px',
-                opacity: '0.8',
-              }}
-            >
-              📋
-            </div>
-
-            {content.title && (
-              <h2
-                style={{
-                  fontSize: styles.visualSupport.title.fontSize,
-                  fontWeight: styles.visualSupport.title.fontWeight,
-                  color: styles.visualSupport.title.color,
-                  marginBottom: styles.visualSupport.title.marginBottom,
-                  textAlign: cssValue(styles.visualSupport.title.textAlign),
-                  letterSpacing: styles.visualSupport.title.letterSpacing,
-                }}
-              >
-                {content.title}
-              </h2>
-            )}
-
-            <p
-              style={{
-                fontSize: styles.visualSupport.subtitle.fontSize,
-                fontWeight: styles.visualSupport.subtitle.fontWeight,
-                color: styles.visualSupport.subtitle.color,
-                textAlign: cssValue(styles.visualSupport.subtitle.textAlign),
-                lineHeight: styles.visualSupport.subtitle.lineHeight,
-              }}
-            >
-              {content.description || 'No visual content available'}
-            </p>
-          </div>
-        )}
-      </div>
-
-      {/* Info section bottom */}
-      <div
-        style={{
-          background: styles.visualSupport.infoSection.background,
-          padding: styles.visualSupport.infoSection.padding,
-          borderTop: styles.visualSupport.infoSection.borderTop,
-        }}
-      >
-        <div
-          style={{
-            marginTop: styles.visualSupport.infoSection.tip.marginTop,
-            padding: styles.visualSupport.infoSection.tip.padding,
-            background: styles.visualSupport.infoSection.tip.background,
-            borderLeft: styles.visualSupport.infoSection.tip.borderLeft,
-            borderRadius: styles.visualSupport.infoSection.tip.borderRadius,
-            fontSize: styles.visualSupport.infoSection.tip.fontSize,
-            color: styles.visualSupport.infoSection.tip.color,
-            display: styles.visualSupport.infoSection.tip.display,
-          }}
-        >
-          💡{' '}
-          {visualObject && content.title
-            ? `${content.title}${content.description ? ` - ${content.description}` : ''}`
-            : activeCard
-              ? `Vinkki: ${activeCard.name} - Täytä kentät huolellisesti`
-              : 'Vinkki: Täytä kentät huolellisesti parhaan arvion saamiseksi'}
-        </div>
+        ) : null}
       </div>
     </div>
   );

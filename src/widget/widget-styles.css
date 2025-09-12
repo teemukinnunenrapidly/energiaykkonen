@@ -12,6 +12,7 @@
   max-width: var(--e1-container-max-width);
   margin: 0 auto;
   position: relative;
+  width: 100%;
 }
 
 .e1-widget-container *,
@@ -147,6 +148,20 @@
   outline: none;
   border-color: var(--e1-color-primary);
   box-shadow: 0 0 0 3px var(--e1-color-primary-light);
+}
+
+/* Remove focus outlines on the widget root containers while preserving inputs/buttons */
+.e1-calculator-isolated-root:focus,
+.e1-calculator-isolated-root:focus-visible,
+.widget-root:focus,
+.widget-root:focus-visible {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+/* Remove UA default focus outline/border on generic div focus */
+*:focus {
+  outline-color: transparent;
 }
 
 .field-input:disabled {

@@ -11,7 +11,7 @@
       "height": "auto",
       "margin": "0 auto",
       "padding": "0",
-      "background": "transparent",
+      "background": "#f7f8f9",
       "borderRadius": "12px",
       "border": "none",
       "boxShadow": "0 10px 40px rgba(0, 0, 0, 0.1)",
@@ -21,7 +21,7 @@
       "_comment": "Layout proportions and spacing",
       "visualSupportRatio": "60%",
       "cardStreamRatio": "40%",
-      "gapBetweenPanels": "0",
+      "gapBetweenPanels": "10px",
       "verticalSpacing": "default",
       "display": "flex",
       "flexDirection": "row",
@@ -36,12 +36,13 @@
       "padding": "0",
       "position": "sticky",
       "top": "0",
-      "height": "100vh",
-      "maxHeight": "800px",
+      "height": "70vh",
+      "maxHeight": "70vh",
+      "marginTop": "0px",
       "sticky": {
         "enabled": true,
         "top": "0",
-        "height": "100vh",
+        "height": "70vh",
         "transform": "translate3d(0, 0, 0)",
         "willChange": "transform",
         "backfaceVisibility": "hidden"
@@ -128,9 +129,9 @@
         }
       },
       "mobile": {
-        "behavior": "hide",
+        "behavior": "stack",
         "breakpoint": "768px",
-        "collapseMode": "hidden",
+        "collapseMode": "visible",
         "drawerBehavior": "disabled",
         "touchGestures": false,
         "overlayOptions": {
@@ -143,7 +144,7 @@
     "cardStream": {
       "_comment": "Right panel containing cards",
       "width": "55%",
-      "background": "#f7f8f9",
+      "background": "transparent",
       "padding": "30px",
       "paddingBottom": "100px",
       "overflowY": "auto",
@@ -961,7 +962,7 @@
           "gap": "0"
         },
         "visualSupport": {
-          "display": "none",
+          "display": "block",
           "width": "100%",
           "height": "auto",
           "position": "relative"
@@ -990,10 +991,10 @@
       "tablet": {
         "_comment": "Settings for screens 768px-1024px",
         "visualSupport": {
-          "width": "40%"
+          "width": "50%"
         },
         "cardStream": {
-          "width": "60%"
+          "width": "50%"
         }
       }
     },

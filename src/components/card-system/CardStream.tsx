@@ -95,6 +95,8 @@ export function CardStream({
       .sort((a, b) => a.display_order - b.display_order);
   }, [cards, shouldBeRevealed]);
 
+  const hasMore = lockedCards.length > 0;
+
   // Find active card for visual support
   const activeCard = activeCardId
     ? cards.find(card => card.id === activeCardId)
@@ -187,131 +189,155 @@ export function CardStream({
             </div>
           )}
 
-          {/* Visible Cards */}
+          {/* Visible Cards with inline visual on desktop */}
           {visibleCards.map((card, index) => {
             const isActive = activeCardId === card.id;
             const isComplete = cardStates[card.id]?.status === 'complete';
 
             return (
+              <>
               <div
                 key={card.id}
                 id={`card-${card.id}`}
                 style={{
+                  display: 'flex',
+                  flexDirection: 'row',
+                  alignItems: 'stretch',
+                  gap: styles.layout.gapBetweenPanels || '20px',
                   marginBottom: styles.card.base.marginBottom,
-                  background: isActive
-                    ? styles.card.states.active.background
-                    : isComplete
-                      ? styles.card.states.complete.background
-                      : styles.card.base.background,
-                  borderRadius: styles.card.base.borderRadius,
-                  overflow: styles.card.base.overflow,
-                  // Use individual border properties to avoid conflicts
-                  borderTop: isActive
-                    ? styles.card.states.active.border
-                    : styles.card.base.border || '1px solid #e5e7eb',
-                  borderRight: isActive
-                    ? styles.card.states.active.border
-                    : styles.card.base.border || '1px solid #e5e7eb',
-                  borderBottom: isActive
-                    ? styles.card.states.active.border
-                    : styles.card.base.border || '1px solid #e5e7eb',
-                  borderLeft: isActive
-                    ? styles.card.states.active.border
-                    : isComplete
-                      ? styles.card.states.complete.borderLeft
-                      : styles.card.base.border || '1px solid #e5e7eb',
-                  boxShadow: isActive
-                    ? styles.card.states.active.boxShadow
-                    : styles.card.base.boxShadow,
-                  transform: isActive
-                    ? styles.card.states.active.transform
-                    : 'scale(1)',
-                  opacity: isComplete
-                    ? styles.card.states.complete.opacity
-                    : '1',
-                  transition: styles.card.base.transition,
-                  position: 'relative',
                 }}
               >
-                {/* Completed checkmark indicator */}
-                {isComplete &&
-                  styles.card.states.complete.checkmark?.enabled && (
-                    <div
-                      style={{
-                        position: styles.card.states.complete.checkmark
-                          .position as any,
-                        top: styles.card.states.complete.checkmark.top,
-                        right: styles.card.states.complete.checkmark.right,
-                        width: styles.card.states.complete.checkmark.size,
-                        height: styles.card.states.complete.checkmark.size,
-                        background:
-                          styles.card.states.complete.checkmark.background,
-                        borderRadius:
-                          styles.card.states.complete.checkmark.borderRadius,
-                        padding: styles.card.states.complete.checkmark.padding,
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        color: styles.card.states.complete.checkmark.color,
-                      }}
-                    >
-                      <svg
-                        width="16"
-                        height="16"
-                        viewBox="0 0 16 16"
-                        fill="none"
-                        xmlns="http://www.w3.org/2000/svg"
+                {/* Visual column wrapped in its own non-interactive card */}
+                {!forceShowInline && (
+                  <div style={{ flex: `0 0 ${styles.layout.visualSupportRatio || '35%'}`, minWidth: 0 }}>
+                    {(card.visual_objects || (card as any).config?.linked_visual_object_id) ? (
+                      <div
+                        style={{
+                          background: styles.card.base.background,
+                          borderRadius: styles.card.base.borderRadius,
+                          overflow: styles.card.base.overflow,
+                          border: styles.card.base.border || '1px solid #e5e7eb',
+                          boxShadow: styles.card.base.boxShadow,
+                          height: '100%',
+                        }}
                       >
-                        <path
-                          d="M13.5 4.5L6 12L2.5 8.5"
-                          stroke="currentColor"
-                          strokeWidth="2"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                        />
-                      </svg>
-                    </div>
-                  )}
-                <CardRenderer card={card} onFieldFocus={onFieldFocus} />
+                        <div style={{ height: '100%' }}>
+                          <VisualSupport activeCard={card} compact={false} widgetMode={true} />
+                        </div>
+                      </div>
+                    ) : (
+                      // Placeholder to keep right card width consistent when no visual is linked
+                      <div style={{ height: '100%' }} />
+                    )}
+                  </div>
+                )}
+
+                {/* Right column: interactive card */}
+                <div
+                  style={{
+                    flex: 1,
+                    minWidth: 0,
+                    background: isActive
+                      ? styles.card.states.active.background
+                      : isComplete
+                        ? styles.card.states.complete.background
+                        : styles.card.base.background,
+                    borderRadius: styles.card.base.borderRadius,
+                    overflow: styles.card.base.overflow,
+                    borderTop: isActive
+                      ? styles.card.states.active.border
+                      : styles.card.base.border || '1px solid #e5e7eb',
+                    borderRight: isActive
+                      ? styles.card.states.active.border
+                      : styles.card.base.border || '1px solid #e5e7eb',
+                    borderBottom: isActive
+                      ? styles.card.states.active.border
+                      : styles.card.base.border || '1px solid #e5e7eb',
+                    borderLeft: isActive
+                      ? styles.card.states.active.border
+                      : isComplete
+                        ? styles.card.states.complete.borderLeft
+                        : styles.card.base.border || '1px solid #e5e7eb',
+                    boxShadow: isActive
+                      ? styles.card.states.active.boxShadow
+                      : styles.card.base.boxShadow,
+                    transform: isActive
+                      ? styles.card.states.active.transform
+                      : 'scale(1)',
+                    opacity: isComplete
+                      ? styles.card.states.complete.opacity
+                      : '1',
+                    transition: styles.card.base.transition,
+                    position: 'relative',
+                  }}
+                >
+                  {/* Completed checkmark indicator */}
+                  {isComplete &&
+                    styles.card.states.complete.checkmark?.enabled && (
+                      <div
+                        style={{
+                          position: styles.card.states.complete.checkmark
+                            .position as any,
+                          top: styles.card.states.complete.checkmark.top,
+                          right: styles.card.states.complete.checkmark.right,
+                          width: styles.card.states.complete.checkmark.size,
+                          height: styles.card.states.complete.checkmark.size,
+                          background:
+                            styles.card.states.complete.checkmark.background,
+                          borderRadius:
+                            styles.card.states.complete.checkmark.borderRadius,
+                          padding: styles.card.states.complete.checkmark.padding,
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          color: styles.card.states.complete.checkmark.color,
+                        }}
+                      >
+                        <svg
+                          width="16"
+                          height="16"
+                          viewBox="0 0 16 16"
+                          fill="none"
+                          xmlns="http://www.w3.org/2000/svg"
+                        >
+                          <path
+                            d="M13.5 4.5L6 12L2.5 8.5"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                          />
+                        </svg>
+                      </div>
+                    )}
+                  <CardRenderer card={card} onFieldFocus={onFieldFocus} />
+                </div>
               </div>
+
+              {/* Removed peek design */}
+              </>
             );
           })}
 
-          {/* Locked/Upcoming Cards - Show only the immediate next card */}
-          {showBlurredCards && lockedCards.length > 0 && (
-            <>
-              <div style={{ height: '20px' }}></div>
-              {/* Render only the first locked card (immediate next) */}
-              {(() => {
-                const nextCard = lockedCards[0]; // Get only the first locked card
-                return (
-                  <div
-                    key={`locked-${nextCard.id}`}
-                    style={{
-                      marginBottom: styles.card.base.marginBottom,
-                      background: styles.card.base.background,
-                      borderRadius: styles.card.base.borderRadius,
-                      overflow: styles.card.base.overflow,
-                      border: styles.card.base.border || '1px solid #e5e7eb',
-                      // Apply locked state styles from design tokens
-                      opacity: styles.card.states.locked?.opacity || '0.6',
-                      filter: styles.card.states.locked?.filter || 'blur(8px)',
-                      pointerEvents:
-                        (styles.card.states.locked?.pointerEvents as any) ||
-                        'none',
-                      transform:
-                        styles.card.states.locked?.transform || 'scale(0.98)',
-                      transition:
-                        styles.card.states.locked?.transition ||
-                        'all 500ms ease',
-                      position: 'relative',
-                    }}
-                  >
-                    <CardRenderer card={nextCard} onFieldFocus={onFieldFocus} />
-                  </div>
-                );
-              })()}
-            </>
+          {/* Subtle call-to-action under cards */}
+          {hasMore && (
+            <div
+              style={{
+                padding: '12px 0 4px',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                color: '#9CA3AF',
+              }}
+            >
+              <style>{`
+                @keyframes e1ArrowBounce { 0%,100% { transform: translateY(0); opacity: .8 } 50% { transform: translateY(4px); opacity: 1 } }
+              `}</style>
+              <div style={{ fontSize: '16px', lineHeight: 1, animation: 'e1ArrowBounce 1.4s ease-in-out infinite' }}>▾</div>
+              <div style={{ marginTop: '6px', fontSize: '16px', textAlign: 'center' }}>
+                Siirry eteenpäin vastaamalla kysymyksiin.
+              </div>
+            </div>
           )}
         </div>
       </div>

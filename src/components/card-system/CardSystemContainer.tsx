@@ -50,12 +50,20 @@ function CardSystemInner({
             : containerMaxWidth,
       };
 
-  const cardStreamWidth = showVisualSupport
-    ? styles.layout.cardStreamRatio
-    : '100%';
+  const cardStreamWidth = '100%';
 
   // Determine if we should show desktop or mobile layout
-  const isMobileMode = forceMode === 'mobile';
+  const [detectedMobile, setDetectedMobile] = useState(false);
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const bpStr = (styles.responsive as any)?.breakpoints?.mobile || '768px';
+    const bp = parseInt(String(bpStr).replace('px', '')) || 768;
+    const onResize = () => setDetectedMobile(window.innerWidth <= bp);
+    onResize();
+    window.addEventListener('resize', onResize);
+    return () => window.removeEventListener('resize', onResize);
+  }, []);
+  const isMobileMode = forceMode === 'mobile' || detectedMobile;
 
   // Find the active card from cards list
   const activeCard = cards.find(c => c.id === activeContext.cardId);
@@ -133,6 +141,7 @@ function CardSystemInner({
       style={{
         margin: '0 auto',
         minHeight: styles.container.minHeight,
+        background: (styles.container as any).background || undefined,
         ...containerStyle,
       }}
     >
@@ -143,64 +152,17 @@ function CardSystemInner({
           padding: 0,
           display: 'flex',
           flexDirection: 'row',
-          alignItems: 'flex-start', // Changed from 'stretch' for sticky to work
+          alignItems: 'stretch',
           gap: styles.layout.gapBetweenPanels,
           position: 'relative',
         }}
       >
-        {/* Visual Support Panel */}
-        {showVisualSupport && (
-          <div
-            style={{
-              display: !isMobileMode ? 'block' : 'none',
-              width: styles.layout.visualSupportRatio,
-              position: (styles.visualSupport as any).position || 'sticky',
-              top:
-                (styles.visualSupport?.sticky as any)?.top ||
-                (styles.visualSupport as any).top ||
-                (styles.visualSupport as any).offsetTop ||
-                0,
-              height:
-                (styles.visualSupport as any).height ||
-                (styles.visualSupport?.sticky as any)?.height ||
-                '100vh',
-              maxHeight:
-                (styles.visualSupport as any).maxHeight ||
-                '100vh',
-              marginTop: (styles.visualSupport as any).marginTop || undefined,
-              overflow: 'hidden',
-              alignSelf: 'flex-start',
-              transform:
-                (styles.visualSupport?.sticky as any)?.transform || 'translate3d(0, 0, 0)',
-              willChange:
-                (styles.visualSupport?.sticky as any)?.willChange || 'transform',
-              backfaceVisibility:
-                ((styles.visualSupport?.sticky as any)?.backfaceVisibility as any) || 'hidden',
-              background: styles.visualSupport.background,
-              borderRight: styles.visualSupport.borderRight,
-            }}
-          >
-            <VisualSupport
-              activeCard={activeCard}
-              visualConfig={visualObject}
-              compact={isMobileMode}
-              widgetMode={widgetMode}
-            />
-          </div>
-        )}
+        {/* Visual Support Panel removed; visuals are rendered per-card inline in CardStream */}
 
         {/* Card Stream Panel */}
         <div
           style={{
-            width: forceMode
-              ? isMobileMode
-                ? '100%'
-                : showVisualSupport
-                  ? cardStreamWidth
-                  : '100%'
-              : showVisualSupport
-                ? cardStreamWidth
-                : '100%',
+            width: '100%',
             minHeight: (styles.cardStream as any).minHeight || (styles.container as any).minHeight,
             height: (styles.cardStream as any).height || '100%',
             background: styles.cardStream.background,

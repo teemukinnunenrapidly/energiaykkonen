@@ -85,10 +85,15 @@ a {
   text-decoration: none;
 }
 
-/* Focus management */
+/* Focus management - don't outline container wrappers */
 :focus-visible {
   outline: 2px solid #007cba;
   outline-offset: 2px;
+}
+
+.widget-root:focus,
+.widget-root:focus-visible {
+  outline: none;
 }
 
 /* Image and media reset */
