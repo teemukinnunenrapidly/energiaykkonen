@@ -770,6 +770,11 @@
       }
       
       await this.waitForDependencies();
+      // If containerId missing, attempt to discover nearest container
+      if (!config.containerId) {
+        const first = document.querySelector('[id^="e1-calculator-widget"], .e1-calculator-container');
+        config.containerId = first?.id || undefined;
+      }
       return this.initWidget(config);
     }
 

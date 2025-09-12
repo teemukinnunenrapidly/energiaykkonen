@@ -95,6 +95,11 @@ export function CardStream({
       .sort((a, b) => a.display_order - b.display_order);
   }, [cards, shouldBeRevealed]);
 
+  // All cards ordered by display_order for locating the next card regardless of reveal state
+  const orderedCards = useMemo(() => {
+    return [...cards].sort((a, b) => a.display_order - b.display_order);
+  }, [cards]);
+
   const hasMore = lockedCards.length > 0;
 
   // Find active card for visual support
@@ -167,27 +172,7 @@ export function CardStream({
           {/* Spacer for first card */}
           <div style={{ height: '20px' }}></div>
 
-          {/* Inline Visual Support for Mobile */}
-          {forceShowInline && (
-            <div
-              style={{
-                display: forceShowInline ? 'block' : 'none',
-                marginBottom: '20px',
-              }}
-            >
-              <div
-                style={{
-                  background: '#ffffff',
-                  borderRadius: '8px',
-                  overflow: 'hidden',
-                }}
-              >
-                <div style={{ height: '32px' }}>
-                  <VisualSupport activeCard={activeCard} compact={true} />
-                </div>
-              </div>
-            </div>
-          )}
+          {/* Inline Visual Support for Mobile - per card, image first */}
 
           {/* Visible Cards with inline visual on desktop */}
           {visibleCards.map((card, index) => {
@@ -270,6 +255,20 @@ export function CardStream({
                     position: 'relative',
                   }}
                 >
+                  {/* On mobile, render the visual banner inside the card container at the top */}
+                  {forceShowInline && (card.visual_objects || (card as any).config?.linked_visual_object_id) && (
+                    <div style={{ margin: '12px 12px 0', borderRadius: '8px', overflow: 'hidden', background: '#ffffff' }}>
+                      {(() => {
+                        const tokenH = (styles.responsive as any)?.mobile?.visualSupport?.height;
+                        const bannerH = !tokenH || tokenH === 'auto' ? '180px' : tokenH;
+                        return (
+                          <div style={{ height: bannerH }}>
+                            <VisualSupport activeCard={card} compact={true} widgetMode={true} hideText={true} />
+                          </div>
+                        );
+                      })()}
+                    </div>
+                  )}
                   {isComplete &&
                     styles.card.states.complete.checkmark?.enabled && (
                       <div
@@ -311,6 +310,8 @@ export function CardStream({
                   <CardRenderer card={card} onFieldFocus={onFieldFocus} />
                 </div>
               </div>
+
+              {/* Remove next locked visual teaser to keep CTA directly after card */}
 
               {/* Removed peek design */}
               </>

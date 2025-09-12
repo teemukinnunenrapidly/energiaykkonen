@@ -287,9 +287,10 @@ const E1CalculatorWidget: React.FC<{
             data = loadedConfig.data || loadedConfig;
             console.log('✅ Successfully loaded data from Vercel API');
             
-            if (loadedConfig.cloudflareAccountHash) {
-              (window as any).__E1_CLOUDFLARE_HASH = loadedConfig.cloudflareAccountHash;
-              process.env.NEXT_PUBLIC_CLOUDFLARE_ACCOUNT_HASH = loadedConfig.cloudflareAccountHash;
+            const cfHashFromApi = loadedConfig.cloudflareAccountHash || loadedConfig.settings?.cloudflareAccountHash;
+            if (cfHashFromApi) {
+              (window as any).__E1_CLOUDFLARE_HASH = cfHashFromApi;
+              process.env.NEXT_PUBLIC_CLOUDFLARE_ACCOUNT_HASH = cfHashFromApi;
             }
           } catch (apiError) {
             console.warn('⚠️ API URL failed, falling back to config.json:', apiError);
@@ -322,15 +323,41 @@ const E1CalculatorWidget: React.FC<{
           rootConfig = loadedConfig;
           data = loadedConfig.data || loadedConfig;
           
-          if (loadedConfig.cloudflareAccountHash) {
-            (window as any).__E1_CLOUDFLARE_HASH = loadedConfig.cloudflareAccountHash;
-            process.env.NEXT_PUBLIC_CLOUDFLARE_ACCOUNT_HASH = loadedConfig.cloudflareAccountHash;
+          const cfHashFromConfig = loadedConfig.cloudflareAccountHash || loadedConfig.settings?.cloudflareAccountHash;
+          if (cfHashFromConfig) {
+            (window as any).__E1_CLOUDFLARE_HASH = cfHashFromConfig;
+            process.env.NEXT_PUBLIC_CLOUDFLARE_ACCOUNT_HASH = cfHashFromConfig;
           }
           // Expose settings/api from root-level config so submit flow can find leadApiUrl
           if (loadedConfig.settings || loadedConfig.api) {
             (window as any).__E1_WIDGET_SETTINGS__ = loadedConfig.settings || {};
             (window as any).__E1_WIDGET_API__ = loadedConfig.api || {};
           }
+        }
+
+        // 4b. If API succeeded but visuals are missing/empty, merge visuals from config.json
+        try {
+          const needsVisualMerge = !!data && (!data.visualObjects || (typeof data.visualObjects === 'object' && Object.keys(data.visualObjects).length === 0));
+          if (needsVisualMerge && config.configUrl) {
+            console.log('🧩 API data missing visuals. Merging visualObjects from config.json');
+            const fallbackCfg = await loadConfigDataWithRetry(config.configUrl, elementId);
+            const fallbackData = fallbackCfg.data || fallbackCfg;
+            const merged = { ...data };
+            // Normalize visuals from fallback into visualObjects map
+            const vo = normalizeVisualsToMap(fallbackData);
+            if (vo && Object.keys(vo).length > 0) {
+              merged.visualObjects = vo;
+            }
+            // Carry over cloudflare hash if missing
+            const cfHashFromConfig = fallbackCfg.cloudflareAccountHash || fallbackCfg.settings?.cloudflareAccountHash;
+            if (cfHashFromConfig && !(window as any).__E1_CLOUDFLARE_HASH) {
+              (window as any).__E1_CLOUDFLARE_HASH = cfHashFromConfig;
+              process.env.NEXT_PUBLIC_CLOUDFLARE_ACCOUNT_HASH = cfHashFromConfig;
+            }
+            data = merged;
+          }
+        } catch (mergeErr) {
+          console.warn('Merge of visuals from config.json failed (non-fatal):', mergeErr);
         }
         
         // 5. Try default WordPress plugin location (fallback)
@@ -364,13 +391,14 @@ const E1CalculatorWidget: React.FC<{
         data = adaptDataFormat(data);
         
         // Store globally for components
+        const cfHash = (window as any).__E1_WIDGET_SETTINGS__?.cloudflareAccountHash || (window as any).__E1_CLOUDFLARE_HASH;
         (window as any).__E1_WIDGET_DATA = {
           cards: data.cards || [],
           visualObjects: data.visualObjects || {},
           formulas: data.formulas || [],
           lookupTables: data.lookupTables || {},
           theme: data.theme || {},
-          cloudflareAccountHash: config.cloudflareAccountHash || (window as any).__E1_CLOUDFLARE_HASH,
+          cloudflareAccountHash: config.cloudflareAccountHash || cfHash,
           // Bubble up lead API configuration for submission logic
           settings: (window as any).__E1_WIDGET_SETTINGS__ || rootConfig?.settings || {},
           api: (window as any).__E1_WIDGET_API__ || rootConfig?.api || {},
@@ -436,8 +464,40 @@ const E1CalculatorWidget: React.FC<{
     } else {
       console.warn('⚠️ No cards array found in data - this may cause rendering issues');
     }
+
+    // Normalize visuals into a dictionary map at data.visualObjects
+    if (!data.visualObjects || Object.keys(data.visualObjects || {}).length === 0) {
+      const map = normalizeVisualsToMap(data);
+      if (map && Object.keys(map).length > 0) {
+        data.visualObjects = map;
+        console.log(`✅ Normalized visuals -> visualObjects (${Object.keys(map).length})`);
+      }
+    }
     
     return data;
+  };
+
+  // Helper: convert possible visuals arrays/fields into an id->object map
+  const normalizeVisualsToMap = (data: any): Record<string, any> | null => {
+    try {
+      const arr = Array.isArray(data?.visuals)
+        ? data.visuals
+        : (Array.isArray(data?.visual_objects) ? data.visual_objects : null);
+      if (!arr || arr.length === 0) return null;
+      const map: Record<string, any> = {};
+      for (const vo of arr) {
+        if (vo && vo.id) {
+          // Prefer "images"; if only "visual_object_images" exists, keep it as is.
+          map[vo.id] = {
+            ...vo,
+            images: vo.images || vo.visual_object_images || vo.images || [],
+          };
+        }
+      }
+      return map;
+    } catch {
+      return null;
+    }
   };
 
   useEffect(() => {

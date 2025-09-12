@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { CardStream } from './CardStream';
 import { VisualSupport } from './VisualSupport';
 import { CardProvider, useCardContext } from './CardContext';
@@ -29,6 +29,7 @@ function CardSystemInner({
   widgetMode = false,
 }: CardSystemContainerProps) {
   const styles = useCardStyles();
+  const containerRef = useRef<HTMLDivElement | null>(null);
   const { cards } = useCardContext();
 
   // Use design tokens for defaults
@@ -58,10 +59,28 @@ function CardSystemInner({
     if (typeof window === 'undefined') return;
     const bpStr = (styles.responsive as any)?.breakpoints?.mobile || '768px';
     const bp = parseInt(String(bpStr).replace('px', '')) || 768;
-    const onResize = () => setDetectedMobile(window.innerWidth <= bp);
+
+    // Prefer container width via ResizeObserver for accurate widget-embedded detection
+    let ro: ResizeObserver | null = null;
+    const observeContainer = () => {
+      if (!containerRef.current || typeof ResizeObserver === 'undefined') return;
+      ro = new ResizeObserver(entries => {
+        const width = entries[0]?.contentRect?.width || window.innerWidth;
+        setDetectedMobile(width <= bp);
+      });
+      ro.observe(containerRef.current);
+    };
+
+    // Fallback to window width
+    const onResize = () => setDetectedMobile((containerRef.current?.offsetWidth || window.innerWidth) <= bp);
+
+    observeContainer();
     onResize();
     window.addEventListener('resize', onResize);
-    return () => window.removeEventListener('resize', onResize);
+    return () => {
+      window.removeEventListener('resize', onResize);
+      if (ro) ro.disconnect();
+    };
   }, []);
   const isMobileMode = forceMode === 'mobile' || detectedMobile;
 
@@ -138,6 +157,7 @@ function CardSystemInner({
 
   return (
     <div
+      ref={containerRef}
       style={{
         margin: '0 auto',
         minHeight: styles.container.minHeight,

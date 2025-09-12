@@ -1,13 +1,13 @@
 {
-  "timestamp": "2025-09-12T09:46:52.659Z",
+  "timestamp": "2025-09-12T12:03:51.557Z",
   "tests": [
     {
       "name": "File Access: widget.js",
       "status": "passed",
       "duration": 0,
-      "details": "File exists (287KB)",
+      "details": "File exists (288KB)",
       "metrics": {
-        "fileSize": 293682
+        "fileSize": 295076
       }
     },
     {
@@ -34,7 +34,7 @@
       "duration": 0,
       "details": "File exists (16KB)",
       "metrics": {
-        "fileSize": 16348
+        "fileSize": 16520
       }
     },
     {
@@ -43,7 +43,7 @@
       "duration": 0,
       "details": "File exists (28KB)",
       "metrics": {
-        "fileSize": 28408
+        "fileSize": 28405
       }
     },
     {
@@ -61,7 +61,7 @@
       "duration": 0,
       "details": "Valid JSON with 7 root properties",
       "metrics": {
-        "configSize": 28289
+        "configSize": 28286
       }
     },
     {
@@ -80,10 +80,10 @@
       "name": "Bundle Size Performance",
       "status": "passed",
       "duration": 0,
-      "details": "Total bundle size: 330KB (target: <500KB)",
+      "details": "Total bundle size: 331KB (target: <500KB)",
       "metrics": {
-        "totalSizeKB": 330,
-        "jsSizeKB": 287,
+        "totalSizeKB": 331,
+        "jsSizeKB": 288,
         "cssSizeKB": 19,
         "namespacedCssSizeKB": 24
       }
@@ -91,10 +91,10 @@
     {
       "name": "Config Loading Performance",
       "status": "passed",
-      "duration": 1,
-      "details": "Config loaded in 1ms (target: <100ms)",
+      "duration": 0,
+      "details": "Config loaded in 0ms (target: <100ms)",
       "metrics": {
-        "loadTimeMs": 1,
+        "loadTimeMs": 0,
         "configSizeKB": 28,
         "recordCount": 9
       }
@@ -108,13 +108,13 @@
   },
   "performance": {
     "Bundle Size Performance": {
-      "totalSizeKB": 330,
-      "jsSizeKB": 287,
+      "totalSizeKB": 331,
+      "jsSizeKB": 288,
       "cssSizeKB": 19,
       "namespacedCssSizeKB": 24
     },
     "Config Loading Performance": {
-      "loadTimeMs": 1,
+      "loadTimeMs": 0,
       "configSizeKB": 28,
       "recordCount": 9
     }

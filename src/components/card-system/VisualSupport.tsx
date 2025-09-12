@@ -9,6 +9,8 @@ interface VisualSupportProps {
   // Keep objectId for backward compatibility
   objectId?: string;
   widgetMode?: boolean;
+  bannerHeight?: number;
+  hideText?: boolean;
 }
 
 export function VisualSupport({
@@ -17,19 +19,27 @@ export function VisualSupport({
   compact = false,
   objectId,
   widgetMode = false,
+  bannerHeight,
+  hideText = false,
 }: VisualSupportProps) {
   const styles = useCardStyles();
   const [visualImages, setVisualImages] = useState<any[]>([]);
   const [loadingImages, setLoadingImages] = useState(false);
   const [imageLoadStarted, setImageLoadStarted] = useState(false);
 
-  // Get the visual object from activeCard or visualConfig. In widget mode,
-  // also resolve by linked_visual_object_id from global widget data.
+  // Ensure widget mode is picked up even if prop wasn't passed
+  const isWidget = widgetMode || (typeof window !== 'undefined' && !!(window as any).__E1_WIDGET_DATA);
+
+  // Get the visual object from activeCard or visualConfig. Additionally try
+  // to resolve by linked_visual_object_id from global widget data regardless
+  // of explicit widgetMode prop to avoid false negatives at mobile breakpoints.
   let visualObject = visualConfig || activeCard?.visual_objects;
-  if (!visualObject && widgetMode && activeCard?.config?.linked_visual_object_id) {
+  if (activeCard?.config?.linked_visual_object_id) {
     const widgetData = (typeof window !== 'undefined' && (window as any).__E1_WIDGET_DATA) || {};
     const vo = widgetData.visualObjects?.[activeCard.config.linked_visual_object_id];
-    if (vo) visualObject = vo;
+    if (vo && (!visualObject || !visualObject.id || (!visualObject.images && !visualObject.visual_object_images && !visualObject.image_url))) {
+      visualObject = vo;
+    }
   }
 
   // Debug logging
@@ -42,7 +52,7 @@ export function VisualSupport({
     visualObjectId: visualObject?.id,
     visualObjectTitle: visualObject?.title,
     visualConfigPassed: !!visualConfig,
-    widgetMode,
+    widgetMode: isWidget,
     compact,
   });
 
@@ -60,11 +70,13 @@ export function VisualSupport({
       setImageLoadStarted(true);
       
       try {
-        if (widgetMode) {
-          // In widget mode, try both possible field names for images
-          const images = visualObject?.images || 
-                        visualObject?.visual_object_images || 
-                        [];
+        if (isWidget) {
+          // In widget mode, try both possible field names for images.
+          // If array is empty but the object has a prebuilt image_url, synthesize a single image entry.
+          let images = visualObject?.images || visualObject?.visual_object_images || [];
+          if ((!images || images.length === 0) && visualObject?.image_url) {
+            images = [{ id: visualObject.id || 'vo-image', image_url: visualObject.image_url }];
+          }
           
           console.log('✅ Widget mode: Checking images:', {
             visualObjectId: visualObject?.id,
@@ -110,14 +122,14 @@ export function VisualSupport({
 
   // Helper function to get image URL - prioritize pre-constructed URLs in widget mode
   const getImageUrl = (image: any) => {
-    // In widget mode, visual objects should already have pre-constructed image_url
-    if (widgetMode && visualObject?.image_url) {
+    // In widget environments, prefer pre-constructed URLs
+    if (visualObject?.image_url) {
       console.log('🔗 Using pre-constructed image URL from visual object:', visualObject.image_url);
       return visualObject.image_url;
     }
     
     // For individual images in widget mode, check if they have a pre-constructed URL
-    if (widgetMode && image?.image_url) {
+    if (image?.image_url) {
       console.log('🔗 Using pre-constructed image URL from image object:', image.image_url);
       return image.image_url;
     }
@@ -132,12 +144,12 @@ export function VisualSupport({
     }
     
     // Get account hash from environment or widget data
-    const accountHash = widgetMode
-      ? (typeof window !== 'undefined' && (window as any).__E1_WIDGET_DATA?.cloudflareAccountHash)
-      : process.env.NEXT_PUBLIC_CLOUDFLARE_ACCOUNT_HASH;
+    // Pull account hash from widget data if available, otherwise env
+    const accountHash = (typeof window !== 'undefined' && (window as any).__E1_WIDGET_DATA?.cloudflareAccountHash)
+      || process.env.NEXT_PUBLIC_CLOUDFLARE_ACCOUNT_HASH;
       
     console.log('🔧 Fallback to manual URL construction:', {
-      widgetMode,
+      widgetMode: isWidget,
       accountHash: accountHash ? `${accountHash.substring(0, 8)}...` : 'MISSING',
       cloudflareImageId,
       variant
@@ -188,68 +200,47 @@ export function VisualSupport({
       <div
         style={{
           background: styles.visualSupport.content.background,
-          padding: styles.visualSupport.content.padding,
+          padding: 0,
           display: 'flex',
-          alignItems: 'center',
-          gap: '16px',
+          alignItems: 'stretch',
+          gap: 0,
           textAlign: 'left',
           position: 'relative',
           overflow: 'hidden',
+          minHeight: (() => {
+            const tokenH = (styles.responsive as any)?.mobile?.visualSupport?.height;
+            const h = bannerHeight ? `${bannerHeight}px` : (tokenH && tokenH !== 'auto' ? tokenH : '180px');
+            return h;
+          })(),
         }}
       >
-        {/* Background image on mobile if available */}
-        {content.hasImages &&
-          visualImages.length > 0 &&
-          !loadingImages &&
-          (() => {
-            const imageUrl = getImageUrl(visualImages[0]);
-            return imageUrl ? (
-              <div
-                style={{
-                  position: 'absolute',
-                  top: 0,
-                  left: 0,
-                  right: 0,
-                  bottom: 0,
-                  backgroundImage: activeCard ? `url(${imageUrl})` : 'none', // Only load when card is active
-                  backgroundSize: 'cover',
-                  backgroundPosition: 'center',
-                  opacity: 0.3, // Semi-transparent background
-                  zIndex: 0,
-                }}
-              />
-            ) : null;
-          })()}
+        {/* Image layer (actual <img> for reliability) */}
+        {(() => {
+          if (loadingImages) return null;
+          const firstImage = visualImages[0];
+          const imageUrl = firstImage ? getImageUrl(firstImage) : (visualObject?.image_url || null);
+          if (!imageUrl) return null;
+          return (
+            <img
+              src={imageUrl}
+              alt={visualObject?.title || 'Visual'}
+              style={{
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                width: '100%',
+                height: '100%',
+                objectFit: 'cover',
+                opacity: 1,
+                zIndex: 0,
+              }}
+              onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none'; }}
+            />
+          );
+        })()}
 
-        {/* Text content */}
-        <div style={{ flex: 1, minWidth: 0, position: 'relative', zIndex: 1 }}>
-          {content.title && (
-            <h2
-              style={{
-                fontSize: '18px', // Smaller for mobile
-                fontWeight: styles.visualSupport.title.fontWeight,
-                color: styles.visualSupport.title.color,
-                marginBottom: '4px',
-                letterSpacing: styles.visualSupport.title.letterSpacing,
-              }}
-            >
-              {content.title}
-            </h2>
-          )}
-          {content.description && (
-            <p
-              style={{
-                fontSize: '14px', // Smaller for mobile
-                fontWeight: styles.visualSupport.subtitle.fontWeight,
-                color: styles.visualSupport.subtitle.color,
-                lineHeight: styles.visualSupport.subtitle.lineHeight,
-                margin: 0,
-              }}
-            >
-              {content.description}
-            </p>
-          )}
-        </div>
+        {/* No text in mobile banner */}
+        {!hideText && null}
       </div>
     );
   }

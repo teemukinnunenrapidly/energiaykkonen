@@ -260,6 +260,7 @@ class E1_Calculator_Loader {
              data-e1-calculator
              data-shadow="<?php echo esc_attr($atts['shadow']); ?>"
              data-auto-init="<?php echo esc_attr($atts['auto_init']); ?>"
+             data-e1-auto-init="<?php echo esc_attr($atts['auto_init']); ?>"
              data-theme="<?php echo esc_attr($atts['theme']); ?>"
              data-show-visual-support="<?php echo esc_attr($atts['showVisualSupport']); ?>"
              data-enable-cache="<?php echo esc_attr($atts['enableCache']); ?>"
@@ -299,18 +300,22 @@ class E1_Calculator_Loader {
                     
                     // Check for different possible widget exports
                     const widget = window.E1Calculator || window.E1CalculatorWidget;
+                    const containerId = '<?php echo esc_js($widget_id); ?>';
                     
                     if (widget) {
                         console.log('Found widget object:', widget);
                         
                         // Try different init methods
-                        if (widget.initAll && 
-                        typeof widget.initAll === 'function') {
+                        if (widget.init && typeof widget.init === 'function' && containerId) {
+                            console.log('Using init method');
+                            // Pass the containerId explicitly to avoid undefined errors
+                            widget.init({
+                                container: containerId,
+                                config: { configUrl: '<?php echo esc_js($this->cache_url); ?>/config.json' }
+                            });
+                        } else if (widget.initAll && typeof widget.initAll === 'function') {
                             console.log('Using initAll method');
                             widget.initAll({configUrl: '<?php echo esc_js($this->cache_url); ?>/config.json'});
-                        } else if (widget.init && typeof widget.init === 'function') {
-                            console.log('Using init method');
-                            widget.init({configUrl: '<?php echo esc_js($this->cache_url); ?>/config.json'});
                         } else {
                             console.log('No suitable init method found');
                         }
