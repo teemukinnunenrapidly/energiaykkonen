@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import ReactDOM from 'react-dom/client';
 import { CardSystemContainer } from '../components/card-system/CardSystemContainer';
 import { CardProvider } from '../components/card-system/CardContext';
@@ -193,6 +193,7 @@ const E1CalculatorWidget: React.FC<{
   const [error, setError] = useState<ErrorInfo | null>(null);
   const [widgetData, setWidgetData] = useState<any>(null);
   const [retryCount, setRetryCount] = useState(0);
+  const containerRef = useRef<HTMLDivElement | null>(null);
 
   // Handle errors with classification and logging
   const handleError = useCallback((err: any, context?: string) => {
@@ -250,10 +251,17 @@ const E1CalculatorWidget: React.FC<{
       // Apply design tokens first. If running inside Shadow DOM, scope variables to that root
       let tokenTarget: any = undefined;
       try {
-        const hostEl = document.getElementById(elementId);
-        const rootNode: any = hostEl?.getRootNode?.();
-        if (rootNode && rootNode.host) {
-          tokenTarget = rootNode; // ShadowRoot
+        // Prefer the root node of our rendered container (works in both Shadow and regular DOM)
+        const containerRoot: any = containerRef.current?.getRootNode?.();
+        if (containerRoot && (containerRoot as any).host) {
+          tokenTarget = containerRoot; // ShadowRoot
+        } else if (elementId) {
+          // Fallback: attempt via elementId if available
+          const hostEl = document.getElementById(elementId);
+          const rootNode: any = hostEl?.getRootNode?.();
+          if (rootNode && (rootNode as any).host) {
+            tokenTarget = rootNode; // ShadowRoot
+          }
         }
       } catch {}
       applyDesignTokens(designTokens.cardStreamConfig, config.customTokens, tokenTarget);
@@ -469,7 +477,7 @@ const E1CalculatorWidget: React.FC<{
 
   return (
     <ErrorBoundary onError={handleError}>
-      <div className={containerClass}>
+      <div className={containerClass} ref={containerRef}>
         <CardProvider initialData={widgetData} widgetMode={true}>
           <CardSystemContainer
             initialData={widgetData}
