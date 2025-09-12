@@ -188,7 +188,7 @@
         },
         "active": {
           "border": "2px solid rgba(16, 185, 129, 0.5)",
-          "boxShadow": "0 0 0 3px rgba(16, 185, 129, 0.1)",
+          "boxShadow": "0 0 0 0px rgba(16, 185, 129, 0.1)",
           "transform": "scale(1.01)",
           "background": "#ffffff"
         },

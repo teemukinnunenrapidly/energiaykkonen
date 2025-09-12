@@ -1,8 +1,8 @@
 {
-  "version": "2.1.0-1757678630999",
-  "generated_at": "2025-09-12T12:03:51.551Z",
+  "version": "2.1.0-1757680057944",
+  "generated_at": "2025-09-12T12:27:38.602Z",
   "build_info": {
-    "buildId": "1757678630999",
+    "buildId": "1757680057944",
     "nodeVersion": "v24.5.0",
     "platform": "darwin"
   },
@@ -773,7 +773,7 @@
       {
         "source": "e1-calculator-widget.min.js",
         "target": "widget.js",
-        "size": 295076,
+        "size": 294963,
         "type": "js"
       },
       {
@@ -797,17 +797,17 @@
         "type": "css"
       }
     ],
-    "totalSize": 355645,
+    "totalSize": 355532,
     "integrity": {
       "shadowDOM": {
         "sha256": "10a6bcd5cf2b754febd315e118afc340941662e4438aeb296d58888260d342f1",
         "size": 19661,
-        "timestamp": "2025-09-12T12:03:51.133Z"
+        "timestamp": "2025-09-12T12:27:38.080Z"
       },
       "namespaced": {
         "sha256": "2b8961bd60f4fcdc514c806a2e38f6310a30a33330a7943873ad585a85aeb086",
         "size": 24388,
-        "timestamp": "2025-09-12T12:03:51.133Z"
+        "timestamp": "2025-09-12T12:27:38.080Z"
       }
     }
   },
@@ -816,7 +816,7 @@
     "fallbackMode": "namespace",
     "cloudflareAccountHash": "AkEHl6uYQM8NNRufIXHzFw",
     "corsEnabled": true,
-    "securityNonce": "4fe3210250b76d124493deb2d49df8ba",
+    "securityNonce": "3f078964400ffdddb4909c161d9014f3",
     "leadApiUrl": "https://energiaykkonen-calculator.vercel.app/api/submit-lead"
   },
   "security": {
@@ -828,12 +828,12 @@
       "shadowDOM": {
         "sha256": "10a6bcd5cf2b754febd315e118afc340941662e4438aeb296d58888260d342f1",
         "size": 19661,
-        "timestamp": "2025-09-12T12:03:51.133Z"
+        "timestamp": "2025-09-12T12:27:38.080Z"
       },
       "namespaced": {
         "sha256": "2b8961bd60f4fcdc514c806a2e38f6310a30a33330a7943873ad585a85aeb086",
         "size": 24388,
-        "timestamp": "2025-09-12T12:03:51.133Z"
+        "timestamp": "2025-09-12T12:27:38.080Z"
       }
     }
   }

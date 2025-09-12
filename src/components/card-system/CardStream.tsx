@@ -188,7 +188,7 @@ export function CardStream({
                   display: 'flex',
                   flexDirection: 'row',
                   alignItems: 'stretch',
-                  gap: styles.layout.gapBetweenPanels || '20px',
+                  gap: styles.layout.gapBetweenPanels,
                   marginBottom: styles.card.base.marginBottom,
                 }}
               >
@@ -201,7 +201,7 @@ export function CardStream({
                           background: styles.card.base.background,
                           borderRadius: styles.card.base.borderRadius,
                           overflow: styles.card.base.overflow,
-                          border: styles.card.base.border || '1px solid #e5e7eb',
+                          border: styles.card.base.border,
                           boxShadow: styles.card.base.boxShadow,
                           height: '100%',
                         }}
@@ -230,18 +230,18 @@ export function CardStream({
                     overflow: styles.card.base.overflow,
                     borderTop: isActive
                       ? styles.card.states.active.border
-                      : styles.card.base.border || '1px solid #e5e7eb',
+                      : styles.card.base.border,
                     borderRight: isActive
                       ? styles.card.states.active.border
-                      : styles.card.base.border || '1px solid #e5e7eb',
+                      : styles.card.base.border,
                     borderBottom: isActive
                       ? styles.card.states.active.border
-                      : styles.card.base.border || '1px solid #e5e7eb',
+                      : styles.card.base.border,
                     borderLeft: isActive
                       ? styles.card.states.active.border
                       : isComplete
                         ? styles.card.states.complete.borderLeft
-                        : styles.card.base.border || '1px solid #e5e7eb',
+                        : styles.card.base.border,
                     boxShadow: isActive
                       ? styles.card.states.active.boxShadow
                       : styles.card.base.boxShadow,
