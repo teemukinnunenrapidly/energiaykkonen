@@ -247,8 +247,16 @@ const E1CalculatorWidget: React.FC<{
       setIsLoading(true);
       setError(null);
       
-      // Apply design tokens first
-      applyDesignTokens(designTokens.cardStreamConfig, config.customTokens);
+      // Apply design tokens first. If running inside Shadow DOM, scope variables to that root
+      let tokenTarget: any = undefined;
+      try {
+        const hostEl = document.getElementById(elementId);
+        const rootNode: any = hostEl?.getRootNode?.();
+        if (rootNode && rootNode.host) {
+          tokenTarget = rootNode; // ShadowRoot
+        }
+      } catch {}
+      applyDesignTokens(designTokens.cardStreamConfig, config.customTokens, tokenTarget);
       
       // Store Cloudflare account hash globally for image loading
       if (config.cloudflareAccountHash) {
