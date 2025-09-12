@@ -685,7 +685,8 @@
     // Load widget styles into Shadow DOM
     async loadWidgetStylesIntoShadow(shadowRoot) {
       try {
-        const cssUrl = '/wp-content/uploads/e1-calculator-cache/widget.css';
+        const cacheBust = Date.now();
+        const cssUrl = `/wp-content/uploads/e1-calculator-cache/widget.css?v=${cacheBust}`;
         const response = await fetch(cssUrl);
         const css = await response.text();
         
@@ -709,7 +710,8 @@
       const link = document.createElement('link');
       link.id = styleId;
       link.rel = 'stylesheet';
-      link.href = '/wp-content/uploads/e1-calculator-cache/widget-namespaced.css';
+      const cacheBust = Date.now();
+      link.href = `/wp-content/uploads/e1-calculator-cache/widget-namespaced.css?v=${cacheBust}`;
       
       return new Promise((resolve, reject) => {
         link.onload = resolve;

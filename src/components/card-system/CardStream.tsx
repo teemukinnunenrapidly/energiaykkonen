@@ -207,7 +207,7 @@ export function CardStream({
                   marginBottom: styles.card.base.marginBottom,
                 }}
               >
-                {/* Visual column wrapped in its own non-interactive card */}
+                {/* Left: visual column (default placement) */}
                 {!forceShowInline && (
                   <div style={{ flex: `0 0 ${styles.layout.visualSupportRatio || '35%'}`, minWidth: 0 }}>
                     {(card.visual_objects || (card as any).config?.linked_visual_object_id) ? (
@@ -226,13 +226,12 @@ export function CardStream({
                         </div>
                       </div>
                     ) : (
-                      // Placeholder to keep right card width consistent when no visual is linked
                       <div style={{ height: '100%' }} />
                     )}
                   </div>
                 )}
 
-                {/* Right column: interactive card */}
+                {/* Right: interactive card */}
                 <div
                   style={{
                     flex: 1,
@@ -271,7 +270,6 @@ export function CardStream({
                     position: 'relative',
                   }}
                 >
-                  {/* Completed checkmark indicator */}
                   {isComplete &&
                     styles.card.states.complete.checkmark?.enabled && (
                       <div

@@ -1,8 +1,8 @@
 {
-  "version": "2.1.0-1757661840393",
-  "generated_at": "2025-09-12T07:24:01.311Z",
+  "version": "2.1.0-1757670412055",
+  "generated_at": "2025-09-12T09:46:52.652Z",
   "build_info": {
-    "buildId": "1757661840393",
+    "buildId": "1757670412055",
     "nodeVersion": "v24.5.0",
     "platform": "darwin"
   },
@@ -773,13 +773,13 @@
       {
         "source": "e1-calculator-widget.min.js",
         "target": "widget.js",
-        "size": 295296,
+        "size": 293682,
         "type": "js"
       },
       {
         "source": "wordpress-loader.min.js",
         "target": "wordpress-loader.js",
-        "size": 15837,
+        "size": 16348,
         "type": "js"
       }
     ],
@@ -787,27 +787,27 @@
       {
         "source": "e1-calculator-widget.min.css",
         "target": "widget.css",
-        "size": 19410,
+        "size": 19661,
         "type": "css"
       },
       {
         "source": "widget-namespaced.min.css",
         "target": "widget-namespaced.css",
-        "size": 23992,
+        "size": 24388,
         "type": "css"
       }
     ],
-    "totalSize": 354535,
+    "totalSize": 354079,
     "integrity": {
       "shadowDOM": {
-        "sha256": "817916dda4ff60fbed2b8aa707aa647beca4e380a660440738915b70ebeeac0a",
-        "size": 19410,
-        "timestamp": "2025-09-12T07:24:00.517Z"
+        "sha256": "10a6bcd5cf2b754febd315e118afc340941662e4438aeb296d58888260d342f1",
+        "size": 19661,
+        "timestamp": "2025-09-12T09:46:52.188Z"
       },
       "namespaced": {
-        "sha256": "c26088b1cb94da1abfc83020311de302d3d590760bb24eafca5fe3c9756622b7",
-        "size": 23992,
-        "timestamp": "2025-09-12T07:24:00.517Z"
+        "sha256": "2b8961bd60f4fcdc514c806a2e38f6310a30a33330a7943873ad585a85aeb086",
+        "size": 24388,
+        "timestamp": "2025-09-12T09:46:52.188Z"
       }
     }
   },
@@ -816,7 +816,7 @@
     "fallbackMode": "namespace",
     "cloudflareAccountHash": "AkEHl6uYQM8NNRufIXHzFw",
     "corsEnabled": true,
-    "securityNonce": "e3b581b9607d8ba3ab1158b5fc1965ab",
+    "securityNonce": "4d678cbf1ea8a2db2ff8b0ee2e8439fc",
     "leadApiUrl": "https://energiaykkonen-calculator.vercel.app/api/submit-lead"
   },
   "security": {
@@ -826,14 +826,14 @@
     "maxFileSize": 5242880,
     "checksums": {
       "shadowDOM": {
-        "sha256": "817916dda4ff60fbed2b8aa707aa647beca4e380a660440738915b70ebeeac0a",
-        "size": 19410,
-        "timestamp": "2025-09-12T07:24:00.517Z"
+        "sha256": "10a6bcd5cf2b754febd315e118afc340941662e4438aeb296d58888260d342f1",
+        "size": 19661,
+        "timestamp": "2025-09-12T09:46:52.188Z"
       },
       "namespaced": {
-        "sha256": "c26088b1cb94da1abfc83020311de302d3d590760bb24eafca5fe3c9756622b7",
-        "size": 23992,
-        "timestamp": "2025-09-12T07:24:00.517Z"
+        "sha256": "2b8961bd60f4fcdc514c806a2e38f6310a30a33330a7943873ad585a85aeb086",
+        "size": 24388,
+        "timestamp": "2025-09-12T09:46:52.188Z"
       }
     }
   }

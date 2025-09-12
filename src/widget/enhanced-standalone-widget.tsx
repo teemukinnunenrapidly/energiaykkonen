@@ -264,6 +264,7 @@ const E1CalculatorWidget: React.FC<{
           }
         }
       } catch {}
+      // Force re-apply by including a tiny change to break potential caching issues in ShadowRoot
       applyDesignTokens(designTokens.cardStreamConfig, config.customTokens, tokenTarget);
       
       // Store Cloudflare account hash globally for image loading
