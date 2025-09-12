@@ -38,23 +38,29 @@ export async function sendEmail({
   to,
   subject,
   html,
+  text,
   from = emailConfig.from,
   replyTo = emailConfig.replyTo,
   attachments,
 }: {
   to: string | string[];
   subject: string;
-  html: string;
+  html?: string;
+  text?: string;
   from?: string;
   replyTo?: string;
   attachments?: EmailAttachment[];
 }) {
   try {
+    if (!html && !text) {
+      throw new Error('Either html or text must be provided to sendEmail');
+    }
     const { data, error } = await resend.emails.send({
       from,
       to,
       subject,
-      html,
+      ...(html ? { html } : {}),
+      ...(text ? { text } : {}),
       replyTo,
       attachments: attachments?.map(att => ({
         filename: att.filename,

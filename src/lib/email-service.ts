@@ -1,14 +1,6 @@
 import { Lead, supabase } from './supabase';
 import { sendEmail, emailConfig, EmailAttachment } from './resend';
-import {
-  generateCustomerEmailHtml,
-  generateSalesEmailHtml,
-  calculateLeadScore,
-  emailSubjects,
-  getAdminUrl,
-  CustomerEmailData,
-  SalesEmailData,
-} from './email-templates';
+import { generateSalesEmailHtml, calculateLeadScore, emailSubjects, getAdminUrl, CustomerEmailData, SalesEmailData } from './email-templates';
 import { UnifiedCalculationEngine } from './unified-calculation-engine';
 import { flattenLeadData } from './lead-helpers';
 
@@ -25,36 +17,14 @@ export async function sendCustomerResultsEmail(
     console.log(`Sending customer results email to ${flatLead.sahkoposti}`);
 
     // Use hardcoded template
-    let html: string;
     const subject: string = emailSubjects.customer();
 
-    // Always use hardcoded template
-    console.log('Using hardcoded template for customer email');
+    const firstName: string = flatLead.nimi?.split(' ')[0] || '';
 
-    const emailData: CustomerEmailData = {
-      firstName: flatLead.nimi?.split(' ')[0] || '',
-      lastName: flatLead.nimi?.split(' ').slice(1).join(' ') || '',
-      calculations: {
-        annualSavings: flatLead.annual_savings || 0,
-        fiveYearSavings: flatLead.five_year_savings || 0,
-        tenYearSavings: flatLead.ten_year_savings || 0,
-        paybackPeriod: flatLead.payback_period || 0,
-        co2Reduction: flatLead.co2_reduction || 0,
-      },
-      houseInfo: {
-        squareMeters: flatLead.neliot || 0,
-        heatingType: flatLead.lammitysmuoto || '',
-      },
-    };
-    html = generateCustomerEmailHtml(emailData);
+    const text = `Hei ${firstName},\n\nKiitos kiinnostuksestasi Energiaykkösen säästölaskuriin. Sähköpostin liitteenä  säästölaskelma antamiesi tietojen perusteella.\n\nYstävällisin terveisin,\nEnergiaykkönen Oy`;
 
     // Send email with optional PDF attachment
-    const result = await sendEmail({
-      to: flatLead.sahkoposti,
-      subject,
-      html,
-      attachments: pdfAttachment ? [pdfAttachment] : undefined,
-    });
+    const result = await sendEmail({ to: flatLead.sahkoposti, subject, text, attachments: pdfAttachment ? [pdfAttachment] : undefined });
 
     return result;
   } catch (error) {
