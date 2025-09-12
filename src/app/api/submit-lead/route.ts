@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { headers } from 'next/headers';
 import React from 'react';
 import { createClient } from '@supabase/supabase-js';
-import { calculateHeatPumpSavings } from '@/lib/calculations';
+// import { calculateHeatPumpSavings } from '@/lib/calculations';
 import { sendLeadEmails } from '@/lib/email-service';
 import { defaultRateLimiter, securityLogger } from '@/lib/input-sanitizer';
 import { pdf } from '@react-pdf/renderer';
@@ -94,14 +94,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Calculate heat pump savings using Card Builder field names
-    const calculations = calculateHeatPumpSavings({
-      squareMeters: body.neliot,
-      ceilingHeight: parseFloat(body.huonekorkeus || '2.5'),
-      residents: parseInt(body.henkilomaara || '2'),
-      currentHeatingCost: body.vesikiertoinen,
-      currentHeatingType: body.lammitysmuoto,
-    });
+    // We rely on calculatePDFValues for normalized result fields
 
     // Get additional metadata (userAgent already retrieved above)
     const referer = headersList.get('referer') || '';
@@ -304,18 +297,35 @@ export async function POST(request: NextRequest) {
     }
 
     // Return success response with calculation results
+    const calculationsResponse = {
+      annualSavings:
+        (calculationResults as any)?.annual_savings ??
+        (calculationResults as any)?.annualSavings ??
+        null,
+      fiveYearSavings:
+        (calculationResults as any)?.five_year_savings ??
+        (calculationResults as any)?.fiveYearSavings ??
+        null,
+      tenYearSavings:
+        (calculationResults as any)?.ten_year_savings ??
+        (calculationResults as any)?.tenYearSavings ??
+        null,
+      paybackPeriod:
+        (calculationResults as any)?.payback_period ??
+        (calculationResults as any)?.paybackPeriod ??
+        null,
+      co2Reduction:
+        (calculationResults as any)?.co2_reduction ??
+        (calculationResults as any)?.co2Reduction ??
+        null,
+    };
+
     return NextResponse.json(
       {
         message: 'Lead submitted successfully',
         status: 'success',
         leadId: insertedLead.id,
-        calculations: {
-          annualSavings: calculations.annualSavings,
-          fiveYearSavings: calculations.fiveYearSavings,
-          tenYearSavings: calculations.tenYearSavings,
-          paybackPeriod: calculations.paybackPeriod,
-          co2Reduction: calculations.co2Reduction,
-        },
+        calculations: calculationsResponse,
         emailResults: emailResults
           ? {
               customerEmailSent: emailResults.customerEmail?.success || false,
