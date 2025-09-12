@@ -154,13 +154,28 @@ function CardSystemInner({
             style={{
               display: !isMobileMode ? 'block' : 'none',
               width: styles.layout.visualSupportRatio,
-              position: 'sticky',
-              top: styles.visualSupport.sticky?.top || 0,
-              height: styles.visualSupport.sticky?.height || '100vh',
+              position: (styles.visualSupport as any).position || 'sticky',
+              top:
+                (styles.visualSupport?.sticky as any)?.top ||
+                (styles.visualSupport as any).top ||
+                (styles.visualSupport as any).offsetTop ||
+                0,
+              height:
+                (styles.visualSupport as any).height ||
+                (styles.visualSupport?.sticky as any)?.height ||
+                '100vh',
+              maxHeight:
+                (styles.visualSupport as any).maxHeight ||
+                '100vh',
+              marginTop: (styles.visualSupport as any).marginTop || undefined,
+              overflow: 'hidden',
               alignSelf: 'flex-start',
-              transform: styles.visualSupport.sticky?.transform || 'translate3d(0, 0, 0)',
-              willChange: styles.visualSupport.sticky?.willChange || 'transform',
-              backfaceVisibility: (styles.visualSupport.sticky?.backfaceVisibility as any) || 'hidden',
+              transform:
+                (styles.visualSupport?.sticky as any)?.transform || 'translate3d(0, 0, 0)',
+              willChange:
+                (styles.visualSupport?.sticky as any)?.willChange || 'transform',
+              backfaceVisibility:
+                ((styles.visualSupport?.sticky as any)?.backfaceVisibility as any) || 'hidden',
               background: styles.visualSupport.background,
               borderRight: styles.visualSupport.borderRight,
             }}

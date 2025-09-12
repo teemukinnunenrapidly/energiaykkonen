@@ -588,12 +588,20 @@ export class EnhancedLookupEngine {
       }
 
       // Load defaults
-      const { data: defaults, error: defaultsError } = await supabase
-        .from('enhanced_lookup_defaults')
-        .select('*');
-
-      if (defaultsError) {
-        throw defaultsError;
+      // Defaults table may not exist in some environments (e.g., preview)
+      let defaults: any[] = [];
+      try {
+        const { data, error } = await supabase
+          .from('enhanced_lookup_defaults')
+          .select('*');
+        if (!error) {
+          defaults = data || [];
+        } else {
+          console.warn('enhanced_lookup_defaults not available:', error.message);
+        }
+      } catch (e) {
+        console.warn('Skipping enhanced_lookup_defaults fetch:', (e as Error).message);
+        defaults = [];
       }
 
       // Update caches

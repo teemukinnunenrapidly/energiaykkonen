@@ -1,5 +1,5 @@
 {
-  "timestamp": "2025-09-11T17:40:48.714Z",
+  "timestamp": "2025-09-12T06:46:22.368Z",
   "tests": [
     {
       "name": "File Access: widget.js",
@@ -7,7 +7,7 @@
       "duration": 0,
       "details": "File exists (288KB)",
       "metrics": {
-        "fileSize": 295015
+        "fileSize": 295225
       }
     },
     {
@@ -79,10 +79,10 @@
     {
       "name": "Bundle Size Performance",
       "status": "passed",
-      "duration": 0,
-      "details": "Total bundle size: 330KB (target: <500KB)",
+      "duration": 1,
+      "details": "Total bundle size: 331KB (target: <500KB)",
       "metrics": {
-        "totalSizeKB": 330,
+        "totalSizeKB": 331,
         "jsSizeKB": 288,
         "cssSizeKB": 19,
         "namespacedCssSizeKB": 23
@@ -91,10 +91,10 @@
     {
       "name": "Config Loading Performance",
       "status": "passed",
-      "duration": 1,
-      "details": "Config loaded in 1ms (target: <100ms)",
+      "duration": 0,
+      "details": "Config loaded in 0ms (target: <100ms)",
       "metrics": {
-        "loadTimeMs": 1,
+        "loadTimeMs": 0,
         "configSizeKB": 28,
         "recordCount": 9
       }
@@ -108,13 +108,13 @@
   },
   "performance": {
     "Bundle Size Performance": {
-      "totalSizeKB": 330,
+      "totalSizeKB": 331,
       "jsSizeKB": 288,
       "cssSizeKB": 19,
       "namespacedCssSizeKB": 23
     },
     "Config Loading Performance": {
-      "loadTimeMs": 1,
+      "loadTimeMs": 0,
       "configSizeKB": 28,
       "recordCount": 9
     }
