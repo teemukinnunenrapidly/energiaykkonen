@@ -722,14 +722,23 @@
 
     // Wait for main widget script
     async waitForMainWidget() {
-      return RetryManager.withRetry(async (attempt) => {
-        if (typeof window.E1CalculatorWidget === 'undefined' || 
-            typeof window.E1CalculatorWidget.init === 'undefined') {
-          throw new Error('Main E1Calculator widget not loaded');
+      const maxAttempts = 6; // be more patient on slow hosts
+      let lastError = null;
+      for (let attempt = 0; attempt < maxAttempts; attempt++) {
+        if (typeof window.E1CalculatorWidget !== 'undefined' &&
+            typeof window.E1CalculatorWidget.init !== 'undefined') {
+          return true;
         }
-        
-        return true;
-      }, 'Main widget loading', 3);
+        // Exponential backoff without spamming the console
+        const delay = Math.min(200 * Math.pow(2, attempt), 3000);
+        await new Promise(r => setTimeout(r, delay));
+      }
+      // Final check before throwing
+      if (typeof window.E1CalculatorWidget === 'undefined' ||
+          typeof window.E1CalculatorWidget.init === 'undefined') {
+        throw new Error('Main E1Calculator widget not loaded');
+      }
+      return true;
     }
 
     // Render widget instance

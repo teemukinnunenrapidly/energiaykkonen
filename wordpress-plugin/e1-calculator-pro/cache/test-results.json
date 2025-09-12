@@ -1,5 +1,5 @@
 {
-  "timestamp": "2025-09-12T12:27:38.608Z",
+  "timestamp": "2025-09-12T12:39:43.273Z",
   "tests": [
     {
       "name": "File Access: widget.js",
@@ -34,7 +34,7 @@
       "duration": 0,
       "details": "File exists (16KB)",
       "metrics": {
-        "fileSize": 16520
+        "fileSize": 16642
       }
     },
     {
@@ -43,7 +43,7 @@
       "duration": 0,
       "details": "File exists (28KB)",
       "metrics": {
-        "fileSize": 28405
+        "fileSize": 28410
       }
     },
     {
@@ -61,7 +61,7 @@
       "duration": 0,
       "details": "Valid JSON with 7 root properties",
       "metrics": {
-        "configSize": 28286
+        "configSize": 28291
       }
     },
     {
@@ -91,10 +91,10 @@
     {
       "name": "Config Loading Performance",
       "status": "passed",
-      "duration": 0,
-      "details": "Config loaded in 0ms (target: <100ms)",
+      "duration": 1,
+      "details": "Config loaded in 1ms (target: <100ms)",
       "metrics": {
-        "loadTimeMs": 0,
+        "loadTimeMs": 1,
         "configSizeKB": 28,
         "recordCount": 9
       }
@@ -114,7 +114,7 @@
       "namespacedCssSizeKB": 24
     },
     "Config Loading Performance": {
-      "loadTimeMs": 0,
+      "loadTimeMs": 1,
       "configSizeKB": 28,
       "recordCount": 9
     }

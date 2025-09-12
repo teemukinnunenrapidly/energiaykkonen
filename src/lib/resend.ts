@@ -12,10 +12,16 @@ export const resend = new Resend(resendApiKey);
 // Email configuration
 export const emailConfig = {
   // Use onboarding@resend.dev for testing until domain is verified
-  from:
-    process.env.NODE_ENV === 'development'
-      ? 'Energiaykkönen Test <onboarding@resend.dev>'
-      : 'Energiaykkönen Oy <noreply@energiaykkonen.fi>',
+  from: (() => {
+    const vercelEnv = process.env.VERCEL_ENV || process.env.NODE_ENV;
+    const defaultProdFrom = 'Energiaykkönen Oy <noreply@energiaykkonen.fi>';
+    const defaultDevFrom = 'Energiaykkönen Test <onboarding@resend.dev>';
+    // Allow override via env var to unblock sending while domain is being verified
+    return (
+      process.env.RESEND_FROM ||
+      (vercelEnv === 'production' ? defaultProdFrom : defaultDevFrom)
+    );
+  })(),
   salesTo: 'sales@energiaykkonen.fi', // Update with actual sales email
   replyTo: 'info@energiaykkonen.fi',
 } as const;
@@ -52,14 +58,22 @@ export async function sendEmail({
       replyTo,
       attachments: attachments?.map(att => ({
         filename: att.filename,
-        content: att.content,
+        // Resend expects base64 string content. Convert Buffers safely.
+        content:
+          typeof att.content === 'string'
+            ? att.content
+            : (att.content as Buffer).toString('base64'),
         content_type: att.contentType,
       })),
     });
 
     if (error) {
-      console.error('Resend error:', error);
-      throw new Error(`Email sending failed: ${error.message}`);
+      // Improve error reporting so API response isn't just "undefined"
+      const anyErr = error as any;
+      const msg =
+        anyErr?.message || anyErr?.name || anyErr?.type || JSON.stringify(anyErr);
+      console.error('Resend error:', anyErr);
+      throw new Error(`Email sending failed: ${msg}`);
     }
 
     console.log('Email sent successfully:', data);

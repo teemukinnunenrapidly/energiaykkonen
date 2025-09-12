@@ -952,8 +952,8 @@ class E1_Calculator_Loader {
             // Enhanced initialization with error handling
             function initializeE1Calculator() {
                 if (!window.E1Calculator || !window.E1Calculator.initAll) {
-                    console.warn("E1Calculator not available, retrying in 100ms...");
-                    setTimeout(initializeE1Calculator, 100);
+                    // Be patient on slow hosts without spamming console
+                    setTimeout(initializeE1Calculator, 400);
                     return;
                 }
                 
