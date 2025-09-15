@@ -14,7 +14,6 @@ export function CalculationCard({ card }: CalculationCardProps) {
   const {
     formData,
     completeCard,
-    uncompleteCard,
     cardStates,
     sessionId,
     updateField,
@@ -89,8 +88,6 @@ export function CalculationCard({ card }: CalculationCardProps) {
         setError(null);
 
         try {
-          let result: any;
-
           // Use unified calculation engine (with Supabase) - dynamic import
           const { UnifiedCalculationEngine } = await import(
             '@/lib/unified-calculation-engine'
@@ -101,7 +98,7 @@ export function CalculationCard({ card }: CalculationCardProps) {
             sessionId,
             formData
           );
-          result = await engine.process(card.config.main_result);
+          const result = await engine.process(card.config.main_result);
           console.log('CalculationCard received result:', result);
 
           if (result.success) {
@@ -109,7 +106,7 @@ export function CalculationCard({ card }: CalculationCardProps) {
               // Ensure result is always a string - handle objects safely
               let resultString: string | null = null;
               try {
-                if (result.result != null) {
+                if (result.result !== null) {
                   // Safe type checking to avoid React Error #185
                   const resultType = Object.prototype.toString.call(
                     result.result
@@ -144,7 +141,7 @@ export function CalculationCard({ card }: CalculationCardProps) {
                     resultString = String(result.result);
                   }
                 }
-              } catch (typeError) {
+              } catch {
                 resultString = String(result.result || '0');
               }
 
@@ -199,7 +196,7 @@ export function CalculationCard({ card }: CalculationCardProps) {
                   if (!isNaN(numericResult)) {
                     updateField(card.config.field_name, numericResult);
                   }
-                } catch (updateError) {
+                } catch {
                   // Field update failed
                 }
               }
