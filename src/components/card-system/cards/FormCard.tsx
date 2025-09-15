@@ -21,6 +21,7 @@ export function FormCard({ card, onFieldFocus }: FormCardProps) {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitSuccess, setSubmitSuccess] = useState(false);
+  const [pdfUrl, setPdfUrl] = useState<string | null>(null);
   const [focusedField, setFocusedField] = useState<string | null>(null);
 
   // Check if this card is completed - removed auto-disable for completed cards
@@ -100,7 +101,10 @@ export function FormCard({ card, onFieldFocus }: FormCardProps) {
     try {
       // Submit the form data using the CardContext submit functionality
       if (submitData) {
-        await submitData(card.config?.submit_email_template);
+        const result = await submitData(card.config?.submit_email_template);
+        if (result?.pdfUrl) {
+          setPdfUrl(result.pdfUrl as string);
+        }
       }
 
       // Mark this card as complete when submit button is clicked
@@ -715,9 +719,28 @@ export function FormCard({ card, onFieldFocus }: FormCardProps) {
                 fontWeight: '500',
               }}
             >
-              <span style={{ fontSize: '24px', marginRight: '8px' }}>✓</span>
-              {card.config?.submit_success_message ||
-                'Lomake lähetetty onnistuneesti!'}
+              {isSubmitting ? null : (
+                <span style={{ fontSize: '24px', marginRight: '8px' }}>✓</span>
+              )}
+              {pdfUrl ? (
+                <>
+                  Säästölaskelmasi on valmis.{' '}
+                  <a
+                    href={pdfUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    style={{
+                      color: styles.colors.brand.primary,
+                      textDecoration: 'underline',
+                      fontWeight: 600,
+                    }}
+                  >
+                    Lataa PDF
+                  </a>
+                </>
+              ) : (
+                'Luodaan säästölaskelmaa'
+              )}
             </div>
           ) : (
             <button

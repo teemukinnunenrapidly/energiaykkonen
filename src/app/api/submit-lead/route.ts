@@ -303,6 +303,7 @@ export async function POST(request: NextRequest) {
         message: 'Lead submitted successfully',
         status: 'success',
         leadId: insertedLead.id,
+        pdfUrl, // expose public PDF URL when available
         calculations: calculationsResponse,
         emailResults: emailResults
           ? {

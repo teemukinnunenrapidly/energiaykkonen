@@ -36,7 +36,7 @@ interface CardContextValue {
   shouldBeRevealed: (card: CardTemplate, visitedCards?: Set<string>) => boolean;
   revealCard: (cardId: string) => void; // New: grants reveal permission to a card
   isCardComplete: (card: CardTemplate) => boolean; // New: checks if card meets completion criteria
-  submitData: (emailTemplate?: string) => Promise<void>; // Submit form data
+  submitData: (emailTemplate?: string) => Promise<any>; // Submit form data and return API response
 }
 
 const CardContext = createContext<CardContextValue | null>(null);
@@ -352,6 +352,9 @@ export function CardProvider({
       if (!response.ok) {
         throw new Error('Failed to submit form data');
       }
+      // Return JSON so callers can access pdfUrl, leadId, etc.
+      const data = await response.json();
+      return data;
     },
     [formData]
   );
@@ -465,7 +468,6 @@ export function CardProvider({
 
       for (let index = 0; index < orderedCardIds.length; index++) {
         const cardId = orderedCardIds[index];
-        const card = cardsData.find(c => c.id === cardId);
 
         if (index === 0) {
           // First card starts as active and revealed
@@ -594,7 +596,6 @@ export function CardProvider({
         const newStates: Record<string, CardState> = {};
         for (let index = 0; index < orderedCardIds.length; index++) {
           const cardId = orderedCardIds[index];
-          const card = cardsData.find((c: any) => c.id === cardId);
 
           if (index === 0) {
             // First card starts as active and revealed
@@ -605,7 +606,7 @@ export function CardProvider({
           }
         }
         setCardStates(newStates);
-      } catch (error) {
+      } catch {
         // ignore
       }
     };
@@ -620,7 +621,7 @@ export function CardProvider({
         await initializeCleanSession(sessionId);
         // Remove the cleanup flag if it exists
         localStorage.removeItem('session_needs_cleanup');
-      } catch (error) {
+      } catch {
         // Continue anyway - don't break the user experience
       }
     };
