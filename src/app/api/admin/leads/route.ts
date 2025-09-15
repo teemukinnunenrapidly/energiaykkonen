@@ -4,9 +4,32 @@ import { requireAdmin } from '@/lib/auth';
 
 // Use service role on the server to bypass RLS safely for admin-only API
 function getSupabaseAdmin() {
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-  const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
+  // Support multiple common env names to avoid local misconfig friction
+  const url =
+    process.env.NEXT_PUBLIC_SUPABASE_URL ||
+    process.env.SUPABASE_URL ||
+    process.env.SUPABASE_PROJECT_URL ||
+    '';
+
+  const serviceKey =
+    process.env.SUPABASE_SERVICE_ROLE_KEY ||
+    process.env.SUPABASE_SERVICE_ROLE ||
+    process.env.SUPABASE_SERVICE_KEY ||
+    process.env.SUPABASE_SECRET ||
+    process.env.NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY ||
+    '';
+
   if (!url || !serviceKey) {
+    if (process.env.NODE_ENV !== 'production') {
+      console.warn(
+        'Supabase admin env vars missing (dev). Returning empty leads. Checks:',
+        {
+          hasUrl: Boolean(url),
+          hasServiceKey: Boolean(serviceKey),
+        }
+      );
+      return null;
+    }
     throw new Error('Supabase admin env vars missing');
   }
   return createClient(url, serviceKey);
@@ -22,6 +45,10 @@ export async function GET(request: NextRequest) {
 
   try {
     const supabase = getSupabaseAdmin();
+    if (!supabase) {
+      // Dev fallback: no envs set locally, return empty list instead of 500
+      return NextResponse.json({ leads: [] });
+    }
     // Fetch leads from database, ordered by creation date (newest first)
     const { data: leads, error } = await supabase
       .from('leads')

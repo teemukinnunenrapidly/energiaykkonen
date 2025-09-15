@@ -1,6 +1,6 @@
 /**
- * Card types for standalone widget
- * No Supabase dependencies - pure TypeScript types
+ * Card types for calculator system
+ * Pure TypeScript types
  */
 
 export interface CardTemplate {
@@ -40,12 +40,9 @@ export interface CardField {
   required: boolean;
 }
 
-// Mock functions for widget - these don't actually call Supabase
+// Mock function for getting cards when no data available
 export async function getCardsDirect(): Promise<CardTemplate[]> {
-  // In widget mode, this will be replaced by data from config.json
-  if (typeof window !== 'undefined' && (window as any).__E1_WIDGET_DATA?.cards) {
-    return (window as any).__E1_WIDGET_DATA.cards;
-  }
+  // Return empty array if no data available
   return [];
 }
 
@@ -55,7 +52,7 @@ export async function updateFieldCompletion(
   fieldName: string,
   isComplete: boolean
 ): Promise<void> {
-  // No-op in widget mode - we don't persist to database
+  // Mock implementation - no database persistence
   console.log('Mock updateFieldCompletion:', { sessionId, cardId, fieldName, isComplete });
 }
 
@@ -64,7 +61,7 @@ export async function updateCardCompletion(
   cardId: string,
   isComplete: boolean
 ): Promise<void> {
-  // No-op in widget mode - we don't persist to database
+  // Mock implementation - no database persistence
   console.log('Mock updateCardCompletion:', { sessionId, cardId, isComplete });
 }
 
@@ -72,7 +69,7 @@ export async function getCardCompletion(
   sessionId: string,
   cardId: string
 ): Promise<{ is_complete: boolean } | null> {
-  // Always return not complete in widget mode
+  // Mock implementation - always return not complete
   return { is_complete: false };
 }
 
@@ -86,6 +83,6 @@ export async function checkCardCompletion(
 }
 
 export async function initializeCleanSession(sessionId: string): Promise<void> {
-  // No-op in widget mode
+  // Mock implementation - no database persistence
   console.log('Mock initializeCleanSession:', sessionId);
 }

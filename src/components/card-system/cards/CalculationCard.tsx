@@ -1,7 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { type CardTemplate } from '@/lib/supabase';
 import { useCardContext } from '../CardContext';
-import { WidgetCalculationEngine } from '@/lib/widget-calculation-engine';
 import { EditableCalculationResult } from './EditableCalculationResult';
 import { useCardStyles } from '@/hooks/useCardStyles';
 

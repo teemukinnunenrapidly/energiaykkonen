@@ -49,7 +49,6 @@ vercel --prod
 - [Environment Setup](#-environment-setup)
 - [Admin Panel Usage](#-admin-panel-usage)
 - [Deployment](#-deployment)
-- [WordPress Integration](#-wordpress-integration)
 - [Maintenance & Updates](#-maintenance--updates)
 - [Troubleshooting](#-troubleshooting)
 - [Support](#-support)
@@ -237,31 +236,6 @@ ADMIN_PASSWORD=your_production_admin_password
 2. **Verify Emails**: Check email delivery
 3. **Test Admin Panel**: Access admin with production credentials
 4. **Check Analytics**: Verify Vercel Analytics are working
-5. **Test WordPress Integration**: Verify iframe embedding works
-
-## 🌐 WordPress Integration
-
-### Iframe Embedding
-
-Add this code to your WordPress page:
-
-```html
-<iframe
-  src="https://your-domain.vercel.app"
-  width="100%"
-  height="800"
-  frameborder="0"
-  style="border: none; border-radius: 8px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);"
->
-</iframe>
-```
-
-### Customization Options
-
-- **Height**: Adjust the `height` attribute based on your content
-- **Width**: Use `width="100%"` for responsive design
-- **Styling**: Add custom CSS for borders, shadows, or rounded corners
-- **Responsive**: The calculator automatically adapts to different screen sizes
 
 ## 🔄 Maintenance & Updates
 
@@ -391,11 +365,10 @@ This project is proprietary software developed for Energiaykkönen Oy. All right
 - Lead capture and management
 - Admin panel with analytics
 - Email notifications
-- WordPress integration
 - Responsive design
 - GDPR compliance
 
 ---
 
-_Last updated: August 2025_
+_Last updated: September 2025_
 _Documentation version: 1.0_

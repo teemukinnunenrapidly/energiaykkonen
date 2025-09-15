@@ -114,10 +114,8 @@ export function VisualSupport({
       return null;
     }
     
-    // Get account hash from environment or widget data
-    // Pull account hash from widget data if available, otherwise env
-    const accountHash = (typeof window !== 'undefined' && (window as any).__E1_WIDGET_DATA?.cloudflareAccountHash)
-      || process.env.NEXT_PUBLIC_CLOUDFLARE_ACCOUNT_HASH;
+    // Get account hash from environment
+    const accountHash = process.env.NEXT_PUBLIC_CLOUDFLARE_ACCOUNT_HASH;
       
     console.log('🔧 Fallback to manual URL construction:', {
         accountHash: accountHash ? `${accountHash.substring(0, 8)}...` : 'MISSING',

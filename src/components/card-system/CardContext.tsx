@@ -540,12 +540,9 @@ export function CardProvider({
             `🟢 INIT: Card ${index} "${card?.name}" set to ACTIVE and REVEALED`
           );
         } else {
-          // Check if this card was previously completed (skip in widget mode)
-          let isComplete = false;
-          if (!widgetMode) {
-            const completionState = await getCardCompletion();
-            isComplete = completionState?.is_complete || false;
-          }
+          // Check if this card was previously completed
+          const completionState = await getCardCompletion();
+          const isComplete = completionState?.is_complete || false;
 
           newStates[cardId] = {
             status: isComplete ? 'complete' : 'hidden',
@@ -769,7 +766,6 @@ export function CardProvider({
     hasCards: !!value.cards && value.cards.length > 0,
     cardStatesCount: Object.keys(value.cardStates || {}).length,
     formDataKeys: Object.keys(value.formData || {}).length,
-    widgetMode
   });
 
   return (

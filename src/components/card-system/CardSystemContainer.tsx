@@ -14,9 +14,6 @@ interface CardSystemContainerProps {
   forceMode?: 'desktop' | 'mobile'; // Force a specific mode for preview
   showBlurredCards?: boolean; // Show upcoming cards in blurred state
   initialData?: any; // Initial data for offline mode
-  // Widget mode no longer used in embedded approach; keep prop for backwards compatibility
-  // but default to false and ignore for new pages.
-  widgetMode?: boolean;
 }
 
 // Create inner component that has access to CardContext
@@ -28,7 +25,6 @@ function CardSystemInner({
   height,
   forceMode,
   showBlurredCards = false,
-  widgetMode = false,
 }: CardSystemContainerProps) {
   const styles = useCardStyles();
   const containerRef = useRef<HTMLDivElement | null>(null);
@@ -62,7 +58,7 @@ function CardSystemInner({
     const bpStr = (styles.responsive as any)?.breakpoints?.mobile || '768px';
     const bp = parseInt(String(bpStr).replace('px', '')) || 768;
 
-    // Prefer container width via ResizeObserver for accurate widget-embedded detection
+    // Prefer container width via ResizeObserver for accurate responsive detection
     let ro: ResizeObserver | null = null;
     const observeContainer = () => {
       if (!containerRef.current || typeof ResizeObserver === 'undefined') return;
@@ -89,42 +85,16 @@ function CardSystemInner({
   // Find the active card from cards list
   const activeCard = cards.find(c => c.id === activeContext.cardId);
 
-  // Resolve visual object from linked_visual_object_id (for widget mode)
+  // Get visual object from active card
   let visualObject = activeCard?.visual_objects;
-  
-  if (widgetMode && activeCard?.config?.linked_visual_object_id) {
-    // In widget mode, get visual object from global data
-    const widgetData = (window as any).__E1_WIDGET_DATA;
-    console.log('🔍 Attempting to resolve visual object:', {
-      activeCardId: activeCard?.id,
-      linkedId: activeCard.config.linked_visual_object_id,
-      hasWidgetData: !!widgetData,
-      hasVisualObjects: !!widgetData?.visualObjects,
-      visualObjectsKeys: widgetData?.visualObjects ? Object.keys(widgetData.visualObjects) : [],
-    });
-    
-    if (widgetData?.visualObjects) {
-      visualObject = widgetData.visualObjects[activeCard.config.linked_visual_object_id];
-      console.log('🎨 Widget mode: Resolved visual object:', {
-        linkedId: activeCard.config.linked_visual_object_id,
-        found: !!visualObject,
-        title: visualObject?.title,
-        hasImages: visualObject?.images?.length > 0,
-        imageCount: visualObject?.images?.length || 0,
-      });
-    } else {
-      console.warn('⚠️ No visual objects found in widget data');
-    }
-  }
 
   // Debug logging
   console.log('🏗️ CardSystemContainer state:', {
     totalCards: cards.length,
-    cardsWithVisuals: cards.filter(c => c.visual_objects || c.config?.linked_visual_object_id).length,
+    cardsWithVisuals: cards.filter(c => c.visual_objects).length,
     activeContextCardId: activeContext.cardId,
     activeCardName: activeCard?.name,
     activeCardHasVisuals: !!visualObject,
-    widgetMode,
     isMobileMode,
     showVisualSupport,
     visualPanelVisible: showVisualSupport && !isMobileMode,
@@ -134,10 +104,8 @@ function CardSystemInner({
   useEffect(() => {
     // Only run once when cards are first loaded
     if (!activeContext.cardId && cards.length > 0) {
-      // In widget mode, prioritize cards with linked_visual_object_id
-      const cardWithVisual = cards.find(c => 
-        c.visual_objects || (widgetMode && c.config?.linked_visual_object_id)
-      );
+      // Find first card with visual objects
+      const cardWithVisual = cards.find(c => c.visual_objects);
       
       // If no card with visual, just select the first card
       const cardToSelect = cardWithVisual || cards[0];
@@ -146,7 +114,7 @@ function CardSystemInner({
         console.log('🎯 Auto-selecting card:', {
           cardId: cardToSelect.id,
           cardName: cardToSelect.name,
-          hasVisual: !!(cardToSelect.visual_objects || cardToSelect.config?.linked_visual_object_id),
+          hasVisual: !!cardToSelect.visual_objects,
         });
         setActiveContext({
           cardId: cardToSelect.id,
@@ -155,7 +123,7 @@ function CardSystemInner({
         });
       }
     }
-  }, [cards.length, widgetMode]); // React to cards loading
+  }, [cards.length]); // React to cards loading
 
   return (
     <div
@@ -212,16 +180,14 @@ function CardSystemInner({
 }
 
 export function CardSystemContainer(props: CardSystemContainerProps) {
-  // Initialize dependencies on mount (skip in widget mode)
+  // Initialize dependencies on mount
   useEffect(() => {
-    if (!props.widgetMode) {
-      initializeCommonDependencies();
-    }
-  }, [props.widgetMode]);
+    initializeCommonDependencies();
+  }, []);
 
-  // Always wrap in CardProvider (embedded approach); ignore widgetMode for new pages
+  // Always wrap in CardProvider
   return (
-    <CardProvider initialData={props.initialData} widgetMode={false}>
+    <CardProvider initialData={props.initialData}>
       <CardSystemInner {...props} />
     </CardProvider>
   );

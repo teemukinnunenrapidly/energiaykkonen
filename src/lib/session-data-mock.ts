@@ -28,6 +28,6 @@ export function clearSessionData(sessionId: string): void {
 }
 
 export function initializeCommonDependencies(): void {
-  // No-op for widget - no dependencies to initialize
-  console.log('Widget mode: No common dependencies to initialize');
+  // No-op - no dependencies to initialize
+  console.log('No common dependencies to initialize');
 }

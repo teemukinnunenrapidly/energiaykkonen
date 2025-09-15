@@ -19,8 +19,8 @@
     },
     "layout": {
       "_comment": "Layout proportions and spacing",
-      "visualSupportRatio": "50%",
-      "cardStreamRatio": "50%",
+      "visualSupportRatio": "65%",
+      "cardStreamRatio": "35%",
       "gapBetweenPanels": "10px",
       "verticalSpacing": "default",
       "display": "flex",

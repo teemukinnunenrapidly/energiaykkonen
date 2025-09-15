@@ -58,8 +58,7 @@ node_modules/
 *.sw?
 # OS specific
 
-# WordPress local development
-wordpress-local/ 
+ 
 
 # Task files
 # tasks.json
