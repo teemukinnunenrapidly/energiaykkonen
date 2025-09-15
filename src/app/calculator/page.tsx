@@ -6,15 +6,15 @@ import { CardSystemContainer } from '@/components/card-system/CardSystemContaine
 export default function EmbeddedCalculatorPage() {
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Mock Header */}
+      {/* Simple Header with Centered Logo */}
       <header className="border-b bg-white">
-        <div className="mx-auto max-w-7xl px-6 py-4 flex items-center justify-between">
-          <div className="text-xl font-semibold tracking-tight">Energiaykkönen</div>
-          <nav className="flex items-center gap-6 text-sm text-gray-600">
-            <Link href="/" className="hover:text-gray-900">Etusivu</Link>
-            <Link href="/calculator" className="text-emerald-600 font-medium">Säästölaskuri</Link>
-            <Link href="/admin" className="hover:text-gray-900">Admin</Link>
-          </nav>
+        <div className="mx-auto max-w-7xl px-6 py-4 flex items-center justify-center">
+          <Link 
+            href="https://energiaykkonen.fi" 
+            className="text-xl font-semibold tracking-tight text-gray-900 hover:text-gray-700 transition-colors"
+          >
+            Energiaykkönen
+          </Link>
         </div>
       </header>
 
