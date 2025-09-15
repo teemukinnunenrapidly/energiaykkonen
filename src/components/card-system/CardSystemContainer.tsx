@@ -38,7 +38,7 @@ function CardSystemInner({
   }>({});
 
   const containerStyle = fullWidth
-    ? {}
+    ? { maxWidth: '100%' }
     : {
         maxWidth:
           typeof containerMaxWidth === 'number'
@@ -118,6 +118,7 @@ function CardSystemInner({
       style={{
         margin: '0 auto',
         minHeight: styles.container.minHeight,
+        width: '100%',
         background: (styles.container as any).background || undefined,
         ...containerStyle,
       }}
