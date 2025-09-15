@@ -158,8 +158,11 @@ export function CardStream({
       >
         <div
           style={{
-            padding: '30px',
-            gap: '20px',
+            padding: styles.cardStream.padding,
+            gap: styles.cardStream.cardSpacing,
+            maxWidth: (styles.cardStream as any).contentWrapper?.maxWidth || 'none',
+            margin: (styles.cardStream as any).contentWrapper?.margin || '0 auto',
+            width: (styles.cardStream as any).contentWrapper?.width || '100%',
           }}
         >
           {/* Spacer for first card */}
