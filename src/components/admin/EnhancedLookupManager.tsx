@@ -33,20 +33,16 @@ import {
   Edit2,
   Trash2,
   Save,
-  X,
   ChevronUp,
   ChevronDown,
   Settings,
   Copy,
   TestTube,
-  Eye,
-  EyeOff,
   Minus,
 } from 'lucide-react';
 import {
   getEnhancedLookups,
   createEnhancedLookup,
-  updateEnhancedLookup,
   deleteEnhancedLookup,
   getLookupRules,
   createLookupRule,
@@ -55,10 +51,7 @@ import {
   reorderLookupRules,
   getLookupDefault,
   createLookupDefault,
-  updateLookupDefault,
   testLookup,
-  ConditionTemplates,
-  ActionTemplates,
 } from '@/lib/enhanced-lookup-service';
 import type {
   EnhancedLookup,
@@ -86,9 +79,6 @@ export function EnhancedLookupManager() {
 
   // Form states
   const [showCreateLookup, setShowCreateLookup] = useState(false);
-  const [editingLookup, setEditingLookup] = useState<EnhancedLookup | null>(
-    null
-  );
   const [showCreateRule, setShowCreateRule] = useState(false);
   const [editingRule, setEditingRule] = useState<LookupRule | null>(null);
   const [editSelectedFormula, setEditSelectedFormula] = useState<string>('');
@@ -118,11 +108,7 @@ export function EnhancedLookupManager() {
   // Debug effect to track formula dropdown state
   useEffect(() => {
     if (editingRule) {
-      console.log('Edit form rendering with:', {
-        formulas: formulas.length,
-        selectedFormula: editSelectedFormula,
-        actionConfig: editingRule.action_config,
-      });
+      // Debug info available if needed
     }
   }, [editingRule, formulas, editSelectedFormula]);
 
@@ -130,9 +116,7 @@ export function EnhancedLookupManager() {
     try {
       const data = await getEnhancedLookups();
       setLookups(data);
-    } catch (error) {
-      console.error('Failed to load lookups:', error);
-    }
+    } catch {}
   };
 
   const loadFormulas = async () => {
@@ -146,14 +130,9 @@ export function EnhancedLookupManager() {
       if (error) {
         throw error;
       }
-      console.log(
-        'Enhanced Lookup Manager - Loaded formulas:',
-        data?.length,
-        'formulas'
-      );
       setFormulas(data || []);
-    } catch (error) {
-      console.error('Failed to load formulas:', error);
+    } catch {
+      // Handle error silently
     }
   };
 
@@ -161,18 +140,14 @@ export function EnhancedLookupManager() {
     try {
       const data = await getLookupRules(lookupId);
       setRules(data);
-    } catch (error) {
-      console.error('Failed to load rules:', error);
-    }
+    } catch {}
   };
 
   const loadDefault = async (lookupId: string) => {
     try {
       const data = await getLookupDefault(lookupId);
       setDefaultAction(data);
-    } catch (error) {
-      console.error('Failed to load default:', error);
-    }
+    } catch {}
   };
 
   const handleCreateLookup = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -191,8 +166,7 @@ export function EnhancedLookupManager() {
       await loadLookups();
       setShowCreateLookup(false);
       setSelectedLookup(newLookup);
-    } catch (error) {
-      console.error('Failed to create lookup:', error);
+    } catch {
       alert('Failed to create lookup');
     } finally {
       setLoading(false);
@@ -248,8 +222,7 @@ export function EnhancedLookupManager() {
       await loadRules(selectedLookup.id);
       setShowCreateRule(false);
       setCreateConditions([{ field: '', value: '' }]);
-    } catch (error) {
-      console.error('Failed to create rule:', error);
+    } catch {
       alert('Failed to create rule. Check your JSON syntax.');
     } finally {
       setLoading(false);
@@ -266,9 +239,7 @@ export function EnhancedLookupManager() {
       if (selectedLookup) {
         await loadRules(selectedLookup.id);
       }
-    } catch (error) {
-      console.error('Failed to delete rule:', error);
-    }
+    } catch {}
   };
 
   const handleUpdateRule = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -327,8 +298,7 @@ export function EnhancedLookupManager() {
       setEditingRule(null);
       setEditSelectedFormula('');
       setEditConditions([{ field: '', value: '' }]);
-    } catch (error) {
-      console.error('Failed to update rule:', error);
+    } catch {
       alert('Failed to update rule. Check your JSON syntax.');
     } finally {
       setLoading(false);
@@ -352,8 +322,7 @@ export function EnhancedLookupManager() {
         setRules([]);
         setDefaultAction(null);
       }
-    } catch (error) {
-      console.error('Failed to delete lookup:', error);
+    } catch {
       alert('Failed to delete lookup. Please try again.');
     }
   };
@@ -418,8 +387,7 @@ export function EnhancedLookupManager() {
       setSelectedLookup(newLookup);
 
       alert(`Successfully duplicated lookup as "${newName}"`);
-    } catch (error) {
-      console.error('Failed to duplicate lookup:', error);
+    } catch {
       alert('Failed to duplicate lookup. Please try again.');
     } finally {
       setLoading(false);
@@ -446,8 +414,7 @@ export function EnhancedLookupManager() {
         test_data: testData,
       });
       setTestResult(result);
-    } catch (error) {
-      console.error('Test failed:', error);
+    } catch {
       alert('Test failed. Check your JSON syntax.');
     }
   };
@@ -553,9 +520,7 @@ export function EnhancedLookupManager() {
         newRuleIds.map(r => r.id)
       );
       await loadRules(selectedLookup.id);
-    } catch (error) {
-      console.error('Failed to reorder rules:', error);
-    }
+    } catch {}
   };
 
   return (

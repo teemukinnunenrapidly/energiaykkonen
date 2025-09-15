@@ -45,8 +45,9 @@ export async function GET() {
         }
         cloudflareTestResult = `API error: ${errorMessage}`;
       }
-    } catch {
-      cloudflareTestResult = `Connection error: ${error instanceof Error ? error.message : 'Unknown'}`;
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : 'Unknown';
+      cloudflareTestResult = `Connection error: ${msg}`;
     }
   } else {
     cloudflareTestResult = 'Cannot test - missing credentials';

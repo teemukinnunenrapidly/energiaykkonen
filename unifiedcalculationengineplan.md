@@ -382,35 +382,34 @@ this.loadExistingSession();
   ): Promise<ProcessedValue> {
   const id = this.generateId(content);
 
+  // Check cache
+  const cached = this.cache.get(id);
+  if (cached && Date.now() - cached.timestamp < 60000) { // 1 minute cache
+  return cached;
+  }
 
-    // Check cache
-    const cached = this.cache.get(id);
-    if (cached && Date.now() - cached.timestamp < 60000) { // 1 minute cache
-      return cached;
-    }
+  // Process through single pipeline
+  const dependencies = this.extractDependencies(content);
+  const resolvedDeps = await this.resolveDependencies(dependencies);
+  const processed = this.evaluateContent(content, resolvedDeps);
 
-    // Process through single pipeline
-    const dependencies = this.extractDependencies(content);
-    const resolvedDeps = await this.resolveDependencies(dependencies);
-    const processed = this.evaluateContent(content, resolvedDeps);
+  const result: ProcessedValue = {
+  id,
+  value: processed,
+  type: this.determineType(content),
+  raw: content,
+  processed,
+  dependencies: Array.from(dependencies),
+  timestamp: Date.now(),
+  cardId: context?.cardId,
+  fieldId: context?.fieldId
+  };
 
-    const result: ProcessedValue = {
-      id,
-      value: processed,
-      type: this.determineType(content),
-      raw: content,
-      processed,
-      dependencies: Array.from(dependencies),
-      timestamp: Date.now(),
-      cardId: context?.cardId,
-      fieldId: context?.fieldId
-    };
+  // Cache and persist
+  this.cache.set(id, result);
+  this.persistToDb(result);
 
-    // Cache and persist
-    this.cache.set(id, result);
-    this.persistToDb(result);
-
-    return result;
+  return result;
 
 }
 
@@ -426,22 +425,21 @@ this.loadExistingSession();
   private extractDependencies(content: string): Set<string> {
   const deps = new Set<string>();
 
+  // Single unified pattern for everything
+  const pattern = /\[(\w+):([^\]]+)\]|\{([^}]+)\}/g;
 
-    // Single unified pattern for everything
-    const pattern = /\[(\w+):([^\]]+)\]|\{([^}]+)\}/g;
+  let match;
+  while ((match = pattern.exec(content)) !== null) {
+  if (match[1] && match[2]) {
+  // [type:id] format (calc, lookup, etc.)
+  deps.add(`${match[1]}:${match[2]}`);
+  } else if (match[3]) {
+  // {fieldId} format
+  deps.add(`field:${match[3]}`);
+  }
+  }
 
-    let match;
-    while ((match = pattern.exec(content)) !== null) {
-      if (match[1] && match[2]) {
-        // [type:id] format (calc, lookup, etc.)
-        deps.add(`${match[1]}:${match[2]}`);
-      } else if (match[3]) {
-        // {fieldId} format
-        deps.add(`field:${match[3]}`);
-      }
-    }
-
-    return deps;
+  return deps;
 
 }
 
@@ -462,10 +460,9 @@ this.loadExistingSession();
   const processed = new Set<string>();
   let depth = 0;
 
-
-    while (toProcess.length > 0 && depth < maxDepth) {
-      // Process in batches
-      const batch = toProcess.splice(0, 10);
+  while (toProcess.length > 0 && depth < maxDepth) {
+  // Process in batches
+  const batch = toProcess.splice(0, 10);
 
       const results = await Promise.all(
         batch.map(async (dep) => {
@@ -491,9 +488,10 @@ this.loadExistingSession();
       });
 
       depth++;
-    }
 
-    return resolved;
+  }
+
+  return resolved;
 
 }
 
@@ -511,14 +509,13 @@ this.loadExistingSession();
   const cached = this.cache.get(dep);
   if (cached) return cached.value;
 
+  const [type, id] = dep.split(':');
 
-    const [type, id] = dep.split(':');
-
-    // All types handled uniformly
-    switch (type) {
-      case 'field':
-        return this.fieldValues.get(id) ||
-               await this.fetchFromSessionData(id);
+  // All types handled uniformly
+  switch (type) {
+  case 'field':
+  return this.fieldValues.get(id) ||
+  await this.fetchFromSessionData(id);
 
       case 'calc':
         return await this.fetchCalculation(id);
@@ -528,7 +525,8 @@ this.loadExistingSession();
 
       default:
         return null;
-    }
+
+  }
 
 }
 
@@ -717,20 +715,19 @@ const operators = ['>=', '<=', '!=', '==', '>', '<'];
   cardId
   };
 
+  this.calculations.set(calcId, node);
 
-    this.calculations.set(calcId, node);
+  // Build dependency graph
+  dependencies.forEach(dep => {
+  if (!this.dependencyGraph.has(dep)) {
+  this.dependencyGraph.set(dep, new Set());
+  }
+  this.dependencyGraph.get(dep)!.add(calcId);
+  });
 
-    // Build dependency graph
-    dependencies.forEach(dep => {
-      if (!this.dependencyGraph.has(dep)) {
-        this.dependencyGraph.set(dep, new Set());
-      }
-      this.dependencyGraph.get(dep)!.add(calcId);
-    });
-
-    // Queue for processing
-    this.processingQueue.add(calcId);
-    this.processQueue();
+  // Queue for processing
+  this.processingQueue.add(calcId);
+  this.processQueue();
 
 }
 
@@ -742,41 +739,40 @@ const operators = ['>=', '<=', '!=', '==', '>', '<'];
   // Update local cache
   this.fieldValues.set(fieldId, value);
 
+  const key = `field:${fieldId}`;
+  this.cache.set(key, {
+  id: key,
+  value,
+  type: 'field',
+  raw: String(value),
+  processed: value,
+  dependencies: [],
+  timestamp: Date.now(),
+  fieldId
+  });
 
-    const key = `field:${fieldId}`;
-    this.cache.set(key, {
-      id: key,
-      value,
-      type: 'field',
-      raw: String(value),
-      processed: value,
-      dependencies: [],
-      timestamp: Date.now(),
-      fieldId
-    });
+  // Find affected calculations
+  const affected = this.dependencyGraph.get(key) || new Set();
+  affected.forEach(calcId => {
+  const calc = this.calculations.get(calcId);
+  if (calc) {
+  calc.isDirty = true;
+  this.processingQueue.add(calcId);
+  }
+  });
 
-    // Find affected calculations
-    const affected = this.dependencyGraph.get(key) || new Set();
-    affected.forEach(calcId => {
-      const calc = this.calculations.get(calcId);
-      if (calc) {
-        calc.isDirty = true;
-        this.processingQueue.add(calcId);
-      }
-    });
+  // Process queue
+  await this.processQueue();
 
-    // Process queue
-    await this.processQueue();
-
-    // Persist to your session_data table
-    await this.supabase
-      .from('session_data')
-      .upsert({
-        session_id: this.sessionId,
-        field_id: fieldId,
-        value,
-        updated_at: new Date().toISOString()
-      });
+  // Persist to your session_data table
+  await this.supabase
+  .from('session_data')
+  .upsert({
+  session_id: this.sessionId,
+  field_id: fieldId,
+  value,
+  updated_at: new Date().toISOString()
+  });
 
 }
 
@@ -787,12 +783,11 @@ const operators = ['>=', '<=', '!=', '==', '>', '<'];
   private async processQueue() {
   if (this.isProcessing || this.processingQueue.size === 0) return;
 
+  this.isProcessing = true;
 
-    this.isProcessing = true;
-
-    try {
-      // Sort in dependency order
-      const sorted = this.topologicalSort(Array.from(this.processingQueue));
+  try {
+  // Sort in dependency order
+  const sorted = this.topologicalSort(Array.from(this.processingQueue));
 
       for (const calcId of sorted) {
         const calc = this.calculations.get(calcId);
@@ -807,9 +802,10 @@ const operators = ['>=', '<=', '!=', '==', '>', '<'];
 
         this.processingQueue.delete(calcId);
       }
-    } finally {
-      this.isProcessing = false;
-    }
+
+  } finally {
+  this.isProcessing = false;
+  }
 
 }
 

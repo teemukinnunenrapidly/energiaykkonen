@@ -370,17 +370,17 @@ TASKMASTER_LOG_LEVEL=info
 
 **I acknowledge receipt of the complete E1 Calculator system and documentation:**
 
-- **Client Name**: ****\*\*\*\*****\_****\*\*\*\*****
-- **Date**: ****\*\*\*\*****\_****\*\*\*\*****
-- **Signature**: ****\*\*\*\*****\_****\*\*\*\*****
+- **Client Name**: \***\*\*\*\*\*\*\***\_\***\*\*\*\*\*\*\***
+- **Date**: \***\*\*\*\*\*\*\***\_\***\*\*\*\*\*\*\***
+- **Signature**: \***\*\*\*\*\*\*\***\_\***\*\*\*\*\*\*\***
 
 ### Developer Confirmation
 
 **I confirm the complete handover of the E1 Calculator system:**
 
-- **Developer Name**: ****\*\*\*\*****\_****\*\*\*\*****
-- **Date**: ****\*\*\*\*****\_****\*\*\*\*****
-- **Signature**: ****\*\*\*\*****\_****\*\*\*\*****
+- **Developer Name**: \***\*\*\*\*\*\*\***\_\***\*\*\*\*\*\*\***
+- **Date**: \***\*\*\*\*\*\*\***\_\***\*\*\*\*\*\*\***
+- **Signature**: \***\*\*\*\*\*\*\***\_\***\*\*\*\*\*\*\***
 
 ---
 

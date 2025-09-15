@@ -1,6 +1,7 @@
 # Cloudflare Images Setup Guide
 
 ## Overview
+
 The Visual Assets Manager supports image uploads via Cloudflare Images. Without these credentials configured, visual objects can still be created but images cannot be uploaded.
 
 ## Required Environment Variables
@@ -16,12 +17,14 @@ NEXT_PUBLIC_CLOUDFLARE_ACCOUNT_HASH=your_account_hash_here
 ## Setup Instructions
 
 ### 1. Get Cloudflare Account ID
+
 1. Log in to [Cloudflare Dashboard](https://dash.cloudflare.com/)
 2. Select your domain
 3. On the right sidebar, find your **Account ID**
 4. Copy this value for `CLOUDFLARE_ACCOUNT_ID`
 
 ### 2. Create API Token
+
 1. Go to [Cloudflare API Tokens](https://dash.cloudflare.com/profile/api-tokens)
 2. Click **Create Token**
 3. Use **Custom token** template
@@ -32,6 +35,7 @@ NEXT_PUBLIC_CLOUDFLARE_ACCOUNT_HASH=your_account_hash_here
 7. Copy this token for `CLOUDFLARE_IMAGES_API_TOKEN`
 
 ### 3. Get Account Hash
+
 1. Go to [Cloudflare Images Dashboard](https://dash.cloudflare.com/?to=/:account/images)
 2. Click **Direct Upload**
 3. Find the URL format: `https://api.cloudflare.com/client/v4/accounts/{account_hash}/images/v1`
@@ -40,6 +44,7 @@ NEXT_PUBLIC_CLOUDFLARE_ACCOUNT_HASH=your_account_hash_here
 ## Adding to Vercel
 
 ### Via Vercel Dashboard
+
 1. Go to your project on [Vercel Dashboard](https://vercel.com/dashboard)
 2. Navigate to **Settings** → **Environment Variables**
 3. Add each variable:
@@ -50,6 +55,7 @@ NEXT_PUBLIC_CLOUDFLARE_ACCOUNT_HASH=your_account_hash_here
 5. Redeploy your application
 
 ### Via Vercel CLI
+
 ```bash
 vercel env add CLOUDFLARE_ACCOUNT_ID
 vercel env add CLOUDFLARE_IMAGES_API_TOKEN
@@ -66,6 +72,7 @@ vercel env add NEXT_PUBLIC_CLOUDFLARE_ACCOUNT_HASH
 ## Fallback Behavior
 
 If Cloudflare Images is not configured:
+
 - Visual objects can still be created
 - Images cannot be uploaded
 - You'll see a warning message but the object will be saved
@@ -74,16 +81,19 @@ If Cloudflare Images is not configured:
 ## Troubleshooting
 
 ### "Cloudflare Images not configured" Error
+
 - Verify all three environment variables are set
 - Check that the API token has the correct permissions
 - Ensure the account ID and hash match your Cloudflare account
 
 ### "Upload failed" Error
+
 - Check API token permissions (needs Cloudflare Images Edit access)
 - Verify the account is on a plan that includes Cloudflare Images
 - Check if you've reached your storage limit
 
 ### Images Not Displaying
+
 - Ensure `NEXT_PUBLIC_CLOUDFLARE_ACCOUNT_HASH` is set correctly
 - This variable must start with `NEXT_PUBLIC_` to be available client-side
 - Check browser console for 404 errors on image URLs
@@ -91,6 +101,7 @@ If Cloudflare Images is not configured:
 ## Optional: Local Development Without Cloudflare
 
 For local development without Cloudflare setup:
+
 1. Visual objects can be created without images
 2. Use placeholder images for testing
 3. The system will gracefully handle missing Cloudflare configuration

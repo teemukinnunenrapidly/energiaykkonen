@@ -1,11 +1,13 @@
 # WordPress Embed Integration Guide
 
 ## Overview
+
 This guide explains how to embed the E1 Calculator into any WordPress website using an iframe with automatic height adjustment.
 
 ## Current Implementation Status
 
 ### ✅ Already Implemented:
+
 1. **CORS Headers** - Application allows embedding from any domain (`frame-ancestors *`)
 2. **Auto-resize Script** - `/public/embed.js` handles dynamic height adjustment
 3. **Responsive Design** - Calculator adapts to container width
@@ -18,12 +20,13 @@ This guide explains how to embed the E1 Calculator into any WordPress website us
 Paste this HTML into any WordPress page/post using the HTML block:
 
 ```html
-<iframe 
-  src="http://localhost:3001/" 
-  width="100%" 
-  height="2000" 
-  frameborder="0" 
-  style="border: none; overflow: hidden;">
+<iframe
+  src="http://localhost:3001/"
+  width="100%"
+  height="2000"
+  frameborder="0"
+  style="border: none; overflow: hidden;"
+>
 </iframe>
 ```
 
@@ -40,23 +43,25 @@ Add this script to your WordPress theme's header or use a plugin like "Insert He
 
 ```html
 <script>
-// E1 Calculator Auto-resize Handler
-window.addEventListener('message', function(event) {
-  // Security: Only accept messages from the calculator domain
-  if (event.origin !== 'http://localhost:3001' && 
-      event.origin !== 'https://your-production-domain.com') {
-    return;
-  }
-  
-  if (event.data && event.data.type === 'calculator-resize') {
-    const iframes = document.querySelectorAll('.e1-calculator-iframe');
-    iframes.forEach(function(iframe) {
-      if (event.data.height) {
-        iframe.style.height = event.data.height + 'px';
-      }
-    });
-  }
-});
+  // E1 Calculator Auto-resize Handler
+  window.addEventListener('message', function (event) {
+    // Security: Only accept messages from the calculator domain
+    if (
+      event.origin !== 'http://localhost:3001' &&
+      event.origin !== 'https://your-production-domain.com'
+    ) {
+      return;
+    }
+
+    if (event.data && event.data.type === 'calculator-resize') {
+      const iframes = document.querySelectorAll('.e1-calculator-iframe');
+      iframes.forEach(function (iframe) {
+        if (event.data.height) {
+          iframe.style.height = event.data.height + 'px';
+        }
+      });
+    }
+  });
 </script>
 ```
 
@@ -65,14 +70,15 @@ window.addEventListener('message', function(event) {
 Use this HTML in WordPress pages/posts:
 
 ```html
-<iframe 
+<iframe
   class="e1-calculator-iframe"
-  src="http://localhost:3001/" 
-  width="100%" 
-  height="600" 
-  frameborder="0" 
+  src="http://localhost:3001/"
+  width="100%"
+  height="600"
+  frameborder="0"
   scrolling="no"
-  style="border: none; overflow: hidden; transition: height 0.3s ease;">
+  style="border: none; overflow: hidden; transition: height 0.3s ease;"
+>
 </iframe>
 ```
 
@@ -90,13 +96,13 @@ function e1_calculator_shortcode($atts) {
         'theme' => 'default',
         'lang' => 'fi'
     ), $atts);
-    
+
     $calculator_url = 'http://localhost:3001/';
-    
+
     // Add auto-resize script (only once per page)
     static $script_added = false;
     $output = '';
-    
+
     if (!$script_added) {
         $output .= '<script>
         window.addEventListener("message", function(event) {
@@ -111,19 +117,19 @@ function e1_calculator_shortcode($atts) {
         </script>';
         $script_added = true;
     }
-    
+
     $iframe_id = 'e1-calc-' . uniqid();
-    
-    $output .= '<iframe 
+
+    $output .= '<iframe
         id="' . $iframe_id . '"
-        src="' . $calculator_url . '" 
-        width="100%" 
-        height="' . esc_attr($atts['height']) . '" 
-        frameborder="0" 
+        src="' . $calculator_url . '"
+        width="100%"
+        height="' . esc_attr($atts['height']) . '"
+        frameborder="0"
         scrolling="no"
         style="border: none; overflow: hidden; transition: height 0.3s ease;">
     </iframe>';
-    
+
     return $output;
 }
 add_shortcode('e1_calculator', 'e1_calculator_shortcode');
@@ -146,6 +152,7 @@ Or with custom height:
 ## Method 4: WordPress Plugin (Coming Soon)
 
 We can create a dedicated WordPress plugin that:
+
 - Adds the calculator via widget
 - Provides Gutenberg block
 - Includes admin settings
@@ -158,14 +165,16 @@ We can create a dedicated WordPress plugin that:
 Wrap the iframe in a styled container:
 
 ```html
-<div style="
+<div
+  style="
   max-width: 900px; 
   margin: 0 auto; 
   padding: 20px;
   background: #f5f5f5;
   border-radius: 10px;
   box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-">
+"
+>
   <iframe class="e1-calculator-iframe" ...></iframe>
 </div>
 ```
@@ -173,12 +182,15 @@ Wrap the iframe in a styled container:
 ### Responsive Container
 
 ```html
-<div class="calculator-container" style="
+<div
+  class="calculator-container"
+  style="
   position: relative;
   width: 100%;
   max-width: 1200px;
   margin: 0 auto;
-">
+"
+>
   <iframe class="e1-calculator-iframe" ...></iframe>
 </div>
 ```
@@ -199,12 +211,14 @@ Before going live, test:
 ## Security Considerations
 
 ### Current Security Features:
+
 1. **Input Sanitization** - All inputs are sanitized
 2. **CORS Headers** - Configured for cross-origin
 3. **Rate Limiting** - Form submissions are rate-limited
 4. **CSP Headers** - Content Security Policy active
 
 ### Recommended for Production:
+
 1. Update the origin check in resize script to your production domain
 2. Use HTTPS for production embedding
 3. Consider adding domain whitelist for embedding
@@ -212,16 +226,19 @@ Before going live, test:
 ## Troubleshooting
 
 ### iframe Not Showing
+
 - Check if WordPress is blocking iframes
 - Disable security plugins temporarily
 - Check browser console for errors
 
 ### Height Not Adjusting
+
 - Ensure resize script is added to page
 - Check console for JavaScript errors
 - Verify origin domain in script
 
 ### Form Not Submitting
+
 - Check browser console for CORS errors
 - Ensure cookies are enabled
 - Check network tab for API errors
@@ -243,7 +260,10 @@ When moving to production:
 Pre-fill form fields via URL:
 
 ```html
-<iframe src="http://localhost:3001/?name=John&email=john@example.com" ...>
+<iframe
+  src="http://localhost:3001/?name=John&email=john@example.com"
+  ...
+></iframe>
 ```
 
 ### Track Events
@@ -251,11 +271,11 @@ Pre-fill form fields via URL:
 Add Google Analytics or other tracking:
 
 ```javascript
-window.addEventListener('message', function(event) {
+window.addEventListener('message', function (event) {
   if (event.data.type === 'calculator-submitted') {
     // Track conversion
     gtag('event', 'conversion', {
-      'send_to': 'YOUR_CONVERSION_ID'
+      send_to: 'YOUR_CONVERSION_ID',
     });
   }
 });
@@ -266,12 +286,13 @@ window.addEventListener('message', function(event) {
 Future feature - pass theme parameter:
 
 ```html
-<iframe src="http://localhost:3001/?theme=dark" ...>
+<iframe src="http://localhost:3001/?theme=dark" ...></iframe>
 ```
 
 ## Support
 
 For issues or questions:
+
 - Check browser console for errors
 - Test in incognito mode
 - Verify WordPress version compatibility

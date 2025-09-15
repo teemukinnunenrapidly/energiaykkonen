@@ -174,11 +174,11 @@ export async function GET() {
     };
 
     return NextResponse.json(response, { status: 200 });
-  } catch {
+  } catch (e) {
     return NextResponse.json(
       {
         error: 'Failed to fetch analytics data',
-        details: error instanceof Error ? error.message : 'Unknown error',
+        details: e instanceof Error ? e.message : 'Unknown error',
       },
       { status: 500 }
     );

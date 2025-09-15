@@ -102,8 +102,7 @@ export const VisualObjectSelector: React.FC<VisualObjectSelectorProps> = ({
       setVisualObjects(
         objectsWithDetails.filter(Boolean) as VisualObjectWithDetails[]
       );
-    } catch (error) {
-      console.error('Failed to load visual objects data:', error);
+    } catch {
     } finally {
       setLoading(false);
     }

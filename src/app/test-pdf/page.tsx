@@ -87,8 +87,6 @@ export default function TestPDF() {
     setPdfUrl('');
 
     try {
-      console.log('🚀 Sending test data for PDF generation...');
-
       const response = await fetch('/api/generate-pdf', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -101,14 +99,12 @@ export default function TestPDF() {
       }
 
       const blob = await response.blob();
-      console.log('✅ PDF generated successfully, size:', blob.size, 'bytes');
 
       // Create URL for the PDF
       const url = URL.createObjectURL(blob);
       setPdfUrl(url);
       setSuccess(true);
     } catch (err) {
-      console.error('❌ PDF generation error:', err);
       setError(err instanceof Error ? err.message : 'Unknown error occurred');
     } finally {
       setLoading(false);

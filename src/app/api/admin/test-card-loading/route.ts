@@ -40,12 +40,12 @@ export async function GET() {
         fieldCount: card.card_fields?.length || 0,
       })),
     });
-  } catch {
+  } catch (e) {
     return NextResponse.json(
       {
         success: false,
         error: 'Internal server error',
-        details: error,
+        details: e,
       },
       { status: 500 }
     );

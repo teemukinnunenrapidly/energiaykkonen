@@ -3,29 +3,32 @@
 ## Current Implementation
 
 ### Storage Architecture
+
 - **Location**: Supabase Storage (NOT in database)
 - **Database**: Only stores URL reference in `form_data` JSONB field (~200 bytes)
 - **Actual PDFs**: Stored in Supabase Storage bucket `lead-pdfs`
 - **Access**: Public URLs for direct download
 
 ### PDF Size Analysis
+
 - **Single PDF size**: ~8.5 KB
 - **Very small** compared to typical PDFs (usually 100-500 KB)
 - Our PDFs are text-only, no images, which keeps them tiny
 
 ## Storage Projections
 
-| Leads | Period | Storage Needed | Cost |
-|-------|--------|----------------|------|
-| 100 | Month | 0.83 MB | Free |
-| 1,200 | Year | 10 MB | Free |
-| 6,000 | 5 Years | 50 MB | Free |
-| 12,000 | 10 Years | 100 MB | Free |
-| 120,000 | 100 Years | 1 GB | Free tier limit |
+| Leads   | Period    | Storage Needed | Cost            |
+| ------- | --------- | -------------- | --------------- |
+| 100     | Month     | 0.83 MB        | Free            |
+| 1,200   | Year      | 10 MB          | Free            |
+| 6,000   | 5 Years   | 50 MB          | Free            |
+| 12,000  | 10 Years  | 100 MB         | Free            |
+| 120,000 | 100 Years | 1 GB           | Free tier limit |
 
 ## Cost Analysis
 
 ### Supabase Storage Tiers
+
 1. **Free Tier** (Current)
    - 1 GB storage included
    - Sufficient for ~120,000 PDFs
@@ -37,6 +40,7 @@
    - Overkill for most businesses
 
 ### Real-World Estimates
+
 - **Small Business** (10 leads/month)
   - Annual storage: 1 MB
   - 10-year storage: 10 MB
@@ -75,25 +79,29 @@
 ## Optimization Options (If Ever Needed)
 
 ### 1. PDF Retention Policy
+
 ```sql
 -- Delete PDFs older than 90 days
-DELETE FROM storage.objects 
-WHERE bucket_id = 'lead-pdfs' 
+DELETE FROM storage.objects
+WHERE bucket_id = 'lead-pdfs'
 AND created_at < NOW() - INTERVAL '90 days';
 ```
 
 ### 2. On-Demand Generation
+
 - Don't store PDFs at all
 - Generate when requested
 - Pros: Zero storage
 - Cons: Slower, more CPU usage
 
 ### 3. Compression
+
 - Current PDFs are uncompressed
 - Could reduce by ~30-50%
 - Not worth the complexity given tiny size
 
 ### 4. Alternative Storage (Only for 1M+ PDFs)
+
 - **Cloudflare R2**: $0.015/GB/month (cheaper)
 - **AWS S3**: $0.023/GB/month
 - **Backblaze B2**: $0.005/GB/month (cheapest)
@@ -101,7 +109,9 @@ AND created_at < NOW() - INTERVAL '90 days';
 ## Recommendations
 
 ### For Now (0-10,000 leads)
+
 ✅ **Keep current setup - it's perfect**
+
 - Free
 - Simple
 - Integrated
@@ -121,6 +131,7 @@ AND created_at < NOW() - INTERVAL '90 days';
 ## Summary
 
 **Your PDFs take almost no space:**
+
 - Database impact: **Zero** (only URL stored)
 - Storage impact: **Minimal** (8.5 KB each)
 - Cost impact: **Free** for first 120,000 PDFs

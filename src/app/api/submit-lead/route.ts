@@ -204,14 +204,13 @@ export async function POST(request: NextRequest) {
       const pdfFileName = `${insertedLead.id}/saastolaskelma-${pdfData.calculationNumber || Date.now()}.pdf`;
 
       try {
-        const { error: uploadError } =
-          await supabaseAdmin.storage
-            .from('lead-pdfs')
-            .upload(pdfFileName, pdfBuffer, {
-              contentType: 'application/pdf',
-              cacheControl: '3600',
-              upsert: true,
-            });
+        const { error: uploadError } = await supabaseAdmin.storage
+          .from('lead-pdfs')
+          .upload(pdfFileName, pdfBuffer, {
+            contentType: 'application/pdf',
+            cacheControl: '3600',
+            upsert: true,
+          });
 
         if (uploadError) {
         } else {
@@ -248,7 +247,7 @@ export async function POST(request: NextRequest) {
         content: pdfBuffer,
         contentType: 'application/pdf',
       };
-    } catch (pdfError) {
+    } catch {
       // Continue without PDF attachment if generation fails
     }
 
@@ -322,7 +321,7 @@ export async function POST(request: NextRequest) {
         },
       }
     );
-    } catch {
+  } catch {
     return NextResponse.json(
       {
         message: 'Internal server error',

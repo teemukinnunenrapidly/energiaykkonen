@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   Folder,
   FolderOpen,
@@ -67,15 +67,7 @@ export default function VisualAssetsPage() {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
 
-  useEffect(() => {
-    loadData();
-  }, [loadData]);
-
-  useEffect(() => {
-    filterObjects();
-  }, [searchQuery, selectedFolder, visualObjects, filterObjects]);
-
-  const loadData = async () => {
+  const loadData = useCallback(async () => {
     try {
       setLoading(true);
       const [foldersData, objectsData] = await Promise.all([
@@ -107,7 +99,37 @@ export default function VisualAssetsPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    loadData();
+  }, [loadData]);
+
+  const filterObjects = useCallback(() => {
+    let filtered = visualObjects;
+
+    // Filter by selected folder
+    if (selectedFolder) {
+      filtered = filtered.filter(obj => obj.folder_id === selectedFolder);
+    }
+
+    // Filter by search query
+    if (searchQuery) {
+      const query = searchQuery.toLowerCase();
+      filtered = filtered.filter(
+        obj =>
+          obj.title.toLowerCase().includes(query) ||
+          obj.name.toLowerCase().includes(query) ||
+          obj.description?.toLowerCase().includes(query)
+      );
+    }
+
+    setFilteredObjects(filtered);
+  }, [visualObjects, selectedFolder, searchQuery]);
+
+  useEffect(() => {
+    filterObjects();
+  }, [searchQuery, selectedFolder, visualObjects, filterObjects]);
 
   const buildFolderTree = (flatFolders: VisualFolder[]): FolderNode[] => {
     const folderMap = new Map<string, FolderNode>();
@@ -132,28 +154,6 @@ export default function VisualAssetsPage() {
     });
 
     return rootFolders;
-  };
-
-  const filterObjects = () => {
-    let filtered = visualObjects;
-
-    // Filter by selected folder
-    if (selectedFolder) {
-      filtered = filtered.filter(obj => obj.folder_id === selectedFolder);
-    }
-
-    // Filter by search query
-    if (searchQuery) {
-      const query = searchQuery.toLowerCase();
-      filtered = filtered.filter(
-        obj =>
-          obj.title.toLowerCase().includes(query) ||
-          obj.name.toLowerCase().includes(query) ||
-          obj.description?.toLowerCase().includes(query)
-      );
-    }
-
-    setFilteredObjects(filtered);
   };
 
   const toggleFolder = (folderId: string) => {

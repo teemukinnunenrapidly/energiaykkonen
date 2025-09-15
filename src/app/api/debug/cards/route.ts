@@ -50,11 +50,11 @@ export async function GET() {
       },
       visuals: visuals || [],
     });
-  } catch {
+  } catch (e) {
     return NextResponse.json(
       {
         success: false,
-        error: error instanceof Error ? error.message : 'Unknown error',
+        error: e instanceof Error ? e.message : 'Unknown error',
       },
       { status: 500 }
     );

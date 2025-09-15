@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { DndContext, DragEndEvent, closestCenter } from '@dnd-kit/core';
 import {
   SortableContext,
@@ -29,28 +29,9 @@ export default function CardBuilderPage() {
     message: string;
   } | null>(null);
 
-  // Load cards on mount
-  useEffect(() => {
-    loadCards();
-    loadShortcodes();
-  }, [loadCards, loadShortcodes]);
-
-  // Warn before leaving with unsaved changes
-  useEffect(() => {
-    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
-      if (hasUnsavedChanges) {
-        e.preventDefault();
-        e.returnValue = '';
-      }
-    };
-    window.addEventListener('beforeunload', handleBeforeUnload);
-    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
-  }, [hasUnsavedChanges]);
-
-  const loadCards = async () => {
+  const loadCards = useCallback(async () => {
     try {
       // Loading cards from database
-
       const { data, error } = await supabase
         .from('card_templates')
         .select(
@@ -99,9 +80,9 @@ export default function CardBuilderPage() {
     } catch {
       alert('Failed to load cards from database');
     }
-  };
+  }, [selectedCardId]);
 
-  const loadShortcodes = async () => {
+  const loadShortcodes = useCallback(async () => {
     // Load available shortcodes from calculations and enhanced lookups
     const { data: formulas } = await supabase
       .from('formulas')
@@ -113,7 +94,7 @@ export default function CardBuilderPage() {
       .select('name')
       .eq('is_active', true);
 
-    const allShortcodes = [];
+    const allShortcodes: string[] = [];
 
     if (formulas) {
       allShortcodes.push(...formulas.map(f => `[calc:${f.name}]`));
@@ -124,7 +105,25 @@ export default function CardBuilderPage() {
     }
 
     setShortcodes(allShortcodes);
-  };
+  }, []);
+
+  // Load cards on mount
+  useEffect(() => {
+    loadCards();
+    loadShortcodes();
+  }, [loadCards, loadShortcodes]);
+
+  // Warn before leaving with unsaved changes
+  useEffect(() => {
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (hasUnsavedChanges) {
+        e.preventDefault();
+        e.returnValue = '';
+      }
+    };
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+  }, [hasUnsavedChanges]);
 
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
@@ -489,7 +488,9 @@ export default function CardBuilderPage() {
               options: field.options || [],
               required: field.required ?? false,
             };
-            fieldsToUpdate.push({ id: field.id, ...completeFieldData });
+            // Ensure 'id' appears only once
+            const { id: _ignoreId, ...rest } = completeFieldData as any;
+            fieldsToUpdate.push({ id: field.id, ...rest });
           }
         }
       }

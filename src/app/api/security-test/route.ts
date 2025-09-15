@@ -64,11 +64,11 @@ export async function POST(request: NextRequest) {
           { status: 400 }
         );
     }
-  } catch {
+  } catch (e) {
     return NextResponse.json(
       {
         message: 'Test failed',
-        error: error instanceof Error ? error.message : 'Unknown error',
+        error: e instanceof Error ? e.message : 'Unknown error',
       },
       { status: 500 }
     );

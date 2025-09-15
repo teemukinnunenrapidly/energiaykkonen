@@ -147,11 +147,11 @@ export async function POST(request: NextRequest) {
       },
       { status: 200 }
     );
-  } catch {
+  } catch (e) {
     return NextResponse.json(
       {
         error: 'Failed to sync lead columns',
-        details: error instanceof Error ? error.message : 'Unknown error',
+        details: e instanceof Error ? e.message : 'Unknown error',
       },
       { status: 500 }
     );

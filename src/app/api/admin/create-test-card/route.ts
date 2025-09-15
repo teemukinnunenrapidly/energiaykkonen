@@ -141,12 +141,12 @@ export async function POST() {
         calculation: calcCard,
       },
     });
-  } catch {
+  } catch (e) {
     return NextResponse.json(
       {
         success: false,
         error: 'Failed to create test cards',
-        details: error instanceof Error ? error.message : 'Unknown error',
+        details: e instanceof Error ? e.message : 'Unknown error',
       },
       { status: 500 }
     );

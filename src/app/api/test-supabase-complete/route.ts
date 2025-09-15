@@ -234,11 +234,11 @@ export async function GET() {
       summary,
       results,
     });
-  } catch {
+  } catch (e) {
     return NextResponse.json(
       {
         error: 'Failed to run tests',
-        message: error instanceof Error ? error.message : 'Unknown error',
+        message: e instanceof Error ? e.message : 'Unknown error',
         results,
       },
       { status: 500 }

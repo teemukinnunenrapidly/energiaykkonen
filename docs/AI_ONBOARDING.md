@@ -1,7 +1,9 @@
 ## E1 Calculator – AI Onboarding Guide
 
 ### Overview
+
 E1 Calculator is a modular, token‑driven platform for building and embedding interactive calculators and lead‑capture flows.
+
 - Admin panel: Tailwind + shadcn/ui interface to configure card streams (forms, calculations, info), formulas/lookup rules, visual assets, and email templates.
 - End‑user widget (Card System): a sequence of cards with reveal logic that renders forms, information, and calculated results, styled exclusively via the design token system.
 - Core stack: Next.js App Router, Supabase (DB/auth/storage), Unified Calculation Engine for shortcodes and expressions, PDF generation with @react-pdf/renderer, and a design token system (`cardstream-complete-config.json`) applied via CSS variables.
@@ -10,6 +12,7 @@ E1 Calculator is a modular, token‑driven platform for building and embedding i
 Purpose: Hand this file to an AI assistant to build new features confidently. It explains the architecture, styling system (design tokens), data flow, and where to modify code.
 
 ### Quick Facts
+
 - Framework: Next.js App Router (TypeScript)
 - Backend: Next.js Route Handlers + Supabase (DB, auth, storage)
 - UI Domains:
@@ -18,6 +21,7 @@ Purpose: Hand this file to an AI assistant to build new features confidently. It
 - Tokens: `cardstream-complete-config.json` → applied via `cardstream-theme-applier.ts` → consumed by `cardstream-tokens.css` and `useCardStyles`
 
 ### Directory Map (high-signal)
+
 - Widget (Card System)
   - `src/components/card-system/CardSystemContainer.tsx` – mounts VisualSupport + CardStream
   - `src/components/card-system/CardStream.tsx` – renders cards, scroll/reveal logic
@@ -44,6 +48,7 @@ Purpose: Hand this file to an AI assistant to build new features confidently. It
   - Config bridge: `src/config/cardstream-config.ts`
 
 ### Styling & Token Contract (must-follow)
+
 - Single source of truth: `cardstream-complete-config.json`
 - Apply tokens to CSS variables: `src/lib/cardstream-theme-applier.ts`
 - Consume tokens:
@@ -53,12 +58,13 @@ Purpose: Hand this file to an AI assistant to build new features confidently. It
 - Admin styling is isolated to Tailwind (`globals.css`); widget must not depend on Tailwind.
 
 ### Runtime Flow (end-user)
-1) `CardSystemContainer` renders VisualSupport (left, desktop) and `CardStream` (right).
-2) `CardContext` loads cards from Supabase (`getCardsDirect`) and manages per-card state.
-3) `CardStream` filters visible vs locked cards by `shouldBeRevealed`, renders via `CardRenderer`.
-4) `FormCard` updates `CardContext.updateField`, which persists field completions and can trigger reveal/complete.
-5) `CalculationCard` uses `UnifiedCalculationEngine` to process formulas/shortcodes.
-6) Submit actions post to `/api/submit-lead` and may send emails/analytics.
+
+1. `CardSystemContainer` renders VisualSupport (left, desktop) and `CardStream` (right).
+2. `CardContext` loads cards from Supabase (`getCardsDirect`) and manages per-card state.
+3. `CardStream` filters visible vs locked cards by `shouldBeRevealed`, renders via `CardRenderer`.
+4. `FormCard` updates `CardContext.updateField`, which persists field completions and can trigger reveal/complete.
+5. `CalculationCard` uses `UnifiedCalculationEngine` to process formulas/shortcodes.
+6. Submit actions post to `/api/submit-lead` and may send emails/analytics.
 
 ### PDF Generation (Customer Savings Report)
 
@@ -70,6 +76,7 @@ Purpose: Hand this file to an AI assistant to build new features confidently. It
 - Email attachment: If generation succeeds, the PDF is attached to the customer results email; the sales notification remains HTML‑only.
 
 Relevant files:
+
 - API route: [src/app/api/submit-lead/route.ts](mdc:src/app/api/submit-lead/route.ts)
 - PDF component: [src/lib/pdf/SavingsReportPDF.tsx](mdc:src/lib/pdf/SavingsReportPDF.tsx)
 - PDF styles: [src/lib/pdf/pdf-styles.ts](mdc:src/lib/pdf/pdf-styles.ts)
@@ -78,45 +85,51 @@ Relevant files:
 - Email sender (attachment): [src/lib/email-service.ts](mdc:src/lib/email-service.ts)
 
 Testing locally:
+
 - Submit a valid payload to `POST /api/submit-lead` (via the app flow or API client) and check Supabase Storage for the file under `lead-pdfs/` and the updated `leads.pdf_url`.
 - Email sending uses the configured provider; in development, verify logs and the response JSON for `emailResults` and errors.
 
 Notes:
+
 - Static HTML prototypes like `public/saastolaskelma.html` are useful for layout iteration but are not part of the runtime PDF pipeline.
 
 ### Unified Calculation Engine (where calculations live)
+
 - File: `src/lib/unified-calculation-engine.ts`
 - Handles: `[calc:name]`, `[lookup:name]`, `{field-name}` and math expressions
 - Resolves dependencies iteratively (no recursion), caches, and supports overrides via `override_*` fields
 
 ### Adding a New Feature (playbook)
-1) Define UX and data
+
+1. Define UX and data
    - If it’s a new card: add a record via admin or mock in code for dev
    - For new field types, extend `src/types/form.ts` and ensure FormCard handles it
-2) Style via tokens
+2. Style via tokens
    - Add/adjust tokens in `cardstream-complete-config.json`
    - If new CSS vars needed, update `cardstream-theme-applier.ts` (set vars) and `cardstream-tokens.css` (consume vars)
    - Access values in React via `useCardStyles()`
-3) Implement UI
+3. Implement UI
    - New card type: create component in `src/components/card-system/cards/`, export in `index.ts`, branch in `CardRenderer.tsx`
    - Extend `FormCard` render cases for new field types
-4) Logic & data
+4. Logic & data
    - Add formula/lookup logic in `src/lib/*` as needed (or update engine usage in card components)
    - For persistence or admin integration, add/update Route Handlers under `src/app/api/*`
-5) Verify isolation & SSR
+5. Verify isolation & SSR
    - Avoid Tailwind in widget; rely on tokens
    - Don’t use `window` during SSR; pass flags as props from container
-6) Test
+6. Test
    - Use `public/widget-test/*` for local widget validation
    - Validate fields, reveal timing, calculation outputs, and submission path
 
 ### Common Tasks
+
 - Change input focus/error styles → tokens in `cardstream-complete-config.json` + consumption in `cardstream-tokens.css` and `FormCard`
 - Move step indicator/adjust style → tokens + `CardRenderer`/card headers
 - Add calculation dependency → engine processes `[calc:*]` and can read form fields via `{field}` or `[field:*]`
 - Fix hydration mismatch → ensure booleans/flags pass via props (see `CardSystemContainer` → `CardStream`)
 
 ### References (open these when coding)
+
 - Tokens: `cardstream-complete-config.json`
 - Token bridge: `src/config/cardstream-config.ts`
 - Token application: `src/lib/cardstream-theme-applier.ts`
@@ -130,6 +143,7 @@ Notes:
 - Admin UI: `src/app/admin/*`, `src/components/admin/*`, `src/components/ui/*`
 
 ### Ground Rules
+
 - Widget visuals = tokens only. No Tailwind in widget components.
 - Keep admin and widget styles isolated.
 - New features should provide tokens first, UI second.

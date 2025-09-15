@@ -93,18 +93,14 @@ export function SimplifiedLookupManager() {
     try {
       const data = await getEnhancedLookups();
       setLookups(data);
-    } catch (error) {
-      console.error('Failed to load lookups:', error);
-    }
+    } catch {}
   };
 
   const loadRules = async (lookupId: string) => {
     try {
       const data = await getLookupRules(lookupId);
       setRules(data);
-    } catch (error) {
-      console.error('Failed to load rules:', error);
-    }
+    } catch {}
   };
 
   const loadAvailableFields = async () => {
@@ -132,8 +128,7 @@ export function SimplifiedLookupManager() {
         throw error;
       }
       setAvailableFields((data || []) as unknown as CardField[]);
-    } catch (error) {
-      console.error('Failed to load fields:', error);
+    } catch {
     } finally {
       setFieldsLoading(false);
     }
@@ -143,9 +138,7 @@ export function SimplifiedLookupManager() {
     try {
       const data = await getFormulas();
       setFormulas(data.filter(f => f.is_active));
-    } catch (error) {
-      console.error('Failed to load formulas:', error);
-    }
+    } catch {}
   };
 
   const handleCreateLookup = async () => {
@@ -225,9 +218,9 @@ export function SimplifiedLookupManager() {
       setShowCreateLookup(false);
       await loadLookups();
       setSelectedLookup(newLookup);
-    } catch (error) {
-      console.error('Failed to create lookup:', error);
-      alert('Failed to create lookup: ' + (error as Error).message);
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : 'Unknown error';
+      alert('Failed to create lookup: ' + msg);
     } finally {
       setLoading(false);
     }
@@ -246,8 +239,7 @@ export function SimplifiedLookupManager() {
       if (selectedLookup?.id === id) {
         setSelectedLookup(null);
       }
-    } catch (error) {
-      console.error('Failed to delete lookup:', error);
+    } catch {
       alert('Failed to delete lookup');
     }
   };
@@ -275,8 +267,9 @@ export function SimplifiedLookupManager() {
       alert(
         `Test Result:\n\nSuccess: ${result.success}\nValue: ${result.value}\nError: ${result.error || 'None'}`
       );
-    } catch (error) {
-      alert('Test failed: ' + (error as Error).message);
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : 'Unknown error';
+      alert('Test failed: ' + msg);
     }
   };
 

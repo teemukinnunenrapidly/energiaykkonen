@@ -11,7 +11,10 @@
 
 .e1-error-display:hover {
   border-color: var(--e1-state-error, #dc2626);
-  box-shadow: var(--e1-error-shadow-hover, 0 8px 12px -1px rgba(220, 38, 38, 0.15));
+  box-shadow: var(
+    --e1-error-shadow-hover,
+    0 8px 12px -1px rgba(220, 38, 38, 0.15)
+  );
 }
 
 .e1-error-content {
@@ -128,7 +131,9 @@
   border: 1px solid var(--e1-border-light, #e5e7eb);
   border-radius: var(--e1-border-radius-sm, 4px);
   padding: var(--e1-spacing-sm, 12px);
-  font-family: ui-monospace, 'Cascadia Code', 'Source Code Pro', Menlo, Monaco, Consolas, monospace;
+  font-family:
+    ui-monospace, 'Cascadia Code', 'Source Code Pro', Menlo, Monaco, Consolas,
+    monospace;
   font-size: var(--e1-text-xs, 12px);
   line-height: 1.4;
   overflow-x: auto;
@@ -313,36 +318,36 @@
 }
 
 /* Dark theme support */
-[data-theme="dark"] .e1-error-display {
+[data-theme='dark'] .e1-error-display {
   background: #7f1d1d;
   border-color: #dc2626;
 }
 
-[data-theme="dark"] .e1-error-icon {
+[data-theme='dark'] .e1-error-icon {
   background: #991b1b;
 }
 
-[data-theme="dark"] .e1-error-emoji {
+[data-theme='dark'] .e1-error-emoji {
   background: #1f2937;
   border-color: #dc2626;
 }
 
-[data-theme="dark"] .e1-error-title {
+[data-theme='dark'] .e1-error-title {
   color: #fca5a5;
 }
 
-[data-theme="dark"] .e1-error-message {
+[data-theme='dark'] .e1-error-message {
   background: #1f2937;
   color: #f9fafb;
 }
 
-[data-theme="dark"] .e1-error-code {
+[data-theme='dark'] .e1-error-code {
   background: #111827;
   border-color: #374151;
   color: #d1d5db;
 }
 
-[data-theme="dark"] .e1-loading-spinner {
+[data-theme='dark'] .e1-loading-spinner {
   border-color: #374151;
   border-top-color: #60a5fa;
 }
@@ -362,29 +367,29 @@
   .e1-error-display {
     margin: var(--e1-spacing-sm, 12px) 0;
   }
-  
+
   .e1-error-content {
     padding: var(--e1-spacing-md, 16px);
   }
-  
+
   .e1-error-header {
     gap: var(--e1-spacing-xs, 8px);
   }
-  
+
   .e1-error-icon {
     width: 32px;
     height: 32px;
   }
-  
+
   .e1-error-title {
     font-size: var(--e1-text-base, 16px);
   }
-  
+
   .e1-error-actions {
     flex-direction: column;
     align-items: stretch;
   }
-  
+
   .e1-error-retry-btn {
     justify-content: center;
   }
@@ -396,12 +401,12 @@
     border-width: 2px;
     border-color: #dc2626;
   }
-  
+
   .e1-error-title,
   .e1-error-compact-text {
     color: #991b1b;
   }
-  
+
   .e1-error-retry-btn {
     border: 2px solid white;
   }
@@ -412,15 +417,15 @@
   .e1-error-display {
     transition: none;
   }
-  
+
   .e1-error-retry-btn {
     transition: none;
   }
-  
+
   .e1-error-retry-icon.spinning {
     animation: none;
   }
-  
+
   .e1-loading-spinner {
     animation: none;
     border-top-color: var(--e1-color-primary, #3b82f6);

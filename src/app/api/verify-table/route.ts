@@ -12,12 +12,12 @@ export async function GET() {
         : 'Table structure verification failed',
       timestamp: new Date().toISOString(),
     });
-  } catch {
+  } catch (e) {
     return NextResponse.json(
       {
         success: false,
         message: 'Error verifying table structure',
-        error: error instanceof Error ? error.message : 'Unknown error',
+        error: e instanceof Error ? e.message : 'Unknown error',
       },
       { status: 500 }
     );

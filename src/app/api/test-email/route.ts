@@ -16,12 +16,12 @@ export async function GET(request: NextRequest) {
       results,
       timestamp: new Date().toISOString(),
     });
-  } catch {
+  } catch (e) {
     return NextResponse.json(
       {
         success: false,
         message: 'Test email failed',
-        error: error instanceof Error ? error.message : 'Unknown error',
+        error: e instanceof Error ? e.message : 'Unknown error',
         timestamp: new Date().toISOString(),
       },
       { status: 500 }
@@ -53,12 +53,12 @@ export async function POST(request: NextRequest) {
       results,
       timestamp: new Date().toISOString(),
     });
-  } catch {
+  } catch (e) {
     return NextResponse.json(
       {
         success: false,
         message: 'Test email failed',
-        error: error instanceof Error ? error.message : 'Unknown error',
+        error: e instanceof Error ? e.message : 'Unknown error',
         timestamp: new Date().toISOString(),
       },
       { status: 500 }

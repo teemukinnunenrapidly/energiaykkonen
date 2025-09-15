@@ -101,7 +101,7 @@ export async function POST(_request: NextRequest) {
       variants: data.result.variants,
       uploadedAt: data.result.uploaded,
     });
-    } catch {
+  } catch {
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

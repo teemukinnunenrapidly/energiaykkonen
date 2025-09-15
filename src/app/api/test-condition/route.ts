@@ -17,9 +17,8 @@ export async function GET(request: Request) {
     try {
       // Test the actual evaluation
       evaluationResult = new Function('return ' + condition)();
-    } catch {
-      evaluationError =
-        error instanceof Error ? error.message : 'Unknown error';
+    } catch (e) {
+      evaluationError = e instanceof Error ? e.message : 'Unknown error';
     }
 
     // Test character by character analysis

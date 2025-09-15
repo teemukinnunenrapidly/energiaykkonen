@@ -12,12 +12,12 @@ export async function GET() {
         : 'Supabase connection failed',
       timestamp: new Date().toISOString(),
     });
-  } catch {
+  } catch (e) {
     return NextResponse.json(
       {
         success: false,
         message: 'Error testing Supabase connection',
-        error: error instanceof Error ? error.message : 'Unknown error',
+        error: e instanceof Error ? e.message : 'Unknown error',
       },
       { status: 500 }
     );

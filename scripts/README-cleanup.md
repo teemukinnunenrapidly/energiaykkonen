@@ -21,24 +21,29 @@ Tietokantaan löytyi 11 taulua, joita ei käytetä koodikannassa:
 ## Skriptit
 
 ### 1. `cleanup-unused-tables.sql`
+
 **Suorita:** Supabase SQL Editor
 **Kuvaus:** Suora poistoskripti, joka poistaa kaikki käyttämättömät taulut välittömästi.
 
 ### 2. `cleanup-unused-tables-safe.sql`
+
 **Suorita:** Supabase SQL Editor
 **Kuvaus:** Turvallinen versio, joka:
+
 - Tarkistaa taulujen olemassaolon ja rivimäärät
 - Tarkistaa foreign key -riippuvuudet
 - Varmistaa, että tärkeät taulut ovat olemassa
 - Vaatii manuaalisen kommenttien poistamisen ennen poistamista
 
 ### 3. `supabase-migrations/20241228_cleanup_unused_tables.sql`
+
 **Suorita:** Supabase CLI tai migraatiojärjestelmä
 **Kuvaus:** Migraatio, joka voidaan suorittaa Supabase migraatiojärjestelmän kautta.
 
 ## Suositus
 
 **Käytä `cleanup-unused-tables-safe.sql`** ensimmäisenä:
+
 1. Suorita skripti Supabase SQL Editorissa
 2. Tarkista tulokset
 3. Jos kaikki näyttää hyvältä, poista kommentit poistoskriptistä
@@ -47,6 +52,7 @@ Tietokantaan löytyi 11 taulua, joita ei käytetä koodikannassa:
 ## Tärkeät taulut (NÄMÄ EIVÄT POISTU)
 
 Seuraavat taulut ovat kriittisiä ja niitä ei poisteta:
+
 - `leads` - Pääasiakastiedot
 - `card_templates` - Lomakkeen korttien mallit
 - `formulas` - Laskentakaavat
@@ -59,6 +65,7 @@ Seuraavat taulut ovat kriittisiä ja niitä ei poisteta:
 ## Varmistus
 
 Ennen poistamista varmista:
+
 1. Olet oikeassa tietokannassa
 2. Olet tehnyt varmuuskopion
 3. Olet testannut skriptin testiympäristössä
@@ -66,6 +73,7 @@ Ennen poistamista varmista:
 ## Tulokset
 
 Poistamisen jälkeen:
+
 - 11 käyttämätöntä taulua poistettu
 - Tietokanta siivottu
 - Ylläpitokustannukset vähentyneet

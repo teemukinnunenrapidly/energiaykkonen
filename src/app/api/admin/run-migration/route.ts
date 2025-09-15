@@ -142,12 +142,12 @@ export async function POST() {
         { status: 500 }
       );
     }
-  } catch {
+  } catch (e) {
     return NextResponse.json(
       {
         success: false,
         error: 'Migration failed',
-        details: error instanceof Error ? error.message : 'Unknown error',
+        details: e instanceof Error ? e.message : 'Unknown error',
       },
       { status: 500 }
     );

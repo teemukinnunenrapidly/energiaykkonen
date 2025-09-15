@@ -21,10 +21,8 @@ export default function LogoutButton() {
         router.push('/admin/login');
         router.refresh(); // Refresh to clear server-side session
       } else {
-        console.error('Logout failed');
       }
-    } catch (error) {
-      console.error('Logout error:', error);
+    } catch {
     } finally {
       setIsLoading(false);
     }

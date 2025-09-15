@@ -1,598 +1,809 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="fi">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Säästölaskelma</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
 
+      body {
+        font-family: Helvetica, Arial, sans-serif;
+        background: #f5f5f5;
+        display: block;
+        padding: 20px;
+      }
+
+      /* A4-sivu */
+      .page {
+        width: 210mm;
+        min-height: 297mm;
+        background: white;
+        padding: 20mm;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        position: relative;
+        margin: 20px auto;
+      }
+
+      /* HEADER SECTION */
+      .header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        padding-bottom: 15pt;
+        border-bottom: 2pt solid #10b981;
+        margin-bottom: 30pt;
+      }
+
+      .header-left {
+        flex: 1;
+      }
+
+      .header-center {
+        flex: 2;
+        text-align: center;
+      }
+
+      .header-right {
+        flex: 1;
+        text-align: right;
+      }
+
+      .company-name {
+        font-size: 10pt;
+        color: #6b7280;
+        font-weight: bold;
+        letter-spacing: 1pt;
+        margin-bottom: 3pt;
+      }
+
+      .company-details {
+        font-size: 8pt;
+        color: #9ca3af;
+        line-height: 1.3;
+      }
+
+      .document-title {
+        font-size: 20pt;
+        color: #1f2937;
+        font-weight: bold;
+        margin-bottom: 5pt;
+      }
+
+      .document-subtitle {
+        font-size: 10pt;
+        color: #6b7280;
+      }
+
+      .document-date {
+        font-size: 9pt;
+        color: #6b7280;
+      }
+
+      .document-number {
+        font-size: 8pt;
+        color: #9ca3af;
+        margin-top: 3pt;
+      }
+
+      /* CUSTOMER INFO SECTION */
+      .customer-section {
+        background-color: #f9fafb;
+        padding: 15pt;
+        margin-bottom: 25pt;
+        border: 1pt solid #e5e7eb;
+        border-radius: 4pt;
+      }
+
+      .customer-section-title {
+        font-size: 11pt;
+        font-weight: bold;
+        color: #1f2937;
+        margin-bottom: 12pt;
+        padding-bottom: 8pt;
+        border-bottom: 1pt solid #e5e7eb;
+      }
+
+      .customer-columns {
+        display: flex;
+        gap: 30pt;
+      }
+
+      .customer-column {
+        flex: 1;
+      }
+
+      .customer-row {
+        display: flex;
+        margin-bottom: 8pt;
+      }
+
+      .customer-row:last-child {
+        margin-bottom: 0;
+      }
+
+      .customer-label {
+        font-size: 9pt;
+        color: #6b7280;
+        flex: 0 0 90pt;
+      }
+
+      .customer-value {
+        font-size: 9pt;
+        color: #1f2937;
+        font-weight: 500;
+        flex: 1;
+      }
+
+      /* COMPARISON SECTION */
+      .comparison-section {
+        margin-bottom: 25pt;
+      }
+
+      .section-title {
+        font-size: 12pt;
+        font-weight: bold;
+        color: #1f2937;
+        margin-bottom: 15pt;
+        padding-bottom: 5pt;
+        border-bottom: 1pt solid #e5e7eb;
+      }
+
+      .two-columns {
+        display: flex;
+        gap: 20pt;
+      }
+
+      .column {
+        flex: 1;
+      }
+
+      .system-box {
+        background-color: #ffffff;
+        padding: 15pt;
+        border: 2pt solid #e5e7eb;
+        border-radius: 4pt;
+      }
+
+      .system-box.current {
+        border-color: #ef4444;
+        background-color: #fef2f2;
+      }
+
+      .system-box.new {
+        border-color: #10b981;
+        background-color: #ecfdf5;
+      }
+
+      .system-title {
+        font-size: 11pt;
+        font-weight: bold;
+        color: #1f2937;
+        margin-bottom: 12pt;
+        text-align: center;
+      }
+
+      .cost-summary {
+        background-color: #ffffff;
+        padding: 10pt;
+        border-radius: 4pt;
+        margin-bottom: 12pt;
+      }
+
+      .cost-row {
+        display: flex;
+        justify-content: space-between;
+        padding: 6pt 0;
+        font-size: 10pt;
+      }
+
+      .cost-row-highlight {
+        background-color: #fafafa;
+        margin: 0 -10pt;
+        padding: 6pt 10pt;
+      }
+
+      .cost-label {
+        color: #6b7280;
+      }
+
+      .cost-value {
+        color: #1f2937;
+        font-weight: bold;
+      }
+
+      .cost-value.negative {
+        color: #ef4444;
+      }
+
+      .cost-value.positive {
+        color: #10b981;
+      }
+
+      .system-details {
+        margin-top: 12pt;
+        padding-top: 12pt;
+        border-top: 1pt solid #e5e7eb;
+      }
+
+      .detail-row {
+        display: flex;
+        justify-content: space-between;
+        font-size: 9pt;
+        padding: 4pt 0;
+      }
+
+      .detail-label {
+        color: #6b7280;
+        font-size: 8pt;
+      }
+
+      .detail-value {
+        color: #4b5563;
+        font-size: 8pt;
+      }
+
+      /* LIST ITEMS */
+      .list-container {
+        margin-bottom: 20pt;
+      }
+
+      .list-item {
+        display: flex;
+        margin-bottom: 6pt;
+        font-size: 9pt;
+      }
+
+      .list-icon {
+        color: #10b981;
+        margin-right: 8pt;
+        font-weight: bold;
+      }
+
+      .list-text {
+        flex: 1;
+        color: #4b5563;
+        line-height: 1.4;
+      }
+
+      /* INFO BOX */
+      .info-box {
+        background-color: #f3f4f6;
+        border-left: 4pt solid #6b7280;
+        padding: 12pt;
+        margin-bottom: 20pt;
+      }
+
+      .info-box-title {
+        font-size: 10pt;
+        font-weight: bold;
+        color: #1f2937;
+        margin-bottom: 5pt;
+      }
+
+      .info-box-content {
+        font-size: 9pt;
+        color: #4b5563;
+        line-height: 1.4;
+      }
+
+      /* FOOTER */
+      .footer {
+        position: absolute;
+        bottom: 15mm;
+        left: 20mm;
+        right: 20mm;
+        padding-top: 10pt;
+        border-top: 1pt solid #e5e7eb;
+        display: flex;
+        justify-content: space-between;
+        font-size: 8pt;
+        color: #9ca3af;
+      }
+
+      .footer-left {
+        flex: 1;
+      }
+
+      .footer-center {
+        flex: 1;
+        text-align: center;
+      }
+
+      .footer-right {
+        flex: 1;
+        text-align: right;
+      }
+
+      @media print {
         body {
-            font-family: Helvetica, Arial, sans-serif;
-            background: #f5f5f5;
-            display: block;
-            padding: 20px;
+          background: white;
         }
-
-        /* A4-sivu */
         .page {
-            width: 210mm;
-            min-height: 297mm;
-            background: white;
-            padding: 20mm;
-            box-shadow: 0 0 10px rgba(0,0,0,0.1);
-            position: relative;
-            margin: 20px auto;
+          box-shadow: none;
+          margin: 0;
+          padding: 15mm;
         }
-
-        /* HEADER SECTION */
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            padding-bottom: 15pt;
-            border-bottom: 2pt solid #10b981;
-            margin-bottom: 30pt;
-        }
-
-        .header-left {
-            flex: 1;
-        }
-
-        .header-center {
-            flex: 2;
-            text-align: center;
-        }
-
-        .header-right {
-            flex: 1;
-            text-align: right;
-        }
-
-        .company-name {
-            font-size: 10pt;
-            color: #6b7280;
-            font-weight: bold;
-            letter-spacing: 1pt;
-            margin-bottom: 3pt;
-        }
-
-        .company-details {
-            font-size: 8pt;
-            color: #9ca3af;
-            line-height: 1.3;
-        }
-
-        .document-title {
-            font-size: 20pt;
-            color: #1f2937;
-            font-weight: bold;
-            margin-bottom: 5pt;
-        }
-
-        .document-subtitle {
-            font-size: 10pt;
-            color: #6b7280;
-        }
-
-        .document-date {
-            font-size: 9pt;
-            color: #6b7280;
-        }
-
-        .document-number {
-            font-size: 8pt;
-            color: #9ca3af;
-            margin-top: 3pt;
-        }
-
-        /* CUSTOMER INFO SECTION */
-        .customer-section {
-            background-color: #f9fafb;
-            padding: 15pt;
-            margin-bottom: 25pt;
-            border: 1pt solid #e5e7eb;
-            border-radius: 4pt;
-        }
-
-        .customer-section-title {
-            font-size: 11pt;
-            font-weight: bold;
-            color: #1f2937;
-            margin-bottom: 12pt;
-            padding-bottom: 8pt;
-            border-bottom: 1pt solid #e5e7eb;
-        }
-
-        .customer-columns {
-            display: flex;
-            gap: 30pt;
-        }
-
-        .customer-column {
-            flex: 1;
-        }
-
-        .customer-row {
-            display: flex;
-            margin-bottom: 8pt;
-        }
-
-        .customer-row:last-child {
-            margin-bottom: 0;
-        }
-
-        .customer-label {
-            font-size: 9pt;
-            color: #6b7280;
-            flex: 0 0 90pt;
-        }
-
-        .customer-value {
-            font-size: 9pt;
-            color: #1f2937;
-            font-weight: 500;
-            flex: 1;
-        }
-
-        /* COMPARISON SECTION */
-        .comparison-section {
-            margin-bottom: 25pt;
-        }
-
-        .section-title {
-            font-size: 12pt;
-            font-weight: bold;
-            color: #1f2937;
-            margin-bottom: 15pt;
-            padding-bottom: 5pt;
-            border-bottom: 1pt solid #e5e7eb;
-        }
-
-        .two-columns {
-            display: flex;
-            gap: 20pt;
-        }
-
-        .column {
-            flex: 1;
-        }
-
-        .system-box {
-            background-color: #ffffff;
-            padding: 15pt;
-            border: 2pt solid #e5e7eb;
-            border-radius: 4pt;
-        }
-
-        .system-box.current {
-            border-color: #ef4444;
-            background-color: #fef2f2;
-        }
-
-        .system-box.new {
-            border-color: #10b981;
-            background-color: #ecfdf5;
-        }
-
-        .system-title {
-            font-size: 11pt;
-            font-weight: bold;
-            color: #1f2937;
-            margin-bottom: 12pt;
-            text-align: center;
-        }
-
-        .cost-summary {
-            background-color: #ffffff;
-            padding: 10pt;
-            border-radius: 4pt;
-            margin-bottom: 12pt;
-        }
-
-        .cost-row {
-            display: flex;
-            justify-content: space-between;
-            padding: 6pt 0;
-            font-size: 10pt;
-        }
-
-        .cost-row-highlight {
-            background-color: #fafafa;
-            margin: 0 -10pt;
-            padding: 6pt 10pt;
-        }
-
-        .cost-label {
-            color: #6b7280;
-        }
-
-        .cost-value {
-            color: #1f2937;
-            font-weight: bold;
-        }
-
-        .cost-value.negative {
-            color: #ef4444;
-        }
-
-        .cost-value.positive {
-            color: #10b981;
-        }
-
-        .system-details {
-            margin-top: 12pt;
-            padding-top: 12pt;
-            border-top: 1pt solid #e5e7eb;
-        }
-
-        .detail-row {
-            display: flex;
-            justify-content: space-between;
-            font-size: 9pt;
-            padding: 4pt 0;
-        }
-
-        .detail-label {
-            color: #6b7280;
-            font-size: 8pt;
-        }
-
-        .detail-value {
-            color: #4b5563;
-            font-size: 8pt;
-        }
-
-        /* LIST ITEMS */
-        .list-container {
-            margin-bottom: 20pt;
-        }
-
-        .list-item {
-            display: flex;
-            margin-bottom: 6pt;
-            font-size: 9pt;
-        }
-
-        .list-icon {
-            color: #10b981;
-            margin-right: 8pt;
-            font-weight: bold;
-        }
-
-        .list-text {
-            flex: 1;
-            color: #4b5563;
-            line-height: 1.4;
-        }
-
-        /* INFO BOX */
-        .info-box {
-            background-color: #f3f4f6;
-            border-left: 4pt solid #6b7280;
-            padding: 12pt;
-            margin-bottom: 20pt;
-        }
-
-        .info-box-title {
-            font-size: 10pt;
-            font-weight: bold;
-            color: #1f2937;
-            margin-bottom: 5pt;
-        }
-
-        .info-box-content {
-            font-size: 9pt;
-            color: #4b5563;
-            line-height: 1.4;
-        }
-
-        /* FOOTER */
-        .footer {
-            position: absolute;
-            bottom: 15mm;
-            left: 20mm;
-            right: 20mm;
-            padding-top: 10pt;
-            border-top: 1pt solid #e5e7eb;
-            display: flex;
-            justify-content: space-between;
-            font-size: 8pt;
-            color: #9ca3af;
-        }
-
-        .footer-left {
-            flex: 1;
-        }
-
-        .footer-center {
-            flex: 1;
-            text-align: center;
-        }
-
-        .footer-right {
-            flex: 1;
-            text-align: right;
-        }
-
-        @media print {
-            body {
-                background: white;
-            }
-            .page {
-                box-shadow: none;
-                margin: 0;
-                padding: 15mm;
-            }
-        }
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <div class="page">
-        <!-- HEADER -->
-        <div class="header">
-            <div class="header-left">
-                <div class="company-name">ENERGIAYKKÖNEN OY</div>
-                <div class="company-details">
-                    Y-tunnus: 2635343-7<br>
-                    Koivupurontie 6 b<br>
-                    40320 Jyväskylä
-                </div>
-            </div>
-            <div class="header-center">
-                <div class="document-title">SÄÄSTÖLASKELMA</div>
-            </div>
-            <div class="header-right">
-                <div class="document-date"><span class="formula">new Date()</span></div>
-                <div class="document-number">Laskelma #<span class="formula">{id.slice(0,8)}</span></div>
-            </div>
+      <!-- HEADER -->
+      <div class="header">
+        <div class="header-left">
+          <div class="company-name">ENERGIAYKKÖNEN OY</div>
+          <div class="company-details">
+            Y-tunnus: 2635343-7<br />
+            Koivupurontie 6 b<br />
+            40320 Jyväskylä
+          </div>
         </div>
-
-        <!-- ASIAKASTIEDOT -->
-        <div class="customer-section">
-            <div class="customer-section-title">Asiakkaan tiedot</div>
-            <div class="customer-columns">
-                <div class="customer-column">
-                    <div class="customer-row">
-                        <div class="customer-label">Nimi:</div>
-                        <div class="customer-value"><span class="formula">{nimi}</span></div>
-                    </div>
-                    <div class="customer-row">
-                        <div class="customer-label">Sähköposti:</div>
-                        <div class="customer-value"><span class="formula">{sahkoposti}</span></div>
-                    </div>
-                    <div class="customer-row">
-                        <div class="customer-label">Puhelinnumero:</div>
-                        <div class="customer-value"><span class="formula">{puhelinnumero}</span></div>
-                    </div>
-                    <div class="customer-row">
-                        <div class="customer-label">Osoite:</div>
-                        <div class="customer-value"><span class="formula">{osoite}</span></div>
-                    </div>
-                    <div class="customer-row">
-                        <div class="customer-label">Paikkakunta:</div>
-                        <div class="customer-value"><span class="formula">{postcode} {paikkakunta}</span></div>
-                    </div>
-                </div>
-                <div class="customer-column">
-                    <div class="customer-row">
-                        <div class="customer-label">Henkilömäärä:</div>
-                        <div class="customer-value"><span class="formula">{henkilomaara}</span> henkilöä</div>
-                    </div>
-                    <div class="customer-row">
-                        <div class="customer-label">Rakennusvuosi:</div>
-                        <div class="customer-value"><span class="formula">{rakennusvuosi}</span></div>
-                    </div>
-                    <div class="customer-row">
-                        <div class="customer-label">Pinta-ala:</div>
-                        <div class="customer-value"><span class="formula">{neliot}</span> m²</div>
-                    </div>
-                    <div class="customer-row">
-                        <div class="customer-label">Energiantarve:</div>
-                        <div class="customer-value"><span class="formula">[calc:laskennallinen-energiantarve-kwh]</span> kWh/vuosi</div>
-                    </div>
-                </div>
-            </div>
+        <div class="header-center">
+          <div class="document-title">SÄÄSTÖLASKELMA</div>
         </div>
-
-        <!-- KUSTANNUSVERTAILU -->
-        <div class="comparison-section">
-            <div class="section-title">Lämmityskustannusten vertailu</div>
-            <div class="two-columns">
-                <!-- Nykyinen järjestelmä -->
-                <div class="column">
-                    <div class="system-box current">
-                        <div class="system-title">Nykyinen lämmitysjärjestelmä</div>
-                        <div class="system-title" style="font-size: 9pt; font-weight: normal; margin-bottom: 15pt;"><span class="formula">{lammitysmuoto}</span></div>
-                        
-                        <div class="cost-summary">
-                            <div style="display: flex; padding: 8pt 0; border-bottom: 1pt solid #e5e7eb; font-size: 9pt; font-weight: bold; color: #6b7280;">
-                                <div style="flex: 1;">Aikaväli</div>
-                                <div style="flex: 1; text-align: right;">Energian hinta</div>
-                            </div>
-                            <div class="cost-row">
-                                <div class="cost-label">1 vuosi</div>
-                                <div class="cost-value negative"><span class="formula">{menekinhintavuosi}</span> €</div>
-                            </div>
-                            <div class="cost-row cost-row-highlight">
-                                <div class="cost-label">5 vuotta</div>
-                                <div class="cost-value negative"><span class="formula">{menekinhintavuosi} × 5</span> €</div>
-                            </div>
-                            <div class="cost-row">
-                                <div class="cost-label">10 vuotta</div>
-                                <div class="cost-value negative"><span class="formula">{menekinhintavuosi} × 10</span> €</div>
-                            </div>
-                        </div>
-
-                        <div class="system-details">
-                            <!-- Shown when lämmitysmuoto is Öljylämmitys or Öljy+puu (tuplapesäkattila) -->
-                            <div class="detail-row">
-                                <div class="detail-label">Öljyn kulutus:</div>
-                                <div class="detail-value"><span class="formula">[calc:laskennallinen-energiantarve-kwh] / 10</span> L/vuosi</div>
-                            </div>
-                            <!-- Shown when lämmitysmuoto is Puulämmitys -->
-                            <div class="detail-row">
-                                <div class="detail-label">Puun menekki:</div>
-                                <div class="detail-value"><span class="formula">{kokonaismenekki}</span> m³/vuosi</div>
-                            </div>
-                            <!-- Shown when lämmitysmuoto is Kaasulämmitys -->
-                            <div class="detail-row">
-                                <div class="detail-label">Kaasun menekki:</div>
-                                <div class="detail-value"><span class="formula">{kokonaismenekki}</span> m³/vuosi</div>
-                            </div>
-                            <div class="detail-row">
-                                <div class="detail-label">Öljyn hinta:</div>
-                                <div class="detail-value"><span class="formula">[lookup:oil_price]</span> €/litra</div>
-                            </div>
-                            <div class="detail-row">
-                                <div class="detail-label">Kaasun hinta:</div>
-                                <div class="detail-value"><span class="formula">[lookup:gas_price]</span> €/mWh</div>
-                            </div>
-                            <div class="detail-row">
-                                <div class="detail-label">Puun hinta:</div>
-                                <div class="detail-value"><span class="formula">[lookup:wood_price]</span> €/motti</div>
-                            </div>
-                            <div class="detail-row">
-                                <div class="detail-label">Huoltokustannus:</div>
-                                <div class="detail-value"><span class="formula">[lookup:oil_maintenance]</span> €/vuosi</div>
-                            </div>
-                            <div class="detail-row">
-                                <div class="detail-label">CO₂-päästöt:</div>
-                                <div class="detail-value"><span class="formula">[calc:current_co2]</span> kg/vuosi</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Uusi järjestelmä -->
-                <div class="column">
-                    <div class="system-box new">
-                        <div class="system-title">Ilmavesilämpöpumppu</div>
-                        <div class="system-title" style="font-size: 9pt; font-weight: normal; margin-bottom: 15pt;">Moderni VILP-järjestelmä</div>
-                        
-                        <div class="cost-summary">
-                            <div style="display: flex; padding: 8pt 0; border-bottom: 1pt solid #e5e7eb; font-size: 9pt; font-weight: bold; color: #6b7280;">
-                                <div style="flex: 1;">Aikaväli</div>
-                                <div style="flex: 1; text-align: center;">Energian hinta</div>
-                                <div style="flex: 1; text-align: right;">Säästö</div>
-                            </div>
-                            <div style="display: flex; padding: 6pt 0; font-size: 10pt;">
-                                <div style="flex: 1; color: #6b7280;">1 vuosi</div>
-                                <div style="flex: 1; text-align: center; color: #1f2937; font-weight: bold;"><span class="formula">([calc:laskennallinen-energiantarve-kwh] / 3.8) × [lookup:electricity_price]</span> €</div>
-                                <div style="flex: 1; text-align: right;">
-                                    <div style="color: #10b981; font-weight: bold;"><span class="formula">{menekinhintavuosi} - (([calc:laskennallinen-energiantarve-kwh] / 3.8) × [lookup:electricity_price])</span> €</div>
-                                    <div style="font-size: 8pt; color: #059669; font-weight: 500;">+4 000€*</div>
-                                </div>
-                            </div>
-                            <div style="display: flex; padding: 6pt 0; font-size: 10pt; background-color: #fafafa; margin: 0 -10pt; padding-left: 10pt; padding-right: 10pt;">
-                                <div style="flex: 1; color: #6b7280;">5 vuotta</div>
-                                <div style="flex: 1; text-align: center; color: #1f2937; font-weight: bold;"><span class="formula">((([calc:laskennallinen-energiantarve-kwh] / 3.8) × [lookup:electricity_price]) × 5)</span> €</div>
-                                <div style="flex: 1; text-align: right; color: #10b981; font-weight: bold;"><span class="formula">annual_savings × 5</span> €</div>
-                            </div>
-                            <div style="display: flex; padding: 6pt 0; font-size: 10pt;">
-                                <div style="flex: 1; color: #6b7280;">10 vuotta</div>
-                                <div style="flex: 1; text-align: center; color: #1f2937; font-weight: bold;"><span class="formula">((([calc:laskennallinen-energiantarve-kwh] / 3.8) × [lookup:electricity_price]) × 10)</span> €</div>
-                                <div style="flex: 1; text-align: right; color: #10b981; font-weight: bold;"><span class="formula">annual_savings × 10</span> €</div>
-                            </div>
-                        </div>
-
-                        <div class="system-details">
-                            <div class="detail-row">
-                                <div class="detail-label">Sähkön kulutus:</div>
-                                <div class="detail-value"><span class="formula">[calc:laskennallinen-energiantarve-kwh] / 3.8</span> kWh/vuosi</div>
-                            </div>
-                            <div style="padding: 0 0 8pt 0; margin-bottom: 4pt;">
-                                <div style="font-size: 7pt; color: #9ca3af; line-height: 1.3; font-style: italic;">
-                                    Arvio energiamäärästä, joka tarvitaan täyttämään laskennallinen energiantarve. Laskelmassa käytetty maltillista 3.8 hyötysuhdetta.
-                                </div>
-                            </div>
-                            <div class="detail-row">
-                                <div class="detail-label">Sähkön hinta:</div>
-                                <div class="detail-value"><span class="formula">[lookup:electricity_price]</span> €/kWh</div>
-                            </div>
-                            <div class="detail-row">
-                                <div class="detail-label">Huoltokustannus ensimmäiset 5v:</div>
-                                <div class="detail-value">0 €/vuosi</div>
-                            </div>
-                            <div class="detail-row">
-                                <div class="detail-label">Huoltokustannus seuraavat 5v:</div>
-                                <div class="detail-value"><span class="formula">[lookup:maintenance_next_5y]</span> €/vuosi</div>
-                            </div>
-                            <div class="detail-row">
-                                <div class="detail-label">CO₂-päästöt:</div>
-                                <div class="detail-value">0 kg/vuosi</div>
-                            </div>
-                            <div style="padding: 8pt 0 0 0; margin-top: 4pt;">
-                                <div style="font-size: 7pt; color: #059669; line-height: 1.3;">
-                                    * ELY-keskuksen energiatuki öljylämmityksestä luopumiseen. Tuki on 4 000 € pientaloille. Edellyttää hakemuksen tekemistä ennen töiden aloittamista.
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+        <div class="header-right">
+          <div class="document-date">
+            <span class="formula">new Date()</span>
+          </div>
+          <div class="document-number">
+            Laskelma #<span class="formula">{id.slice(0,8)}</span>
+          </div>
         </div>
+      </div>
 
-        <!-- EDUT -->
-        <div class="list-container">
-            <div class="section-title">Moderni ilmavesilämpöpumppu Energiaykköseltä</div>
-            <div style="display: flex; gap: 20pt;">
-                <div style="flex: 1;">
-                    <div class="list-item">
-                        <span class="list-icon">✓</span>
-                        <span class="list-text">10 vuoden huoltovapaat laitteet modernilla tekniikalla</span>
-                    </div>
-                    <div class="list-item">
-                        <span class="list-icon">✓</span>
-                        <span class="list-text">5 vuoden täystakuu kaikille komponenteille</span>
-                    </div>
-                    <div class="list-item">
-                        <span class="list-icon">✓</span>
-                        <span class="list-text">Kotitalousvähennys 40% työn osuudesta (max 3 200 €)</span>
-                    </div>
+      <!-- ASIAKASTIEDOT -->
+      <div class="customer-section">
+        <div class="customer-section-title">Asiakkaan tiedot</div>
+        <div class="customer-columns">
+          <div class="customer-column">
+            <div class="customer-row">
+              <div class="customer-label">Nimi:</div>
+              <div class="customer-value">
+                <span class="formula">{nimi}</span>
+              </div>
+            </div>
+            <div class="customer-row">
+              <div class="customer-label">Sähköposti:</div>
+              <div class="customer-value">
+                <span class="formula">{sahkoposti}</span>
+              </div>
+            </div>
+            <div class="customer-row">
+              <div class="customer-label">Puhelinnumero:</div>
+              <div class="customer-value">
+                <span class="formula">{puhelinnumero}</span>
+              </div>
+            </div>
+            <div class="customer-row">
+              <div class="customer-label">Osoite:</div>
+              <div class="customer-value">
+                <span class="formula">{osoite}</span>
+              </div>
+            </div>
+            <div class="customer-row">
+              <div class="customer-label">Paikkakunta:</div>
+              <div class="customer-value">
+                <span class="formula">{postcode} {paikkakunta}</span>
+              </div>
+            </div>
+          </div>
+          <div class="customer-column">
+            <div class="customer-row">
+              <div class="customer-label">Henkilömäärä:</div>
+              <div class="customer-value">
+                <span class="formula">{henkilomaara}</span> henkilöä
+              </div>
+            </div>
+            <div class="customer-row">
+              <div class="customer-label">Rakennusvuosi:</div>
+              <div class="customer-value">
+                <span class="formula">{rakennusvuosi}</span>
+              </div>
+            </div>
+            <div class="customer-row">
+              <div class="customer-label">Pinta-ala:</div>
+              <div class="customer-value">
+                <span class="formula">{neliot}</span> m²
+              </div>
+            </div>
+            <div class="customer-row">
+              <div class="customer-label">Energiantarve:</div>
+              <div class="customer-value">
+                <span class="formula"
+                  >[calc:laskennallinen-energiantarve-kwh]</span
+                >
+                kWh/vuosi
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- KUSTANNUSVERTAILU -->
+      <div class="comparison-section">
+        <div class="section-title">Lämmityskustannusten vertailu</div>
+        <div class="two-columns">
+          <!-- Nykyinen järjestelmä -->
+          <div class="column">
+            <div class="system-box current">
+              <div class="system-title">Nykyinen lämmitysjärjestelmä</div>
+              <div
+                class="system-title"
+                style="font-size: 9pt; font-weight: normal; margin-bottom: 15pt"
+              >
+                <span class="formula">{lammitysmuoto}</span>
+              </div>
+
+              <div class="cost-summary">
+                <div
+                  style="
+                    display: flex;
+                    padding: 8pt 0;
+                    border-bottom: 1pt solid #e5e7eb;
+                    font-size: 9pt;
+                    font-weight: bold;
+                    color: #6b7280;
+                  "
+                >
+                  <div style="flex: 1">Aikaväli</div>
+                  <div style="flex: 1; text-align: right">Energian hinta</div>
                 </div>
-                <div style="flex: 1;">
-                    <div class="list-item">
-                        <span class="list-icon">✓</span>
-                        <span class="list-text">Kiinteistön arvon nousu ja parempi energialuokka</span>
-                    </div>
-                    <div class="list-item">
-                        <span class="list-icon">✓</span>
-                        <span class="list-text">Älykäs etäohjaus mobiilisovelluksella</span>
-                    </div>
+                <div class="cost-row">
+                  <div class="cost-label">1 vuosi</div>
+                  <div class="cost-value negative">
+                    <span class="formula">{menekinhintavuosi}</span> €
+                  </div>
                 </div>
-            </div>
-        </div>
+                <div class="cost-row cost-row-highlight">
+                  <div class="cost-label">5 vuotta</div>
+                  <div class="cost-value negative">
+                    <span class="formula">{menekinhintavuosi} × 5</span> €
+                  </div>
+                </div>
+                <div class="cost-row">
+                  <div class="cost-label">10 vuotta</div>
+                  <div class="cost-value negative">
+                    <span class="formula">{menekinhintavuosi} × 10</span> €
+                  </div>
+                </div>
+              </div>
 
-        <!-- INFO -->
-        <div class="info-box">
-            <div class="info-box-title">Visiomme</div>
-            <div class="info-box-content">
-                Visiomme uusiutuvan energian tuottamisesta ydinvoimalan verran (4 TWh vuodessa) on kunnianhimoinen. Tämä vastaa 380 000 polttomoottoriauton vuosittaisia päästöjä. Vision taustalla on paljon laskelmia, ja siksi pidämmekin sen toteuttamista täysin mahdollisena.
+              <div class="system-details">
+                <!-- Shown when lämmitysmuoto is Öljylämmitys or Öljy+puu (tuplapesäkattila) -->
+                <div class="detail-row">
+                  <div class="detail-label">Öljyn kulutus:</div>
+                  <div class="detail-value">
+                    <span class="formula"
+                      >[calc:laskennallinen-energiantarve-kwh] / 10</span
+                    >
+                    L/vuosi
+                  </div>
+                </div>
+                <!-- Shown when lämmitysmuoto is Puulämmitys -->
+                <div class="detail-row">
+                  <div class="detail-label">Puun menekki:</div>
+                  <div class="detail-value">
+                    <span class="formula">{kokonaismenekki}</span> m³/vuosi
+                  </div>
+                </div>
+                <!-- Shown when lämmitysmuoto is Kaasulämmitys -->
+                <div class="detail-row">
+                  <div class="detail-label">Kaasun menekki:</div>
+                  <div class="detail-value">
+                    <span class="formula">{kokonaismenekki}</span> m³/vuosi
+                  </div>
+                </div>
+                <div class="detail-row">
+                  <div class="detail-label">Öljyn hinta:</div>
+                  <div class="detail-value">
+                    <span class="formula">[lookup:oil_price]</span> €/litra
+                  </div>
+                </div>
+                <div class="detail-row">
+                  <div class="detail-label">Kaasun hinta:</div>
+                  <div class="detail-value">
+                    <span class="formula">[lookup:gas_price]</span> €/mWh
+                  </div>
+                </div>
+                <div class="detail-row">
+                  <div class="detail-label">Puun hinta:</div>
+                  <div class="detail-value">
+                    <span class="formula">[lookup:wood_price]</span> €/motti
+                  </div>
+                </div>
+                <div class="detail-row">
+                  <div class="detail-label">Huoltokustannus:</div>
+                  <div class="detail-value">
+                    <span class="formula">[lookup:oil_maintenance]</span>
+                    €/vuosi
+                  </div>
+                </div>
+                <div class="detail-row">
+                  <div class="detail-label">CO₂-päästöt:</div>
+                  <div class="detail-value">
+                    <span class="formula">[calc:current_co2]</span> kg/vuosi
+                  </div>
+                </div>
+              </div>
             </div>
-        </div>
+          </div>
 
-        <!-- FOOTER -->
-        <div class="footer">
-            <div class="footer-left">
-                Energiaykkönen Oy | Y-tunnus: 2635343-7
+          <!-- Uusi järjestelmä -->
+          <div class="column">
+            <div class="system-box new">
+              <div class="system-title">Ilmavesilämpöpumppu</div>
+              <div
+                class="system-title"
+                style="font-size: 9pt; font-weight: normal; margin-bottom: 15pt"
+              >
+                Moderni VILP-järjestelmä
+              </div>
+
+              <div class="cost-summary">
+                <div
+                  style="
+                    display: flex;
+                    padding: 8pt 0;
+                    border-bottom: 1pt solid #e5e7eb;
+                    font-size: 9pt;
+                    font-weight: bold;
+                    color: #6b7280;
+                  "
+                >
+                  <div style="flex: 1">Aikaväli</div>
+                  <div style="flex: 1; text-align: center">Energian hinta</div>
+                  <div style="flex: 1; text-align: right">Säästö</div>
+                </div>
+                <div style="display: flex; padding: 6pt 0; font-size: 10pt">
+                  <div style="flex: 1; color: #6b7280">1 vuosi</div>
+                  <div
+                    style="
+                      flex: 1;
+                      text-align: center;
+                      color: #1f2937;
+                      font-weight: bold;
+                    "
+                  >
+                    <span class="formula"
+                      >([calc:laskennallinen-energiantarve-kwh] / 3.8) ×
+                      [lookup:electricity_price]</span
+                    >
+                    €
+                  </div>
+                  <div style="flex: 1; text-align: right">
+                    <div style="color: #10b981; font-weight: bold">
+                      <span class="formula"
+                        >{menekinhintavuosi} -
+                        (([calc:laskennallinen-energiantarve-kwh] / 3.8) ×
+                        [lookup:electricity_price])</span
+                      >
+                      €
+                    </div>
+                    <div
+                      style="font-size: 8pt; color: #059669; font-weight: 500"
+                    >
+                      +4 000€*
+                    </div>
+                  </div>
+                </div>
+                <div
+                  style="
+                    display: flex;
+                    padding: 6pt 0;
+                    font-size: 10pt;
+                    background-color: #fafafa;
+                    margin: 0 -10pt;
+                    padding-left: 10pt;
+                    padding-right: 10pt;
+                  "
+                >
+                  <div style="flex: 1; color: #6b7280">5 vuotta</div>
+                  <div
+                    style="
+                      flex: 1;
+                      text-align: center;
+                      color: #1f2937;
+                      font-weight: bold;
+                    "
+                  >
+                    <span class="formula"
+                      >((([calc:laskennallinen-energiantarve-kwh] / 3.8) ×
+                      [lookup:electricity_price]) × 5)</span
+                    >
+                    €
+                  </div>
+                  <div
+                    style="
+                      flex: 1;
+                      text-align: right;
+                      color: #10b981;
+                      font-weight: bold;
+                    "
+                  >
+                    <span class="formula">annual_savings × 5</span> €
+                  </div>
+                </div>
+                <div style="display: flex; padding: 6pt 0; font-size: 10pt">
+                  <div style="flex: 1; color: #6b7280">10 vuotta</div>
+                  <div
+                    style="
+                      flex: 1;
+                      text-align: center;
+                      color: #1f2937;
+                      font-weight: bold;
+                    "
+                  >
+                    <span class="formula"
+                      >((([calc:laskennallinen-energiantarve-kwh] / 3.8) ×
+                      [lookup:electricity_price]) × 10)</span
+                    >
+                    €
+                  </div>
+                  <div
+                    style="
+                      flex: 1;
+                      text-align: right;
+                      color: #10b981;
+                      font-weight: bold;
+                    "
+                  >
+                    <span class="formula">annual_savings × 10</span> €
+                  </div>
+                </div>
+              </div>
+
+              <div class="system-details">
+                <div class="detail-row">
+                  <div class="detail-label">Sähkön kulutus:</div>
+                  <div class="detail-value">
+                    <span class="formula"
+                      >[calc:laskennallinen-energiantarve-kwh] / 3.8</span
+                    >
+                    kWh/vuosi
+                  </div>
+                </div>
+                <div style="padding: 0 0 8pt 0; margin-bottom: 4pt">
+                  <div
+                    style="
+                      font-size: 7pt;
+                      color: #9ca3af;
+                      line-height: 1.3;
+                      font-style: italic;
+                    "
+                  >
+                    Arvio energiamäärästä, joka tarvitaan täyttämään
+                    laskennallinen energiantarve. Laskelmassa käytetty
+                    maltillista 3.8 hyötysuhdetta.
+                  </div>
+                </div>
+                <div class="detail-row">
+                  <div class="detail-label">Sähkön hinta:</div>
+                  <div class="detail-value">
+                    <span class="formula">[lookup:electricity_price]</span>
+                    €/kWh
+                  </div>
+                </div>
+                <div class="detail-row">
+                  <div class="detail-label">
+                    Huoltokustannus ensimmäiset 5v:
+                  </div>
+                  <div class="detail-value">0 €/vuosi</div>
+                </div>
+                <div class="detail-row">
+                  <div class="detail-label">Huoltokustannus seuraavat 5v:</div>
+                  <div class="detail-value">
+                    <span class="formula">[lookup:maintenance_next_5y]</span>
+                    €/vuosi
+                  </div>
+                </div>
+                <div class="detail-row">
+                  <div class="detail-label">CO₂-päästöt:</div>
+                  <div class="detail-value">0 kg/vuosi</div>
+                </div>
+                <div style="padding: 8pt 0 0 0; margin-top: 4pt">
+                  <div style="font-size: 7pt; color: #059669; line-height: 1.3">
+                    * ELY-keskuksen energiatuki öljylämmityksestä luopumiseen.
+                    Tuki on 4 000 € pientaloille. Edellyttää hakemuksen
+                    tekemistä ennen töiden aloittamista.
+                  </div>
+                </div>
+              </div>
             </div>
-            <div class="footer-center">
-                www.energiaykkonen.fi | info@energiaykkonen.fi
-            </div>
-            <div class="footer-right">
-                Sivu 1/2
-            </div>
+          </div>
         </div>
+      </div>
+
+      <!-- EDUT -->
+      <div class="list-container">
+        <div class="section-title">
+          Moderni ilmavesilämpöpumppu Energiaykköseltä
+        </div>
+        <div style="display: flex; gap: 20pt">
+          <div style="flex: 1">
+            <div class="list-item">
+              <span class="list-icon">✓</span>
+              <span class="list-text"
+                >10 vuoden huoltovapaat laitteet modernilla tekniikalla</span
+              >
+            </div>
+            <div class="list-item">
+              <span class="list-icon">✓</span>
+              <span class="list-text"
+                >5 vuoden täystakuu kaikille komponenteille</span
+              >
+            </div>
+            <div class="list-item">
+              <span class="list-icon">✓</span>
+              <span class="list-text"
+                >Kotitalousvähennys 40% työn osuudesta (max 3 200 €)</span
+              >
+            </div>
+          </div>
+          <div style="flex: 1">
+            <div class="list-item">
+              <span class="list-icon">✓</span>
+              <span class="list-text"
+                >Kiinteistön arvon nousu ja parempi energialuokka</span
+              >
+            </div>
+            <div class="list-item">
+              <span class="list-icon">✓</span>
+              <span class="list-text"
+                >Älykäs etäohjaus mobiilisovelluksella</span
+              >
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- INFO -->
+      <div class="info-box">
+        <div class="info-box-title">Visiomme</div>
+        <div class="info-box-content">
+          Visiomme uusiutuvan energian tuottamisesta ydinvoimalan verran (4 TWh
+          vuodessa) on kunnianhimoinen. Tämä vastaa 380 000 polttomoottoriauton
+          vuosittaisia päästöjä. Vision taustalla on paljon laskelmia, ja siksi
+          pidämmekin sen toteuttamista täysin mahdollisena.
+        </div>
+      </div>
+
+      <!-- FOOTER -->
+      <div class="footer">
+        <div class="footer-left">Energiaykkönen Oy | Y-tunnus: 2635343-7</div>
+        <div class="footer-center">
+          www.energiaykkonen.fi | info@energiaykkonen.fi
+        </div>
+        <div class="footer-right">Sivu 1/2</div>
+      </div>
     </div>
     <div class="page">
-        <div class="section-title">Liite: Käytettävissä olevat kentät</div>
-        <div style="margin-top: 10pt; font-size: 10pt; color: #1f2937; font-weight: bold;">Form data (form_data)</div>
-        <pre style="background:#f9fafb; border:1pt solid #e5e7eb; border-radius:4pt; padding:12pt; font-size:9pt; margin-top:6pt; white-space:pre-wrap;">
+      <div class="section-title">Liite: Käytettävissä olevat kentät</div>
+      <div
+        style="
+          margin-top: 10pt;
+          font-size: 10pt;
+          color: #1f2937;
+          font-weight: bold;
+        "
+      >
+        Form data (form_data)
+      </div>
+      <pre
+        style="
+          background: #f9fafb;
+          border: 1pt solid #e5e7eb;
+          border-radius: 4pt;
+          padding: 12pt;
+          font-size: 9pt;
+          margin-top: 6pt;
+          white-space: pre-wrap;
+        "
+      >
 {
   "nimi": "{nimi}",
   "sahkoposti": "{sahkoposti}",
@@ -607,9 +818,29 @@
   "lammitysmuoto": "{lammitysmuoto}",
   "kokonaismenekki": "{kokonaismenekki}"
 }
-        </pre>
-        <div style="margin-top: 16pt; font-size: 10pt; color: #1f2937; font-weight: bold;">Laskentatulokset (calculation_results)</div>
-        <pre style="background:#f9fafb; border:1pt solid #e5e7eb; border-radius:4pt; padding:12pt; font-size:9pt; margin-top:6pt; white-space:pre-wrap;">
+        </pre
+      >
+      <div
+        style="
+          margin-top: 16pt;
+          font-size: 10pt;
+          color: #1f2937;
+          font-weight: bold;
+        "
+      >
+        Laskentatulokset (calculation_results)
+      </div>
+      <pre
+        style="
+          background: #f9fafb;
+          border: 1pt solid #e5e7eb;
+          border-radius: 4pt;
+          padding: 12pt;
+          font-size: 9pt;
+          margin-top: 6pt;
+          white-space: pre-wrap;
+        "
+      >
 {
   "laskennallinen_energiantarve_kwh": "[calc:laskennallinen-energiantarve-kwh]",
   "heat_pump_consumption": "heat_pump_consumption",
@@ -619,9 +850,29 @@
   "ten_year_savings": "ten_year_savings",
   "co2_reduction": "co2_reduction"
 }
-        </pre>
-        <div style="margin-top: 16pt; font-size: 10pt; color: #1f2937; font-weight: bold;">Hintalähteet (lookups)</div>
-        <pre style="background:#fefefe; border:1pt solid #e5e7eb; border-radius:4pt; padding:12pt; font-size:9pt; margin-top:6pt; white-space:pre-wrap;">
+        </pre
+      >
+      <div
+        style="
+          margin-top: 16pt;
+          font-size: 10pt;
+          color: #1f2937;
+          font-weight: bold;
+        "
+      >
+        Hintalähteet (lookups)
+      </div>
+      <pre
+        style="
+          background: #fefefe;
+          border: 1pt solid #e5e7eb;
+          border-radius: 4pt;
+          padding: 12pt;
+          font-size: 9pt;
+          margin-top: 6pt;
+          white-space: pre-wrap;
+        "
+      >
 {
   "oil_price": "[lookup:oil_price] €/litra  => 1,30 €/litra",
   "electricity_price": "[lookup:electricity_price] €/kWh  => 0,15 €/kWh",
@@ -630,12 +881,15 @@
   "maintenance_first_5y": "[lookup:maintenance_first_5y] €/vuosi  => 0 €/vuosi",
   "maintenance_next_5y": "[lookup:maintenance_next_5y] €/vuosi  => 30 €/vuosi"
 }
-        </pre>
-        <div class="footer">
-            <div class="footer-left">Energiaykkönen Oy | Y-tunnus: 2635343-7</div>
-            <div class="footer-center">www.energiaykkonen.fi | info@energiaykkonen.fi</div>
-            <div class="footer-right">Sivu 2/2</div>
+        </pre
+      >
+      <div class="footer">
+        <div class="footer-left">Energiaykkönen Oy | Y-tunnus: 2635343-7</div>
+        <div class="footer-center">
+          www.energiaykkonen.fi | info@energiaykkonen.fi
         </div>
+        <div class="footer-right">Sivu 2/2</div>
+      </div>
     </div>
-</body>
+  </body>
 </html>

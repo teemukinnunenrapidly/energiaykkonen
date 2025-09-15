@@ -35,15 +35,15 @@ export async function GET(request: NextRequest) {
       totalCount: leadsData.totalCount,
       message: `Retrieved ${leadsData.leads.length} leads for export`,
     });
-  } catch {
-    if (error instanceof Error && error.message.includes('Authentication')) {
+  } catch (e) {
+    if (e instanceof Error && e.message.includes('Authentication')) {
       return NextResponse.json(
         { error: 'Authentication required' },
         { status: 401 }
       );
     }
 
-    if (error instanceof Error && error.message.includes('Admin access')) {
+    if (e instanceof Error && e.message.includes('Admin access')) {
       return NextResponse.json(
         { error: 'Admin access required' },
         { status: 403 }
@@ -53,7 +53,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json(
       {
         error: 'Failed to fetch leads for export',
-        details: error instanceof Error ? error.message : 'Unknown error',
+        details: e instanceof Error ? e.message : 'Unknown error',
       },
       { status: 500 }
     );

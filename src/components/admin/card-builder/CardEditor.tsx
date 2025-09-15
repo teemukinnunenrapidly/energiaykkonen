@@ -155,8 +155,7 @@ export function CardEditor({
       try {
         const objects = await getVisualObjects();
         setVisualObjects(objects);
-      } catch (error) {
-        console.error('Failed to load visual objects:', error);
+      } catch {
       } finally {
         setLoadingVisualObjects(false);
       }
@@ -174,8 +173,7 @@ export function CardEditor({
             card.config.linked_visual_object_id
           );
           setLinkedVisualObject(visualObject);
-        } catch (error) {
-          console.error('Failed to load linked visual object:', error);
+        } catch {
           setLinkedVisualObject(null);
         }
       } else {

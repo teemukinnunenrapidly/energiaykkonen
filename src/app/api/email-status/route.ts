@@ -18,7 +18,7 @@ export async function GET() {
         resendDashboard: 'https://resend.com/dashboard',
       },
     });
-  } catch {
+  } catch (e) {
     return NextResponse.json(
       {
         status: 'error',
@@ -26,7 +26,7 @@ export async function GET() {
         errors: ['Unable to validate email configuration'],
         warnings: [],
         suggestions: ['Check server logs for details'],
-        error: error instanceof Error ? error.message : 'Unknown error',
+        error: e instanceof Error ? e.message : 'Unknown error',
       },
       { status: 500 }
     );

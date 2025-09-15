@@ -91,11 +91,8 @@ export default function ExportButton({
       setLastExportTime(new Date());
 
       // Show success feedback (you could replace this with a toast notification)
-      console.log(
-        `CSV export completed successfully: ${leadsToExport.length} leads`
-      );
+      alert(`CSV export completed successfully: ${leadsToExport.length} leads`);
     } catch (error) {
-      console.error('Export failed:', error);
       // Show error feedback (you could replace this with a toast notification)
       alert(
         `Export failed: ${error instanceof Error ? error.message : 'Unknown error'}`

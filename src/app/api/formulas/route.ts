@@ -3,7 +3,6 @@ import { supabase } from '@/lib/supabase';
 
 export async function GET() {
   try {
-
     // Test database connection first
     const { error: testError } = await supabase
       .from('formulas')
@@ -33,10 +32,10 @@ export async function GET() {
     }
 
     return NextResponse.json({ formulas: formulas || [] });
-  } catch {
+  } catch (e) {
     return NextResponse.json(
       {
-        error: `Internal server error: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        error: `Internal server error: ${e instanceof Error ? e.message : 'Unknown error'}`,
       },
       { status: 500 }
     );

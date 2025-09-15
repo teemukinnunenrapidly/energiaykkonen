@@ -56,9 +56,6 @@ const getSessionId = (): string => {
   if (!sessionId || forceNewSession) {
     sessionId = `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
     localStorage.setItem('card_session_id', sessionId);
-    console.log(
-      `🆕 ${forceNewSession ? 'Forced' : 'Generated'} new session: ${sessionId}`
-    );
   }
 
   return sessionId;
@@ -79,14 +76,9 @@ export function CardProvider({
 
   const updateField = useCallback(
     async (fieldName: string, value: any) => {
-      console.log(
-        `🔄 updateField called: fieldName="${fieldName}", value="${value}", sessionId="${sessionId}"`
-      );
-
       // Update local formData immediately for UI responsiveness
       const newFormData = { ...formData, [fieldName]: value };
       setFormData(newFormData);
-      console.log(`Updated formData for ${fieldName}:`, newFormData);
 
       // Also update the session data table (like a waiter writing down the order)
       updateSessionWithFormData(sessionId, newFormData);
@@ -97,10 +89,6 @@ export function CardProvider({
       );
 
       if (fieldCard) {
-        console.log(
-          `🗃️ Updating field completion in database for card "${fieldCard.name}"`
-        );
-
         // Update field completion in database
         await updateFieldCompletion(fieldCard.id, fieldName, value, sessionId);
 
@@ -108,10 +96,6 @@ export function CardProvider({
         const shouldBeComplete = await checkCardCompletion(
           fieldCard.id,
           sessionId
-        );
-
-        console.log(
-          `📋 Card "${fieldCard.name}" database completion check (session-isolated): ${shouldBeComplete}`
         );
 
         // Update card completion state based on database logic
@@ -195,9 +179,6 @@ export function CardProvider({
   const revealCard = useCallback(
     (cardId: string) => {
       const card = cards.find(c => c.id === cardId);
-      console.log(
-        `🎯 REVEAL: Granting reveal permission to Card "${card?.name}" (${cardId})`
-      );
       setCardStates(prev => ({
         ...prev,
         [cardId]: { ...prev[cardId], isRevealed: true },
@@ -221,14 +202,8 @@ export function CardProvider({
           const timing = card.reveal_timing;
           if (timing?.timing === 'after_delay') {
             const delayMs = (timing.delay_seconds || 3) * 1000;
-            console.log(
-              `⏱️ Auto-complete cascade: revealing "${nextCard.name}" after ${delayMs}ms`
-            );
             setTimeout(() => revealCard(nextCard.id), delayMs);
           } else {
-            console.log(
-              `⚡ Auto-complete cascade: revealing "${nextCard.name}" immediately`
-            );
             revealCard(nextCard.id);
           }
         }
@@ -240,45 +215,25 @@ export function CardProvider({
   // Handle card completion and reveal timing logic
   const handleCardCompleted = useCallback(
     async (card: CardTemplate) => {
-      console.log(
-        `✅ Card "${card.name}" completed, checking reveal timing for next card`
-      );
-
       const currentCardIndex = cards.findIndex(c => c.id === card.id);
       const nextCard = cards[currentCardIndex + 1];
 
       if (nextCard) {
         // Treat missing or empty reveal_timing as immediate
         const revealTiming = card.reveal_timing;
-        console.log(`🕐 Reveal timing settings:`, {
-          reveal_timing: revealTiming,
-          nextCard: nextCard.name,
-        });
 
         // Use reveal_timing (required for all cards)
         if (revealTiming && (revealTiming as any).timing) {
           if (revealTiming.timing === 'immediately') {
-            console.log(
-              `⚡ Granting immediate reveal permission to "${nextCard.name}"`
-            );
             revealCard(nextCard.id);
           } else if (revealTiming.timing === 'after_delay') {
             const delayMs = (revealTiming.delay_seconds || 3) * 1000;
-            console.log(
-              `⏱️ Will grant reveal permission to "${nextCard.name}" after ${delayMs}ms`
-            );
             setTimeout(() => {
-              console.log(
-                `⚡ Granting delayed reveal permission to "${nextCard.name}"`
-              );
               revealCard(nextCard.id);
             }, delayMs);
           }
         } else {
           // No reveal_timing defined - require proper reveal_timing to be set
-          console.warn(
-            `Card "${card.name}" has no reveal_timing defined. Please set reveal_timing in admin.`
-          );
           // Default to immediate reveal for now to prevent system from breaking
           revealCard(nextCard.id);
         }
@@ -323,14 +278,8 @@ export function CardProvider({
                   const value = formData[field.field_name];
                   const isComplete =
                     value !== undefined && value !== null && value !== '';
-                  console.log(
-                    `🔍 Field completion check: ${field.field_name} (${field.field_type}) = "${value}" -> ${isComplete ? 'COMPLETE' : 'INCOMPLETE'}`
-                  );
                   return isComplete;
                 });
-                console.log(
-                  `🎯 Card "${card.name}" all_fields completion result: ${result} (${fields.length} fields total)`
-                );
                 return result;
 
               case 'required_fields':
@@ -371,9 +320,6 @@ export function CardProvider({
             }
           } else {
             // No completion_rules defined - card requires proper completion_rules to be set
-            console.warn(
-              `Form card "${card.name}" has no completion_rules defined. Please set completion_rules in admin.`
-            );
             return false; // Don't auto-complete cards without proper rules
           }
         }
@@ -412,11 +358,6 @@ export function CardProvider({
 
   const completeCard = useCallback(
     (cardId: string) => {
-      console.log(`completeCard called for: ${cardId}`);
-
-      // Find the card being completed
-      const completedCard = cards.find(c => c.id === cardId);
-
       setCardStates(prev => {
         const newStates = { ...prev };
 
@@ -448,9 +389,6 @@ export function CardProvider({
             });
 
             if (conditionsMet && !newStates[card.id]?.isRevealed) {
-              console.log(
-                `✅ Revealing card "${card.name}" - conditions met after completing "${completedCard?.name}"`
-              );
               newStates[card.id] = { ...newStates[card.id], isRevealed: true };
 
               // If this is the next card in sequence and no other card is active, activate it
@@ -464,7 +402,6 @@ export function CardProvider({
           }
         });
 
-        console.log('Updated card states after completion:', newStates);
         return newStates;
       });
 
@@ -476,37 +413,21 @@ export function CardProvider({
         const currentCard = cards[currentCardIndex];
         // Treat missing or empty reveal_timing as immediate
         const revealTiming = currentCard.reveal_timing;
-        console.log(
-          `Card ${currentCard.name} completed, checking reveal timing for next card ${nextCard.name}:`,
-          { reveal_timing: revealTiming }
-        );
 
         // Use reveal_timing (required for all cards)
         if (revealTiming && (revealTiming as any).timing) {
           if (revealTiming.timing === 'immediately') {
             // Grant reveal permission immediately when current card completes
-            console.log(
-              `Granting immediate reveal permission to ${nextCard.name}`
-            );
             revealCard(nextCard.id);
           } else if (revealTiming.timing === 'after_delay') {
             // Grant reveal permission after delay when current card completes
             const delayMs = (revealTiming.delay_seconds || 3) * 1000;
-            console.log(
-              `Will grant reveal permission to ${nextCard.name} after ${delayMs}ms`
-            );
             setTimeout(() => {
-              console.log(
-                `Granting delayed reveal permission to ${nextCard.name}`
-              );
               revealCard(nextCard.id);
             }, delayMs);
           }
         } else {
           // No reveal_timing defined - require proper reveal_timing to be set
-          console.warn(
-            `Card "${currentCard.name}" has no reveal_timing defined. Please set reveal_timing in admin.`
-          );
           // Default to immediate reveal for now to prevent system from breaking
           revealCard(nextCard.id);
         }
@@ -535,7 +456,6 @@ export function CardProvider({
 
   const setCardsAndInitialize = useCallback(
     async (cardsData: CardTemplate[]) => {
-      console.log('🚀 setCardsAndInitialize called with:', cardsData);
       setCards(cardsData);
       const orderedCardIds = cardsData.map(card => card.id);
       setCardOrder(orderedCardIds);
@@ -550,9 +470,6 @@ export function CardProvider({
         if (index === 0) {
           // First card starts as active and revealed
           newStates[cardId] = { status: 'active', isRevealed: true };
-          console.log(
-            `🟢 INIT: Card ${index} "${card?.name}" set to ACTIVE and REVEALED`
-          );
         } else {
           // Check if this card was previously completed
           const completionState = await getCardCompletion();
@@ -562,14 +479,9 @@ export function CardProvider({
             status: isComplete ? 'complete' : 'hidden',
             isRevealed: false, // All cards start not revealed except first
           };
-
-          console.log(
-            `🔴 INIT: Card ${index} "${card?.name}" set to ${isComplete ? 'COMPLETE' : 'HIDDEN'} and NOT REVEALED`
-          );
         }
       }
 
-      // console.log('🔄 INIT: Final initial card states:', newStates);
       setCardStates(newStates);
     },
     [sessionId]
@@ -590,9 +502,6 @@ export function CardProvider({
             const targetCard = cards.find(c => c.name === targetName);
 
             if (!targetCard) {
-              console.warn(
-                `Reveal condition references non-existent card: ${targetName}`
-              );
               // Don't block if target doesn't exist
               return true;
             }
@@ -626,28 +535,23 @@ export function CardProvider({
     (card: CardTemplate, visitedCards = new Set<string>()) => {
       // Prevent infinite recursion
       if (visitedCards.has(card.id)) {
-        console.warn(`Circular dependency detected for card: ${card.name}`);
         return false;
       }
 
-      // console.log(
       // `shouldBeRevealed called for card: ${card.name} (${card.id}) - index: ${cards.findIndex(c => c.id === card.id)}`
       // );
 
       // Find the card state
       const cardState = cardStates[card.id];
-      // console.log(`Card state for ${card.name}:`, cardState);
 
       // Check if this card has been explicitly revealed (has permission)
       if (cardState?.isRevealed === true) {
-        // console.log(
         // `Card ${card.name} has reveal permission - should be revealed`
         // );
         return true;
       }
 
       if (cardState?.isRevealed === false) {
-        // console.log(
         // `Card ${card.name} does not have reveal permission - should stay blurred`
         // );
         return false;
@@ -656,12 +560,10 @@ export function CardProvider({
       // Fallback for cards without explicit reveal state (first card)
       const currentCardIndex = cards.findIndex(c => c.id === card.id);
       if (currentCardIndex <= 0) {
-        console.log(`First card (${currentCardIndex <= 0}), always revealed`);
         return true; // First card is always revealed
       }
 
       // If we get here, the card doesn't have explicit reveal permission
-      // console.log(
       // `Card ${card.name} has no explicit reveal permission - defaulting to false`
       // );
       return false;
@@ -671,38 +573,19 @@ export function CardProvider({
 
   // Load cards automatically when the provider initializes
   useEffect(() => {
-    console.log('🔥 CardContext useEffect is running!');
     const loadCards = async () => {
-      console.log('🚀 CardContext: Starting to load cards...');
       try {
         let cardsData;
 
         // Check if we have initial data (offline mode)
         if (initialData?.cards) {
-          console.log('📦 Using offline data from config.json');
           cardsData = initialData.cards;
         }
         // Otherwise fetch from Supabase
         else {
-          console.log('📞 CardContext: Calling getCardsDirect()...');
           cardsData = await getCardsDirect();
         }
-
-        console.log(
-          '✅ CardContext: Cards loaded successfully:',
-          cardsData.length,
-          'cards'
-        );
-        console.log(
-          '📋 CardContext: Card details:',
-          cardsData.map((c: any) => ({
-            id: c.id,
-            name: c.name,
-            hasVisualObjects: !!c.visual_objects,
-          }))
-        );
         // Inline setCardsAndInitialize logic to avoid dependency issues
-        console.log('🚀 setCardsAndInitialize called with:', cardsData);
         setCards(cardsData);
         const orderedCardIds = cardsData.map((card: any) => card.id);
         setCardOrder(orderedCardIds);
@@ -716,23 +599,14 @@ export function CardProvider({
           if (index === 0) {
             // First card starts as active and revealed
             newStates[cardId] = { status: 'active', isRevealed: true };
-            console.log(
-              `🟢 INIT: Card ${index} "${card?.name}" set to ACTIVE and REVEALED`
-            );
           } else {
             // Other cards start hidden and not revealed - progressive disclosure
             newStates[cardId] = { status: 'hidden', isRevealed: false };
-            console.log(
-              `🔴 INIT: Card ${index} "${card?.name}" set to HIDDEN and NOT REVEALED`
-            );
           }
         }
         setCardStates(newStates);
       } catch (error) {
-        console.error('❌ CardContext: Failed to load cards:', error);
-        if (error instanceof Error) {
-          console.error('Stack trace:', error.stack);
-        }
+        // ignore
       }
     };
 
@@ -742,14 +616,11 @@ export function CardProvider({
   // Initialize clean session on every app load (ensures fresh start)
   useEffect(() => {
     const initializeSession = async () => {
-      console.log('🧹 Cleaning session data for fresh start...');
       try {
         await initializeCleanSession(sessionId);
         // Remove the cleanup flag if it exists
         localStorage.removeItem('session_needs_cleanup');
-        console.log('✅ Session cleaned and initialized successfully');
       } catch (error) {
-        console.error('❌ Failed to clean session:', error);
         // Continue anyway - don't break the user experience
       }
     };
@@ -773,13 +644,6 @@ export function CardProvider({
     isCardComplete,
     submitData,
   };
-
-  console.log('🎯 CardContext providing value:', {
-    cards: value.cards?.length || 0,
-    hasCards: !!value.cards && value.cards.length > 0,
-    cardStatesCount: Object.keys(value.cardStates || {}).length,
-    formDataKeys: Object.keys(value.formData || {}).length,
-  });
 
   return <CardContext.Provider value={value}>{children}</CardContext.Provider>;
 }

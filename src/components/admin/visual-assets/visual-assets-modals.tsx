@@ -137,8 +137,7 @@ export function CreateEditModal({
         newImages
       );
       onClose();
-    } catch (error) {
-      console.error('Failed to save:', error);
+    } catch {
       alert('Failed to save visual object');
     } finally {
       setLoading(false);
@@ -147,16 +146,13 @@ export function CreateEditModal({
 
   // Update state when editingObject changes
   React.useEffect(() => {
-    console.log('Modal editingObject changed:', editingObject);
     if (editingObject) {
-      console.log('Setting form data for editing:', editingObject);
       setFormData({
         name: editingObject.name || '',
         title: editingObject.title || '',
         description: editingObject.description || '',
         folder_id: editingObject.folder_id || '',
       });
-      console.log('Setting existing images:', editingObject.images);
       setExistingImages(editingObject.images || []);
       setImagesToDelete([]);
       setCurrentImageIndex(0);
@@ -454,8 +450,7 @@ export function UploadAssetsModal({
         selectedFolder === 'no-folder' ? undefined : selectedFolder
       );
       onClose();
-    } catch (error) {
-      console.error('Upload failed:', error);
+    } catch {
       alert('Failed to upload assets');
     } finally {
       setUploading(false);

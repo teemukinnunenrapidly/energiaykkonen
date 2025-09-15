@@ -14,6 +14,7 @@
 - **Sähköpostit**: lähetetään `sendLeadEmails()`; asiakas saa PDF:n liitteenä, myynti HTML‑viestin.
 
 Viitteet koodiin:
+
 ```1:20:src/app/api/submit-lead/route.ts
 import { supabase } from '@/lib/supabase';
 import { calculateHeatPumpSavings } from '@/lib/calculations';
@@ -32,6 +33,7 @@ import { calculatePDFValues } from '@/lib/pdf-calculations';
   - Seurantakenttiä: `ip_address`, `user_agent`, `source_page` (usein osana `form_data`-metaa)
 
 Tyypitykset ja apurit:
+
 ```70:103:src/lib/supabase.ts
 export interface Lead {
   id: string;
@@ -56,6 +58,7 @@ export interface Lead {
 - JSONB-rakenteen käsittely (flattenointi yms.): `src/lib/lead-helpers.ts`
 
 Migraatiotuki `calculation_results`-kentälle:
+
 ```1:15:scripts/add-calculation-results-column.sql
 ALTER TABLE leads ADD COLUMN calculation_results jsonb DEFAULT '{}'::jsonb;
 ```
@@ -67,14 +70,17 @@ ALTER TABLE leads ADD COLUMN calculation_results jsonb DEFAULT '{}'::jsonb;
 - **Talletus**: upload Storageen buckettiin `lead-pdfs`; haetaan public URL ja päivitetään `form_data.pdf_url`.
 
 Viitteet koodiin:
+
 ```171:248:src/app/api/submit-lead/route.ts
 const pdfData = await processPDFData(insertedLead);
 const component = React.createElement(SavingsReportPDF, { data: pdfData });
 // upload supabase.storage.from('lead-pdfs').upload(...)
 ```
+
 ```10:31:src/lib/pdf/SavingsReportPDF.tsx
 export const SavingsReportPDF: React.FC<{ data: PDFData }>
 ```
+
 ```13:96:src/lib/pdf/pdf-data-processor.ts
 export async function processPDFData(lead: Lead)
 ```
@@ -94,12 +100,15 @@ Lisäkonfiguraatioita (mapping/formatointi): `src/config/pdf-field-mappings.ts`
   - Tukee myös enhanced lookup -sääntöjä tauluista `enhanced_lookups` ja `enhanced_lookup_rules`.
 
 Viitteet koodiin:
+
 ```30:66:src/lib/calculations.ts
 export function calculateHeatPumpSavings(inputs)
 ```
+
 ```37:116:src/lib/pdf-calculations.ts
 export async function calculatePDFValues(formData, sessionId?)
 ```
+
 ```1:30:src/lib/unified-calculation-engine.ts
 export class UnifiedCalculationEngine { ... }
 ```

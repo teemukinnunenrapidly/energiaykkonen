@@ -46,6 +46,7 @@ If PDFs are not being generated:
 4. Ensure the RLS policies are correctly applied
 
 Common issues:
+
 - "new row violates row-level security policy" - Run the SQL script again
 - "Bucket not found" - Create the bucket using the SQL script
 - PDF button disabled - Check if pdf_url is being saved in form_data

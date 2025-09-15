@@ -1,11 +1,13 @@
 # Calculation Flow Documentation
 
 ## Overview
+
 This document shows exactly what calculations are performed and where they happen in the E1 Calculator system.
 
 ## 📍 Where Calculations Happen
 
 ### 1. **Form Submission** (`/api/submit-lead/route.ts`)
+
 When a user submits the form, the following happens:
 
 ```typescript
@@ -14,49 +16,57 @@ const calculationResults = await calculatePDFValues(formData, body.sessionId);
 ```
 
 ### 2. **PDF Calculation Service** (`src/lib/pdf-calculations.ts`)
+
 This service:
+
 - Extracts shortcodes from PDF templates
 - Runs calculations using two methods:
   1. **Comprehensive calculations** from `calculation-definitions.ts`
   2. **Database formulas** via the unified calculation engine
 
 ### 3. **Calculation Definitions** (`src/lib/calculation-definitions.ts`)
+
 Contains all the actual calculation logic and formulas.
 
 ## 📊 What Gets Calculated
 
 ### Energy Metrics
-| Metric | Formula | Unit |
-|--------|---------|------|
-| **Annual Energy Need** | `neliot * 100 * (huonekorkeus / 2.5) * building_age_factor * hot_water_factor` | kWh/year |
-| **Heat Pump Consumption** | `annual_energy_need / 3.3` (COP = 3.3) | kWh/year |
-| **Heat Pump Annual Cost** | `heat_pump_consumption * 0.12` | €/year |
+
+| Metric                    | Formula                                                                        | Unit     |
+| ------------------------- | ------------------------------------------------------------------------------ | -------- |
+| **Annual Energy Need**    | `neliot * 100 * (huonekorkeus / 2.5) * building_age_factor * hot_water_factor` | kWh/year |
+| **Heat Pump Consumption** | `annual_energy_need / 3.3` (COP = 3.3)                                         | kWh/year |
+| **Heat Pump Annual Cost** | `heat_pump_consumption * 0.12`                                                 | €/year   |
 
 ### Cost Calculations
-| Metric | Formula | Unit |
-|--------|---------|------|
-| **Current Heating Cost** | From lookup `[lookup:menekin-hinta]` or calculated based on heating type | €/year |
-| **Annual Savings** | `current_heating_cost - heat_pump_annual_cost` | €/year |
-| **Monthly Savings** | `annual_savings / 12` | €/month |
-| **5-Year Savings** | `annual_savings * 5` | € |
-| **10-Year Savings** | `annual_savings * 10` | € |
+
+| Metric                   | Formula                                                                  | Unit    |
+| ------------------------ | ------------------------------------------------------------------------ | ------- |
+| **Current Heating Cost** | From lookup `[lookup:menekin-hinta]` or calculated based on heating type | €/year  |
+| **Annual Savings**       | `current_heating_cost - heat_pump_annual_cost`                           | €/year  |
+| **Monthly Savings**      | `annual_savings / 12`                                                    | €/month |
+| **5-Year Savings**       | `annual_savings * 5`                                                     | €       |
+| **10-Year Savings**      | `annual_savings * 10`                                                    | €       |
 
 ### Financial Metrics
-| Metric | Formula | Unit |
-|--------|---------|------|
-| **Payback Period** | `15000 / annual_savings` | years |
-| **ROI (10 years)** | `((ten_year_savings - 15000) / 15000) * 100` | % |
+
+| Metric             | Formula                                      | Unit  |
+| ------------------ | -------------------------------------------- | ----- |
+| **Payback Period** | `15000 / annual_savings`                     | years |
+| **ROI (10 years)** | `((ten_year_savings - 15000) / 15000) * 100` | %     |
 
 ### Environmental Metrics
-| Metric | Formula | Unit |
-|--------|---------|------|
-| **CO2 Reduction (Oil)** | `oil_consumption * 2.66 - heat_pump_consumption * 0.181` | kg CO2/year |
-| **CO2 Reduction (Electric)** | `(current_consumption - heat_pump_consumption) * 0.181` | kg CO2/year |
-| **Efficiency Improvement** | `((current_consumption - heat_pump_consumption) / current_consumption) * 100` | % |
+
+| Metric                       | Formula                                                                       | Unit        |
+| ---------------------------- | ----------------------------------------------------------------------------- | ----------- |
+| **CO2 Reduction (Oil)**      | `oil_consumption * 2.66 - heat_pump_consumption * 0.181`                      | kg CO2/year |
+| **CO2 Reduction (Electric)** | `(current_consumption - heat_pump_consumption) * 0.181`                       | kg CO2/year |
+| **Efficiency Improvement**   | `((current_consumption - heat_pump_consumption) / current_consumption) * 100` | %           |
 
 ## 🔧 Adjustment Factors
 
 ### Building Age Factor
+
 - Before 1960: 1.3
 - 1960-1979: 1.2
 - 1980-1999: 1.1
@@ -64,6 +74,7 @@ Contains all the actual calculation logic and formulas.
 - After 2010: 0.9
 
 ### Hot Water Usage Factor
+
 - 1-2 persons: 0.9
 - 3-4 persons: 1.0
 - 5+ persons: 1.15
