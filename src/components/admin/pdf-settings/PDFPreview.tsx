@@ -25,7 +25,7 @@ export function PDFPreview({
         buildingYear: '{rakennusvuosi}',
         buildingArea: '{neliot}',
         floors: '{floors}',
-        energyNeed: '{neliot} × 100 × ({huonekorkeus} / 2.5)',
+        energyNeed: '[calc:laskennallinen-energiantarve-kwh]',
         currentSystem: '{lammitysmuoto}',
         currentYear1Cost: '{menekinhintavuosi}',
         currentYear5Cost: '{menekinhintavuosi} × 5',

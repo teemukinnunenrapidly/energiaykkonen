@@ -22,7 +22,7 @@ export const pdfFieldMappings = {
   buildingYear: '{building_year}',
   buildingArea: '{building_area}',
   floors: '{floors}',
-  energyNeed: '[calc:total_energy_need]',
+  energyNeed: '[calc:laskennallinen-energiantarve-kwh]',
 
   // Nykyinen järjestelmä (Current System)
   currentSystem: '{current_heating}',
