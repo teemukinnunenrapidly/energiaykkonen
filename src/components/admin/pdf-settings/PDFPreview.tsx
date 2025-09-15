@@ -40,7 +40,7 @@ export function PDFPreview({
         savings1Year: '{menekinhintavuosi} - heat_pump_cost',
         savings5Year: 'annual_savings × 5',
         savings10Year: 'annual_savings × 10',
-        electricityConsumption: '{neliot} × 100 / 3.3',
+        electricityConsumption: '[calc:laskennallinen-energiantarve-kwh] / 3.8',
         electricityPrice: '0,12',
         newMaintenance10Years: '30',
         newCO2: 'heat_pump_kWh × 0.181',
