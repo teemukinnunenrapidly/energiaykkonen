@@ -14,8 +14,46 @@ export function PDFPreview({
   data = {},
   showShortcodes = true,
 }: PDFPreviewProps) {
+  // Default formulas so SSR/prerender never renders undefined values
+  const DEFAULT_FORMULAS: Record<string, string> = {
+    calculationDate: 'new Date()',
+    calculationNumber: '{id.slice(0,8)}',
+    customerName: '{nimi}',
+    customerEmail: '{sahkoposti}',
+    customerPhone: '{puhelinnumero}',
+    customerAddress: '{osoite}',
+    customerCity: '{postcode} {paikkakunta}',
+    peopleCount: '{henkilomaara}',
+    buildingYear: '{rakennusvuosi}',
+    buildingArea: '{neliot}',
+    floors: '{floors}',
+    energyNeed: '[calc:laskennallinen-energiantarve-kwh]',
+    currentSystem: '{lammitysmuoto}',
+    currentYear1Cost: '{menekinhintavuosi}',
+    currentYear5Cost: '{menekinhintavuosi} × 5',
+    currentYear10Cost: '{menekinhintavuosi} × 10',
+    oilConsumption: '{kokonaismenekki}',
+    oilPrice: '1,30',
+    currentMaintenance: '200',
+    currentCO2: '{kokonaismenekki} × 2.66',
+    newYear1Cost:
+      '([calc:laskennallinen-energiantarve-kwh] / 3.8) × 0.15',
+    newYear5Cost:
+      '(([calc:laskennallinen-energiantarve-kwh] / 3.8) × 0.15) × 5',
+    newYear10Cost:
+      '(([calc:laskennallinen-energiantarve-kwh] / 3.8) × 0.15) × 10',
+    savings1Year: '{menekinhintavuosi} - heat_pump_cost',
+    savings5Year: 'annual_savings × 5',
+    savings10Year: 'annual_savings × 10',
+    electricityConsumption: '[calc:laskennallinen-energiantarve-kwh] / 3.8',
+    electricityPrice: '0,12',
+    newMaintenance10Years: '30',
+    newCO2: 'heat_pump_kWh × 0.181',
+  };
   // Editable formulas state (loaded from API)
-  const [formulas, setFormulas] = useState<Record<string, string> | null>(null);
+  const [formulas, setFormulas] = useState<Record<string, string>>(
+    DEFAULT_FORMULAS
+  );
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
@@ -27,46 +65,11 @@ export function PDFPreview({
         });
         const json = await res.json();
         if (mounted) {
-          setFormulas(json.formulas || {});
+          setFormulas({ ...DEFAULT_FORMULAS, ...(json.formulas || {}) });
         }
       } catch (e) {
-        // Fallback to current defaults in component if API fails
-        setFormulas({
-          calculationDate: 'new Date()',
-          calculationNumber: '{id.slice(0,8)}',
-          customerName: '{nimi}',
-          customerEmail: '{sahkoposti}',
-          customerPhone: '{puhelinnumero}',
-          customerAddress: '{osoite}',
-          customerCity: '{postcode} {paikkakunta}',
-          peopleCount: '{henkilomaara}',
-          buildingYear: '{rakennusvuosi}',
-          buildingArea: '{neliot}',
-          floors: '{floors}',
-          energyNeed: '[calc:laskennallinen-energiantarve-kwh]',
-          currentSystem: '{lammitysmuoto}',
-          currentYear1Cost: '{menekinhintavuosi}',
-          currentYear5Cost: '{menekinhintavuosi} × 5',
-          currentYear10Cost: '{menekinhintavuosi} × 10',
-          oilConsumption: '{kokonaismenekki}',
-          oilPrice: '1,30',
-          currentMaintenance: '200',
-          currentCO2: '{kokonaismenekki} × 2.66',
-          newYear1Cost:
-            '([calc:laskennallinen-energiantarve-kwh] / 3.8) × 0.15',
-          newYear5Cost:
-            '(([calc:laskennallinen-energiantarve-kwh] / 3.8) × 0.15) × 5',
-          newYear10Cost:
-            '(([calc:laskennallinen-energiantarve-kwh] / 3.8) × 0.15) × 10',
-          savings1Year: '{menekinhintavuosi} - heat_pump_cost',
-          savings5Year: 'annual_savings × 5',
-          savings10Year: 'annual_savings × 10',
-          electricityConsumption:
-            '[calc:laskennallinen-energiantarve-kwh] / 3.8',
-          electricityPrice: '0,12',
-          newMaintenance10Years: '30',
-          newCO2: 'heat_pump_kWh × 0.181',
-        });
+        // Fallback to defaults if API fails
+        setFormulas(DEFAULT_FORMULAS);
       }
     })();
     return () => {
@@ -75,7 +78,7 @@ export function PDFPreview({
   }, []);
 
   const previewData = useMemo(() => {
-    const base = formulas || {};
+    const base = formulas || DEFAULT_FORMULAS;
     return showShortcodes ? { ...base, ...data } : {
       calculationDate: new Date().toLocaleDateString('fi-FI'),
       calculationNumber: '2025-001',
@@ -127,9 +130,17 @@ export function PDFPreview({
   }
 
   // Helper function to render values with shortcode styling
-  const renderValue = (value: string) => {
+  const renderValue = (value: any) => {
     if (!showShortcodes) {
-      return value;
+      return String(value ?? '');
+    }
+
+    if (value === null || value === undefined) {
+      return <span className="text-gray-400 font-mono text-[9px]">''</span>;
+    }
+
+    if (typeof value !== 'string') {
+      value = String(value);
     }
 
     // Check if it's a simple form field
