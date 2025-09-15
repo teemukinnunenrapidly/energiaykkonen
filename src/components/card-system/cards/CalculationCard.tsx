@@ -105,6 +105,7 @@ export function CalculationCard({ card }: CalculationCardProps) {
             try {
               // Ensure result is always a string - handle objects safely
               let resultString: string | null = null;
+              let unitFromObject: string = '';
               try {
                 if (result.result !== null) {
                   // Safe type checking to avoid React Error #185
@@ -123,7 +124,7 @@ export function CalculationCard({ card }: CalculationCardProps) {
                       resultString = String(obj.value);
                       // Also check for unit in object
                       if (obj.unit) {
-                        result.unit = obj.unit;
+                        unitFromObject = String(obj.unit);
                       }
                     } else if (
                       obj &&
@@ -132,7 +133,7 @@ export function CalculationCard({ card }: CalculationCardProps) {
                     ) {
                       resultString = String(obj.result);
                       if (obj.unit) {
-                        result.unit = obj.unit;
+                        unitFromObject = String(obj.unit);
                       }
                     } else {
                       resultString = String(result.result);
@@ -172,8 +173,8 @@ export function CalculationCard({ card }: CalculationCardProps) {
 
               setCalculatedResult(formattedResult);
               setOriginalResult(formattedResult);
-              // Prefer explicit unit -> extracted text -> sensible default for energy calcs
-              let finalUnit = result.unit || extractedUnit || '';
+              // Prefer explicit unit from object -> extracted text -> sensible default for energy calcs
+              let finalUnit = unitFromObject || extractedUnit || '';
               if (
                 !finalUnit &&
                 /energiantarve|kwh/i.test(card.title || card.name || '')
