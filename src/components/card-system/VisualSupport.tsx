@@ -104,8 +104,16 @@ export function VisualSupport({
             console.error('❌ Error fetching visual images:', error);
             setVisualImages([]);
           } else {
-            console.log('✅ Progressive load complete: Loaded', images?.length || 0, 'images');
-            setVisualImages(images || []);
+            const count = images?.length || 0;
+            console.log('✅ Progressive load complete: Loaded', count, 'images');
+            if (!count && visualObject?.image_url) {
+              // Fallback: use prebuilt image_url stored on the visual object itself
+              setVisualImages([
+                { id: visualObject.id || 'vo-image', image_url: visualObject.image_url },
+              ]);
+            } else {
+              setVisualImages(images || []);
+            }
           }
         }
       } catch (error) {
