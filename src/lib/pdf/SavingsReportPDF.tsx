@@ -111,7 +111,8 @@ export const SavingsReportPDF: React.FC<{ data: PDFData }> = ({ data }) => (
             <View style={styles.customerRow}>
               <Text style={styles.customerLabel}>Energiantarve:</Text>
               <Text style={styles.customerValue}>
-                {data.energyNeed ||
+                {data.laskennallinenenergiantarve ||
+                  data.energyNeed ||
                   data.total_energy_need ||
                   data.annual_energy_need ||
                   '22 000'}{' '}

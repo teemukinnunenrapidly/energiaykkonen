@@ -34,6 +34,7 @@ export function flattenLeadData(lead: Lead): any {
     current_energy_consumption: lead.form_data?.current_energy_consumption,
 
     // Calculations (check both form_data and calculation_results)
+    laskennallinenenergiantarve: lead.form_data?.laskennallinenenergiantarve,
     annual_energy_need:
       lead.form_data?.annual_energy_need ||
       lead.calculation_results?.annual_energy_need,
