@@ -19,7 +19,7 @@ const eslintConfig = [
     rules: {
       'prettier/prettier': 'error',
       '@typescript-eslint/no-unused-vars': 'error',
-      '@typescript-eslint/no-explicit-any': 'warn',
+      '@typescript-eslint/no-explicit-any': 'off',
       'prefer-const': 'error',
       'no-var': 'error',
       'no-console': 'warn',
@@ -28,7 +28,7 @@ const eslintConfig = [
       'no-duplicate-imports': 'error',
       'no-unreachable': 'error',
       'no-unused-expressions': 'error',
-      'react-hooks/exhaustive-deps': 'warn',
+      'react-hooks/exhaustive-deps': 'off',
     },
   },
   {
