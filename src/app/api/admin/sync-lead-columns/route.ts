@@ -140,9 +140,6 @@ export async function POST(request: NextRequest) {
       );
     }
 
-      `✅ Successfully renamed column in leads table: ${sanitizedOldName} → ${sanitizedNewName}`
-    );
-
     return NextResponse.json(
       {
         success: true,
