@@ -38,8 +38,6 @@ export default function RootLayout({
       </head>
       <body className={`${inter.variable} font-sans antialiased`}>
         {children}
-        {/* Embed script for iframe integration */}
-        <script src="/embed.js" async></script>
         {/* Vercel Analytics */}
         <Analytics />
       </body>
