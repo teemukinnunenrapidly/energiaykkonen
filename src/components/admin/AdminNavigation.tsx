@@ -49,12 +49,6 @@ const primaryNavigation = [
 // Secondary navigation items (in dropdown)
 const secondaryNavigation = [
   {
-    name: 'PDF Settings',
-    href: '/admin/pdf-settings',
-    icon: FileCode,
-    description: 'PDF Template Variables',
-  },
-  {
     name: 'Visual Assets',
     href: '/admin/visual-assets',
     icon: ImageIcon,
