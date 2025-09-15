@@ -80,8 +80,8 @@ export default function AdminCalculationsPage() {
       setLoading(true);
       const data = await getFormulas();
       setFormulas(data);
-    } catch (error) {
-      console.error('Error loading formulas:', error);
+    } catch {
+      // Error loading formulas
     } finally {
       setLoading(false);
     }
@@ -124,8 +124,8 @@ export default function AdminCalculationsPage() {
       });
       setShowCreateForm(false);
       setValidationResult(null);
-    } catch (error) {
-      console.error('Failed to create formula:', error);
+    } catch {
+      // Failed to create formula
     }
   };
 
@@ -159,8 +159,8 @@ export default function AdminCalculationsPage() {
         unit: '',
       });
       setValidationResult(null);
-    } catch (error) {
-      console.error('Failed to update formula:', error);
+    } catch {
+      // Failed to update formula
     }
   };
 
@@ -172,8 +172,8 @@ export default function AdminCalculationsPage() {
     try {
       await deleteFormula(id);
       setFormulas(formulas.filter(f => f.id !== id));
-    } catch (error) {
-      console.error('Failed to delete formula:', error);
+    } catch {
+      // Failed to delete formula
     }
   };
 

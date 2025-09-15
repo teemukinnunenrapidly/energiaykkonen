@@ -31,10 +31,9 @@ export default function CardBuilderPage() {
 
   // Load cards on mount
   useEffect(() => {
-    console.log('CardBuilder component mounted, calling loadCards...');
     loadCards();
     loadShortcodes();
-  }, []);
+  }, [loadCards, loadShortcodes]);
 
   // Warn before leaving with unsaved changes
   useEffect(() => {
@@ -50,7 +49,7 @@ export default function CardBuilderPage() {
 
   const loadCards = async () => {
     try {
-      console.log('Loading cards from database...');
+      // Loading cards from database
 
       const { data, error } = await supabase
         .from('card_templates')
@@ -65,7 +64,7 @@ export default function CardBuilderPage() {
         .order('display_order', { foreignTable: 'card_fields' });
 
       if (error) {
-        console.error('Error loading cards:', error);
+        // Error loading cards
         alert(`Failed to load cards: ${error.message}`);
         return;
       }
@@ -77,9 +76,7 @@ export default function CardBuilderPage() {
         );
 
         if (validCards.length !== data.length) {
-          console.log(
-            `Filtered out ${data.length - validCards.length} sample data cards`
-          );
+          // Filtered out sample data cards
         }
 
         // Store original field values for tracking changes
@@ -102,11 +99,9 @@ export default function CardBuilderPage() {
           setSelectedCardId(validCards[0].id);
         }
       } else {
-        console.log('No cards found in database');
         setCards([]);
       }
-    } catch (error) {
-      console.error('Failed to load cards:', error);
+    } catch {
       alert('Failed to load cards from database');
     }
   };
@@ -255,8 +250,6 @@ export default function CardBuilderPage() {
     try {
       // If it's NOT a temporary card, delete from database first
       if (!cardId.startsWith('temp-')) {
-        console.log('Deleting card from database:', cardId);
-
         // First delete any card_fields associated with this card
         const { error: fieldsError } = await supabase
           .from('card_fields')
@@ -264,7 +257,6 @@ export default function CardBuilderPage() {
           .eq('card_id', cardId);
 
         if (fieldsError) {
-          console.error('Error deleting card fields:', fieldsError);
         }
 
         // Then delete the card itself
@@ -276,8 +268,6 @@ export default function CardBuilderPage() {
         if (error) {
           throw new Error(`Database deletion failed: ${error.message}`);
         }
-
-        console.log('Card deleted from database successfully');
       }
 
       // Remove from local state and reorder remaining cards
@@ -302,7 +292,6 @@ export default function CardBuilderPage() {
         await saveCardOrder(newCards);
       }
     } catch (error) {
-      console.error('Delete failed:', error);
       alert(
         `Failed to delete card: ${error instanceof Error ? error.message : 'Unknown error'}`
       );
@@ -317,8 +306,6 @@ export default function CardBuilderPage() {
   const saveAllChanges = async () => {
     setLoading(true);
     try {
-      console.log('🚀 Starting optimized save...');
-
       // 1. Update display_order for all cards
       const orderedCards = cards.map((card, index) => ({
         ...card,
@@ -335,10 +322,8 @@ export default function CardBuilderPage() {
 
       // 3. BATCH INSERT: Create all new cards at once
       if (tempCards.length > 0) {
-        console.log(`📦 Batch creating ${tempCards.length} cards...`);
-
         const cardsToInsert = tempCards.map(tempCard => {
-          const { id, card_fields, ...card } = tempCard;
+          const { ...card } = tempCard;
           return {
             ...card,
             created_at: new Date().toISOString(),
@@ -370,12 +355,9 @@ export default function CardBuilderPage() {
 
       // 4. BATCH UPDATE: Update all existing cards at once
       if (existingCards.length > 0) {
-        console.log(`📦 Batch updating ${existingCards.length} cards...`);
-
         for (const card of existingCards) {
           // Remove fields that don't exist in database
-          const { card_fields, visual_objects, visual_object_id, ...cardData } =
-            card;
+          const { ...cardData } = card;
           const { error } = await supabase
             .from('card_templates')
             .update({
@@ -385,8 +367,6 @@ export default function CardBuilderPage() {
             .eq('id', card.id);
 
           if (error) {
-            console.error(`❌ Error updating card ${card.name}:`, error);
-            console.error('Card data being sent:', cardData);
           }
         }
       }
@@ -394,7 +374,6 @@ export default function CardBuilderPage() {
       // 5. BATCH FIELD OPERATIONS: Process all fields efficiently
       await batchProcessFields(cardsToProcess);
 
-      console.log('✅ Optimized save completed!');
       setHasUnsavedChanges(false);
       setNotification({
         type: 'success',
@@ -409,7 +388,6 @@ export default function CardBuilderPage() {
       // Reload cards to update originalFields with the new database state
       await loadCards();
     } catch (error) {
-      console.error('❌ Save failed:', error);
       setNotification({
         type: 'error',
         message: `Save failed: ${error instanceof Error ? error.message : 'Unknown error'}`,
@@ -420,8 +398,6 @@ export default function CardBuilderPage() {
   };
 
   const batchProcessFields = async (cards: CardTemplate[]) => {
-    console.log('📦 Starting optimized batch field operations...');
-
     // Collect all operations
     const fieldsToCreate: any[] = [];
     const fieldsToUpdate: any[] = [];
@@ -474,7 +450,7 @@ export default function CardBuilderPage() {
         for (const field of card.card_fields) {
           if (field.id.startsWith('temp-field-')) {
             // New field - add to create batch
-            const { id, ...fieldData } = field;
+            const { ...fieldData } = field;
             const completeFieldData = {
               ...fieldData,
               card_id: card.id,
@@ -492,7 +468,7 @@ export default function CardBuilderPage() {
             fieldsToCreate.push(completeFieldData);
           } else {
             // Existing field - add to update batch
-            const { id, card_id, ...fieldData } = field;
+            const { ...fieldData } = field;
 
             // Check if field_name has changed (for logging only)
             const originalField = originalFields[field.id];
@@ -538,7 +514,6 @@ export default function CardBuilderPage() {
 
     // 1. Batch delete - Single query
     if (fieldIdsToDelete.length > 0) {
-      console.log(`🗑️ Batch deleting ${fieldIdsToDelete.length} fields...`);
       const { error: deleteError } = await supabase
         .from('card_fields')
         .delete()
@@ -551,21 +526,17 @@ export default function CardBuilderPage() {
 
     // 2. Batch create - Single query
     if (fieldsToCreate.length > 0) {
-      console.log(`✨ Batch creating ${fieldsToCreate.length} fields...`);
       const { error: createError } = await supabase
         .from('card_fields')
         .insert(fieldsToCreate);
 
       if (createError) {
-        console.error('Create error details:', createError);
-        console.error('Fields being created:', fieldsToCreate);
         throw new Error(`Failed to create fields: ${createError.message}`);
       }
     }
 
     // 3. Parallel updates - Much faster than sequential
     if (fieldsToUpdate.length > 0) {
-      console.log(`🔄 Parallel updating ${fieldsToUpdate.length} fields...`);
       const updatePromises = fieldsToUpdate.map(field => {
         const { id, ...updateData } = field;
         return supabase.from('card_fields').update(updateData).eq('id', id);
@@ -575,12 +546,9 @@ export default function CardBuilderPage() {
       const updateErrors = updateResults.filter(result => result.error);
 
       if (updateErrors.length > 0) {
-        console.error('Update errors:', updateErrors);
         throw new Error(`Failed to update ${updateErrors.length} fields`);
       }
     }
-
-    console.log('✅ Batch field operations completed successfully!');
   };
 
   // Helper function to save just the order
@@ -594,13 +562,10 @@ export default function CardBuilderPage() {
             .eq('id', card.id);
 
           if (error) {
-            console.error('Error updating card order:', error);
           }
         }
       }
-    } catch (error) {
-      console.error('Failed to update card order:', error);
-    }
+    } catch {}
   };
 
   const selectedCard = cards.find(c => c.id === selectedCardId);

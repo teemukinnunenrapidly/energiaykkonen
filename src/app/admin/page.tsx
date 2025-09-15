@@ -12,7 +12,6 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { Badge } from '@/components/ui/badge';
 import { Checkbox } from '@/components/ui/checkbox';
 import {
   FileText,
@@ -42,30 +41,6 @@ function formatDate(dateString: string): string {
   }).format(new Date(dateString));
 }
 
-function formatCurrency(amount: number): string {
-  return new Intl.NumberFormat('fi-FI', {
-    style: 'currency',
-    currency: 'EUR',
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 0,
-  }).format(amount);
-}
-
-function getStatusColor(status: string) {
-  switch (status) {
-    case 'new':
-      return 'bg-blue-100 text-blue-800';
-    case 'contacted':
-      return 'bg-yellow-100 text-yellow-800';
-    case 'qualified':
-      return 'bg-green-100 text-green-800';
-    case 'converted':
-      return 'bg-purple-100 text-purple-800';
-    default:
-      return 'bg-gray-100 text-gray-800';
-  }
-}
-
 export default function AdminDashboard() {
   const [leads, setLeads] = useState<Lead[]>([]);
   const [loading, setLoading] = useState(true);
@@ -85,8 +60,8 @@ export default function AdminDashboard() {
       }
       const data = await response.json();
       setLeads(data.leads || []);
-    } catch (error) {
-      console.error('Error fetching leads:', error);
+    } catch {
+      // Error fetching leads
       setLeads([]);
     } finally {
       setLoading(false);
@@ -136,8 +111,8 @@ export default function AdminDashboard() {
           await fetchLeads();
           setSelectedLeads(new Set());
         }
-      } catch (error) {
-        console.error('Error deleting leads:', error);
+      } catch {
+        // Error deleting leads
       }
     }
   };

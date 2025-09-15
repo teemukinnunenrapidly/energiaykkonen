@@ -69,11 +69,11 @@ export default function VisualAssetsPage() {
 
   useEffect(() => {
     loadData();
-  }, []);
+  }, [loadData]);
 
   useEffect(() => {
     filterObjects();
-  }, [searchQuery, selectedFolder, visualObjects]);
+  }, [searchQuery, selectedFolder, visualObjects, filterObjects]);
 
   const loadData = async () => {
     try {
@@ -93,11 +93,8 @@ export default function VisualAssetsPage() {
           try {
             const fullObj = await getVisualObject(obj.id);
             return fullObj;
-          } catch (error) {
-            console.error(
-              `Failed to load details for object ${obj.id}:`,
-              error
-            );
+          } catch {
+            // Failed to load details for object
             return null;
           }
         })
@@ -106,8 +103,7 @@ export default function VisualAssetsPage() {
       setVisualObjects(
         objectsWithDetails.filter(Boolean) as VisualObjectWithDetails[]
       );
-    } catch (error) {
-      console.error('Failed to load visual assets data:', error);
+    } catch {
     } finally {
       setLoading(false);
     }
@@ -178,8 +174,7 @@ export default function VisualAssetsPage() {
     try {
       await deleteVisualObject(objectId);
       setVisualObjects(prev => prev.filter(obj => obj.id !== objectId));
-    } catch (error) {
-      console.error('Failed to delete visual object:', error);
+    } catch {
       alert('Failed to delete visual object');
     }
   };
@@ -204,8 +199,7 @@ export default function VisualAssetsPage() {
         prev.filter(obj => !selectedObjects.has(obj.id))
       );
       setSelectedObjects(new Set());
-    } catch (error) {
-      console.error('Failed to delete visual objects:', error);
+    } catch {
       alert('Failed to delete some visual objects');
     }
   };
@@ -248,7 +242,6 @@ export default function VisualAssetsPage() {
       await loadData();
       setIsCreateModalOpen(false);
     } catch (error) {
-      console.error('Failed to create visual object:', error);
       throw error;
     }
   };
@@ -294,7 +287,6 @@ export default function VisualAssetsPage() {
       setIsEditModalOpen(false);
       setEditingObject(null);
     } catch (error) {
-      console.error('Failed to update visual object:', error);
       throw error;
     }
   };
@@ -332,7 +324,6 @@ export default function VisualAssetsPage() {
       await loadData();
       setIsUploadModalOpen(false);
     } catch (error) {
-      console.error('Failed to upload assets:', error);
       throw error;
     }
   };
