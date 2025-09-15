@@ -180,9 +180,8 @@ export function CardStream({
             const isComplete = cardStates[card.id]?.status === 'complete';
 
             return (
-              <>
+              <React.Fragment key={card.id}>
               <div
-                key={card.id}
                 id={`card-${card.id}`}
                 style={{
                   display: 'flex',
@@ -314,7 +313,7 @@ export function CardStream({
               {/* Remove next locked visual teaser to keep CTA directly after card */}
 
               {/* Removed peek design */}
-              </>
+              </React.Fragment>
             );
           })}
 
