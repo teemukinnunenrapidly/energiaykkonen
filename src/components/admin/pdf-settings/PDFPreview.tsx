@@ -158,7 +158,7 @@ export function PDFPreview({
       const parts = value.split(/({[^}]+})/);
       return (
         <span className="text-[9px] font-mono">
-          {parts.map((part, i) =>
+          {parts.map((part: string, i: number) =>
             part.match(/^{[^}]+}$/) ? (
               <span
                 key={i}
