@@ -66,6 +66,8 @@ export const pdfShortcodeMappings = {
   electricityConsumption:
     '[format:heat_pump_consumption:number:decimals=0] kWh/vuosi',
   electricityPrice: '[format:electricity_price:currency:decimals=2] €/kWh',
+  gasPrice: '[format:gas_price:currency:decimals=0] €/mWh',
+  woodPrice: '[format:wood_price:currency:decimals=0] €/motti',
   maintenanceCostFirst5Years: '[format:maintenance_first_5y:currency] €/vuosi',
   maintenanceCostNext5Years: '[format:maintenance_next_5y:currency] €/vuosi',
   newCO2Emissions: '[format:new_co2:number:decimals=0] kg/vuosi',
@@ -135,6 +137,8 @@ export const calculatedFields = {
 
   // Electricity price
   electricity_price: () => 0.15,
+  gas_price: () => 110,
+  wood_price: () => 75,
 
   // Maintenance costs
   maintenance_first_5y: () => 0,
