@@ -14,7 +14,9 @@ interface CardSystemContainerProps {
   forceMode?: 'desktop' | 'mobile'; // Force a specific mode for preview
   showBlurredCards?: boolean; // Show upcoming cards in blurred state
   initialData?: any; // Initial data for offline mode
-  widgetMode?: boolean; // When true, skip all Supabase operations
+  // Widget mode no longer used in embedded approach; keep prop for backwards compatibility
+  // but default to false and ignore for new pages.
+  widgetMode?: boolean;
 }
 
 // Create inner component that has access to CardContext
@@ -217,16 +219,9 @@ export function CardSystemContainer(props: CardSystemContainerProps) {
     }
   }, [props.widgetMode]);
 
-  // In widget mode, we assume CardProvider is already provided by the parent
-  // In normal mode, we provide our own CardProvider
-  if (props.widgetMode) {
-    // Widget mode: Don't wrap in CardProvider (parent already provides it)
-    return <CardSystemInner {...props} />;
-  }
-
-  // Normal mode: Wrap in CardProvider
+  // Always wrap in CardProvider (embedded approach); ignore widgetMode for new pages
   return (
-    <CardProvider initialData={props.initialData} widgetMode={props.widgetMode}>
+    <CardProvider initialData={props.initialData} widgetMode={false}>
       <CardSystemInner {...props} />
     </CardProvider>
   );

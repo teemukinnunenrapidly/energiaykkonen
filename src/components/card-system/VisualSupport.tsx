@@ -8,6 +8,7 @@ interface VisualSupportProps {
   compact?: boolean;
   // Keep objectId for backward compatibility
   objectId?: string;
+  // Widget mode no longer needed in embedded approach; kept for compatibility
   widgetMode?: boolean;
   bannerHeight?: number;
   hideText?: boolean;
@@ -28,7 +29,7 @@ export function VisualSupport({
   const [imageLoadStarted, setImageLoadStarted] = useState(false);
 
   // Ensure widget mode is picked up even if prop wasn't passed
-  const isWidget = widgetMode || (typeof window !== 'undefined' && !!(window as any).__E1_WIDGET_DATA);
+  const isWidget = false;
 
   // Get the visual object from activeCard or visualConfig. Additionally try
   // to resolve by linked_visual_object_id from global widget data regardless
