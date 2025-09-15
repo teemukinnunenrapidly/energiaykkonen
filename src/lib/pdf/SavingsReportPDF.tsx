@@ -7,7 +7,15 @@ export interface PDFData {
   [key: string]: any;
 }
 
-export const SavingsReportPDF: React.FC<{ data: PDFData }> = ({ data }) => (
+export const SavingsReportPDF: React.FC<{ data: PDFData }> = ({ data }) => {
+  const heatingRaw = String(
+    (data.lammitysmuoto || data.current_heating || '') as string
+  ).toLowerCase();
+  const isGas = heatingRaw.includes('kaasu');
+  const isOil = heatingRaw.includes('öljy');
+  const isWood = heatingRaw.includes('puu') && !isOil; // treat öljy+puu as oil
+
+  return (
   <Document>
     <Page size="A4" style={styles.page}>
       {/* HEADER */}
@@ -198,11 +206,7 @@ export const SavingsReportPDF: React.FC<{ data: PDFData }> = ({ data }) => (
               <View style={styles.systemDetails}>
                 {/* Fuel-specific rows */}
                 {/* Gas */}
-                {String(
-                  (data.lammitysmuoto || data.current_heating || '')
-                )
-                  .toLowerCase()
-                  .includes('kaasu') && (
+                {isGas && (
                   <>
                     <View style={styles.detailRow}>
                       <Text style={styles.detailLabel}>Kaasun kulutus:</Text>
@@ -240,11 +244,7 @@ export const SavingsReportPDF: React.FC<{ data: PDFData }> = ({ data }) => (
                 )}
 
                 {/* Wood heating */}
-                {String(
-                  (data.lammitysmuoto || data.current_heating || '')
-                )
-                  .toLowerCase()
-                  .includes('puu') && (
+                {isWood && (
                   <>
                     <View style={styles.detailRow}>
                       <Text style={styles.detailLabel}>Puun menekki:</Text>
@@ -285,11 +285,7 @@ export const SavingsReportPDF: React.FC<{ data: PDFData }> = ({ data }) => (
                 )}
 
                 {/* Oil */}
-                {String(
-                  (data.lammitysmuoto || data.current_heating || '')
-                )
-                  .toLowerCase()
-                  .includes('öljy') && (
+                {isOil && (
                   <>
                     <View style={styles.detailRow}>
                       <Text style={styles.detailLabel}>Öljyn kulutus:</Text>
@@ -506,4 +502,5 @@ export const SavingsReportPDF: React.FC<{ data: PDFData }> = ({ data }) => (
       </View>
     </Page>
   </Document>
-);
+  );
+};
