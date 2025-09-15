@@ -344,11 +344,15 @@ export function CalculationCard({ card, widgetMode = false }: CalculationCardPro
       {/* Header section */}
       {(card.title || card.config?.description) && (
         <div style={styles.calculationCard.header as React.CSSProperties}>
-          <h3 style={styles.calculationCard.title as React.CSSProperties}>
+          <h3 style={{
+            ...(styles.calculationCard.title as React.CSSProperties),
+          }}>
             {card.title || card.name}
           </h3>
           {card.config?.description && (
-            <p style={styles.calculationCard.description as React.CSSProperties}>
+            <p style={{
+              ...(styles.calculationCard.description as React.CSSProperties),
+              }}>
               {card.config.description}
             </p>
           )}

@@ -19,8 +19,8 @@
     },
     "layout": {
       "_comment": "Layout proportions and spacing",
-      "visualSupportRatio": "60%",
-      "cardStreamRatio": "40%",
+      "visualSupportRatio": "50%",
+      "cardStreamRatio": "50%",
       "gapBetweenPanels": "10px",
       "verticalSpacing": "default",
       "display": "flex",
@@ -1066,7 +1066,7 @@
     },
     "typography": {
       "_comment": "Global typography settings",
-      "fontFamily": "system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif",
+      "fontFamily": "'Open Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif",
       "fontSizeBase": "14px",
       "lineHeightBase": "1.5",
       "fontWeightLight": "300",
