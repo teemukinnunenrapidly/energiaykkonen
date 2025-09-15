@@ -196,7 +196,7 @@ export const SavingsReportPDF: React.FC<{ data: PDFData }> = ({ data }) => (
               </View>
 
               <View style={styles.systemDetails}>
-                {/* Fuel-specific rows */}
+                {/* Fuel-specific rows based on lammitysmuoto */}
                 {/* Gas */}
                 {String(
                   (data.lammitysmuoto || data.current_heating || '')
@@ -279,6 +279,92 @@ export const SavingsReportPDF: React.FC<{ data: PDFData }> = ({ data }) => (
                       <Text style={styles.detailLabel}>CO₂-päästöt:</Text>
                       <Text style={styles.detailValue}>
                         {(data.currentCO2 || data.current_co2 || '0').toString()} kg/vuosi
+                      </Text>
+                    </View>
+                  </>
+                )}
+
+                {/* Electric heating */}
+                {/(sähkö|sahko)/.test(
+                  String((data.lammitysmuoto || data.current_heating || ''))
+                    .toLowerCase()
+                ) && (
+                  <>
+                    <View style={styles.detailRow}>
+                      <Text style={styles.detailLabel}>Sähkön kulutus:</Text>
+                      <Text style={styles.detailValue}>
+                        {(
+                          data.current_energy_consumption ||
+                          data.energyNeed ||
+                          data.annual_energy_need ||
+                          0
+                        )
+                          .toString()
+                          .replace(/\B(?=(\d{3})+(?!\d))/g, ' ')}{' '}
+                        kWh/vuosi
+                      </Text>
+                    </View>
+                    <View style={styles.detailRow}>
+                      <Text style={styles.detailLabel}>Sähkön hinta:</Text>
+                      <Text style={styles.detailValue}>
+                        {data.currentElectricityPrice ||
+                          data.electricityPrice ||
+                          data.electricity_price ||
+                          '0,15'}{' '}
+                        €/kWh
+                      </Text>
+                    </View>
+                    <View style={styles.detailRow}>
+                      <Text style={styles.detailLabel}>Huoltokustannus:</Text>
+                      <Text style={styles.detailValue}>
+                        {data.currentMaintenance || '200'} €/vuosi
+                      </Text>
+                    </View>
+                    <View style={styles.detailRow}>
+                      <Text style={styles.detailLabel}>CO₂-päästöt:</Text>
+                      <Text style={styles.detailValue}>
+                        {data.currentCO2 || data.current_co2 || '0'} kg/vuosi
+                      </Text>
+                    </View>
+                  </>
+                )}
+
+                {/* District heating */}
+                {/(kaukolämp|kaukolamp|district)/.test(
+                  String((data.lammitysmuoto || data.current_heating || ''))
+                    .toLowerCase()
+                ) && (
+                  <>
+                    <View style={styles.detailRow}>
+                      <Text style={styles.detailLabel}>Kaukolämmön kulutus:</Text>
+                      <Text style={styles.detailValue}>
+                        {(
+                          data.current_energy_consumption ||
+                          data.energyNeed ||
+                          data.annual_energy_need ||
+                          0
+                        )
+                          .toString()
+                          .replace(/\B(?=(\d{3})+(?!\d))/g, ' ')}{' '}
+                        kWh/vuosi
+                      </Text>
+                    </View>
+                    <View style={styles.detailRow}>
+                      <Text style={styles.detailLabel}>Kaukolämmön hinta:</Text>
+                      <Text style={styles.detailValue}>
+                        {data.districtHeatPrice || data.district_price || '0,09'} €/kWh
+                      </Text>
+                    </View>
+                    <View style={styles.detailRow}>
+                      <Text style={styles.detailLabel}>Huoltokustannus:</Text>
+                      <Text style={styles.detailValue}>
+                        {data.currentMaintenance || '200'} €/vuosi
+                      </Text>
+                    </View>
+                    <View style={styles.detailRow}>
+                      <Text style={styles.detailLabel}>CO₂-päästöt:</Text>
+                      <Text style={styles.detailValue}>
+                        {data.currentCO2 || data.current_co2 || '0'} kg/vuosi
                       </Text>
                     </View>
                   </>
@@ -426,11 +512,16 @@ export const SavingsReportPDF: React.FC<{ data: PDFData }> = ({ data }) => (
                     {data.newCO2 || data.new_co2 || '0'} kg/vuosi
                   </Text>
                 </View>
-                <Text style={styles.elyNoteDescription}>
-                  * ELY-keskuksen energiatuki öljylämmityksestä luopumiseen.
-                  Tuki on 4 000 € pientaloille. Edellyttää hakemuksen tekemistä
-                  ennen töiden aloittamista.
-                </Text>
+                {/(öljy|oljy)/.test(
+                  String((data.lammitysmuoto || data.current_heating || ''))
+                    .toLowerCase()
+                ) && (
+                  <Text style={styles.elyNoteDescription}>
+                    * ELY-keskuksen energiatuki öljylämmityksestä luopumiseen.
+                    Tuki on 4 000 € pientaloille. Edellyttää hakemuksen tekemistä
+                    ennen töiden aloittamista.
+                  </Text>
+                )}
               </View>
             </View>
           </View>
