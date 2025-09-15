@@ -78,8 +78,7 @@ export async function POST(request: NextRequest) {
           selectError?.message?.includes('column') &&
           selectError?.message?.includes('does not exist')
         ) {
-            `Column ${sanitizedOldName} does not exist in leads table`
-          );
+          // Column does not exist in leads table - no update needed
           return NextResponse.json(
             {
               message: `Column ${sanitizedOldName} does not exist in leads table, no update needed`,

@@ -21,7 +21,7 @@ function getSupabaseAdmin() {
 
   if (!url || !serviceKey) {
     if (process.env.NODE_ENV !== 'production') {
-        'Supabase admin env vars missing (dev). Returning empty leads. Checks:',
+      // Supabase admin env vars missing in dev - returning empty leads
       return null;
     }
     throw new Error('Supabase admin env vars missing');

@@ -473,10 +473,7 @@ export default function CardBuilderPage() {
             if (oldFieldName && newFieldName && oldFieldName !== newFieldName) {
               // Just log the field name change - no need to sync leads table
               // since we're using JSONB form_data column
-                `🔄 Field name change detected: ${oldFieldName} → ${newFieldName}`
-              );
-                `ℹ️ No leads table sync needed - using JSONB form_data column`
-              );
+              // Field name change detected - no leads table sync needed
             }
 
             const completeFieldData = {

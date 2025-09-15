@@ -48,9 +48,6 @@ export async function POST() {
     const missingFields = frontendFields.filter(
       field => !existingFieldIds.has(field.id)
     );
-      orphanedFields: orphanedFields.length,
-      missingFields: missingFields.length,
-    });
 
     // Clean up orphaned fields
     if (orphanedFields.length > 0) {
