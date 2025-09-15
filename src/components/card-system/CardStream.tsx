@@ -274,8 +274,11 @@ export function CardStream({
                         (card as any).config?.linked_visual_object_id) && (
                         <div
                           style={{
-                            margin: '12px 12px 0',
-                            borderRadius: '8px',
+                            margin: '0 0 0 0',
+                            borderTopLeftRadius: styles.card.base.borderRadius,
+                            borderTopRightRadius: styles.card.base.borderRadius,
+                            borderBottomLeftRadius: 0,
+                            borderBottomRightRadius: 0,
                             overflow: 'hidden',
                             background: '#ffffff',
                           }}

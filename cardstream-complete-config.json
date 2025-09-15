@@ -964,7 +964,7 @@
         "visualSupport": {
           "display": "block",
           "width": "100%",
-          "height": "auto",
+          "height": "min(90vw, 520px)",
           "position": "relative"
         },
         "cardStream": {

@@ -183,7 +183,10 @@ export function VisualSupport({
                 objectFit: 'cover',
                 opacity: 1,
                 zIndex: 0,
-                borderRadius: styles.card.base.borderRadius,
+                borderTopLeftRadius: styles.card.base.borderRadius,
+                borderTopRightRadius: styles.card.base.borderRadius,
+                borderBottomLeftRadius: 0,
+                borderBottomRightRadius: 0,
               }}
               onError={e => {
                 (e.currentTarget as HTMLImageElement).style.display = 'none';
