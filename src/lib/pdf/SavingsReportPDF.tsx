@@ -148,7 +148,7 @@ export const SavingsReportPDF: React.FC<{ data: PDFData }> = ({ data }) => (
                 <View style={styles.costRow}>
                   <Text style={styles.costLabel}>1 vuosi</Text>
                   <Text style={[styles.costValue, styles.negative]}>
-                    {(data.menekin_hinta_vuosi || data.menekinhintavuosi || data.currentYear1Cost || data.current_yearly_cost || data.vesikiertoinen || '2600')}{' '}€
+                    {(data.menekin_hinta_vuosi || data.menekinhintavuosi || data.currentYear1Cost || data.current_yearly_cost || '0')}{' '}€
                   </Text>
                 </View>
                 <View style={[styles.costRow, styles.costRowHighlight]}>
@@ -241,7 +241,7 @@ export const SavingsReportPDF: React.FC<{ data: PDFData }> = ({ data }) => (
 
                 {/* Wood heating */}
                 {String(
-                  (data.lammitysmuoto || data.current_heating || '')
+                  (data.lammitysmuoto || data.current_heating || data.currentSystem || '')
                 )
                   .toLowerCase()
                   .includes('puu') && (
@@ -257,18 +257,18 @@ export const SavingsReportPDF: React.FC<{ data: PDFData }> = ({ data }) => (
                       <Text style={styles.detailLabel}>Puun hinta:</Text>
                       <Text style={styles.detailValue}>
                         {(() => {
-                          const val = Number(
+                          const price = Number(
                             String(
-                              data.menekin_hinta_vuosi || data.menekinhintavuosi || 0
+                              data.wood_price || data.woodPrice || '75'
                             )
                               .replace(/\s/g, '')
                               .replace(',', '.')
                           );
-                          return isNaN(val)
-                            ? (data.menekin_hinta_vuosi || data.menekinhintavuosi || '0')
-                            : val.toLocaleString('fi-FI');
+                          return isNaN(price)
+                            ? (data.wood_price || data.woodPrice || '75')
+                            : price.toLocaleString('fi-FI');
                         })()}{' '}
-                        €
+                        €/motti
                       </Text>
                     </View>
                     <View style={styles.detailRow}>
@@ -284,12 +284,12 @@ export const SavingsReportPDF: React.FC<{ data: PDFData }> = ({ data }) => (
                   </>
                 )}
 
-                {/* Oil (default) */}
-                {!String(
-                  (data.lammitysmuoto || data.current_heating || '')
+                {/* Oil */}
+                {String(
+                  (data.lammitysmuoto || data.current_heating || data.currentSystem || '')
                 )
                   .toLowerCase()
-                  .includes('kaasu') && (
+                  .includes('öljy') && (
                   <>
                     <View style={styles.detailRow}>
                       <Text style={styles.detailLabel}>Öljyn kulutus:</Text>
