@@ -218,6 +218,37 @@ export default function PDFSettingsPage() {
               <CardContent className="p-0 bg-gray-100">
                 <div className="p-8 overflow-x-auto">
                   <PDFPreview />
+                  <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                      <div className="text-xs font-semibold mb-2">Saatavilla: form_data</div>
+                      <pre className="text-[10px] bg-white p-3 rounded border max-h-64 overflow-auto">{JSON.stringify({
+                        nimi: '{nimi}',
+                        sahkoposti: '{sahkoposti}',
+                        puhelinnumero: '{puhelinnumero}',
+                        osoite: '{osoite}',
+                        paikkakunta: '{paikkakunta}',
+                        postcode: '{postcode}',
+                        neliot: '{neliot}',
+                        huonekorkeus: '{huonekorkeus}',
+                        rakennusvuosi: '{rakennusvuosi}',
+                        henkilomaara: '{henkilomaara}',
+                        lammitysmuoto: '{lammitysmuoto}',
+                        kokonaismenekki: '{kokonaismenekki}',
+                      }, null, 2)}</pre>
+                    </div>
+                    <div>
+                      <div className="text-xs font-semibold mb-2">Saatavilla: calculation_results</div>
+                      <pre className="text-[10px] bg-white p-3 rounded border max-h-64 overflow-auto">{JSON.stringify({
+                        annual_energy_need: 'annual_energy_need',
+                        heat_pump_consumption: 'heat_pump_consumption',
+                        heat_pump_cost_annual: 'heat_pump_cost_annual',
+                        annual_savings: 'annual_savings',
+                        five_year_savings: 'five_year_savings',
+                        ten_year_savings: 'ten_year_savings',
+                        co2_reduction: 'co2_reduction',
+                      }, null, 2)}</pre>
+                    </div>
+                  </div>
                 </div>
               </CardContent>
             </Card>

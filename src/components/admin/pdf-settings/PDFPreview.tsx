@@ -1,6 +1,9 @@
 'use client';
 
+import { useEffect, useMemo, useState } from 'react';
 import { Card } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
 
 interface PDFPreviewProps {
   data?: Record<string, any>;
@@ -11,41 +14,117 @@ export function PDFPreview({
   data = {},
   showShortcodes = true,
 }: PDFPreviewProps) {
-  // Show shortcodes/formulas instead of values when showShortcodes is true
-  const previewData = showShortcodes
-    ? {
-        calculationDate: 'new Date()',
-        calculationNumber: '{id.slice(0,8)}',
-        customerName: '{nimi}',
-        customerEmail: '{sahkoposti}',
-        customerPhone: '{puhelinnumero}',
-        customerAddress: '{osoite}',
-        customerCity: '{postcode} {paikkakunta}',
-        peopleCount: '{henkilomaara}',
-        buildingYear: '{rakennusvuosi}',
-        buildingArea: '{neliot}',
-        floors: '{floors}',
-        energyNeed: '[calc:laskennallinen-energiantarve-kwh]',
-        currentSystem: '{lammitysmuoto}',
-        currentYear1Cost: '{menekinhintavuosi}',
-        currentYear5Cost: '{menekinhintavuosi} × 5',
-        currentYear10Cost: '{menekinhintavuosi} × 10',
-        oilConsumption: '{kokonaismenekki}',
-        oilPrice: '1,30',
-        currentMaintenance: '200',
-        currentCO2: '{kokonaismenekki} × 2.66',
-        newYear1Cost: '({neliot} × 100 / 3.3) × 0.12',
-        newYear5Cost: '(({neliot} × 100 / 3.3) × 0.12) × 5',
-        newYear10Cost: '(({neliot} × 100 / 3.3) × 0.12) × 10',
-        savings1Year: '{menekinhintavuosi} - heat_pump_cost',
-        savings5Year: 'annual_savings × 5',
-        savings10Year: 'annual_savings × 10',
-        electricityConsumption: '[calc:laskennallinen-energiantarve-kwh] / 3.8',
-        electricityPrice: '0,12',
-        newMaintenance10Years: '30',
-        newCO2: 'heat_pump_kWh × 0.181',
-        ...data,
+  // Editable formulas state (loaded from API)
+  const [formulas, setFormulas] = useState<Record<string, string> | null>(null);
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    let mounted = true;
+    (async () => {
+      try {
+        const res = await fetch('/api/admin/pdf-preview-formulas', {
+          cache: 'no-store',
+        });
+        const json = await res.json();
+        if (mounted) {
+          setFormulas(json.formulas || {});
+        }
+      } catch (e) {
+        // Fallback to current defaults in component if API fails
+        setFormulas({
+          calculationDate: 'new Date()',
+          calculationNumber: '{id.slice(0,8)}',
+          customerName: '{nimi}',
+          customerEmail: '{sahkoposti}',
+          customerPhone: '{puhelinnumero}',
+          customerAddress: '{osoite}',
+          customerCity: '{postcode} {paikkakunta}',
+          peopleCount: '{henkilomaara}',
+          buildingYear: '{rakennusvuosi}',
+          buildingArea: '{neliot}',
+          floors: '{floors}',
+          energyNeed: '[calc:laskennallinen-energiantarve-kwh]',
+          currentSystem: '{lammitysmuoto}',
+          currentYear1Cost: '{menekinhintavuosi}',
+          currentYear5Cost: '{menekinhintavuosi} × 5',
+          currentYear10Cost: '{menekinhintavuosi} × 10',
+          oilConsumption: '{kokonaismenekki}',
+          oilPrice: '1,30',
+          currentMaintenance: '200',
+          currentCO2: '{kokonaismenekki} × 2.66',
+          newYear1Cost:
+            '([calc:laskennallinen-energiantarve-kwh] / 3.8) × 0.15',
+          newYear5Cost:
+            '(([calc:laskennallinen-energiantarve-kwh] / 3.8) × 0.15) × 5',
+          newYear10Cost:
+            '(([calc:laskennallinen-energiantarve-kwh] / 3.8) × 0.15) × 10',
+          savings1Year: '{menekinhintavuosi} - heat_pump_cost',
+          savings5Year: 'annual_savings × 5',
+          savings10Year: 'annual_savings × 10',
+          electricityConsumption:
+            '[calc:laskennallinen-energiantarve-kwh] / 3.8',
+          electricityPrice: '0,12',
+          newMaintenance10Years: '30',
+          newCO2: 'heat_pump_kWh × 0.181',
+        });
       }
+    })();
+    return () => {
+      mounted = false;
+    };
+  }, []);
+
+  const previewData = useMemo(() => {
+    const base = formulas || {};
+    return showShortcodes ? { ...base, ...data } : {
+      calculationDate: new Date().toLocaleDateString('fi-FI'),
+      calculationNumber: '2025-001',
+      customerName: 'Matti Meikäläinen',
+      customerEmail: 'matti.meikalainen@email.fi',
+      customerPhone: '040 123 4567',
+      customerAddress: 'Kotikatu 123',
+      customerCity: '00100 Helsinki',
+      peopleCount: '4',
+      buildingYear: '1987',
+      buildingArea: '120',
+      floors: '2',
+      energyNeed: '22 000',
+      currentSystem: 'Öljylämmitys',
+      currentYear1Cost: '2 600',
+      currentYear5Cost: '13 000',
+      currentYear10Cost: '26 000',
+      oilConsumption: '2 000',
+      oilPrice: '1,30',
+      currentMaintenance: '200',
+      currentCO2: '5 320',
+      newYear1Cost: '975',
+      newYear5Cost: '4 875',
+      newYear10Cost: '9 750',
+      savings1Year: '1 625',
+      savings5Year: '8 125',
+      savings10Year: '16 250',
+      electricityConsumption: '6 500',
+      electricityPrice: '0,15',
+      newMaintenance10Years: '30',
+      newCO2: '0',
+      ...data,
+    };
+  }, [showShortcodes, data, formulas]);
+
+  async function saveAll() {
+    if (!formulas) return;
+    setSaving(true);
+    try {
+      const res = await fetch('/api/admin/pdf-preview-formulas', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ formulas }),
+      });
+      if (!res.ok) throw new Error('Save failed');
+    } finally {
+      setSaving(false);
+    }
+  }
     : {
         calculationDate: new Date().toLocaleDateString('fi-FI'),
         calculationNumber: '2025-001',
@@ -153,6 +232,17 @@ export function PDFPreview({
       style={{ aspectRatio: '210/297' }}
     >
       <div className="p-8 h-full flex flex-col text-gray-800 text-xs">
+        {/* Quick inline editor header */}
+        {showShortcodes && formulas && (
+          <div className="mb-4 -mt-2 flex items-center gap-2">
+            <div className="text-[10px] text-gray-500">
+              Muokkaa kenttiä klikkaamalla arvoja. Tallenna kun valmis.
+            </div>
+            <Button size="sm" onClick={saveAll} disabled={saving}>
+              {saving ? 'Tallennetaan…' : 'Tallenna muutokset'}
+            </Button>
+          </div>
+        )}
         {/* HEADER */}
         <div className="flex justify-between items-start pb-4 border-b-2 border-emerald-500 mb-8">
           <div className="flex-1">
@@ -172,7 +262,17 @@ export function PDFPreview({
           </div>
           <div className="flex-1 text-right">
             <div className="text-[9px] text-gray-500">
-              {renderValue(previewData.calculationDate)}
+              {showShortcodes ? (
+                <Input
+                  value={formulas?.calculationDate || ''}
+                  onChange={e =>
+                    setFormulas({ ...(formulas || {}), calculationDate: e.target.value })
+                  }
+                  className="h-6 text-[10px]"
+                />
+              ) : (
+                renderValue(previewData.calculationDate as string)
+              )}
             </div>
             <div className="text-[8px] text-gray-400 mt-1">
               Laskelma #{renderValue(previewData.calculationNumber)}
@@ -190,13 +290,33 @@ export function PDFPreview({
               <div className="flex text-[9px]">
                 <span className="text-gray-500 w-24">Nimi:</span>
                 <span className="text-gray-800 font-medium">
-                  {renderValue(previewData.customerName)}
+                  {showShortcodes ? (
+                    <Input
+                      value={formulas?.customerName || ''}
+                      onChange={e =>
+                        setFormulas({ ...(formulas || {}), customerName: e.target.value })
+                      }
+                      className="h-6 text-[10px]"
+                    />
+                  ) : (
+                    renderValue(previewData.customerName as string)
+                  )}
                 </span>
               </div>
               <div className="flex text-[9px]">
                 <span className="text-gray-500 w-24">Sähköposti:</span>
                 <span className="text-gray-800 font-medium">
-                  {renderValue(previewData.customerEmail)}
+                  {showShortcodes ? (
+                    <Input
+                      value={formulas?.customerEmail || ''}
+                      onChange={e =>
+                        setFormulas({ ...(formulas || {}), customerEmail: e.target.value })
+                      }
+                      className="h-6 text-[10px]"
+                    />
+                  ) : (
+                    renderValue(previewData.customerEmail as string)
+                  )}
                 </span>
               </div>
               <div className="flex text-[9px]">
@@ -222,7 +342,17 @@ export function PDFPreview({
               <div className="flex text-[9px]">
                 <span className="text-gray-500 w-24">Henkilömäärä:</span>
                 <span className="text-gray-800 font-medium">
-                  {renderValue(previewData.peopleCount)} henkilöä
+                  {showShortcodes ? (
+                    <Input
+                      value={formulas?.peopleCount || ''}
+                      onChange={e =>
+                        setFormulas({ ...(formulas || {}), peopleCount: e.target.value })
+                      }
+                      className="h-6 text-[10px]"
+                    />
+                  ) : (
+                    renderValue(previewData.peopleCount as string)
+                  )} henkilöä
                 </span>
               </div>
               <div className="flex text-[9px]">
@@ -246,7 +376,17 @@ export function PDFPreview({
               <div className="flex text-[9px]">
                 <span className="text-gray-500 w-24">Energiantarve:</span>
                 <span className="text-gray-800 font-medium">
-                  {renderValue(previewData.energyNeed)} kWh/vuosi
+                  {showShortcodes ? (
+                    <Input
+                      value={formulas?.energyNeed || ''}
+                      onChange={e =>
+                        setFormulas({ ...(formulas || {}), energyNeed: e.target.value })
+                      }
+                      className="h-6 text-[10px]"
+                    />
+                  ) : (
+                    renderValue(previewData.energyNeed as string)
+                  )} kWh/vuosi
                 </span>
               </div>
             </div>
@@ -345,11 +485,31 @@ export function PDFPreview({
                     <div className="flex text-[10px]">
                       <span className="flex-1 text-gray-500">1 vuosi</span>
                       <span className="flex-1 text-center text-gray-800 font-bold">
-                        {renderValue(previewData.newYear1Cost)} €
+                        {showShortcodes ? (
+                          <Input
+                            value={formulas?.newYear1Cost || ''}
+                            onChange={e =>
+                              setFormulas({ ...(formulas || {}), newYear1Cost: e.target.value })
+                            }
+                            className="h-6 text-[10px]"
+                          />
+                        ) : (
+                          renderValue(previewData.newYear1Cost as string)
+                        )} €
                       </span>
                       <div className="flex-1 text-right">
                         <span className="text-emerald-500 font-bold">
-                          {renderValue(previewData.savings1Year)} €
+                          {showShortcodes ? (
+                            <Input
+                              value={formulas?.savings1Year || ''}
+                              onChange={e =>
+                                setFormulas({ ...(formulas || {}), savings1Year: e.target.value })
+                              }
+                              className="h-6 text-[10px] text-right"
+                            />
+                          ) : (
+                            renderValue(previewData.savings1Year as string)
+                          )} €
                         </span>
                         <div className="text-[8px] text-emerald-600 font-medium">
                           +4 000€*
