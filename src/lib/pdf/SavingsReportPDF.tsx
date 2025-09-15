@@ -233,6 +233,51 @@ export const SavingsReportPDF: React.FC<{ data: PDFData }> = ({ data }) => (
                   </>
                 )}
 
+                {/* Wood heating */}
+                {String(
+                  (data.lammitysmuoto || data.current_heating || '')
+                )
+                  .toLowerCase()
+                  .includes('puu') && (
+                  <>
+                    <View style={styles.detailRow}>
+                      <Text style={styles.detailLabel}>Puun menekki:</Text>
+                      <Text style={styles.detailValue}>
+                        {(data.kokonaismenekki || data.currentConsumption || '0')}{' '}
+                        puumottia/vuosi
+                      </Text>
+                    </View>
+                    <View style={styles.detailRow}>
+                      <Text style={styles.detailLabel}>Puun hinta:</Text>
+                      <Text style={styles.detailValue}>
+                        {(() => {
+                          const val = Number(
+                            String(
+                              data.menekin_hinta_vuosi || data.menekinhintavuosi || 0
+                            )
+                              .replace(/\s/g, '')
+                              .replace(',', '.')
+                          );
+                          return isNaN(val)
+                            ? (data.menekin_hinta_vuosi || data.menekinhintavuosi || '0')
+                            : val.toLocaleString('fi-FI');
+                        })()}{' '}
+                        €
+                      </Text>
+                    </View>
+                    <View style={styles.detailRow}>
+                      <Text style={styles.detailLabel}>Huoltokustannus:</Text>
+                      <Text style={styles.detailValue}>200 €/vuosi</Text>
+                    </View>
+                    <View style={styles.detailRow}>
+                      <Text style={styles.detailLabel}>CO₂-päästöt:</Text>
+                      <Text style={styles.detailValue}>
+                        {(data.currentCO2 || data.current_co2 || '0').toString()} kg/vuosi
+                      </Text>
+                    </View>
+                  </>
+                )}
+
                 {/* Oil (default) */}
                 {!String(
                   (data.lammitysmuoto || data.current_heating || '')
