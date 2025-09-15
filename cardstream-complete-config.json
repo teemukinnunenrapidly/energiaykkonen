@@ -145,14 +145,14 @@
       "_comment": "Right panel containing cards",
       "width": "55%",
       "background": "transparent",
-      "padding": "30px",
+      "padding": "24px",
       "paddingBottom": "100px",
       "overflowY": "auto",
       "overflowX": "hidden",
       "maxHeight": "100vh",
       "scrollBehavior": "auto",
       "contentWrapper": {
-        "maxWidth": "600px",
+        "maxWidth": "640px",
         "margin": "0 auto",
         "width": "100%"
       },
@@ -969,7 +969,7 @@
         },
         "cardStream": {
           "width": "100%",
-          "padding": "20px",
+          "padding": "16px",
           "maxHeight": "none"
         },
         "card": {
