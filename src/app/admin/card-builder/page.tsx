@@ -89,11 +89,6 @@ export default function CardBuilderPage() {
           }
         });
         setOriginalFields(fieldsMap);
-
-        console.log(
-          `Loaded ${validCards.length} valid cards:`,
-          validCards.map(c => c.name)
-        );
         setCards(validCards);
         if (validCards.length > 0 && !selectedCardId) {
           setSelectedCardId(validCards[0].id);
@@ -478,10 +473,8 @@ export default function CardBuilderPage() {
             if (oldFieldName && newFieldName && oldFieldName !== newFieldName) {
               // Just log the field name change - no need to sync leads table
               // since we're using JSONB form_data column
-              console.log(
                 `🔄 Field name change detected: ${oldFieldName} → ${newFieldName}`
               );
-              console.log(
                 `ℹ️ No leads table sync needed - using JSONB form_data column`
               );
             }
@@ -508,7 +501,6 @@ export default function CardBuilderPage() {
     // Execute batch operations
     const totalOps =
       fieldsToCreate.length + fieldsToUpdate.length + fieldIdsToDelete.length;
-    console.log(
       `📦 Executing ${totalOps} field operations: ${fieldsToCreate.length} creates, ${fieldsToUpdate.length} updates, ${fieldIdsToDelete.length} deletes`
     );
 

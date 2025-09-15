@@ -25,7 +25,7 @@ export async function GET(request: Request) {
         active: c.is_active,
       })),
     });
-    } catch {
+  } catch {
     return NextResponse.json(
       { error: 'Failed to fetch lookup table' },
       { status: 500 }

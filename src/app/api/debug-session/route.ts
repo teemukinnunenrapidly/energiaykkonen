@@ -27,7 +27,7 @@ export async function GET(request: Request) {
         sessionData.calculations['Laskennallinen energiantarve (kwh)']?.value ||
         null,
     });
-    } catch {
+  } catch {
     return NextResponse.json(
       { error: 'Failed to fetch session data' },
       { status: 500 }

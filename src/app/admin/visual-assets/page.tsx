@@ -227,10 +227,6 @@ export default function VisualAssetsPage() {
             });
           }
         } catch (uploadError: any) {
-          console.warn(
-            'Image upload failed, but visual object was created:',
-            uploadError
-          );
           // Show a warning that images couldn't be uploaded but object was created
           alert(
             `Visual object created successfully, but images could not be uploaded: ${uploadError.message || 'Unknown error'}`

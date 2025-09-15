@@ -7,9 +7,6 @@ export async function POST(_request: NextRequest) {
       !process.env.CLOUDFLARE_ACCOUNT_ID ||
       !process.env.CLOUDFLARE_IMAGES_API_TOKEN
     ) {
-      console.error(
-        'Cloudflare Images not configured - missing environment variables'
-      );
       return NextResponse.json(
         {
           error:
@@ -75,7 +72,6 @@ export async function POST(_request: NextRequest) {
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error('Cloudflare upload failed:', {
         status: response.status,
         statusText: response.statusText,
         error: errorText,

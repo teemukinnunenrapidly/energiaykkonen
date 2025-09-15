@@ -12,7 +12,7 @@ export async function GET() {
         : 'Table structure verification failed',
       timestamp: new Date().toISOString(),
     });
-  } catch (error) {
+  } catch {
     return NextResponse.json(
       {
         success: false,

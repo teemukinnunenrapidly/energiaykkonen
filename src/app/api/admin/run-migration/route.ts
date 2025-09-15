@@ -57,7 +57,7 @@ export async function POST() {
             // Continue with other statements even if one fails
           }
         }
-      } catch (fileError) {
+      } catch {
         // Fallback to inline migration
         const { error: alterError } = await supabase
           .from('card_templates')
@@ -142,7 +142,7 @@ export async function POST() {
         { status: 500 }
       );
     }
-  } catch (error) {
+  } catch {
     return NextResponse.json(
       {
         success: false,

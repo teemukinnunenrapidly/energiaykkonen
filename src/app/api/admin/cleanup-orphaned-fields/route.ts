@@ -48,11 +48,6 @@ export async function POST() {
     const missingFields = frontendFields.filter(
       field => !existingFieldIds.has(field.id)
     );
-
-    console.log('Cleanup analysis:', {
-      totalCards: cards.length,
-      totalExistingFields: existingFields.length,
-      totalFrontendFields: frontendFields.length,
       orphanedFields: orphanedFields.length,
       missingFields: missingFields.length,
     });
@@ -83,7 +78,7 @@ export async function POST() {
         missingFields: missingFields.length,
       },
     });
-  } catch (error) {
+  } catch {
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

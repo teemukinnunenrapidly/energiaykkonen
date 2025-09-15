@@ -141,7 +141,7 @@ export async function POST() {
         calculation: calcCard,
       },
     });
-  } catch (error) {
+  } catch {
     return NextResponse.json(
       {
         success: false,

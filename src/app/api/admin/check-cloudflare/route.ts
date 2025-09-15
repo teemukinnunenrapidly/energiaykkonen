@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 
 export async function GET() {
   // This endpoint helps debug if Cloudflare environment variables are properly set
@@ -45,7 +45,7 @@ export async function GET() {
         }
         cloudflareTestResult = `API error: ${errorMessage}`;
       }
-    } catch (error) {
+    } catch {
       cloudflareTestResult = `Connection error: ${error instanceof Error ? error.message : 'Unknown'}`;
     }
   } else {

@@ -174,7 +174,7 @@ export async function GET() {
     };
 
     return NextResponse.json(response, { status: 200 });
-  } catch (error) {
+  } catch {
     return NextResponse.json(
       {
         error: 'Failed to fetch analytics data',

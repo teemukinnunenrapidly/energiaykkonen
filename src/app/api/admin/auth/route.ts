@@ -99,7 +99,7 @@ export async function POST(request: NextRequest) {
     response.cookies.set(name, sessionToken, options);
 
     return response;
-  } catch (error) {
+  } catch {
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }
@@ -119,7 +119,7 @@ export async function DELETE() {
     response.cookies.set(name, '', options);
 
     return response;
-  } catch (error) {
+  } catch {
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

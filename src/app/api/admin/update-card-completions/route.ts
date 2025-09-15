@@ -25,7 +25,6 @@ export async function POST() {
     for (const card of formCards || []) {
       // Check if card already has completion rules
       if (card.completion_rules) {
-        console.log(
           `Card "${card.name}" already has completion rules:`,
           card.completion_rules
         );
@@ -65,7 +64,6 @@ export async function POST() {
         };
       }
 
-      console.log(
         `Updating card "${card.name}" with completion rule:`,
         completionRule
       );
@@ -127,7 +125,7 @@ export async function POST() {
       message: `Updated ${updates.length} cards with completion rules`,
       updates,
     });
-  } catch (error) {
+  } catch {
     return NextResponse.json(
       {
         success: false,

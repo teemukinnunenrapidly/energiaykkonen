@@ -11,7 +11,7 @@ export async function POST(request: NextRequest) {
   // Check authentication
   try {
     await requireAdmin(request);
-  } catch (error) {
+  } catch {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
@@ -46,7 +46,7 @@ export async function POST(request: NextRequest) {
     }
 
     return NextResponse.json({ success: true, updated: ids.length });
-  } catch (error) {
+  } catch {
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

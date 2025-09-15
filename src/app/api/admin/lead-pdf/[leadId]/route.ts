@@ -70,7 +70,7 @@ export async function GET(
         'Cache-Control': 'private, max-age=3600',
       },
     });
-  } catch (error) {
+  } catch {
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

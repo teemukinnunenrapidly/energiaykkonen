@@ -27,9 +27,6 @@ export async function POST() {
 
       if (error) {
       } else {
-        console.log(
-          `Updated card ${update.id} to display_order ${update.display_order}`
-        );
       }
     }
 
@@ -38,7 +35,7 @@ export async function POST() {
       message: 'Test cards display_order values fixed',
       updates,
     });
-  } catch (error) {
+  } catch {
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

@@ -3,10 +3,6 @@ import { supabase } from '@/lib/supabase';
 
 export async function GET() {
   try {
-    console.log(
-      'API: Supabase Key exists:',
-      !!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-    );
 
     // Test database connection first
     const { error: testError } = await supabase
@@ -37,7 +33,7 @@ export async function GET() {
     }
 
     return NextResponse.json({ formulas: formulas || [] });
-  } catch (error) {
+  } catch {
     return NextResponse.json(
       {
         error: `Internal server error: ${error instanceof Error ? error.message : 'Unknown error'}`,

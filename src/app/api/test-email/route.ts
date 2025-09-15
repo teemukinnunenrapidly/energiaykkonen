@@ -16,7 +16,7 @@ export async function GET(request: NextRequest) {
       results,
       timestamp: new Date().toISOString(),
     });
-  } catch (error) {
+  } catch {
     return NextResponse.json(
       {
         success: false,
@@ -53,7 +53,7 @@ export async function POST(request: NextRequest) {
       results,
       timestamp: new Date().toISOString(),
     });
-  } catch (error) {
+  } catch {
     return NextResponse.json(
       {
         success: false,

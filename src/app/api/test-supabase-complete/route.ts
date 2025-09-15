@@ -234,7 +234,7 @@ export async function GET() {
       summary,
       results,
     });
-  } catch (error) {
+  } catch {
     return NextResponse.json(
       {
         error: 'Failed to run tests',

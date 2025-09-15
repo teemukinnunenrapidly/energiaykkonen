@@ -78,7 +78,6 @@ export async function POST(request: NextRequest) {
           selectError?.message?.includes('column') &&
           selectError?.message?.includes('does not exist')
         ) {
-          console.log(
             `Column ${sanitizedOldName} does not exist in leads table`
           );
           return NextResponse.json(
@@ -142,7 +141,6 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    console.log(
       `✅ Successfully renamed column in leads table: ${sanitizedOldName} → ${sanitizedNewName}`
     );
 
@@ -153,7 +151,7 @@ export async function POST(request: NextRequest) {
       },
       { status: 200 }
     );
-  } catch (error) {
+  } catch {
     return NextResponse.json(
       {
         error: 'Failed to sync lead columns',

@@ -40,7 +40,7 @@ export async function GET() {
         fieldCount: card.card_fields?.length || 0,
       })),
     });
-  } catch (error) {
+  } catch {
     return NextResponse.json(
       {
         success: false,

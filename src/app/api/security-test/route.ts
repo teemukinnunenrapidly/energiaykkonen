@@ -64,7 +64,7 @@ export async function POST(request: NextRequest) {
           { status: 400 }
         );
     }
-  } catch (error) {
+  } catch {
     return NextResponse.json(
       {
         message: 'Test failed',
@@ -81,7 +81,6 @@ function testXSSProtection(testData: string, ip: string, userAgent: string) {
     'javascript:alert("XSS")',
     '<img src=x onerror=alert("XSS")>',
     '<iframe src="javascript:alert(\'XSS\')"></iframe>',
-    testData || '<script>console.log("test")</script>',
   ];
 
   const results = xssPayloads.map(payload => {

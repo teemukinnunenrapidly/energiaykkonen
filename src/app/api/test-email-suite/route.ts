@@ -39,7 +39,7 @@ export async function GET(request: NextRequest) {
         },
       },
     });
-  } catch (error) {
+  } catch {
     return NextResponse.json(
       {
         success: false,
@@ -95,7 +95,7 @@ export async function POST(request: NextRequest) {
         checkInbox: `Check your email inbox and spam folder for test emails sent to ${email}`,
       },
     });
-  } catch (error) {
+  } catch {
     return NextResponse.json(
       {
         success: false,

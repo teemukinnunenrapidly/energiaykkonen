@@ -35,7 +35,7 @@ export async function GET(request: NextRequest) {
       totalCount: leadsData.totalCount,
       message: `Retrieved ${leadsData.leads.length} leads for export`,
     });
-  } catch (error) {
+  } catch {
     if (error instanceof Error && error.message.includes('Authentication')) {
       return NextResponse.json(
         { error: 'Authentication required' },

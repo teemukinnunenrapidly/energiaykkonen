@@ -76,7 +76,7 @@ export async function POST(request: NextRequest) {
           { status: 400 }
         );
     }
-    } catch {
+  } catch {
     return NextResponse.json(
       {
         success: false,
@@ -126,7 +126,7 @@ async function handleDataAccess(email: string) {
         canRequestDeletion: true,
       },
     });
-    } catch {
+  } catch {
     return NextResponse.json(
       {
         success: false,
@@ -189,7 +189,7 @@ async function handleDataDeletion(email: string, verificationCode?: string) {
       deletionDate: new Date().toISOString(),
       confirmationId: `DEL_${Date.now()}`,
     });
-    } catch {
+  } catch {
     return NextResponse.json(
       {
         success: false,
@@ -300,7 +300,7 @@ async function handleDataRectification(
       ),
       updateDate: new Date().toISOString(),
     });
-    } catch {
+  } catch {
     return NextResponse.json(
       {
         success: false,

@@ -17,9 +17,6 @@ export async function GET(request: Request) {
     try {
       // Test the actual evaluation
       evaluationResult = new Function('return ' + condition)();
-      console.log(
-        `Evaluation result: ${evaluationResult} (type: ${typeof evaluationResult})`
-      );
     } catch {
       evaluationError =
         error instanceof Error ? error.message : 'Unknown error';
@@ -40,7 +37,7 @@ export async function GET(request: Request) {
       characters: chars,
       length: condition.length,
     });
-  } catch (error) {
+  } catch {
     return NextResponse.json(
       { error: 'Failed to test condition' },
       { status: 500 }

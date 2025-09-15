@@ -18,7 +18,7 @@ export async function GET() {
         resendDashboard: 'https://resend.com/dashboard',
       },
     });
-  } catch (error) {
+  } catch {
     return NextResponse.json(
       {
         status: 'error',

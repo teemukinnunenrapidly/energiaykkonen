@@ -50,7 +50,7 @@ export async function GET() {
       },
       visuals: visuals || [],
     });
-  } catch (error) {
+  } catch {
     return NextResponse.json(
       {
         success: false,

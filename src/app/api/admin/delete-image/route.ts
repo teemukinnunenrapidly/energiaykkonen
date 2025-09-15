@@ -30,7 +30,7 @@ export async function DELETE(_request: NextRequest) {
     );
 
     if (!response.ok) {
-      const error = await response.text();
+      await response.text();
 
       return NextResponse.json({ error: 'Deletion failed' }, { status: 500 });
     }
@@ -45,7 +45,7 @@ export async function DELETE(_request: NextRequest) {
       success: true,
       message: 'Image deleted successfully',
     });
-  } catch (error) {
+  } catch {
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

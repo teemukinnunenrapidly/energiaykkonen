@@ -21,13 +21,7 @@ function getSupabaseAdmin() {
 
   if (!url || !serviceKey) {
     if (process.env.NODE_ENV !== 'production') {
-      console.warn(
         'Supabase admin env vars missing (dev). Returning empty leads. Checks:',
-        {
-          hasUrl: Boolean(url),
-          hasServiceKey: Boolean(serviceKey),
-        }
-      );
       return null;
     }
     throw new Error('Supabase admin env vars missing');
@@ -39,7 +33,7 @@ export async function GET(request: NextRequest) {
   // Check authentication
   try {
     await requireAdmin(request);
-  } catch (error) {
+  } catch {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
@@ -63,7 +57,7 @@ export async function GET(request: NextRequest) {
     }
 
     return NextResponse.json({ leads: leads || [] });
-  } catch (error) {
+  } catch {
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

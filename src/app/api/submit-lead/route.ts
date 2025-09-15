@@ -249,10 +249,6 @@ export async function POST(request: NextRequest) {
         contentType: 'application/pdf',
       };
     } catch (pdfError) {
-      console.error(
-        '⚠️ PDF generation failed (continuing without PDF):',
-        pdfError
-      );
       // Continue without PDF attachment if generation fails
     }
 

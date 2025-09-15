@@ -42,7 +42,7 @@ export async function POST() {
       success: true,
       message: 'Sample data cleared successfully',
     });
-  } catch (error) {
+  } catch {
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }
