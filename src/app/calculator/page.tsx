@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { CardSystemContainer } from '@/components/card-system/CardSystemContainer';
+import { CardProvider } from '@/components/card-system/CardContext';
 
 export default function EmbeddedCalculatorPage() {
   return (
@@ -28,7 +29,10 @@ export default function EmbeddedCalculatorPage() {
 
         {/* Card System */}
         <div className="bg-white border rounded-xl shadow-sm p-4 md:p-6">
-          <CardSystemContainer showVisualSupport={true} />
+          {/* Widget-mode provider to reuse static config visuals (no DB) */}
+          <CardProvider initialData={(typeof window !== 'undefined' && (window as any).__E1_WIDGET_DATA) || {}} widgetMode={true}>
+            <CardSystemContainer showVisualSupport={true} widgetMode={true} />
+          </CardProvider>
         </div>
       </main>
     </div>
