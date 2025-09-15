@@ -32,8 +32,6 @@ export function CardStream({
     showBottom: false,
   });
 
-  // Auto-scrolling disabled - removed user scroll tracking
-
   // Update scroll indicators only
   const updateScrollIndicators = useCallback(() => {
     const container = scrollContainerRef.current;
@@ -66,7 +64,7 @@ export function CardStream({
   // Update indicators on mount and when cards change
   useEffect(() => {
     updateScrollIndicators();
-  }, [cards.length]); // Only depend on cards length, not the entire cards array or callback
+  }, [updateScrollIndicators]);
 
   // Add scroll event listener
   useEffect(() => {
@@ -94,11 +92,6 @@ export function CardStream({
       .filter(card => !shouldBeRevealed(card))
       .sort((a, b) => a.display_order - b.display_order);
   }, [cards, shouldBeRevealed]);
-
-  // All cards ordered by display_order for locating the next card regardless of reveal state
-  const orderedCards = useMemo(() => {
-    return [...cards].sort((a, b) => a.display_order - b.display_order);
-  }, [cards]);
 
   const hasMore = lockedCards.length > 0;
 
@@ -175,144 +168,167 @@ export function CardStream({
           {/* Inline Visual Support for Mobile - per card, image first */}
 
           {/* Visible Cards with inline visual on desktop */}
-          {visibleCards.map((card, index) => {
+          {visibleCards.map((card) => {
             const isActive = activeCardId === card.id;
             const isComplete = cardStates[card.id]?.status === 'complete';
 
             return (
               <React.Fragment key={card.id}>
-              <div
-                id={`card-${card.id}`}
-                style={{
-                  display: 'flex',
-                  flexDirection: 'row',
-                  alignItems: 'stretch',
-                  gap: styles.layout.gapBetweenPanels,
-                  marginBottom: styles.card.base.marginBottom,
-                }}
-              >
-                {/* Left: visual column (default placement) */}
-                {!forceShowInline && (
-                  <div style={{ flex: `0 0 ${styles.layout.visualSupportRatio || '35%'}`, minWidth: 0 }}>
-                    {(card.visual_objects || (card as any).config?.linked_visual_object_id) ? (
-                      <div
-                        style={{
-                          background: styles.card.base.background,
-                          borderRadius: styles.card.base.borderRadius,
-                          overflow: styles.card.base.overflow,
-                          border: styles.card.base.border,
-                          boxShadow: styles.card.base.boxShadow,
-                          height: '100%',
-                        }}
-                      >
-                        <div style={{ height: '100%' }}>
-                          <VisualSupport activeCard={card} compact={false} />
-                        </div>
-                      </div>
-                    ) : (
-                      <div style={{ height: '100%' }} />
-                    )}
-                  </div>
-                )}
-
-                {/* Right: interactive card */}
                 <div
+                  id={`card-${card.id}`}
                   style={{
-                    flex: 1,
-                    minWidth: 0,
-                    background: isActive
-                      ? styles.card.states.active.background
-                      : isComplete
-                        ? styles.card.states.complete.background
-                        : styles.card.base.background,
-                    borderRadius: styles.card.base.borderRadius,
-                    overflow: styles.card.base.overflow,
-                    borderTop: isActive
-                      ? styles.card.states.active.border
-                      : styles.card.base.border,
-                    borderRight: isActive
-                      ? styles.card.states.active.border
-                      : styles.card.base.border,
-                    borderBottom: isActive
-                      ? styles.card.states.active.border
-                      : styles.card.base.border,
-                    borderLeft: isActive
-                      ? styles.card.states.active.border
-                      : isComplete
-                        ? styles.card.states.complete.borderLeft
-                        : styles.card.base.border,
-                    boxShadow: isActive
-                      ? styles.card.states.active.boxShadow
-                      : styles.card.base.boxShadow,
-                    transform: isActive
-                      ? styles.card.states.active.transform
-                      : 'scale(1)',
-                    opacity: isComplete
-                      ? styles.card.states.complete.opacity
-                      : '1',
-                    transition: styles.card.base.transition,
-                    position: 'relative',
+                    display: 'flex',
+                    flexDirection: 'row',
+                    alignItems: 'stretch',
+                    gap: styles.layout.gapBetweenPanels,
+                    marginBottom: styles.card.base.marginBottom,
                   }}
                 >
-                  {/* On mobile, render the visual banner inside the card container at the top */}
-                  {forceShowInline && (card.visual_objects || (card as any).config?.linked_visual_object_id) && (
-                    <div style={{ margin: '12px 12px 0', borderRadius: '8px', overflow: 'hidden', background: '#ffffff' }}>
-                      {(() => {
-                        const tokenH = (styles.responsive as any)?.mobile?.visualSupport?.height;
-                        const bannerH = !tokenH || tokenH === 'auto' ? '180px' : tokenH;
-                        return (
-                          <div style={{ height: bannerH }}>
-                            <VisualSupport activeCard={card} compact={true} hideText={true} />
+                  {/* Left: visual column (default placement) */}
+                  {!forceShowInline && (
+                    <div
+                      style={{
+                        flex: `0 0 ${styles.layout.visualSupportRatio || '35%'}`,
+                        minWidth: 0,
+                      }}
+                    >
+                      {card.visual_objects ||
+                      (card as any).config?.linked_visual_object_id ? (
+                        <div
+                          style={{
+                            background: styles.card.base.background,
+                            borderRadius: styles.card.base.borderRadius,
+                            overflow: styles.card.base.overflow,
+                            border: styles.card.base.border,
+                            boxShadow: styles.card.base.boxShadow,
+                            height: '100%',
+                          }}
+                        >
+                          <div style={{ height: '100%' }}>
+                            <VisualSupport activeCard={card} compact={false} />
                           </div>
-                        );
-                      })()}
+                        </div>
+                      ) : (
+                        <div style={{ height: '100%' }} />
+                      )}
                     </div>
                   )}
-                  {isComplete &&
-                    styles.card.states.complete.checkmark?.enabled && (
-                      <div
-                        style={{
-                          position: styles.card.states.complete.checkmark
-                            .position as any,
-                          top: styles.card.states.complete.checkmark.top,
-                          right: styles.card.states.complete.checkmark.right,
-                          width: styles.card.states.complete.checkmark.size,
-                          height: styles.card.states.complete.checkmark.size,
-                          background:
-                            styles.card.states.complete.checkmark.background,
-                          borderRadius:
-                            styles.card.states.complete.checkmark.borderRadius,
-                          padding: styles.card.states.complete.checkmark.padding,
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          color: styles.card.states.complete.checkmark.color,
-                        }}
-                      >
-                        <svg
-                          width="16"
-                          height="16"
-                          viewBox="0 0 16 16"
-                          fill="none"
-                          xmlns="http://www.w3.org/2000/svg"
+
+                  {/* Right: interactive card */}
+                  <div
+                    style={{
+                      flex: 1,
+                      minWidth: 0,
+                      background: isActive
+                        ? styles.card.states.active.background
+                        : isComplete
+                          ? styles.card.states.complete.background
+                          : styles.card.base.background,
+                      borderRadius: styles.card.base.borderRadius,
+                      overflow: styles.card.base.overflow,
+                      borderTop: isActive
+                        ? styles.card.states.active.border
+                        : styles.card.base.border,
+                      borderRight: isActive
+                        ? styles.card.states.active.border
+                        : styles.card.base.border,
+                      borderBottom: isActive
+                        ? styles.card.states.active.border
+                        : styles.card.base.border,
+                      borderLeft: isActive
+                        ? styles.card.states.active.border
+                        : isComplete
+                          ? styles.card.states.complete.borderLeft
+                          : styles.card.base.border,
+                      boxShadow: isActive
+                        ? styles.card.states.active.boxShadow
+                        : styles.card.base.boxShadow,
+                      transform: isActive
+                        ? styles.card.states.active.transform
+                        : 'scale(1)',
+                      opacity: isComplete
+                        ? styles.card.states.complete.opacity
+                        : '1',
+                      transition: styles.card.base.transition,
+                      position: 'relative',
+                    }}
+                  >
+                    {/* On mobile, render the visual banner inside the card container at the top */}
+                    {forceShowInline &&
+                      (card.visual_objects ||
+                        (card as any).config?.linked_visual_object_id) && (
+                        <div
+                          style={{
+                            margin: '12px 12px 0',
+                            borderRadius: '8px',
+                            overflow: 'hidden',
+                            background: '#ffffff',
+                          }}
                         >
-                          <path
-                            d="M13.5 4.5L6 12L2.5 8.5"
-                            stroke="currentColor"
-                            strokeWidth="2"
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                          />
-                        </svg>
-                      </div>
-                    )}
-                  <CardRenderer card={card} onFieldFocus={onFieldFocus} />
+                          {(() => {
+                            const tokenH = (styles.responsive as any)?.mobile
+                              ?.visualSupport?.height;
+                            const bannerH =
+                              !tokenH || tokenH === 'auto' ? '180px' : tokenH;
+                            return (
+                              <div style={{ height: bannerH }}>
+                                <VisualSupport
+                                  activeCard={card}
+                                  compact={true}
+                                  hideText={true}
+                                />
+                              </div>
+                            );
+                          })()}
+                        </div>
+                      )}
+                    {isComplete &&
+                      styles.card.states.complete.checkmark?.enabled && (
+                        <div
+                          style={{
+                            position: styles.card.states.complete.checkmark
+                              .position as any,
+                            top: styles.card.states.complete.checkmark.top,
+                            right: styles.card.states.complete.checkmark.right,
+                            width: styles.card.states.complete.checkmark.size,
+                            height: styles.card.states.complete.checkmark.size,
+                            background:
+                              styles.card.states.complete.checkmark.background,
+                            borderRadius:
+                              styles.card.states.complete.checkmark
+                                .borderRadius,
+                            padding:
+                              styles.card.states.complete.checkmark.padding,
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            color: styles.card.states.complete.checkmark.color,
+                          }}
+                        >
+                          <svg
+                            width="16"
+                            height="16"
+                            viewBox="0 0 16 16"
+                            fill="none"
+                            xmlns="http://www.w3.org/2000/svg"
+                          >
+                            <path
+                              d="M13.5 4.5L6 12L2.5 8.5"
+                              stroke="currentColor"
+                              strokeWidth="2"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                            />
+                          </svg>
+                        </div>
+                      )}
+                    <CardRenderer card={card} onFieldFocus={onFieldFocus} />
+                  </div>
                 </div>
-              </div>
 
-              {/* Remove next locked visual teaser to keep CTA directly after card */}
+                {/* Remove next locked visual teaser to keep CTA directly after card */}
 
-              {/* Removed peek design */}
+                {/* Removed peek design */}
               </React.Fragment>
             );
           })}
@@ -331,8 +347,22 @@ export function CardStream({
               <style>{`
                 @keyframes e1ArrowBounce { 0%,100% { transform: translateY(0); opacity: .8 } 50% { transform: translateY(4px); opacity: 1 } }
               `}</style>
-              <div style={{ fontSize: '16px', lineHeight: 1, animation: 'e1ArrowBounce 1.4s ease-in-out infinite' }}>▾</div>
-              <div style={{ marginTop: '6px', fontSize: '16px', textAlign: 'center' }}>
+              <div
+                style={{
+                  fontSize: '16px',
+                  lineHeight: 1,
+                  animation: 'e1ArrowBounce 1.4s ease-in-out infinite',
+                }}
+              >
+                ▾
+              </div>
+              <div
+                style={{
+                  marginTop: '6px',
+                  fontSize: '16px',
+                  textAlign: 'center',
+                }}
+              >
                 Siirry eteenpäin vastaamalla kysymyksiin.
               </div>
             </div>

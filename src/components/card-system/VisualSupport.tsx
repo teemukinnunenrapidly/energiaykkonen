@@ -1,13 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { useCardStyles, cssValue } from '@/hooks/useCardStyles';
+import { useCardStyles } from '@/hooks/useCardStyles';
 import type { CardTemplate } from '@/lib/supabase';
 
 interface VisualSupportProps {
   activeCard?: CardTemplate;
   visualConfig?: any;
   compact?: boolean;
-  // Keep objectId for backward compatibility
-  objectId?: string;
   bannerHeight?: number;
   hideText?: boolean;
 }
@@ -16,30 +14,16 @@ export function VisualSupport({
   activeCard,
   visualConfig,
   compact = false,
-  objectId,
   bannerHeight,
   hideText = false,
 }: VisualSupportProps) {
   const styles = useCardStyles();
   const [visualImages, setVisualImages] = useState<any[]>([]);
   const [loadingImages, setLoadingImages] = useState(false);
-  const [imageLoadStarted, setImageLoadStarted] = useState(false);
 
   // Get the visual object from activeCard or visualConfig
-  let visualObject = visualConfig || activeCard?.visual_objects;
+  const visualObject = visualConfig || activeCard?.visual_objects;
 
-  // Debug logging
-  console.log('🖼️ VisualSupport render:', {
-    activeCardId: activeCard?.id,
-    activeCardName: activeCard?.name,
-    hasVisualObjects: !!activeCard?.visual_objects,
-    hasLinkedVisualObjectId: !!activeCard?.config?.linked_visual_object_id,
-    linkedVisualObjectId: activeCard?.config?.linked_visual_object_id,
-    visualObjectId: visualObject?.id,
-    visualObjectTitle: visualObject?.title,
-    visualConfigPassed: !!visualConfig,
-    compact,
-  });
 
   // Progressive loading: Only fetch images when card becomes active
   useEffect(() => {
@@ -47,16 +31,13 @@ export function VisualSupport({
       // Only fetch if we have a visual object
       if (!visualObject?.id) {
         setVisualImages([]);
-        setImageLoadStarted(false);
         return;
       }
 
       setLoadingImages(true);
-      setImageLoadStarted(true);
-      
+
       try {
         // Fetch from Supabase
-        console.log('🎯 Progressive loading: Fetching images for visual object:', visualObject.id);
         const { supabase } = await import('@/lib/supabase');
         const { data: images, error } = await supabase
           .from('visual_object_images')
@@ -65,15 +46,16 @@ export function VisualSupport({
           .order('display_order');
 
         if (error) {
-          console.error('❌ Error fetching visual images:', error);
           setVisualImages([]);
         } else {
           const count = images?.length || 0;
-          console.log('✅ Progressive load complete: Loaded', count, 'images');
           if (!count && visualObject?.image_url) {
             // Fallback: use prebuilt image_url stored on the visual object itself
             setVisualImages([
-              { id: visualObject.id || 'vo-image', image_url: visualObject.image_url },
+              {
+                id: visualObject.id || 'vo-image',
+                image_url: visualObject.image_url,
+              },
             ]);
           } else {
             setVisualImages(images || []);
@@ -95,41 +77,32 @@ export function VisualSupport({
   const getImageUrl = (image: any) => {
     // Check if visual object has pre-constructed URL
     if (visualObject?.image_url) {
-      console.log('🔗 Using pre-constructed image URL from visual object:', visualObject.image_url);
       return visualObject.image_url;
     }
-    
+
     // Check if individual image has pre-constructed URL
     if (image?.image_url) {
-      console.log('🔗 Using pre-constructed image URL from image object:', image.image_url);
       return image.image_url;
     }
 
     // Fallback to manual URL construction
-    const cloudflareImageId = image?.cloudflare_image_id || image?.cloudflareImageId;
+    const cloudflareImageId =
+      image?.cloudflare_image_id || image?.cloudflareImageId;
     const variant = image?.variant || image?.image_variant || 'public';
-    
+
     if (!cloudflareImageId) {
-      console.error('❌ No Cloudflare image ID found:', image);
       return null;
     }
-    
+
     // Get account hash from environment
     const accountHash = process.env.NEXT_PUBLIC_CLOUDFLARE_ACCOUNT_HASH;
-      
-    console.log('🔧 Fallback to manual URL construction:', {
-        accountHash: accountHash ? `${accountHash.substring(0, 8)}...` : 'MISSING',
-      cloudflareImageId,
-      variant
-    });
+
 
     if (!accountHash) {
-      console.error('❌ Missing Cloudflare account hash for manual construction');
       return null;
     }
-    
+
     const url = `https://imagedelivery.net/${accountHash}/${cloudflareImageId}/${variant}`;
-    console.log('🔗 Manually constructed image URL:', url);
     return url;
   };
 
@@ -176,18 +149,29 @@ export function VisualSupport({
           position: 'relative',
           overflow: 'hidden',
           minHeight: (() => {
-            const tokenH = (styles.responsive as any)?.mobile?.visualSupport?.height;
-            const h = bannerHeight ? `${bannerHeight}px` : (tokenH && tokenH !== 'auto' ? tokenH : '180px');
+            const tokenH = (styles.responsive as any)?.mobile?.visualSupport
+              ?.height;
+            const h = bannerHeight
+              ? `${bannerHeight}px`
+              : tokenH && tokenH !== 'auto'
+                ? tokenH
+                : '180px';
             return h;
           })(),
         }}
       >
         {/* Image layer (actual <img> for reliability) */}
         {(() => {
-          if (loadingImages) return null;
+          if (loadingImages) {
+            return null;
+          }
           const firstImage = visualImages[0];
-          const imageUrl = firstImage ? getImageUrl(firstImage) : (visualObject?.image_url || null);
-          if (!imageUrl) return null;
+          const imageUrl = firstImage
+            ? getImageUrl(firstImage)
+            : visualObject?.image_url || null;
+          if (!imageUrl) {
+            return null;
+          }
           return (
             <img
               src={imageUrl}
@@ -202,7 +186,9 @@ export function VisualSupport({
                 opacity: 1,
                 zIndex: 0,
               }}
-              onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none'; }}
+              onError={e => {
+                (e.currentTarget as HTMLImageElement).style.display = 'none';
+              }}
             />
           );
         })()}
@@ -249,14 +235,8 @@ export function VisualSupport({
               justifyContent: 'center',
             }}
           >
-            {visualImages.map((image, index) => {
+            {visualImages.map((image) => {
               const imageUrl = getImageUrl(image);
-              console.log(`🖼️ Rendering image ${index + 1}:`, {
-                imageId: image.id,
-                cloudflareId: image.cloudflare_image_id || image.cloudflareImageId,
-                generatedUrl: imageUrl,
-                imageObject: image
-              });
               return imageUrl ? (
                 <img
                   key={image.id}
@@ -269,12 +249,7 @@ export function VisualSupport({
                     objectFit: 'cover',
                     borderRadius: styles.visualSupport.image.borderRadius,
                   }}
-                  onLoad={() => {
-                    console.log('✅ Image loaded successfully:', imageUrl);
-                  }}
                   onError={e => {
-                    console.error('❌ Failed to load image:', imageUrl);
-                    console.error('❌ Image error details:', e);
                     e.currentTarget.style.display = 'none';
                   }}
                 />

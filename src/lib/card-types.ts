@@ -22,7 +22,15 @@ export interface CardField {
   id: string;
   card_id?: string;
   field_name: string;
-  field_type: 'text' | 'number' | 'email' | 'select' | 'radio' | 'buttons' | 'checkbox' | 'textarea';
+  field_type:
+    | 'text'
+    | 'number'
+    | 'email'
+    | 'select'
+    | 'radio'
+    | 'buttons'
+    | 'checkbox'
+    | 'textarea';
   label: string;
   placeholder?: string;
   help_text?: string;
@@ -53,7 +61,12 @@ export async function updateFieldCompletion(
   isComplete: boolean
 ): Promise<void> {
   // Mock implementation - no database persistence
-  console.log('Mock updateFieldCompletion:', { sessionId, cardId, fieldName, isComplete });
+  console.log('Mock updateFieldCompletion:', {
+    sessionId,
+    cardId,
+    fieldName,
+    isComplete,
+  });
 }
 
 export async function updateCardCompletion(

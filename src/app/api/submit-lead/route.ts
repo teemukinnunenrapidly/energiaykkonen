@@ -29,7 +29,7 @@ const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Methods': 'POST, OPTIONS',
   'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-  'Access-Control-Allow-Credentials': 'false'
+  'Access-Control-Allow-Credentials': 'false',
 };
 
 export async function OPTIONS() {
@@ -211,13 +211,14 @@ export async function POST(request: NextRequest) {
       const pdfFileName = `${insertedLead.id}/saastolaskelma-${pdfData.calculationNumber || Date.now()}.pdf`;
 
       try {
-        const { data: uploadData, error: uploadError } = await supabaseAdmin.storage
-          .from('lead-pdfs')
-          .upload(pdfFileName, pdfBuffer, {
-            contentType: 'application/pdf',
-            cacheControl: '3600',
-            upsert: true,
-          });
+        const { data: uploadData, error: uploadError } =
+          await supabaseAdmin.storage
+            .from('lead-pdfs')
+            .upload(pdfFileName, pdfBuffer, {
+              contentType: 'application/pdf',
+              cacheControl: '3600',
+              upsert: true,
+            });
 
         if (uploadError) {
           console.error('Failed to upload PDF to storage:', uploadError);

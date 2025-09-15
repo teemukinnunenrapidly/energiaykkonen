@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { CardStream } from './CardStream';
-import { VisualSupport } from './VisualSupport';
 import { CardProvider, useCardContext } from './CardContext';
 import { initializeCommonDependencies } from '@/lib/session-data-table';
 import { useCardStyles } from '@/hooks/useCardStyles';
@@ -20,7 +19,6 @@ interface CardSystemContainerProps {
 function CardSystemInner({
   maxWidth,
   fullWidth = false,
-  className = '',
   showVisualSupport = true,
   height,
   forceMode,
@@ -32,7 +30,6 @@ function CardSystemInner({
 
   // Use design tokens for defaults
   const containerMaxWidth = maxWidth || styles.container.maxWidth; // 1400px from token
-  const containerHeight = height || styles.container.height; // 'auto' from token
 
   const [activeContext, setActiveContext] = useState<{
     cardId?: string;
@@ -49,19 +46,22 @@ function CardSystemInner({
             : containerMaxWidth,
       };
 
-  const cardStreamWidth = '100%';
 
   // Determine if we should show desktop or mobile layout
   const [detectedMobile, setDetectedMobile] = useState(false);
   useEffect(() => {
-    if (typeof window === 'undefined') return;
+    if (typeof window === 'undefined') {
+      return;
+    }
     const bpStr = (styles.responsive as any)?.breakpoints?.mobile || '768px';
     const bp = parseInt(String(bpStr).replace('px', '')) || 768;
 
     // Prefer container width via ResizeObserver for accurate responsive detection
     let ro: ResizeObserver | null = null;
     const observeContainer = () => {
-      if (!containerRef.current || typeof ResizeObserver === 'undefined') return;
+      if (!containerRef.current || typeof ResizeObserver === 'undefined') {
+        return;
+      }
       ro = new ResizeObserver(entries => {
         const width = entries[0]?.contentRect?.width || window.innerWidth;
         setDetectedMobile(width <= bp);
@@ -70,35 +70,29 @@ function CardSystemInner({
     };
 
     // Fallback to window width
-    const onResize = () => setDetectedMobile((containerRef.current?.offsetWidth || window.innerWidth) <= bp);
+    const onResize = () =>
+      setDetectedMobile(
+        (containerRef.current?.offsetWidth || window.innerWidth) <= bp
+      );
 
     observeContainer();
     onResize();
     window.addEventListener('resize', onResize);
     return () => {
       window.removeEventListener('resize', onResize);
-      if (ro) ro.disconnect();
+      if (ro) {
+        ro.disconnect();
+      }
     };
-  }, []);
+  }, [styles.responsive]);
   const isMobileMode = forceMode === 'mobile' || detectedMobile;
 
   // Find the active card from cards list
   const activeCard = cards.find(c => c.id === activeContext.cardId);
 
   // Get visual object from active card
-  let visualObject = activeCard?.visual_objects;
+  const visualObject = activeCard?.visual_objects;
 
-  // Debug logging
-  console.log('🏗️ CardSystemContainer state:', {
-    totalCards: cards.length,
-    cardsWithVisuals: cards.filter(c => c.visual_objects).length,
-    activeContextCardId: activeContext.cardId,
-    activeCardName: activeCard?.name,
-    activeCardHasVisuals: !!visualObject,
-    isMobileMode,
-    showVisualSupport,
-    visualPanelVisible: showVisualSupport && !isMobileMode,
-  });
 
   // Auto-select first card with visual objects for better UX (when no active card)
   useEffect(() => {
@@ -106,16 +100,11 @@ function CardSystemInner({
     if (!activeContext.cardId && cards.length > 0) {
       // Find first card with visual objects
       const cardWithVisual = cards.find(c => c.visual_objects);
-      
+
       // If no card with visual, just select the first card
       const cardToSelect = cardWithVisual || cards[0];
-      
+
       if (cardToSelect) {
-        console.log('🎯 Auto-selecting card:', {
-          cardId: cardToSelect.id,
-          cardName: cardToSelect.name,
-          hasVisual: !!cardToSelect.visual_objects,
-        });
         setActiveContext({
           cardId: cardToSelect.id,
           fieldId: 'auto_selected',
@@ -123,7 +112,7 @@ function CardSystemInner({
         });
       }
     }
-  }, [cards.length]); // React to cards loading
+  }, [activeContext.cardId, cards]);
 
   return (
     <div
@@ -153,7 +142,9 @@ function CardSystemInner({
         <div
           style={{
             width: '100%',
-            minHeight: (styles.cardStream as any).minHeight || (styles.container as any).minHeight,
+            minHeight:
+              (styles.cardStream as any).minHeight ||
+              (styles.container as any).minHeight,
             height: (styles.cardStream as any).height || '100%',
             background: styles.cardStream.background,
             flex: 1,
@@ -162,11 +153,6 @@ function CardSystemInner({
         >
           <CardStream
             onFieldFocus={(cardId, fieldId, value) => {
-              console.log('🎯 onFieldFocus called:', {
-                cardId,
-                fieldId,
-                value,
-              });
               setActiveContext({ cardId, fieldId, value });
             }}
             activeCardId={activeContext.cardId}

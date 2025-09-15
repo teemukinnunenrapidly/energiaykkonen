@@ -3,8 +3,7 @@
  * Fetches shortcode definitions from Supabase and processes them dynamically
  */
 
-import { supabase } from '@/lib/supabase';
-import { Lead } from '@/lib/supabase';
+import { supabase, Lead } from '@/lib/supabase';
 import { evaluateFormula } from './safe-formula-evaluator';
 
 export interface PDFShortcode {

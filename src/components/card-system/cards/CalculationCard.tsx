@@ -32,7 +32,6 @@ export function CalculationCard({ card }: CalculationCardProps) {
   const hasProcessedCalculationRef = useRef<boolean>(false);
   const lastDependencyValuesRef = useRef<Record<string, any>>({});
 
-
   // Process calculation
   useEffect(() => {
     const processCalculation = async () => {
@@ -54,24 +53,25 @@ export function CalculationCard({ card }: CalculationCardProps) {
           for (const dep of fieldDependencies) {
             currentDependencyValues[dep] = formData[dep];
           }
-          
+
           // Compare with last known values
-          dependenciesChanged = JSON.stringify(currentDependencyValues) !== 
-                               JSON.stringify(lastDependencyValuesRef.current);
-          
+          dependenciesChanged =
+            JSON.stringify(currentDependencyValues) !==
+            JSON.stringify(lastDependencyValuesRef.current);
+
           if (dependenciesChanged) {
             console.log(`Dependencies changed for card ${card.id}:`, {
               old: lastDependencyValuesRef.current,
-              new: currentDependencyValues
+              new: currentDependencyValues,
             });
             lastDependencyValuesRef.current = currentDependencyValues;
           }
         }
 
         // Check if we need to recalculate
-        const needsRecalculation = !hasProcessedCalculationRef.current || 
-          dependenciesChanged;
-        
+        const needsRecalculation =
+          !hasProcessedCalculationRef.current || dependenciesChanged;
+
         if (!needsRecalculation && isAlreadyComplete) {
           return;
         }
@@ -90,11 +90,17 @@ export function CalculationCard({ card }: CalculationCardProps) {
 
         try {
           let result: any;
-          
+
           // Use unified calculation engine (with Supabase) - dynamic import
-          const { UnifiedCalculationEngine } = await import('@/lib/unified-calculation-engine');
+          const { UnifiedCalculationEngine } = await import(
+            '@/lib/unified-calculation-engine'
+          );
           const { supabase } = await import('@/lib/supabase');
-          const engine = new UnifiedCalculationEngine(supabase, sessionId, formData);
+          const engine = new UnifiedCalculationEngine(
+            supabase,
+            sessionId,
+            formData
+          );
           result = await engine.process(card.config.main_result);
           console.log('CalculationCard received result:', result);
 
@@ -105,18 +111,32 @@ export function CalculationCard({ card }: CalculationCardProps) {
               try {
                 if (result.result != null) {
                   // Safe type checking to avoid React Error #185
-                  const resultType = Object.prototype.toString.call(result.result);
-                  
+                  const resultType = Object.prototype.toString.call(
+                    result.result
+                  );
+
                   if (resultType === '[object Object]') {
                     // Try to extract value from object safely
                     const obj = result.result as any;
-                    if (obj && typeof obj === 'object' && obj.value !== undefined) {
+                    if (
+                      obj &&
+                      typeof obj === 'object' &&
+                      obj.value !== undefined
+                    ) {
                       resultString = String(obj.value);
                       // Also check for unit in object
-                      if (obj.unit) result.unit = obj.unit;
-                    } else if (obj && typeof obj === 'object' && obj.result !== undefined) {
+                      if (obj.unit) {
+                        result.unit = obj.unit;
+                      }
+                    } else if (
+                      obj &&
+                      typeof obj === 'object' &&
+                      obj.result !== undefined
+                    ) {
                       resultString = String(obj.result);
-                      if (obj.unit) result.unit = obj.unit;
+                      if (obj.unit) {
+                        result.unit = obj.unit;
+                      }
                     } else {
                       resultString = String(result.result);
                     }
@@ -127,15 +147,15 @@ export function CalculationCard({ card }: CalculationCardProps) {
               } catch (typeError) {
                 resultString = String(result.result || '0');
               }
-              
+
               // Ensure we have a safe result string
               const safeResultString = resultString || '';
-              
+
               // Extract unit from result if it contains a space (e.g., "20820 kWh").
               // Default to kWh when the formula name hints energy and unit is missing.
               let extractedUnit = '';
               let valueToFormat = safeResultString;
-              
+
               // Check if the result contains a unit (has a space)
               const parts = safeResultString.trim().split(/\s+/);
               if (parts.length > 1) {
@@ -144,22 +164,27 @@ export function CalculationCard({ card }: CalculationCardProps) {
                 // Everything else is the value
                 valueToFormat = parts.slice(0, -1).join(' ');
               }
-              
+
               // Format result with Finnish number formatting
-              const numericValue = parseFloat(valueToFormat.replace(/\s/g, '').replace(',', '.'));
-              const formattedResult = !isNaN(numericValue) 
-                ? numericValue.toLocaleString('fi-FI') 
+              const numericValue = parseFloat(
+                valueToFormat.replace(/\s/g, '').replace(',', '.')
+              );
+              const formattedResult = !isNaN(numericValue)
+                ? numericValue.toLocaleString('fi-FI')
                 : valueToFormat;
-              
+
               setCalculatedResult(formattedResult);
               setOriginalResult(formattedResult);
               // Prefer explicit unit -> extracted text -> sensible default for energy calcs
               let finalUnit = result.unit || extractedUnit || '';
-              if (!finalUnit && /energiantarve|kwh/i.test(card.title || card.name || '')) {
+              if (
+                !finalUnit &&
+                /energiantarve|kwh/i.test(card.title || card.name || '')
+              ) {
                 finalUnit = 'kWh';
               }
               setResultUnit(finalUnit);
-              
+
               setFormulaName(null);
 
               // Store the calculated result in formData using the configured field_name
@@ -178,14 +203,19 @@ export function CalculationCard({ card }: CalculationCardProps) {
                   // Field update failed
                 }
               }
-              
+
               // Auto-complete the card if calculation succeeds
               if (card.config?.auto_complete_on_success) {
                 completeCard(card.id);
               }
             } catch (innerError) {
               console.error('Error in result.success block:', innerError);
-              setError('Result processing failed: ' + (innerError instanceof Error ? innerError.message : String(innerError)));
+              setError(
+                'Result processing failed: ' +
+                  (innerError instanceof Error
+                    ? innerError.message
+                    : String(innerError))
+              );
             }
           } else {
             setError(result.error || 'Calculation failed');
@@ -194,7 +224,7 @@ export function CalculationCard({ card }: CalculationCardProps) {
           // Update field dependencies for future re-calculations
           if (result.dependencies) {
             setFieldDependencies(result.dependencies);
-            
+
             // Store current dependency values for change detection
             const currentDependencyValues: Record<string, any> = {};
             for (const dep of result.dependencies) {
@@ -204,7 +234,9 @@ export function CalculationCard({ card }: CalculationCardProps) {
           }
 
           // Extract shortcode name for override checking
-          const shortcodeMatch = card.config.main_result.match(/\[(?:calc|lookup):([^\]]+)\]/);
+          const shortcodeMatch = card.config.main_result.match(
+            /\[(?:calc|lookup):([^\]]+)\]/
+          );
           if (shortcodeMatch) {
             setFormulaName(shortcodeMatch[1]);
           }
@@ -228,7 +260,12 @@ export function CalculationCard({ card }: CalculationCardProps) {
       } catch (outerError) {
         console.error('❌ Error in processCalculation:', outerError);
         try {
-          setError('Calculation failed: ' + (outerError instanceof Error ? outerError.message : String(outerError)));
+          setError(
+            'Calculation failed: ' +
+              (outerError instanceof Error
+                ? outerError.message
+                : String(outerError))
+          );
         } catch (setErrorError) {
           console.error('❌ Error setting error:', setErrorError);
         }
@@ -240,12 +277,15 @@ export function CalculationCard({ card }: CalculationCardProps) {
       console.log('Already calculating, skipping...');
       return;
     }
-    
+
     try {
       processCalculation();
     } catch (error) {
       console.error('Error in processCalculation useEffect:', error);
-      setError('Calculation process failed: ' + (error instanceof Error ? error.message : String(error)));
+      setError(
+        'Calculation process failed: ' +
+          (error instanceof Error ? error.message : String(error))
+      );
     }
   }, [
     card.id, // Only depend on card ID, not entire card object
@@ -282,7 +322,9 @@ export function CalculationCard({ card }: CalculationCardProps) {
   };
 
   const handleSubmit = async () => {
-    if (isSubmitting) return;
+    if (isSubmitting) {
+      return;
+    }
 
     setIsSubmitting(true);
     setSubmitSuccess(false);
@@ -291,10 +333,10 @@ export function CalculationCard({ card }: CalculationCardProps) {
       const emailTemplate = card.config?.email_template || 'default';
       await submitData(emailTemplate);
       setSubmitSuccess(true);
-      
+
       // Mark card as complete after successful submission
       completeCard(card.id);
-      
+
       console.log('✅ Form submitted successfully');
     } catch (error) {
       console.error('❌ Error submitting form:', error);
@@ -305,7 +347,8 @@ export function CalculationCard({ card }: CalculationCardProps) {
   };
 
   const isComplete = cardStates[card.id]?.status === 'complete';
-  const canSubmit = card.config?.show_submit_button && calculatedResult && !isComplete;
+  const canSubmit =
+    card.config?.show_submit_button && calculatedResult && !isComplete;
 
   return (
     <div
@@ -317,15 +360,19 @@ export function CalculationCard({ card }: CalculationCardProps) {
       {/* Header section */}
       {(card.title || card.config?.description) && (
         <div style={styles.calculationCard.header as React.CSSProperties}>
-          <h3 style={{
-            ...(styles.calculationCard.title as React.CSSProperties),
-          }}>
+          <h3
+            style={{
+              ...(styles.calculationCard.title as React.CSSProperties),
+            }}
+          >
             {card.title || card.name}
           </h3>
           {card.config?.description && (
-            <p style={{
-              ...(styles.calculationCard.description as React.CSSProperties),
-              }}>
+            <p
+              style={{
+                ...(styles.calculationCard.description as React.CSSProperties),
+              }}
+            >
               {card.config.description}
             </p>
           )}
@@ -334,9 +381,13 @@ export function CalculationCard({ card }: CalculationCardProps) {
 
       {/* Main Result Field */}
       <div style={styles.calculationCard.resultSection as React.CSSProperties}>
-        <div style={styles.calculationCard.resultDisplay as React.CSSProperties}>
+        <div
+          style={styles.calculationCard.resultDisplay as React.CSSProperties}
+        >
           {error ? (
-            <div style={styles.calculationCard.errorMessage as React.CSSProperties}>
+            <div
+              style={styles.calculationCard.errorMessage as React.CSSProperties}
+            >
               {error}
             </div>
           ) : calculatedResult && card.config?.enable_edit_mode ? (
@@ -349,7 +400,11 @@ export function CalculationCard({ card }: CalculationCardProps) {
               isCalculating={isCalculating}
             />
           ) : calculatedResult ? (
-            <div style={styles.calculationCard.resultDisplay as React.CSSProperties}>
+            <div
+              style={
+                styles.calculationCard.resultDisplay as React.CSSProperties
+              }
+            >
               <div style={{ fontSize: '2rem', fontWeight: '600' }}>
                 {String(calculatedResult || '')}
               </div>
@@ -358,25 +413,33 @@ export function CalculationCard({ card }: CalculationCardProps) {
               </div>
             </div>
           ) : (
-            <div style={styles.calculationCard.resultDisplay as React.CSSProperties}>
+            <div
+              style={
+                styles.calculationCard.resultDisplay as React.CSSProperties
+              }
+            >
               Syötä arvot yllä nähdäksesi laskelman
             </div>
           )}
         </div>
       </div>
-      
+
       {/* Submit button if configured */}
       {canSubmit && (
         <button
           onClick={handleSubmit}
           disabled={isSubmitting}
           style={{
-            ...styles.submitButton as React.CSSProperties,
+            ...(styles.submitButton as React.CSSProperties),
             marginTop: '20px',
             width: '100%',
           }}
         >
-          {isSubmitting ? 'Lähetetään...' : submitSuccess ? '✓ Lähetetty' : 'Lähetä'}
+          {isSubmitting
+            ? 'Lähetetään...'
+            : submitSuccess
+              ? '✓ Lähetetty'
+              : 'Lähetä'}
         </button>
       )}
     </div>

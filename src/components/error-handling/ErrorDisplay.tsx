@@ -2,15 +2,15 @@ import React from 'react';
 import { AlertCircle, RefreshCw, X } from 'lucide-react';
 
 // Error types for classification
-export type ErrorType = 
-  | 'network'     // Network/fetch errors
-  | 'config'      // Configuration/JSON parsing errors
-  | 'dependency'  // Missing dependencies or resources
-  | 'render'      // React rendering errors
-  | 'validation'  // Data validation errors
-  | 'timeout'     // Request timeout errors
-  | 'permission'  // Permission/CORS errors
-  | 'unknown';    // Unknown errors
+export type ErrorType =
+  | 'network' // Network/fetch errors
+  | 'config' // Configuration/JSON parsing errors
+  | 'dependency' // Missing dependencies or resources
+  | 'render' // React rendering errors
+  | 'validation' // Data validation errors
+  | 'timeout' // Request timeout errors
+  | 'permission' // Permission/CORS errors
+  | 'unknown'; // Unknown errors
 
 export interface ErrorInfo {
   type: ErrorType;
@@ -32,47 +32,50 @@ interface ErrorDisplayProps {
 }
 
 // Error type to user-friendly message mapping
-const ERROR_MESSAGES: Record<ErrorType, { title: string; description: string; icon: string }> = {
+const ERROR_MESSAGES: Record<
+  ErrorType,
+  { title: string; description: string; icon: string }
+> = {
   network: {
     title: 'Verkkovirhe',
     description: 'Yhteysvirhe palvelimeen. Tarkista verkkoyhteytesi.',
-    icon: '🌐'
+    icon: '🌐',
   },
   config: {
-    title: 'Asetusvirhe', 
+    title: 'Asetusvirhe',
     description: 'Laskurin asetustiedosto on virheellinen tai puuttuu.',
-    icon: '⚙️'
+    icon: '⚙️',
   },
   dependency: {
     title: 'Resurssivirhe',
     description: 'Tarvittava resurssi ei ole käytettävissä.',
-    icon: '📦'
+    icon: '📦',
   },
   render: {
     title: 'Näyttövirhe',
     description: 'Laskurin näyttämisessä tapahtui virhe.',
-    icon: '🖥️'
+    icon: '🖥️',
   },
   validation: {
     title: 'Tietovirhe',
     description: 'Ladatut tiedot ovat virheellisiä tai vioittuneita.',
-    icon: '🔍'
+    icon: '🔍',
   },
   timeout: {
     title: 'Aikakatkaisuvirhe',
     description: 'Pyyntö kesti liian kauan - yritä uudelleen.',
-    icon: '⏱️'
+    icon: '⏱️',
   },
   permission: {
     title: 'Käyttöoikeusvirhe',
     description: 'Resurssin käyttö estettiin turvallisuussyistä.',
-    icon: '🔒'
+    icon: '🔒',
   },
   unknown: {
     title: 'Tuntematon virhe',
     description: 'Tapahtui odottamaton virhe.',
-    icon: '❓'
-  }
+    icon: '❓',
+  },
 };
 
 export const ErrorDisplay: React.FC<ErrorDisplayProps> = ({
@@ -80,10 +83,10 @@ export const ErrorDisplay: React.FC<ErrorDisplayProps> = ({
   onRetry,
   onDismiss,
   isRetrying = false,
-  className = ''
+  className = '',
 }) => {
   const errorInfo = ERROR_MESSAGES[error.type] || ERROR_MESSAGES.unknown;
-  
+
   return (
     <div className={`e1-error-display ${className}`} role="alert">
       <div className="e1-error-content">
@@ -107,30 +110,30 @@ export const ErrorDisplay: React.FC<ErrorDisplayProps> = ({
             </button>
           )}
         </div>
-        
+
         <div className="e1-error-details">
           <p className="e1-error-message">{error.message}</p>
-          
+
           {error.details && (
             <details className="e1-error-technical">
               <summary>Tekniset tiedot</summary>
               <pre className="e1-error-code">{error.details}</pre>
             </details>
           )}
-          
+
           {error.code && (
             <p className="e1-error-code-inline">
               Virhekoodi: <code>{error.code}</code>
             </p>
           )}
-          
+
           {error.retryCount && error.retryCount > 0 && (
             <p className="e1-error-retry-count">
               Yrityskerta: {error.retryCount + 1}/3
             </p>
           )}
         </div>
-        
+
         <div className="e1-error-actions">
           {error.retryable && onRetry && (
             <button
@@ -139,18 +142,21 @@ export const ErrorDisplay: React.FC<ErrorDisplayProps> = ({
               disabled={isRetrying}
               type="button"
             >
-              <RefreshCw className={`e1-error-retry-icon ${isRetrying ? 'spinning' : ''}`} size={16} />
+              <RefreshCw
+                className={`e1-error-retry-icon ${isRetrying ? 'spinning' : ''}`}
+                size={16}
+              />
               {isRetrying ? 'Yritetään uudelleen...' : 'Yritä uudelleen'}
             </button>
           )}
-          
+
           {!error.retryable && (
             <p className="e1-error-no-retry">
               Ongelma vaatii manuaalista korjausta.
             </p>
           )}
         </div>
-        
+
         <div className="e1-error-meta">
           <small className="e1-error-timestamp">
             Tapahtunut: {error.timestamp.toLocaleString('fi-FI')}
@@ -168,7 +174,7 @@ export const CompactErrorDisplay: React.FC<{
   isRetrying?: boolean;
 }> = ({ error, onRetry, isRetrying }) => {
   const errorInfo = ERROR_MESSAGES[error.type] || ERROR_MESSAGES.unknown;
-  
+
   return (
     <div className="e1-error-compact" role="alert">
       <div className="e1-error-compact-content">
@@ -202,9 +208,15 @@ export const LoadingWithError: React.FC<{
   children?: React.ReactNode;
 }> = ({ isLoading, error, onRetry, loadingText = 'Ladataan...', children }) => {
   if (error) {
-    return <CompactErrorDisplay error={error} onRetry={onRetry} isRetrying={isLoading} />;
+    return (
+      <CompactErrorDisplay
+        error={error}
+        onRetry={onRetry}
+        isRetrying={isLoading}
+      />
+    );
   }
-  
+
   if (isLoading) {
     return (
       <div className="e1-loading-state">
@@ -213,7 +225,7 @@ export const LoadingWithError: React.FC<{
       </div>
     );
   }
-  
+
   return <>{children}</>;
 };
 
@@ -238,12 +250,12 @@ export class ErrorBoundary extends React.Component<
       message: error.message,
       details: error.stack,
       retryable: true,
-      timestamp: new Date()
+      timestamp: new Date(),
     };
-    
+
     return {
       hasError: true,
-      error: errorInfo
+      error: errorInfo,
     };
   }
 
@@ -255,12 +267,12 @@ export class ErrorBoundary extends React.Component<
       retryable: true,
       timestamp: new Date(),
       context: {
-        componentStack: errorInfo.componentStack
-      }
+        componentStack: errorInfo.componentStack,
+      },
     };
-    
+
     console.error('🚨 React Error Boundary caught error:', enhancedError);
-    
+
     if (this.props.onError) {
       this.props.onError(enhancedError);
     }

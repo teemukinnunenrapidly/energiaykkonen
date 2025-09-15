@@ -125,7 +125,7 @@ export function AvailableFields() {
           <CardTitle>Lead-taulun kentät</CardTitle>
           <CardDescription>
             Nämä kentät ovat käytettävissä shortcodeissa. Käytä kentän nimeä
-            source_value -kohdassa kun source_type on "field".
+            source_value -kohdassa kun source_type on &quot;field&quot;.
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -174,7 +174,7 @@ export function AvailableFields() {
         <CardHeader>
           <CardTitle>Erikoisfunktiot</CardTitle>
           <CardDescription>
-            Nämä funktiot ovat käytettävissä kun source_type on "special".
+            Nämä funktiot ovat käytettävissä kun source_type on &quot;special&quot;.
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -213,7 +213,7 @@ export function AvailableFields() {
         <CardHeader>
           <CardTitle>Kaavaesimerkkejä</CardTitle>
           <CardDescription>
-            Kun source_type on "formula", voit käyttää matemaattisia
+            Kun source_type on &quot;formula&quot;, voit käyttää matemaattisia
             operaatioita.
           </CardDescription>
         </CardHeader>
@@ -239,7 +239,7 @@ export function AvailableFields() {
 
             <div className="p-3 bg-muted rounded-lg">
               <code className="text-sm">
-                concat(first_name, " ", last_name)
+                concat(first_name, &quot; &quot;, last_name)
               </code>
               <p className="text-xs text-muted-foreground mt-1">Koko nimi</p>
             </div>

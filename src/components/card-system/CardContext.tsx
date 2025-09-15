@@ -64,10 +64,10 @@ const getSessionId = (): string => {
   return sessionId;
 };
 
-export function CardProvider({ 
+export function CardProvider({
   children,
   initialData,
-}: { 
+}: {
   children: React.ReactNode;
   initialData?: any; // Initial data from config.json
 }) {
@@ -118,9 +118,8 @@ export function CardProvider({
         if (shouldBeComplete) {
           await updateCardCompletion(fieldCard.id, sessionId, true, fieldName);
         }
-        
-        if (shouldBeComplete) {
 
+        if (shouldBeComplete) {
           // Update local state to reflect completion
           setCardStates(prev => ({
             ...prev,
@@ -205,7 +204,12 @@ export function CardProvider({
       }));
 
       // Auto-complete non-form cards when revealed and cascade to next
-      if (card && (card.type === 'info' || card.type === 'visual' || card.type === 'calculation')) {
+      if (
+        card &&
+        (card.type === 'info' ||
+          card.type === 'visual' ||
+          card.type === 'calculation')
+      ) {
         setCardStates(prev => ({
           ...prev,
           [cardId]: { ...prev[cardId], status: 'complete', isRevealed: true },
@@ -217,10 +221,14 @@ export function CardProvider({
           const timing = card.reveal_timing;
           if (timing?.timing === 'after_delay') {
             const delayMs = (timing.delay_seconds || 3) * 1000;
-            console.log(`⏱️ Auto-complete cascade: revealing "${nextCard.name}" after ${delayMs}ms`);
+            console.log(
+              `⏱️ Auto-complete cascade: revealing "${nextCard.name}" after ${delayMs}ms`
+            );
             setTimeout(() => revealCard(nextCard.id), delayMs);
           } else {
-            console.log(`⚡ Auto-complete cascade: revealing "${nextCard.name}" immediately`);
+            console.log(
+              `⚡ Auto-complete cascade: revealing "${nextCard.name}" immediately`
+            );
             revealCard(nextCard.id);
           }
         }
@@ -405,10 +413,10 @@ export function CardProvider({
   const completeCard = useCallback(
     (cardId: string) => {
       console.log(`completeCard called for: ${cardId}`);
-      
+
       // Find the card being completed
       const completedCard = cards.find(c => c.id === cardId);
-      
+
       setCardStates(prev => {
         const newStates = { ...prev };
 
@@ -425,8 +433,10 @@ export function CardProvider({
                 // Check if all target cards are complete
                 return targetCardNames.every(targetName => {
                   const targetCard = cards.find(c => c.name === targetName);
-                  if (!targetCard) return false;
-                  
+                  if (!targetCard) {
+                    return false;
+                  }
+
                   // Check if we just completed this card or it was already complete
                   if (targetCard.id === cardId) {
                     return true; // We just completed this card
@@ -438,11 +448,15 @@ export function CardProvider({
             });
 
             if (conditionsMet && !newStates[card.id]?.isRevealed) {
-              console.log(`✅ Revealing card "${card.name}" - conditions met after completing "${completedCard?.name}"`);
+              console.log(
+                `✅ Revealing card "${card.name}" - conditions met after completing "${completedCard?.name}"`
+              );
               newStates[card.id] = { ...newStates[card.id], isRevealed: true };
-              
+
               // If this is the next card in sequence and no other card is active, activate it
-              const activeCard = Object.entries(newStates).find(([_, state]) => state.status === 'active');
+              const activeCard = Object.entries(newStates).find(
+                ([_, state]) => state.status === 'active'
+              );
               if (!activeCard) {
                 newStates[card.id].status = 'active';
               }
@@ -662,18 +676,18 @@ export function CardProvider({
       console.log('🚀 CardContext: Starting to load cards...');
       try {
         let cardsData;
-        
+
         // Check if we have initial data (offline mode)
         if (initialData?.cards) {
           console.log('📦 Using offline data from config.json');
           cardsData = initialData.cards;
-        } 
+        }
         // Otherwise fetch from Supabase
         else {
           console.log('📞 CardContext: Calling getCardsDirect()...');
           cardsData = await getCardsDirect();
         }
-        
+
         console.log(
           '✅ CardContext: Cards loaded successfully:',
           cardsData.length,
@@ -728,7 +742,6 @@ export function CardProvider({
   // Initialize clean session on every app load (ensures fresh start)
   useEffect(() => {
     const initializeSession = async () => {
-      
       console.log('🧹 Cleaning session data for fresh start...');
       try {
         await initializeCleanSession(sessionId);
@@ -761,18 +774,14 @@ export function CardProvider({
     submitData,
   };
 
-  console.log('🎯 CardContext providing value:', { 
+  console.log('🎯 CardContext providing value:', {
     cards: value.cards?.length || 0,
     hasCards: !!value.cards && value.cards.length > 0,
     cardStatesCount: Object.keys(value.cardStates || {}).length,
     formDataKeys: Object.keys(value.formData || {}).length,
   });
 
-  return (
-    <CardContext.Provider value={value}>
-      {children}
-    </CardContext.Provider>
-  );
+  return <CardContext.Provider value={value}>{children}</CardContext.Provider>;
 }
 
 export const useCardContext = () => {

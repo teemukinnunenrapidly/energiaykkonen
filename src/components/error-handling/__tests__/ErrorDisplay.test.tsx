@@ -5,12 +5,12 @@
 import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
-import { 
-  ErrorDisplay, 
-  CompactErrorDisplay, 
-  LoadingWithError, 
+import {
+  ErrorDisplay,
+  CompactErrorDisplay,
+  LoadingWithError,
   ErrorBoundary,
-  ErrorInfo 
+  ErrorInfo,
 } from '../ErrorDisplay';
 
 describe('ErrorDisplay', () => {
@@ -20,22 +20,28 @@ describe('ErrorDisplay', () => {
     details: 'Network request failed with status 500',
     retryable: true,
     timestamp: new Date('2024-01-01T12:00:00Z'),
-    context: { url: 'https://example.com/config.json' }
+    context: { url: 'https://example.com/config.json' },
   };
 
   it('should render error information correctly', () => {
     render(<ErrorDisplay error={mockError} />);
 
     expect(screen.getByText('Verkkovirhe')).toBeInTheDocument();
-    expect(screen.getByText('Yhteysvirhe palvelimeen. Tarkista verkkoyhteytesi.')).toBeInTheDocument();
-    expect(screen.getByText('Failed to load configuration')).toBeInTheDocument();
+    expect(
+      screen.getByText('Yhteysvirhe palvelimeen. Tarkista verkkoyhteytesi.')
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText('Failed to load configuration')
+    ).toBeInTheDocument();
   });
 
   it('should show retry button for retryable errors', () => {
     const onRetry = jest.fn();
     render(<ErrorDisplay error={mockError} onRetry={onRetry} />);
 
-    const retryButton = screen.getByRole('button', { name: /yritä uudelleen/i });
+    const retryButton = screen.getByRole('button', {
+      name: /yritä uudelleen/i,
+    });
     expect(retryButton).toBeInTheDocument();
 
     fireEvent.click(retryButton);
@@ -46,19 +52,23 @@ describe('ErrorDisplay', () => {
     const nonRetryableError: ErrorInfo = {
       ...mockError,
       type: 'permission',
-      retryable: false
+      retryable: false,
     };
 
     render(<ErrorDisplay error={nonRetryableError} />);
 
-    expect(screen.queryByRole('button', { name: /yritä uudelleen/i })).not.toBeInTheDocument();
-    expect(screen.getByText('Ongelma vaatii manuaalista korjausta.')).toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: /yritä uudelleen/i })
+    ).not.toBeInTheDocument();
+    expect(
+      screen.getByText('Ongelma vaatii manuaalista korjausta.')
+    ).toBeInTheDocument();
   });
 
   it('should show retry count when available', () => {
     const errorWithRetry: ErrorInfo = {
       ...mockError,
-      retryCount: 2
+      retryCount: 2,
     };
 
     render(<ErrorDisplay error={errorWithRetry} />);
@@ -80,7 +90,7 @@ describe('ErrorDisplay', () => {
   it('should show error code when available', () => {
     const errorWithCode: ErrorInfo = {
       ...mockError,
-      code: 'HTTP_500'
+      code: 'HTTP_500',
     };
 
     render(<ErrorDisplay error={errorWithCode} />);
@@ -93,7 +103,9 @@ describe('ErrorDisplay', () => {
     const onDismiss = jest.fn();
     render(<ErrorDisplay error={mockError} onDismiss={onDismiss} />);
 
-    const dismissButton = screen.getByRole('button', { name: /sulje virheilmoitus/i });
+    const dismissButton = screen.getByRole('button', {
+      name: /sulje virheilmoitus/i,
+    });
     expect(dismissButton).toBeInTheDocument();
 
     fireEvent.click(dismissButton);
@@ -102,9 +114,13 @@ describe('ErrorDisplay', () => {
 
   it('should disable retry button when retrying', () => {
     const onRetry = jest.fn();
-    render(<ErrorDisplay error={mockError} onRetry={onRetry} isRetrying={true} />);
+    render(
+      <ErrorDisplay error={mockError} onRetry={onRetry} isRetrying={true} />
+    );
 
-    const retryButton = screen.getByRole('button', { name: /yritetään uudelleen/i });
+    const retryButton = screen.getByRole('button', {
+      name: /yritetään uudelleen/i,
+    });
     expect(retryButton).toBeDisabled();
   });
 
@@ -121,7 +137,10 @@ describe('ErrorDisplay', () => {
       <ErrorDisplay error={mockError} className="custom-error" />
     );
 
-    expect(container.firstChild).toHaveClass('e1-error-display', 'custom-error');
+    expect(container.firstChild).toHaveClass(
+      'e1-error-display',
+      'custom-error'
+    );
   });
 });
 
@@ -130,21 +149,25 @@ describe('CompactErrorDisplay', () => {
     type: 'config',
     message: 'Configuration file not found',
     retryable: true,
-    timestamp: new Date()
+    timestamp: new Date(),
   };
 
   it('should render compact error information', () => {
     render(<CompactErrorDisplay error={mockError} />);
 
     expect(screen.getByText('Asetusvirhe')).toBeInTheDocument();
-    expect(screen.getByText('Configuration file not found')).toBeInTheDocument();
+    expect(
+      screen.getByText('Configuration file not found')
+    ).toBeInTheDocument();
   });
 
   it('should show compact retry button for retryable errors', () => {
     const onRetry = jest.fn();
     render(<CompactErrorDisplay error={mockError} onRetry={onRetry} />);
 
-    const retryButton = screen.getByRole('button', { name: /yritä uudelleen/i });
+    const retryButton = screen.getByRole('button', {
+      name: /yritä uudelleen/i,
+    });
     expect(retryButton).toBeInTheDocument();
 
     fireEvent.click(retryButton);
@@ -154,7 +177,7 @@ describe('CompactErrorDisplay', () => {
   it('should not show retry button for non-retryable errors', () => {
     const nonRetryableError: ErrorInfo = {
       ...mockError,
-      retryable: false
+      retryable: false,
     };
 
     render(<CompactErrorDisplay error={nonRetryableError} />);
@@ -164,11 +187,17 @@ describe('CompactErrorDisplay', () => {
 
   it('should show spinning icon when retrying', () => {
     const onRetry = jest.fn();
-    render(<CompactErrorDisplay error={mockError} onRetry={onRetry} isRetrying={true} />);
+    render(
+      <CompactErrorDisplay
+        error={mockError}
+        onRetry={onRetry}
+        isRetrying={true}
+      />
+    );
 
     const retryButton = screen.getByRole('button');
     expect(retryButton).toBeDisabled();
-    
+
     // Check for spinning class
     const icon = retryButton.querySelector('svg');
     expect(icon).toHaveClass('spinning');
@@ -180,7 +209,7 @@ describe('LoadingWithError', () => {
     type: 'timeout',
     message: 'Request timed out',
     retryable: true,
-    timestamp: new Date()
+    timestamp: new Date(),
   };
 
   it('should show loading state when isLoading is true', () => {
@@ -191,21 +220,27 @@ describe('LoadingWithError', () => {
   });
 
   it('should show custom loading text', () => {
-    render(<LoadingWithError isLoading={true} loadingText="Lataan tietoja..." />);
+    render(
+      <LoadingWithError isLoading={true} loadingText="Lataan tietoja..." />
+    );
 
     expect(screen.getByText('Lataan tietoja...')).toBeInTheDocument();
   });
 
   it('should show error when error is present', () => {
     const onRetry = jest.fn();
-    render(<LoadingWithError isLoading={false} error={mockError} onRetry={onRetry} />);
+    render(
+      <LoadingWithError isLoading={false} error={mockError} onRetry={onRetry} />
+    );
 
     expect(screen.getByText('Aikakatkaisuvirhe')).toBeInTheDocument();
   });
 
   it('should show error even when loading is true', () => {
     const onRetry = jest.fn();
-    render(<LoadingWithError isLoading={true} error={mockError} onRetry={onRetry} />);
+    render(
+      <LoadingWithError isLoading={true} error={mockError} onRetry={onRetry} />
+    );
 
     expect(screen.getByText('Aikakatkaisuvirhe')).toBeInTheDocument();
     expect(screen.queryByText('Ladataan...')).not.toBeInTheDocument();
@@ -248,7 +283,9 @@ describe('ErrorBoundary', () => {
       </ErrorBoundary>
     );
 
-    expect(screen.getByText('Component rendered successfully')).toBeInTheDocument();
+    expect(
+      screen.getByText('Component rendered successfully')
+    ).toBeInTheDocument();
   });
 
   it('should catch and display errors', () => {
@@ -264,7 +301,7 @@ describe('ErrorBoundary', () => {
 
   it('should call onError callback when error occurs', () => {
     const onError = jest.fn();
-    
+
     render(
       <ErrorBoundary onError={onError}>
         <ThrowError shouldThrow={true} />
@@ -275,14 +312,14 @@ describe('ErrorBoundary', () => {
       expect.objectContaining({
         type: 'render',
         message: 'Test component error',
-        retryable: true
+        retryable: true,
       })
     );
   });
 
   it('should allow retrying after error', async () => {
     let shouldThrow = true;
-    
+
     const { rerender } = render(
       <ErrorBoundary>
         <ThrowError shouldThrow={shouldThrow} />
@@ -293,7 +330,9 @@ describe('ErrorBoundary', () => {
     expect(screen.getByText('Näyttövirhe')).toBeInTheDocument();
 
     // Click retry button
-    const retryButton = screen.getByRole('button', { name: /yritä uudelleen/i });
+    const retryButton = screen.getByRole('button', {
+      name: /yritä uudelleen/i,
+    });
     fireEvent.click(retryButton);
 
     // Component should be rendered again, but still throw
@@ -308,11 +347,15 @@ describe('ErrorBoundary', () => {
     );
 
     // After retry, if we click retry again, the component should work
-    const newRetryButton = screen.getByRole('button', { name: /yritä uudelleen/i });
+    const newRetryButton = screen.getByRole('button', {
+      name: /yritä uudelleen/i,
+    });
     fireEvent.click(newRetryButton);
 
     await waitFor(() => {
-      expect(screen.getByText('Component rendered successfully')).toBeInTheDocument();
+      expect(
+        screen.getByText('Component rendered successfully')
+      ).toBeInTheDocument();
     });
   });
 
@@ -343,7 +386,7 @@ describe('Error Type Mapping', () => {
       ['validation', 'Tietovirhe'],
       ['timeout', 'Aikakatkaisuvirhe'],
       ['permission', 'Käyttöoikeusvirhe'],
-      ['unknown', 'Tuntematon virhe']
+      ['unknown', 'Tuntematon virhe'],
     ];
 
     errorTypes.forEach(([type, expectedTitle]) => {
@@ -351,13 +394,13 @@ describe('Error Type Mapping', () => {
         type: type as any,
         message: 'Test message',
         retryable: true,
-        timestamp: new Date()
+        timestamp: new Date(),
       };
 
       const { unmount } = render(<ErrorDisplay error={error} />);
-      
+
       expect(screen.getByText(expectedTitle)).toBeInTheDocument();
-      
+
       unmount();
     });
   });
@@ -371,7 +414,7 @@ describe('Error Type Mapping', () => {
       ['validation', '🔍'],
       ['timeout', '⏱️'],
       ['permission', '🔒'],
-      ['unknown', '❓']
+      ['unknown', '❓'],
     ];
 
     errorTypes.forEach(([type, expectedEmoji]) => {
@@ -379,13 +422,13 @@ describe('Error Type Mapping', () => {
         type: type as any,
         message: 'Test message',
         retryable: true,
-        timestamp: new Date()
+        timestamp: new Date(),
       };
 
       const { container, unmount } = render(<ErrorDisplay error={error} />);
-      
+
       expect(container.textContent).toContain(expectedEmoji);
-      
+
       unmount();
     });
   });

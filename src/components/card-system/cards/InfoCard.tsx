@@ -55,7 +55,7 @@ export function InfoCard({ card }: InfoCardProps) {
                   color: styles.card.description.color,
                   lineHeight: styles.card.description.lineHeight,
                   marginBottom: styles.card.description.marginBottom,
-                  }}
+                }}
               >
                 {card.config.description}
               </p>

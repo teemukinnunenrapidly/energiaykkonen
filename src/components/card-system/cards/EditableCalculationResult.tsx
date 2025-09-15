@@ -13,7 +13,9 @@ interface EditableCalculationResultProps {
   validationMax?: number;
 }
 
-export const EditableCalculationResult: React.FC<EditableCalculationResultProps> = ({
+export const EditableCalculationResult: React.FC<
+  EditableCalculationResultProps
+> = ({
   value,
   originalValue,
   unit,
@@ -32,7 +34,9 @@ export const EditableCalculationResult: React.FC<EditableCalculationResultProps>
 
   // Extract numeric value from string
   const getNumericValue = (val: string): number => {
-    if (!val) return 0;
+    if (!val) {
+      return 0;
+    }
     const numStr = val.split(' ')[0];
     return parseFloat(numStr.replace(/\s/g, '').replace(',', '.')) || 0;
   };
@@ -99,20 +103,25 @@ export const EditableCalculationResult: React.FC<EditableCalculationResultProps>
 
   if (isCalculating) {
     return (
-      <div style={{ 
-        display: 'flex', 
-        alignItems: 'center', 
-        gap: '12px',
-        color: styles.colors.state.info
-      }}>
-        <div className="loading-spinner" style={{
-          width: '20px',
-          height: '20px',
-          border: `2px solid ${styles.colors.border.default}`,
-          borderTopColor: styles.colors.state.info,
-          borderRadius: '50%',
-          animation: 'spin 1s linear infinite',
-        }} />
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: '12px',
+          color: styles.colors.state.info,
+        }}
+      >
+        <div
+          className="loading-spinner"
+          style={{
+            width: '20px',
+            height: '20px',
+            border: `2px solid ${styles.colors.border.default}`,
+            borderTopColor: styles.colors.state.info,
+            borderRadius: '50%',
+            animation: 'spin 1s linear infinite',
+          }}
+        />
         Lasketaan...
       </div>
     );
@@ -121,14 +130,25 @@ export const EditableCalculationResult: React.FC<EditableCalculationResultProps>
   if (isEditing) {
     return (
       <div>
-        <div style={{ display: 'flex', gap: '8px', alignItems: 'center', marginBottom: '8px' }}>
+        <div
+          style={{
+            display: 'flex',
+            gap: '8px',
+            alignItems: 'center',
+            marginBottom: '8px',
+          }}
+        >
           <input
             type="text"
             value={editValue}
-            onChange={(e) => setEditValue(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter') handleSave();
-              if (e.key === 'Escape') handleCancel();
+            onChange={e => setEditValue(e.target.value)}
+            onKeyDown={e => {
+              if (e.key === 'Enter') {
+                handleSave();
+              }
+              if (e.key === 'Escape') {
+                handleCancel();
+              }
             }}
             style={{
               padding: styles.formElements.input.padding,
@@ -141,57 +161,65 @@ export const EditableCalculationResult: React.FC<EditableCalculationResultProps>
             autoFocus
           />
           {unit && (
-            <span style={{ 
-              color: styles.colors.text.secondary, 
-              fontSize: styles.typography.fontSizeBase,
-              minWidth: 'max-content'
-            }}>
+            <span
+              style={{
+                color: styles.colors.text.secondary,
+                fontSize: styles.typography.fontSizeBase,
+                minWidth: 'max-content',
+              }}
+            >
               {unit}
             </span>
           )}
         </div>
-        
+
         <div style={{ display: 'flex', gap: '8px' }}>
           <button
             onClick={handleSave}
-            style={{
-              flex: 1,
-              padding: '0.625rem 1.5rem',
-              background: styles.colors.state.success,
-              color: '#fff',
-              border: 'none',
-              borderRadius: '0.5rem',
-              cursor: 'pointer',
-              fontSize: '1rem',
-              fontWeight: '500',
-            } as React.CSSProperties}
+            style={
+              {
+                flex: 1,
+                padding: '0.625rem 1.5rem',
+                background: styles.colors.state.success,
+                color: '#fff',
+                border: 'none',
+                borderRadius: '0.5rem',
+                cursor: 'pointer',
+                fontSize: '1rem',
+                fontWeight: '500',
+              } as React.CSSProperties
+            }
           >
             ✓ Tallenna
           </button>
           <button
             onClick={handleCancel}
-            style={{
-              flex: 1,
-              padding: '0.625rem 1.5rem',
-              background: styles.colors.text.secondary,
-              color: '#fff',
-              border: 'none',
-              borderRadius: '0.5rem',
-              cursor: 'pointer',
-              fontSize: '1rem',
-              fontWeight: '500',
-            } as React.CSSProperties}
+            style={
+              {
+                flex: 1,
+                padding: '0.625rem 1.5rem',
+                background: styles.colors.text.secondary,
+                color: '#fff',
+                border: 'none',
+                borderRadius: '0.5rem',
+                cursor: 'pointer',
+                fontSize: '1rem',
+                fontWeight: '500',
+              } as React.CSSProperties
+            }
           >
             ✕ Peruuta
           </button>
         </div>
-        
+
         {error && (
-          <div style={{ 
-            color: styles.colors.state.error, 
-            fontSize: styles.formElements.errorMessage.fontSize,
-            marginTop: '4px' 
-          }}>
+          <div
+            style={{
+              color: styles.colors.state.error,
+              fontSize: styles.formElements.errorMessage.fontSize,
+              marginTop: '4px',
+            }}
+          >
             {error}
           </div>
         )}
@@ -206,36 +234,44 @@ export const EditableCalculationResult: React.FC<EditableCalculationResultProps>
   return (
     <div style={{ position: 'relative' }}>
       {isOverridden && (
-        <div style={{
-          position: 'absolute',
-          top: '-8px',
-          right: '-8px',
-          background: styles.colors.state.warning,
-          color: 'white',
-          fontSize: '0.75rem',
-          padding: '2px 6px',
-          borderRadius: '12px',
-          fontWeight: styles.typography.fontWeightMedium,
-        }}>
+        <div
+          style={{
+            position: 'absolute',
+            top: '-8px',
+            right: '-8px',
+            background: styles.colors.state.warning,
+            color: 'white',
+            fontSize: '0.75rem',
+            padding: '2px 6px',
+            borderRadius: '12px',
+            fontWeight: styles.typography.fontWeightMedium,
+          }}
+        >
           Muokattu
         </div>
       )}
 
       {/* Display the calculated value - using calculation card styles */}
       <div style={styles.calculationCard.resultDisplay as React.CSSProperties}>
-        <div style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: '12px',
-        }}>
-          <div style={{
-            ...styles.calculationCard.metricValue as React.CSSProperties,
-            flex: 1,
-          }}>
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '12px',
+          }}
+        >
+          <div
+            style={{
+              ...(styles.calculationCard.metricValue as React.CSSProperties),
+              flex: 1,
+            }}
+          >
             {displayValue}
           </div>
           {displayUnit && (
-            <div style={styles.calculationCard.metricUnit as React.CSSProperties}>
+            <div
+              style={styles.calculationCard.metricUnit as React.CSSProperties}
+            >
               {displayUnit}
             </div>
           )}
@@ -263,11 +299,11 @@ export const EditableCalculationResult: React.FC<EditableCalculationResultProps>
           gap: '8px',
           transition: 'all 0.2s ease',
         }}
-        onMouseEnter={(e) => {
+        onMouseEnter={e => {
           e.currentTarget.style.background = styles.colors.brand.primary;
           e.currentTarget.style.color = 'white';
         }}
-        onMouseLeave={(e) => {
+        onMouseLeave={e => {
           e.currentTarget.style.background = 'transparent';
           e.currentTarget.style.color = styles.colors.brand.primary;
         }}

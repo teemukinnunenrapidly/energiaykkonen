@@ -81,7 +81,10 @@ export async function sendEmail({
       // Improve error reporting so API response isn't just "undefined"
       const anyErr = error as any;
       const msg =
-        anyErr?.message || anyErr?.name || anyErr?.type || JSON.stringify(anyErr);
+        anyErr?.message ||
+        anyErr?.name ||
+        anyErr?.type ||
+        JSON.stringify(anyErr);
       console.error('Resend error:', anyErr);
       throw new Error(`Email sending failed: ${msg}`);
     }

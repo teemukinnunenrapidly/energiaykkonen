@@ -6,7 +6,7 @@
     "container": {
       "_comment": "Main wrapper for the entire card system",
       "width": "100%",
-      "maxWidth": "1000px",
+      "maxWidth": "1140px",
       "minHeight": "600px",
       "height": "auto",
       "margin": "0 auto",

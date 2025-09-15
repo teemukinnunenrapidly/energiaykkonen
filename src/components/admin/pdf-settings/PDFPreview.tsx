@@ -1,7 +1,6 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
-import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 
@@ -36,8 +35,7 @@ export function PDFPreview({
     oilPrice: '1,30',
     currentMaintenance: '200',
     currentCO2: '{kokonaismenekki} × 2.66',
-    newYear1Cost:
-      '([calc:laskennallinen-energiantarve-kwh] / 3.8) × 0.15',
+    newYear1Cost: '([calc:laskennallinen-energiantarve-kwh] / 3.8) × 0.15',
     newYear5Cost:
       '(([calc:laskennallinen-energiantarve-kwh] / 3.8) × 0.15) × 5',
     newYear10Cost:
@@ -51,9 +49,8 @@ export function PDFPreview({
     newCO2: 'heat_pump_kWh × 0.181',
   };
   // Editable formulas state (loaded from API)
-  const [formulas, setFormulas] = useState<Record<string, string>>(
-    DEFAULT_FORMULAS
-  );
+  const [formulas, setFormulas] =
+    useState<Record<string, string>>(DEFAULT_FORMULAS);
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
@@ -67,7 +64,7 @@ export function PDFPreview({
         if (mounted) {
           setFormulas({ ...DEFAULT_FORMULAS, ...(json.formulas || {}) });
         }
-      } catch (e) {
+      } catch {
         // Fallback to defaults if API fails
         setFormulas(DEFAULT_FORMULAS);
       }
@@ -75,47 +72,51 @@ export function PDFPreview({
     return () => {
       mounted = false;
     };
-  }, []);
+  }, [DEFAULT_FORMULAS]);
 
   const previewData = useMemo(() => {
     const base = formulas || DEFAULT_FORMULAS;
-    return showShortcodes ? { ...base, ...data } : {
-      calculationDate: new Date().toLocaleDateString('fi-FI'),
-      calculationNumber: '2025-001',
-      customerName: 'Matti Meikäläinen',
-      customerEmail: 'matti.meikalainen@email.fi',
-      customerPhone: '040 123 4567',
-      customerAddress: 'Kotikatu 123',
-      customerCity: '00100 Helsinki',
-      peopleCount: '4',
-      buildingYear: '1987',
-      buildingArea: '120',
-      floors: '2',
-      energyNeed: '22 000',
-      currentSystem: 'Öljylämmitys',
-      currentYear1Cost: '2 600',
-      currentYear5Cost: '13 000',
-      currentYear10Cost: '26 000',
-      oilConsumption: '2 000',
-      oilPrice: '1,30',
-      currentMaintenance: '200',
-      currentCO2: '5 320',
-      newYear1Cost: '975',
-      newYear5Cost: '4 875',
-      newYear10Cost: '9 750',
-      savings1Year: '1 625',
-      savings5Year: '8 125',
-      savings10Year: '16 250',
-      electricityConsumption: '6 500',
-      electricityPrice: '0,15',
-      newMaintenance10Years: '30',
-      newCO2: '0',
-      ...data,
-    };
-  }, [showShortcodes, data, formulas]);
+    return showShortcodes
+      ? { ...base, ...data }
+      : {
+          calculationDate: new Date().toLocaleDateString('fi-FI'),
+          calculationNumber: '2025-001',
+          customerName: 'Matti Meikäläinen',
+          customerEmail: 'matti.meikalainen@email.fi',
+          customerPhone: '040 123 4567',
+          customerAddress: 'Kotikatu 123',
+          customerCity: '00100 Helsinki',
+          peopleCount: '4',
+          buildingYear: '1987',
+          buildingArea: '120',
+          floors: '2',
+          energyNeed: '22 000',
+          currentSystem: 'Öljylämmitys',
+          currentYear1Cost: '2 600',
+          currentYear5Cost: '13 000',
+          currentYear10Cost: '26 000',
+          oilConsumption: '2 000',
+          oilPrice: '1,30',
+          currentMaintenance: '200',
+          currentCO2: '5 320',
+          newYear1Cost: '975',
+          newYear5Cost: '4 875',
+          newYear10Cost: '9 750',
+          savings1Year: '1 625',
+          savings5Year: '8 125',
+          savings10Year: '16 250',
+          electricityConsumption: '6 500',
+          electricityPrice: '0,15',
+          newMaintenance10Years: '30',
+          newCO2: '0',
+          ...data,
+        };
+  }, [showShortcodes, data, formulas, DEFAULT_FORMULAS]);
 
   async function saveAll() {
-    if (!formulas) return;
+    if (!formulas) {
+      return;
+    }
     setSaving(true);
     try {
       const res = await fetch('/api/admin/pdf-preview-formulas', {
@@ -123,7 +124,9 @@ export function PDFPreview({
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ formulas }),
       });
-      if (!res.ok) throw new Error('Save failed');
+      if (!res.ok) {
+        throw new Error('Save failed');
+      }
     } finally {
       setSaving(false);
     }
@@ -136,7 +139,7 @@ export function PDFPreview({
     }
 
     if (value === null || value === undefined) {
-      return <span className="text-gray-400 font-mono text-[9px]">''</span>;
+      return <span className="text-gray-400 font-mono text-[9px]">&apos;&apos;</span>;
     }
 
     if (typeof value !== 'string') {
@@ -207,7 +210,11 @@ export function PDFPreview({
   return (
     <div
       className="w-full max-w-6xl mx-auto bg-white shadow-lg"
-      style={{ aspectRatio: '210/297', transform: 'scale(1.15)', transformOrigin: 'top center' }}
+      style={{
+        aspectRatio: '210/297',
+        transform: 'scale(1.15)',
+        transformOrigin: 'top center',
+      }}
     >
       <div className="p-8 h-full flex flex-col text-gray-800 text-xs">
         {/* Quick inline editor header */}
@@ -244,7 +251,10 @@ export function PDFPreview({
                 <Input
                   value={formulas?.calculationDate || ''}
                   onChange={e =>
-                    setFormulas({ ...(formulas || {}), calculationDate: e.target.value })
+                    setFormulas({
+                      ...(formulas || {}),
+                      calculationDate: e.target.value,
+                    })
                   }
                   className="h-6 text-[10px]"
                 />
@@ -272,7 +282,10 @@ export function PDFPreview({
                     <Input
                       value={formulas?.customerName || ''}
                       onChange={e =>
-                        setFormulas({ ...(formulas || {}), customerName: e.target.value })
+                        setFormulas({
+                          ...(formulas || {}),
+                          customerName: e.target.value,
+                        })
                       }
                       className="h-6 text-[10px]"
                     />
@@ -288,7 +301,10 @@ export function PDFPreview({
                     <Input
                       value={formulas?.customerEmail || ''}
                       onChange={e =>
-                        setFormulas({ ...(formulas || {}), customerEmail: e.target.value })
+                        setFormulas({
+                          ...(formulas || {}),
+                          customerEmail: e.target.value,
+                        })
                       }
                       className="h-6 text-[10px]"
                     />
@@ -324,13 +340,17 @@ export function PDFPreview({
                     <Input
                       value={formulas?.peopleCount || ''}
                       onChange={e =>
-                        setFormulas({ ...(formulas || {}), peopleCount: e.target.value })
+                        setFormulas({
+                          ...(formulas || {}),
+                          peopleCount: e.target.value,
+                        })
                       }
                       className="h-6 text-[10px]"
                     />
                   ) : (
                     renderValue(previewData.peopleCount as string)
-                  )} henkilöä
+                  )}{' '}
+                  henkilöä
                 </span>
               </div>
               <div className="flex text-[9px]">
@@ -358,13 +378,17 @@ export function PDFPreview({
                     <Input
                       value={formulas?.energyNeed || ''}
                       onChange={e =>
-                        setFormulas({ ...(formulas || {}), energyNeed: e.target.value })
+                        setFormulas({
+                          ...(formulas || {}),
+                          energyNeed: e.target.value,
+                        })
                       }
                       className="h-6 text-[10px]"
                     />
                   ) : (
                     renderValue(previewData.energyNeed as string)
-                  )} kWh/vuosi
+                  )}{' '}
+                  kWh/vuosi
                 </span>
               </div>
             </div>
@@ -400,13 +424,17 @@ export function PDFPreview({
                           <Input
                             value={formulas?.currentYear1Cost || ''}
                             onChange={e =>
-                              setFormulas({ ...(formulas || {}), currentYear1Cost: e.target.value })
+                              setFormulas({
+                                ...(formulas || {}),
+                                currentYear1Cost: e.target.value,
+                              })
                             }
                             className="h-6 text-[10px]"
                           />
                         ) : (
                           renderValue(previewData.currentYear1Cost as string)
-                        )} €
+                        )}{' '}
+                        €
                       </span>
                     </div>
                     <div className="flex justify-between text-[10px] bg-gray-50 -mx-2 px-2 py-1">
@@ -416,13 +444,17 @@ export function PDFPreview({
                           <Input
                             value={formulas?.currentYear5Cost || ''}
                             onChange={e =>
-                              setFormulas({ ...(formulas || {}), currentYear5Cost: e.target.value })
+                              setFormulas({
+                                ...(formulas || {}),
+                                currentYear5Cost: e.target.value,
+                              })
                             }
                             className="h-6 text-[10px]"
                           />
                         ) : (
                           renderValue(previewData.currentYear5Cost as string)
-                        )} €
+                        )}{' '}
+                        €
                       </span>
                     </div>
                     <div className="flex justify-between text-[10px]">
@@ -432,13 +464,17 @@ export function PDFPreview({
                           <Input
                             value={formulas?.currentYear10Cost || ''}
                             onChange={e =>
-                              setFormulas({ ...(formulas || {}), currentYear10Cost: e.target.value })
+                              setFormulas({
+                                ...(formulas || {}),
+                                currentYear10Cost: e.target.value,
+                              })
                             }
                             className="h-6 text-[10px]"
                           />
                         ) : (
                           renderValue(previewData.currentYear10Cost as string)
-                        )} €
+                        )}{' '}
+                        €
                       </span>
                     </div>
                   </div>
@@ -452,13 +488,17 @@ export function PDFPreview({
                         <Input
                           value={formulas?.oilConsumption || ''}
                           onChange={e =>
-                            setFormulas({ ...(formulas || {}), oilConsumption: e.target.value })
+                            setFormulas({
+                              ...(formulas || {}),
+                              oilConsumption: e.target.value,
+                            })
                           }
                           className="h-6 text-[10px]"
                         />
                       ) : (
                         renderValue(previewData.oilConsumption as string)
-                      )} L/vuosi
+                      )}{' '}
+                      L/vuosi
                     </span>
                   </div>
                   <div className="flex justify-between text-[8px]">
@@ -480,13 +520,17 @@ export function PDFPreview({
                         <Input
                           value={formulas?.currentCO2 || ''}
                           onChange={e =>
-                            setFormulas({ ...(formulas || {}), currentCO2: e.target.value })
+                            setFormulas({
+                              ...(formulas || {}),
+                              currentCO2: e.target.value,
+                            })
                           }
                           className="h-6 text-[10px]"
                         />
                       ) : (
                         renderValue(previewData.currentCO2 as string)
-                      )} kg/vuosi
+                      )}{' '}
+                      kg/vuosi
                     </span>
                   </div>
                 </div>
@@ -517,13 +561,17 @@ export function PDFPreview({
                           <Input
                             value={formulas?.newYear1Cost || ''}
                             onChange={e =>
-                              setFormulas({ ...(formulas || {}), newYear1Cost: e.target.value })
+                              setFormulas({
+                                ...(formulas || {}),
+                                newYear1Cost: e.target.value,
+                              })
                             }
                             className="h-6 text-[10px]"
                           />
                         ) : (
                           renderValue(previewData.newYear1Cost as string)
-                        )} €
+                        )}{' '}
+                        €
                       </span>
                       <div className="flex-1 text-right">
                         <span className="text-emerald-500 font-bold">
@@ -531,13 +579,17 @@ export function PDFPreview({
                             <Input
                               value={formulas?.savings1Year || ''}
                               onChange={e =>
-                                setFormulas({ ...(formulas || {}), savings1Year: e.target.value })
+                                setFormulas({
+                                  ...(formulas || {}),
+                                  savings1Year: e.target.value,
+                                })
                               }
                               className="h-6 text-[10px] text-right"
                             />
                           ) : (
                             renderValue(previewData.savings1Year as string)
-                          )} €
+                          )}{' '}
+                          €
                         </span>
                         <div className="text-[8px] text-emerald-600 font-medium">
                           +4 000€*
@@ -573,13 +625,19 @@ export function PDFPreview({
                         <Input
                           value={formulas?.electricityConsumption || ''}
                           onChange={e =>
-                            setFormulas({ ...(formulas || {}), electricityConsumption: e.target.value })
+                            setFormulas({
+                              ...(formulas || {}),
+                              electricityConsumption: e.target.value,
+                            })
                           }
                           className="h-6 text-[10px]"
                         />
                       ) : (
-                        renderValue(previewData.electricityConsumption as string)
-                      )}{' '}kWh/vuosi
+                        renderValue(
+                          previewData.electricityConsumption as string
+                        )
+                      )}{' '}
+                      kWh/vuosi
                     </span>
                   </div>
                   <div className="text-[7px] text-gray-400 italic my-1">
@@ -593,13 +651,17 @@ export function PDFPreview({
                         <Input
                           value={formulas?.electricityPrice || ''}
                           onChange={e =>
-                            setFormulas({ ...(formulas || {}), electricityPrice: e.target.value })
+                            setFormulas({
+                              ...(formulas || {}),
+                              electricityPrice: e.target.value,
+                            })
                           }
                           className="h-6 text-[10px]"
                         />
                       ) : (
                         previewData.electricityPrice
-                      )} €/kWh
+                      )}{' '}
+                      €/kWh
                     </span>
                   </div>
                   <div className="flex justify-between text-[8px]">
@@ -613,13 +675,17 @@ export function PDFPreview({
                         <Input
                           value={formulas?.newMaintenance10Years || ''}
                           onChange={e =>
-                            setFormulas({ ...(formulas || {}), newMaintenance10Years: e.target.value })
+                            setFormulas({
+                              ...(formulas || {}),
+                              newMaintenance10Years: e.target.value,
+                            })
                           }
                           className="h-6 text-[10px]"
                         />
                       ) : (
                         previewData.newMaintenance10Years
-                      )} €/vuosi
+                      )}{' '}
+                      €/vuosi
                     </span>
                   </div>
                   <div className="flex justify-between text-[8px]">
@@ -629,13 +695,17 @@ export function PDFPreview({
                         <Input
                           value={formulas?.newCO2 || ''}
                           onChange={e =>
-                            setFormulas({ ...(formulas || {}), newCO2: e.target.value })
+                            setFormulas({
+                              ...(formulas || {}),
+                              newCO2: e.target.value,
+                            })
                           }
                           className="h-6 text-[10px]"
                         />
                       ) : (
                         previewData.newCO2
-                      )} kg/vuosi
+                      )}{' '}
+                      kg/vuosi
                     </span>
                   </div>
                   <div className="text-[7px] text-emerald-600 mt-2 leading-tight">

@@ -269,43 +269,43 @@ export function FormCard({ card, onFieldFocus }: FormCardProps) {
                 const optValue = typeof opt === 'string' ? opt : opt.value;
                 const optLabel = typeof opt === 'string' ? opt : opt.label;
                 return (
-                <div
-                  key={optValue}
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '8px',
-                    opacity: isCardCompleted ? 0.5 : 1,
-                  }}
-                >
-                  <label
+                  <div
+                    key={optValue}
                     style={{
                       display: 'flex',
                       alignItems: 'center',
                       gap: '8px',
-                      cursor: isCardCompleted ? 'not-allowed' : 'pointer',
-                      fontSize: styles.typography.fontSizeBase,
-                      color: styles.colors.text.primary,
+                      opacity: isCardCompleted ? 0.5 : 1,
                     }}
                   >
-                    <input
-                      type="radio"
-                      name={field.field_name}
-                      value={optValue}
-                      checked={value === optValue}
-                      onChange={e =>
-                        handleFieldChange(field.field_name, e.target.value)
-                      }
-                      onFocus={() => handleFieldFocus(field)}
-                      onBlur={() => handleFieldBlur(field)}
-                      disabled={isCardCompleted}
+                    <label
                       style={{
-                        accentColor: styles.colors.brand.primary,
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '8px',
+                        cursor: isCardCompleted ? 'not-allowed' : 'pointer',
+                        fontSize: styles.typography.fontSizeBase,
+                        color: styles.colors.text.primary,
                       }}
-                    />
-                    {optLabel}
-                  </label>
-                </div>
+                    >
+                      <input
+                        type="radio"
+                        name={field.field_name}
+                        value={optValue}
+                        checked={value === optValue}
+                        onChange={e =>
+                          handleFieldChange(field.field_name, e.target.value)
+                        }
+                        onFocus={() => handleFieldFocus(field)}
+                        onBlur={() => handleFieldBlur(field)}
+                        disabled={isCardCompleted}
+                        style={{
+                          accentColor: styles.colors.brand.primary,
+                        }}
+                      />
+                      {optLabel}
+                    </label>
+                  </div>
                 );
               })}
             </div>
@@ -515,9 +515,7 @@ export function FormCard({ card, onFieldFocus }: FormCardProps) {
                       } else {
                         // Multi-selection mode
                         const newValues = isSelected
-                          ? selectedValues.filter(
-                              (v: string) => v !== optValue
-                            )
+                          ? selectedValues.filter((v: string) => v !== optValue)
                           : [...selectedValues, optValue];
                         handleFieldChange(field.field_name, newValues);
                       }
@@ -689,7 +687,7 @@ export function FormCard({ card, onFieldFocus }: FormCardProps) {
                 color: styles.card.description.color,
                 lineHeight: styles.card.description.lineHeight,
                 marginBottom: styles.card.description.marginBottom,
-                }}
+              }}
             >
               {card.config.description}
             </p>

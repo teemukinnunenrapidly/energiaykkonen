@@ -597,10 +597,16 @@ export class EnhancedLookupEngine {
         if (!error) {
           defaults = data || [];
         } else {
-          console.warn('enhanced_lookup_defaults not available:', error.message);
+          console.warn(
+            'enhanced_lookup_defaults not available:',
+            error.message
+          );
         }
       } catch (e) {
-        console.warn('Skipping enhanced_lookup_defaults fetch:', (e as Error).message);
+        console.warn(
+          'Skipping enhanced_lookup_defaults fetch:',
+          (e as Error).message
+        );
         defaults = [];
       }
 

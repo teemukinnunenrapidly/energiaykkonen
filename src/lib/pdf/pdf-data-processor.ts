@@ -4,7 +4,6 @@
  */
 
 import { Lead } from '@/lib/supabase';
-import { DatabasePDFProcessor } from './database-pdf-processor';
 import { flattenLeadData } from '@/lib/lead-helpers';
 
 /**

@@ -20,7 +20,7 @@ import {
 } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Save, Trash2, X, TestTube, Info } from 'lucide-react';
+import { Save, Trash2, X } from 'lucide-react';
 import { validateFormula } from '@/lib/pdf/safe-formula-evaluator';
 import type { PDFShortcode } from '@/lib/pdf/database-pdf-processor';
 
@@ -41,7 +41,6 @@ export function ShortcodeEditor({
 }: ShortcodeEditorProps) {
   const [formData, setFormData] = useState<PDFShortcode>(shortcode);
   const [formulaError, setFormulaError] = useState<string | null>(null);
-  const [testing, setTesting] = useState(false);
 
   const handleChange = (field: keyof PDFShortcode, value: any) => {
     setFormData(prev => ({ ...prev, [field]: value }));

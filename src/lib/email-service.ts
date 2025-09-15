@@ -1,6 +1,13 @@
 import { Lead, supabase } from './supabase';
 import { sendEmail, emailConfig, EmailAttachment } from './resend';
-import { generateSalesEmailHtml, calculateLeadScore, emailSubjects, getAdminUrl, CustomerEmailData, SalesEmailData } from './email-templates';
+import {
+  generateSalesEmailHtml,
+  calculateLeadScore,
+  emailSubjects,
+  getAdminUrl,
+  CustomerEmailData,
+  SalesEmailData,
+} from './email-templates';
 import { UnifiedCalculationEngine } from './unified-calculation-engine';
 import { flattenLeadData } from './lead-helpers';
 
@@ -24,7 +31,12 @@ export async function sendCustomerResultsEmail(
     const text = `Hei ${firstName},\n\nKiitos kiinnostuksestasi Energiaykkösen säästölaskuriin. Sähköpostin liitteenä säästölaskelma antamiesi tietojen perusteella.\n\nYstävällisin terveisin,\nEnergiaykkönen Oy`;
 
     // Send email with optional PDF attachment
-    const result = await sendEmail({ to: flatLead.sahkoposti, subject, text, attachments: pdfAttachment ? [pdfAttachment] : undefined });
+    const result = await sendEmail({
+      to: flatLead.sahkoposti,
+      subject,
+      text,
+      attachments: pdfAttachment ? [pdfAttachment] : undefined,
+    });
 
     return result;
   } catch (error) {

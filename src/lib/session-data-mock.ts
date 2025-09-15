@@ -14,7 +14,7 @@ export function updateSessionWithFormData(
   sessionStorage[sessionId] = {
     ...sessionStorage[sessionId],
     ...formData,
-    updatedAt: new Date().toISOString()
+    updatedAt: new Date().toISOString(),
   };
   console.log('Session data updated (in-memory):', sessionId, formData);
 }

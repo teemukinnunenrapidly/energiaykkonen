@@ -109,45 +109,49 @@ describe('ErrorManager', () => {
       });
 
       const result = await manager.retryOperation(operation);
-      
+
       expect(result).toBe('success');
       expect(operation).toHaveBeenCalledTimes(3);
     });
 
     it('should respect maximum retry attempts', async () => {
       const operation = jest.fn().mockRejectedValue(new Error('Always fails'));
-      
+
       await expect(manager.retryOperation(operation)).rejects.toMatchObject({
         type: 'unknown',
         message: 'Always fails',
-        retryable: true
+        retryable: true,
       });
-      
+
       expect(operation).toHaveBeenCalledTimes(3); // Default max attempts
     });
 
     it('should not retry non-retryable errors', async () => {
-      const operation = jest.fn().mockRejectedValue(new Error('CORS policy blocked'));
-      
+      const operation = jest
+        .fn()
+        .mockRejectedValue(new Error('CORS policy blocked'));
+
       await expect(manager.retryOperation(operation)).rejects.toMatchObject({
         type: 'permission',
-        retryable: false
+        retryable: false,
       });
-      
+
       expect(operation).toHaveBeenCalledTimes(1); // Should only try once
     });
   });
 
   describe('Fetch with Retry', () => {
     it('should successfully fetch on first attempt', async () => {
-      const mockResponse = new Response('{"test": true}', { 
-        status: 200, 
-        headers: { 'Content-Type': 'application/json' }
+      const mockResponse = new Response('{"test": true}', {
+        status: 200,
+        headers: { 'Content-Type': 'application/json' },
       });
       mockFetch.mockResolvedValue(mockResponse);
 
-      const response = await manager.fetchWithRetry('https://example.com/config.json');
-      
+      const response = await manager.fetchWithRetry(
+        'https://example.com/config.json'
+      );
+
       expect(response.status).toBe(200);
       expect(mockFetch).toHaveBeenCalledTimes(1);
     });
@@ -158,8 +162,10 @@ describe('ErrorManager', () => {
         .mockRejectedValueOnce(new Error('Network error'))
         .mockResolvedValueOnce(new Response('{"test": true}', { status: 200 }));
 
-      const response = await manager.fetchWithRetry('https://example.com/config.json');
-      
+      const response = await manager.fetchWithRetry(
+        'https://example.com/config.json'
+      );
+
       expect(response.status).toBe(200);
       expect(mockFetch).toHaveBeenCalledTimes(3);
     });
@@ -167,28 +173,32 @@ describe('ErrorManager', () => {
     it('should handle HTTP error statuses', async () => {
       mockFetch.mockResolvedValue(new Response('Not Found', { status: 404 }));
 
-      await expect(manager.fetchWithRetry('https://example.com/config.json'))
-        .rejects.toMatchObject({
-          type: 'config',
-          retryable: true
-        });
+      await expect(
+        manager.fetchWithRetry('https://example.com/config.json')
+      ).rejects.toMatchObject({
+        type: 'config',
+        retryable: true,
+      });
     });
 
     it('should handle request timeout', async () => {
-      mockFetch.mockImplementation(() => 
-        new Promise((resolve) => {
-          // Simulate a request that takes longer than timeout
-          setTimeout(() => resolve(new Response('OK')), 15000);
-        })
+      mockFetch.mockImplementation(
+        () =>
+          new Promise(resolve => {
+            // Simulate a request that takes longer than timeout
+            setTimeout(() => resolve(new Response('OK')), 15000);
+          })
       );
 
-      const fetchPromise = manager.fetchWithRetry('https://example.com/slow-endpoint');
-      
+      const fetchPromise = manager.fetchWithRetry(
+        'https://example.com/slow-endpoint'
+      );
+
       // Fast-forward time to trigger timeout
       jest.advanceTimersByTime(10000);
-      
+
       await expect(fetchPromise).rejects.toMatchObject({
-        message: expect.stringContaining('timeout')
+        message: expect.stringContaining('timeout'),
       });
     });
   });
@@ -196,24 +206,31 @@ describe('ErrorManager', () => {
   describe('JSON Loading', () => {
     it('should load and parse JSON successfully', async () => {
       const testData = { cards: [], version: '1.0' };
-      mockFetch.mockResolvedValue(new Response(JSON.stringify(testData), {
-        status: 200,
-        headers: { 'Content-Type': 'application/json' }
-      }));
+      mockFetch.mockResolvedValue(
+        new Response(JSON.stringify(testData), {
+          status: 200,
+          headers: { 'Content-Type': 'application/json' },
+        })
+      );
 
-      const result = await manager.loadJSONWithRetry('https://example.com/config.json');
-      
+      const result = await manager.loadJSONWithRetry(
+        'https://example.com/config.json'
+      );
+
       expect(result).toEqual(testData);
     });
 
     it('should handle JSON parsing errors', async () => {
-      mockFetch.mockResolvedValue(new Response('invalid json{', {
-        status: 200,
-        headers: { 'Content-Type': 'application/json' }
-      }));
+      mockFetch.mockResolvedValue(
+        new Response('invalid json{', {
+          status: 200,
+          headers: { 'Content-Type': 'application/json' },
+        })
+      );
 
-      await expect(manager.loadJSONWithRetry('https://example.com/config.json'))
-        .rejects.toThrow('Failed to parse JSON response');
+      await expect(
+        manager.loadJSONWithRetry('https://example.com/config.json')
+      ).rejects.toThrow('Failed to parse JSON response');
     });
   });
 
@@ -224,21 +241,24 @@ describe('ErrorManager', () => {
         src: '',
         async: false,
         onload: null as any,
-        onerror: null as any
+        onerror: null as any,
       };
-      
+
       jest.spyOn(document, 'createElement').mockReturnValue(mockScript as any);
-      jest.spyOn(document.head, 'appendChild').mockImplementation((element) => {
+      jest.spyOn(document.head, 'appendChild').mockImplementation(element => {
         // Simulate successful load
         setTimeout(() => mockScript.onload?.(), 0);
         return element;
       });
 
-      const loadPromise = manager.loadResourceWithRetry('https://example.com/script.js', 'script');
-      
+      const loadPromise = manager.loadResourceWithRetry(
+        'https://example.com/script.js',
+        'script'
+      );
+
       jest.advanceTimersByTime(100);
       await expect(loadPromise).resolves.toBeUndefined();
-      
+
       expect(mockScript.src).toBe('https://example.com/script.js');
       expect(mockScript.async).toBe(true);
     });
@@ -248,20 +268,23 @@ describe('ErrorManager', () => {
         rel: '',
         href: '',
         onload: null as any,
-        onerror: null as any
+        onerror: null as any,
       };
-      
+
       jest.spyOn(document, 'createElement').mockReturnValue(mockLink as any);
-      jest.spyOn(document.head, 'appendChild').mockImplementation((element) => {
+      jest.spyOn(document.head, 'appendChild').mockImplementation(element => {
         setTimeout(() => mockLink.onload?.(), 0);
         return element;
       });
 
-      const loadPromise = manager.loadResourceWithRetry('https://example.com/styles.css', 'css');
-      
+      const loadPromise = manager.loadResourceWithRetry(
+        'https://example.com/styles.css',
+        'css'
+      );
+
       jest.advanceTimersByTime(100);
       await expect(loadPromise).resolves.toBeUndefined();
-      
+
       expect(mockLink.rel).toBe('stylesheet');
       expect(mockLink.href).toBe('https://example.com/styles.css');
     });
@@ -271,22 +294,25 @@ describe('ErrorManager', () => {
         src: '',
         async: false,
         onload: null as any,
-        onerror: null as any
+        onerror: null as any,
       };
-      
+
       jest.spyOn(document, 'createElement').mockReturnValue(mockScript as any);
-      jest.spyOn(document.head, 'appendChild').mockImplementation((element) => {
+      jest.spyOn(document.head, 'appendChild').mockImplementation(element => {
         setTimeout(() => mockScript.onerror?.(), 0);
         return element;
       });
 
-      const loadPromise = manager.loadResourceWithRetry('https://example.com/missing.js', 'script');
-      
+      const loadPromise = manager.loadResourceWithRetry(
+        'https://example.com/missing.js',
+        'script'
+      );
+
       jest.advanceTimersByTime(100);
-      
+
       await expect(loadPromise).rejects.toMatchObject({
         type: 'dependency',
-        retryable: true
+        retryable: true,
       });
     });
   });
@@ -298,7 +324,7 @@ describe('ErrorManager', () => {
       manager.classifyError(new Error('Another network error'));
 
       const stats = manager.getErrorStats();
-      
+
       expect(stats.total).toBe(3);
       expect(stats.byType.network).toBe(2);
       expect(stats.byType.config).toBe(1);
@@ -331,7 +357,7 @@ describe('ErrorManager', () => {
       const context = {
         widgetId: 'test-widget',
         isolationMode: 'shadow' as const,
-        url: 'https://example.com'
+        url: 'https://example.com',
       };
 
       const errorInfo = manager.classifyError(error, context);
@@ -374,7 +400,7 @@ describe('Error Classification Edge Cases', () => {
   it('should handle errors without stack traces', () => {
     const error = new Error('Test error');
     error.stack = undefined;
-    
+
     const errorInfo = manager.classifyError(error);
     expect(errorInfo.message).toBe('Test error');
     expect(errorInfo.details).toBeUndefined();
@@ -383,7 +409,7 @@ describe('Error Classification Edge Cases', () => {
   it('should handle empty error messages', () => {
     const error = new Error('');
     const errorInfo = manager.classifyError(error);
-    
+
     expect(errorInfo.message).toBe('');
     expect(errorInfo.type).toBe('unknown');
   });

@@ -7,11 +7,7 @@
 import { createUnifiedEngine } from './unified-calculation-engine';
 import { supabase } from './supabase';
 import type { CalculationResults } from './supabase';
-import {
-  generatePDFCalculations,
-  extractFormData,
-  PDF_CALCULATIONS,
-} from './pdf-calculation-definitions';
+import { generatePDFCalculations } from './pdf-calculation-definitions';
 
 /**
  * Extract all unique shortcodes from a PDF template
