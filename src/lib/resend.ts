@@ -55,7 +55,8 @@ export async function sendEmail({
     if (!html && !text) {
       throw new Error('Either html or text must be provided to sendEmail');
     }
-    const { data, error } = await resend.emails.send({
+    // Build payload compatible with current Resend SDK; cast to any to satisfy evolving types
+    const payload: any = {
       from,
       to,
       subject,
@@ -69,9 +70,12 @@ export async function sendEmail({
           typeof att.content === 'string'
             ? att.content
             : (att.content as Buffer).toString('base64'),
-        content_type: att.contentType,
+        // Use contentType key per current SDK expectations
+        contentType: att.contentType,
       })),
-    });
+    };
+
+    const { data, error } = await resend.emails.send(payload);
 
     if (error) {
       // Improve error reporting so API response isn't just "undefined"
