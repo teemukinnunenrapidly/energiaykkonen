@@ -21,7 +21,7 @@ export async function sendCustomerResultsEmail(
 
     const firstName: string = flatLead.nimi?.split(' ')[0] || '';
 
-    const text = `Hei ${firstName},\n\nKiitos kiinnostuksestasi Energiaykkösen säästölaskuriin. Sähköpostin liitteenä  säästölaskelma antamiesi tietojen perusteella.\n\nYstävällisin terveisin,\nEnergiaykkönen Oy`;
+    const text = `Hei ${firstName},\n\nKiitos kiinnostuksestasi Energiaykkösen säästölaskuriin. Sähköpostin liitteenä säästölaskelma antamiesi tietojen perusteella.\n\nYstävällisin terveisin,\nEnergiaykkönen Oy`;
 
     // Send email with optional PDF attachment
     const result = await sendEmail({ to: flatLead.sahkoposti, subject, text, attachments: pdfAttachment ? [pdfAttachment] : undefined });
