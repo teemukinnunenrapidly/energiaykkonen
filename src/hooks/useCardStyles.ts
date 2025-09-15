@@ -1,5 +1,7 @@
 // /src/hooks/useCardStyles.ts
-import config from '../../cardstream-complete-config.json';
+// Use import attribute so Turbopack treats this as a JSON module in HMR
+// @ts-expect-error import attribute for JSON (handled by bundler)
+import config from '../../cardstream-complete-config.json' with { type: 'json' };
 
 const styles = config.cardStreamConfig;
 
