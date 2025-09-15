@@ -125,39 +125,6 @@ export function PDFPreview({
       setSaving(false);
     }
   }
-    : {
-        calculationDate: new Date().toLocaleDateString('fi-FI'),
-        calculationNumber: '2025-001',
-        customerName: 'Matti Meikäläinen',
-        customerEmail: 'matti.meikalainen@email.fi',
-        customerPhone: '040 123 4567',
-        customerAddress: 'Kotikatu 123',
-        customerCity: '00100 Helsinki',
-        peopleCount: '4',
-        buildingYear: '1987',
-        buildingArea: '120',
-        floors: '2',
-        energyNeed: '22 000',
-        currentSystem: 'Öljylämmitys',
-        currentYear1Cost: '2 600',
-        currentYear5Cost: '13 000',
-        currentYear10Cost: '26 000',
-        oilConsumption: '2 000',
-        oilPrice: '1,30',
-        currentMaintenance: '200',
-        currentCO2: '5 320',
-        newYear1Cost: '975',
-        newYear5Cost: '4 875',
-        newYear10Cost: '9 750',
-        savings1Year: '1 625',
-        savings5Year: '8 125',
-        savings10Year: '16 250',
-        electricityConsumption: '6 500',
-        electricityPrice: '0,15',
-        newMaintenance10Years: '30',
-        newCO2: '0',
-        ...data,
-      };
 
   // Helper function to render values with shortcode styling
   const renderValue = (value: string) => {
