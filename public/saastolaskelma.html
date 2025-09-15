@@ -433,9 +433,20 @@
                         </div>
 
                         <div class="system-details">
+                            <!-- Shown when lämmitysmuoto is Öljylämmitys or Öljy+puu (tuplapesäkattila) -->
                             <div class="detail-row">
                                 <div class="detail-label">Öljyn kulutus:</div>
                                 <div class="detail-value"><span class="formula">[calc:laskennallinen-energiantarve-kwh] / 10</span> L/vuosi</div>
+                            </div>
+                            <!-- Shown when lämmitysmuoto is Puulämmitys -->
+                            <div class="detail-row">
+                                <div class="detail-label">Puun menekki:</div>
+                                <div class="detail-value"><span class="formula">{kokonaismenekki}</span> m³/vuosi</div>
+                            </div>
+                            <!-- Shown when lämmitysmuoto is Kaasulämmitys -->
+                            <div class="detail-row">
+                                <div class="detail-label">Kaasun menekki:</div>
+                                <div class="detail-value"><span class="formula">{kokonaismenekki}</span> m³/vuosi</div>
                             </div>
                             <div class="detail-row">
                                 <div class="detail-label">Öljyn hinta:</div>
