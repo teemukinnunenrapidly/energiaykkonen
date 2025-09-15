@@ -176,31 +176,76 @@ export const SavingsReportPDF: React.FC<{ data: PDFData }> = ({ data }) => (
               </View>
 
               <View style={styles.systemDetails}>
-                <View style={styles.detailRow}>
-                  <Text style={styles.detailLabel}>Öljyn kulutus:</Text>
-                  <Text style={styles.detailValue}>
-                    {data.oilConsumption || data.oil_consumption || '2 000'}{' '}
-                    L/vuosi
-                  </Text>
-                </View>
-                <View style={styles.detailRow}>
-                  <Text style={styles.detailLabel}>Öljyn hinta:</Text>
-                  <Text style={styles.detailValue}>
-                    {data.oilPrice || data.oil_price || '1,30'} €/litra
-                  </Text>
-                </View>
-                <View style={styles.detailRow}>
-                  <Text style={styles.detailLabel}>Huoltokustannus:</Text>
-                  <Text style={styles.detailValue}>
-                    {data.currentMaintenance || '200'} €/vuosi
-                  </Text>
-                </View>
-                <View style={styles.detailRow}>
-                  <Text style={styles.detailLabel}>CO₂-päästöt:</Text>
-                  <Text style={styles.detailValue}>
-                    {data.currentCO2 || data.current_co2 || '5 320'} kg/vuosi
-                  </Text>
-                </View>
+                {/* Fuel-specific rows */}
+                {/* Gas */}
+                {String(
+                  (data.lammitysmuoto || data.current_heating || '')
+                )
+                  .toLowerCase()
+                  .includes('kaasu') && (
+                  <>
+                    <View style={styles.detailRow}>
+                      <Text style={styles.detailLabel}>Kaasun kulutus:</Text>
+                      <Text style={styles.detailValue}>
+                        {data.kokonaismenekki || data.currentConsumption || '0'} m³/vuosi
+                      </Text>
+                    </View>
+                    <View style={styles.detailRow}>
+                      <Text style={styles.detailLabel}>Kaasun hinta:</Text>
+                      <Text style={styles.detailValue}>
+                        {data.gas_price || data.gasPrice || '0,10'} €/kWh
+                      </Text>
+                    </View>
+                    <View style={styles.detailRow}>
+                      <Text style={styles.detailLabel}>Huoltokustannus:</Text>
+                      <Text style={styles.detailValue}>300 €/vuosi</Text>
+                    </View>
+                    <View style={styles.detailRow}>
+                      <Text style={styles.detailLabel}>CO₂-päästöt:</Text>
+                      <Text style={styles.detailValue}>
+                        {((data.laskennallinenenergiantarve || data.energyNeed || 0) * 0.21)
+                          .toFixed(0)
+                          .toString()
+                          .replace(/\B(?=(\d{3})+(?!\d))/g, ' ')}{' '}
+                        kg/vuosi
+                      </Text>
+                    </View>
+                  </>
+                )}
+
+                {/* Oil (default) */}
+                {!String(
+                  (data.lammitysmuoto || data.current_heating || '')
+                )
+                  .toLowerCase()
+                  .includes('kaasu') && (
+                  <>
+                    <View style={styles.detailRow}>
+                      <Text style={styles.detailLabel}>Öljyn kulutus:</Text>
+                      <Text style={styles.detailValue}>
+                        {data.oilConsumption || data.oil_consumption || '2 000'} L/vuosi
+                      </Text>
+                    </View>
+                    <View style={styles.detailRow}>
+                      <Text style={styles.detailLabel}>Öljyn hinta:</Text>
+                      <Text style={styles.detailValue}>
+                        {data.oilPrice || data.oil_price || '1,30'} €/litra
+                      </Text>
+                    </View>
+                    <View style={styles.detailRow}>
+                      <Text style={styles.detailLabel}>Huoltokustannus:</Text>
+                      <Text style={styles.detailValue}>
+                        {data.currentMaintenance || '200'} €/vuosi
+                      </Text>
+                    </View>
+                    <View style={styles.detailRow}>
+                      <Text style={styles.detailLabel}>CO₂-päästöt:</Text>
+                      <Text style={styles.detailValue}>
+                        {data.currentCO2 || data.current_co2 || '5 320'} kg/vuosi
+                      </Text>
+                    </View>
+                  </>
+                )}
               </View>
             </View>
           </View>

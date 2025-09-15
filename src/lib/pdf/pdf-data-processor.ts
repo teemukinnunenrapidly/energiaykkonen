@@ -44,6 +44,9 @@ export async function processPDFData(lead: Lead): Promise<Record<string, any>> {
 
     // Current heating system
     currentSystem: flatLead.lammitysmuoto || 'Nykyinen lämmitys',
+    // Fuel-specific fields (defaults for oil). Gas handled in template with conditional UI
+    kokonaismenekki: flatLead.kokonaismenekki, // from lookup if present
+    gas_price: flatLead.gas_price,
     oilConsumption:
       Math.round((flatLead.laskennallinenenergiantarve || 0) / 10) || 2000,
     oilPrice: '1,30',
