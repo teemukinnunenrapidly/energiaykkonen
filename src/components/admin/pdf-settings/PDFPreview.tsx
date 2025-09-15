@@ -206,8 +206,8 @@ export function PDFPreview({
 
   return (
     <div
-      className="w-full max-w-4xl mx-auto bg-white shadow-lg"
-      style={{ aspectRatio: '210/297' }}
+      className="w-full max-w-6xl mx-auto bg-white shadow-lg"
+      style={{ aspectRatio: '210/297', transform: 'scale(1.15)', transformOrigin: 'top center' }}
     >
       <div className="p-8 h-full flex flex-col text-gray-800 text-xs">
         {/* Quick inline editor header */}
@@ -396,19 +396,49 @@ export function PDFPreview({
                     <div className="flex justify-between text-[10px]">
                       <span className="text-gray-500">1 vuosi</span>
                       <span className="text-red-500 font-bold">
-                        {renderValue(previewData.currentYear1Cost)} €
+                        {showShortcodes ? (
+                          <Input
+                            value={formulas?.currentYear1Cost || ''}
+                            onChange={e =>
+                              setFormulas({ ...(formulas || {}), currentYear1Cost: e.target.value })
+                            }
+                            className="h-6 text-[10px]"
+                          />
+                        ) : (
+                          renderValue(previewData.currentYear1Cost as string)
+                        )} €
                       </span>
                     </div>
                     <div className="flex justify-between text-[10px] bg-gray-50 -mx-2 px-2 py-1">
                       <span className="text-gray-500">5 vuotta</span>
                       <span className="text-red-500 font-bold">
-                        {renderValue(previewData.currentYear5Cost)} €
+                        {showShortcodes ? (
+                          <Input
+                            value={formulas?.currentYear5Cost || ''}
+                            onChange={e =>
+                              setFormulas({ ...(formulas || {}), currentYear5Cost: e.target.value })
+                            }
+                            className="h-6 text-[10px]"
+                          />
+                        ) : (
+                          renderValue(previewData.currentYear5Cost as string)
+                        )} €
                       </span>
                     </div>
                     <div className="flex justify-between text-[10px]">
                       <span className="text-gray-500">10 vuotta</span>
                       <span className="text-red-500 font-bold">
-                        {renderValue(previewData.currentYear10Cost)} €
+                        {showShortcodes ? (
+                          <Input
+                            value={formulas?.currentYear10Cost || ''}
+                            onChange={e =>
+                              setFormulas({ ...(formulas || {}), currentYear10Cost: e.target.value })
+                            }
+                            className="h-6 text-[10px]"
+                          />
+                        ) : (
+                          renderValue(previewData.currentYear10Cost as string)
+                        )} €
                       </span>
                     </div>
                   </div>
@@ -418,7 +448,17 @@ export function PDFPreview({
                   <div className="flex justify-between text-[8px]">
                     <span className="text-gray-500">Öljyn kulutus:</span>
                     <span className="text-gray-600">
-                      {renderValue(previewData.oilConsumption)} L/vuosi
+                      {showShortcodes ? (
+                        <Input
+                          value={formulas?.oilConsumption || ''}
+                          onChange={e =>
+                            setFormulas({ ...(formulas || {}), oilConsumption: e.target.value })
+                          }
+                          className="h-6 text-[10px]"
+                        />
+                      ) : (
+                        renderValue(previewData.oilConsumption as string)
+                      )} L/vuosi
                     </span>
                   </div>
                   <div className="flex justify-between text-[8px]">
@@ -436,7 +476,17 @@ export function PDFPreview({
                   <div className="flex justify-between text-[8px]">
                     <span className="text-gray-500">CO₂-päästöt:</span>
                     <span className="text-gray-600">
-                      {renderValue(previewData.currentCO2)} kg/vuosi
+                      {showShortcodes ? (
+                        <Input
+                          value={formulas?.currentCO2 || ''}
+                          onChange={e =>
+                            setFormulas({ ...(formulas || {}), currentCO2: e.target.value })
+                          }
+                          className="h-6 text-[10px]"
+                        />
+                      ) : (
+                        renderValue(previewData.currentCO2 as string)
+                      )} kg/vuosi
                     </span>
                   </div>
                 </div>
@@ -519,8 +569,17 @@ export function PDFPreview({
                   <div className="flex justify-between text-[8px]">
                     <span className="text-gray-500">Sähkön kulutus:</span>
                     <span className="text-gray-600">
-                      {renderValue(previewData.electricityConsumption)}{' '}
-                      kWh/vuosi
+                      {showShortcodes ? (
+                        <Input
+                          value={formulas?.electricityConsumption || ''}
+                          onChange={e =>
+                            setFormulas({ ...(formulas || {}), electricityConsumption: e.target.value })
+                          }
+                          className="h-6 text-[10px]"
+                        />
+                      ) : (
+                        renderValue(previewData.electricityConsumption as string)
+                      )}{' '}kWh/vuosi
                     </span>
                   </div>
                   <div className="text-[7px] text-gray-400 italic my-1">
@@ -530,7 +589,17 @@ export function PDFPreview({
                   <div className="flex justify-between text-[8px]">
                     <span className="text-gray-500">Sähkön hinta:</span>
                     <span className="text-gray-600">
-                      {previewData.electricityPrice} €/kWh
+                      {showShortcodes ? (
+                        <Input
+                          value={formulas?.electricityPrice || ''}
+                          onChange={e =>
+                            setFormulas({ ...(formulas || {}), electricityPrice: e.target.value })
+                          }
+                          className="h-6 text-[10px]"
+                        />
+                      ) : (
+                        previewData.electricityPrice
+                      )} €/kWh
                     </span>
                   </div>
                   <div className="flex justify-between text-[8px]">
@@ -540,13 +609,33 @@ export function PDFPreview({
                   <div className="flex justify-between text-[8px]">
                     <span className="text-gray-500">Huolto 10v:</span>
                     <span className="text-gray-600">
-                      {previewData.newMaintenance10Years} €/vuosi
+                      {showShortcodes ? (
+                        <Input
+                          value={formulas?.newMaintenance10Years || ''}
+                          onChange={e =>
+                            setFormulas({ ...(formulas || {}), newMaintenance10Years: e.target.value })
+                          }
+                          className="h-6 text-[10px]"
+                        />
+                      ) : (
+                        previewData.newMaintenance10Years
+                      )} €/vuosi
                     </span>
                   </div>
                   <div className="flex justify-between text-[8px]">
                     <span className="text-gray-500">CO₂-päästöt:</span>
                     <span className="text-gray-600">
-                      {previewData.newCO2} kg/vuosi
+                      {showShortcodes ? (
+                        <Input
+                          value={formulas?.newCO2 || ''}
+                          onChange={e =>
+                            setFormulas({ ...(formulas || {}), newCO2: e.target.value })
+                          }
+                          className="h-6 text-[10px]"
+                        />
+                      ) : (
+                        previewData.newCO2
+                      )} kg/vuosi
                     </span>
                   </div>
                   <div className="text-[7px] text-emerald-600 mt-2 leading-tight">
