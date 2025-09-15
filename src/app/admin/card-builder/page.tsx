@@ -496,8 +496,6 @@ export default function CardBuilderPage() {
     }
 
     // Execute batch operations
-    const totalOps =
-      fieldsToCreate.length + fieldsToUpdate.length + fieldIdsToDelete.length;
 
     // 1. Batch delete - Single query
     if (fieldIdsToDelete.length > 0) {
