@@ -207,13 +207,19 @@ export const SavingsReportPDF: React.FC<{ data: PDFData }> = ({ data }) => (
                     <View style={styles.detailRow}>
                       <Text style={styles.detailLabel}>Kaasun kulutus:</Text>
                       <Text style={styles.detailValue}>
-                        {data.kokonaismenekki || data.currentConsumption || '0'} m³/vuosi
+                        {(data.kokonaismenekki || data.gas_consumption_m3 || data.currentConsumption || 0).toLocaleString('fi-FI')} m³/vuosi
                       </Text>
                     </View>
                     <View style={styles.detailRow}>
                       <Text style={styles.detailLabel}>Kaasun hinta:</Text>
                       <Text style={styles.detailValue}>
-                        {data.gas_price || data.gasPrice || '0,10'} €/kWh
+                        {(() => {
+                          // Prefer €/MWh when available else €/kWh
+                          if (data.gas_price_mwh) {
+                            return `${Number(data.gas_price_mwh).toLocaleString('fi-FI')} €/MWh`;
+                          }
+                          return `${data.gas_price || data.gasPrice || '0,10'} €/kWh`;
+                        })()}
                       </Text>
                     </View>
                     <View style={styles.detailRow}>
