@@ -1,8 +1,8 @@
 {
-  "version": "2.1.0-1757680782672",
-  "generated_at": "2025-09-12T12:39:43.269Z",
+  "version": "2.1.0-1757928299996",
+  "generated_at": "2025-09-15T09:25:01.265Z",
   "build_info": {
-    "buildId": "1757680782672",
+    "buildId": "1757928299996",
     "nodeVersion": "v24.5.0",
     "platform": "darwin"
   },
@@ -29,7 +29,7 @@
         "visual_object_id": null,
         "is_active": true,
         "created_at": "2025-08-27T07:23:02.757+00:00",
-        "updated_at": "2025-09-12T12:39:08.391567+00:00",
+        "updated_at": "2025-09-15T06:33:22.667619+00:00",
         "reveal_next_conditions": {
           "type": "all_complete"
         },
@@ -52,7 +52,7 @@
             "created_at": "2025-08-27T07:48:03.006+00:00",
             "field_name": "neliot",
             "field_type": "number",
-            "updated_at": "2025-09-12T12:39:10.832569+00:00",
+            "updated_at": "2025-09-15T06:33:24.710168+00:00",
             "placeholder": "Esim. 120",
             "display_order": 0,
             "validation_rules": {}
@@ -67,7 +67,7 @@
             "created_at": "2025-08-27T07:50:36.891+00:00",
             "field_name": "huonekorkeus",
             "field_type": "number",
-            "updated_at": "2025-09-12T12:39:10.877871+00:00",
+            "updated_at": "2025-09-15T06:33:24.753352+00:00",
             "placeholder": "esim. 2.5",
             "display_order": 1,
             "validation_rules": {}
@@ -89,7 +89,7 @@
         "visual_object_id": null,
         "is_active": true,
         "created_at": "2025-09-05T10:15:44.427+00:00",
-        "updated_at": "2025-09-12T12:39:08.738155+00:00",
+        "updated_at": "2025-09-15T06:33:22.964444+00:00",
         "reveal_next_conditions": {
           "type": "immediately"
         },
@@ -99,8 +99,7 @@
           }
         },
         "reveal_timing": {
-          "timing": "after_delay",
-          "delay_seconds": 3
+          "timing": "immediately"
         },
         "card_fields": [
           {
@@ -113,7 +112,7 @@
             "created_at": "2025-09-05T10:22:03.74272+00:00",
             "field_name": "rakennusvuosi",
             "field_type": "number",
-            "updated_at": "2025-09-12T12:39:10.914733+00:00",
+            "updated_at": "2025-09-15T06:33:24.741614+00:00",
             "placeholder": "Syötä vuosiluku",
             "display_order": 0,
             "validation_rules": {}
@@ -128,7 +127,7 @@
             "created_at": "2025-09-05T10:22:03.74272+00:00",
             "field_name": "henkilomaara",
             "field_type": "number",
-            "updated_at": "2025-09-12T12:39:10.859495+00:00",
+            "updated_at": "2025-09-15T06:33:24.754123+00:00",
             "placeholder": "Syötä numero",
             "display_order": 1,
             "validation_rules": {}
@@ -150,7 +149,7 @@
         "visual_object_id": null,
         "is_active": true,
         "created_at": "2025-08-28T06:48:10.397+00:00",
-        "updated_at": "2025-09-12T12:39:09.098501+00:00",
+        "updated_at": "2025-09-15T06:33:23.195458+00:00",
         "reveal_next_conditions": {
           "type": "all_complete"
         },
@@ -160,8 +159,7 @@
           }
         },
         "reveal_timing": {
-          "timing": "after_delay",
-          "delay_seconds": 3
+          "timing": "immediately"
         },
         "card_fields": [
           {
@@ -183,7 +181,7 @@
             "created_at": "2025-08-28T06:59:52.216582+00:00",
             "field_name": "vesikiertoinen",
             "field_type": "buttons",
-            "updated_at": "2025-09-12T12:39:10.918396+00:00",
+            "updated_at": "2025-09-15T06:33:24.783144+00:00",
             "placeholder": "",
             "display_order": 0,
             "validation_rules": {
@@ -212,7 +210,7 @@
         "visual_object_id": null,
         "is_active": true,
         "created_at": "2025-08-27T08:42:50.875+00:00",
-        "updated_at": "2025-09-12T12:39:09.289594+00:00",
+        "updated_at": "2025-09-15T06:33:23.381624+00:00",
         "reveal_next_conditions": {
           "type": "all_complete"
         },
@@ -222,8 +220,7 @@
           }
         },
         "reveal_timing": {
-          "timing": "after_delay",
-          "delay_seconds": 3
+          "timing": "immediately"
         },
         "card_fields": [],
         "visual_objects": null
@@ -240,7 +237,7 @@
         "visual_object_id": null,
         "is_active": true,
         "created_at": "2025-08-28T07:20:42.592+00:00",
-        "updated_at": "2025-09-12T12:39:09.514492+00:00",
+        "updated_at": "2025-09-15T06:33:23.550178+00:00",
         "reveal_next_conditions": {
           "type": "all_complete"
         },
@@ -250,8 +247,7 @@
           }
         },
         "reveal_timing": {
-          "timing": "after_delay",
-          "delay_seconds": 3
+          "timing": "immediately"
         },
         "card_fields": [
           {
@@ -281,7 +277,7 @@
             "created_at": "2025-08-28T07:20:44.941443+00:00",
             "field_name": "lammitysmuoto",
             "field_type": "buttons",
-            "updated_at": "2025-09-12T12:39:10.899208+00:00",
+            "updated_at": "2025-09-15T06:33:24.750825+00:00",
             "placeholder": "",
             "display_order": 0,
             "validation_rules": {
@@ -309,7 +305,7 @@
         "visual_object_id": null,
         "is_active": true,
         "created_at": "2025-08-28T08:07:11.019+00:00",
-        "updated_at": "2025-09-12T12:39:09.729357+00:00",
+        "updated_at": "2025-09-15T06:33:23.748255+00:00",
         "reveal_next_conditions": {
           "type": "all_complete"
         },
@@ -340,7 +336,7 @@
         "visual_object_id": null,
         "is_active": true,
         "created_at": "2025-08-29T11:59:38.127+00:00",
-        "updated_at": "2025-09-12T12:39:09.918248+00:00",
+        "updated_at": "2025-09-15T06:33:23.920395+00:00",
         "reveal_next_conditions": {
           "type": "immediately"
         },
@@ -361,7 +357,7 @@
         "visual_object_id": null,
         "is_active": true,
         "created_at": "2025-08-29T12:26:10.295+00:00",
-        "updated_at": "2025-09-12T12:39:10.166854+00:00",
+        "updated_at": "2025-09-15T06:33:24.097844+00:00",
         "reveal_next_conditions": {
           "type": "immediately"
         },
@@ -395,7 +391,7 @@
             "created_at": "2025-08-29T12:26:15.25816+00:00",
             "field_name": "valittutukimuoto",
             "field_type": "buttons",
-            "updated_at": "2025-09-12T12:39:10.87697+00:00",
+            "updated_at": "2025-09-15T06:33:24.791895+00:00",
             "placeholder": "",
             "display_order": 0,
             "validation_rules": {
@@ -422,14 +418,13 @@
         "visual_object_id": null,
         "is_active": true,
         "created_at": "2025-08-29T12:29:32.394+00:00",
-        "updated_at": "2025-09-12T12:39:10.361319+00:00",
+        "updated_at": "2025-09-15T06:33:24.25667+00:00",
         "reveal_next_conditions": {
           "type": "immediately"
         },
         "completion_rules": null,
         "reveal_timing": {
-          "timing": "after_delay",
-          "delay_seconds": 3
+          "timing": "immediately"
         },
         "card_fields": [
           {
@@ -442,7 +437,7 @@
             "created_at": "2025-08-29T12:31:09.703995+00:00",
             "field_name": "nimi",
             "field_type": "text",
-            "updated_at": "2025-09-12T12:39:10.906006+00:00",
+            "updated_at": "2025-09-15T06:33:24.805032+00:00",
             "placeholder": "Syötä nimesi",
             "display_order": 0,
             "validation_rules": {}
@@ -457,7 +452,7 @@
             "created_at": "2025-08-29T12:31:09.891529+00:00",
             "field_name": "sahkoposti",
             "field_type": "email",
-            "updated_at": "2025-09-12T12:39:10.924585+00:00",
+            "updated_at": "2025-09-15T06:33:24.789686+00:00",
             "placeholder": "Sähköposti",
             "display_order": 1,
             "validation_rules": {}
@@ -472,7 +467,7 @@
             "created_at": "2025-08-29T12:31:09.797801+00:00",
             "field_name": "puhelinnumero",
             "field_type": "number",
-            "updated_at": "2025-09-12T12:39:10.888178+00:00",
+            "updated_at": "2025-09-15T06:33:24.793656+00:00",
             "placeholder": "Puhelinnumero",
             "display_order": 2,
             "validation_rules": {}
@@ -487,7 +482,7 @@
             "created_at": "2025-08-29T12:31:10.102088+00:00",
             "field_name": "paikkakunta",
             "field_type": "text",
-            "updated_at": "2025-09-12T12:39:10.913027+00:00",
+            "updated_at": "2025-09-15T06:33:24.757131+00:00",
             "placeholder": "Paikkakunta",
             "display_order": 3,
             "validation_rules": {}
@@ -502,7 +497,7 @@
             "created_at": "2025-08-29T12:31:10.00276+00:00",
             "field_name": "osoite",
             "field_type": "text",
-            "updated_at": "2025-09-12T12:39:10.923556+00:00",
+            "updated_at": "2025-09-15T06:33:24.766894+00:00",
             "placeholder": "Syötä osoitteesi",
             "display_order": 4,
             "validation_rules": {}
@@ -802,12 +797,12 @@
       "shadowDOM": {
         "sha256": "10a6bcd5cf2b754febd315e118afc340941662e4438aeb296d58888260d342f1",
         "size": 19661,
-        "timestamp": "2025-09-12T12:39:42.815Z"
+        "timestamp": "2025-09-15T09:25:00.249Z"
       },
       "namespaced": {
         "sha256": "2b8961bd60f4fcdc514c806a2e38f6310a30a33330a7943873ad585a85aeb086",
         "size": 24388,
-        "timestamp": "2025-09-12T12:39:42.815Z"
+        "timestamp": "2025-09-15T09:25:00.249Z"
       }
     }
   },
@@ -816,7 +811,7 @@
     "fallbackMode": "namespace",
     "cloudflareAccountHash": "AkEHl6uYQM8NNRufIXHzFw",
     "corsEnabled": true,
-    "securityNonce": "6dca9346676ced5075a7c95e0833f1d2",
+    "securityNonce": "2c13544dc4e2a5d8f1d3753ddc4fb4c5",
     "leadApiUrl": "https://energiaykkonen-calculator.vercel.app/api/submit-lead"
   },
   "security": {
@@ -828,12 +823,12 @@
       "shadowDOM": {
         "sha256": "10a6bcd5cf2b754febd315e118afc340941662e4438aeb296d58888260d342f1",
         "size": 19661,
-        "timestamp": "2025-09-12T12:39:42.815Z"
+        "timestamp": "2025-09-15T09:25:00.249Z"
       },
       "namespaced": {
         "sha256": "2b8961bd60f4fcdc514c806a2e38f6310a30a33330a7943873ad585a85aeb086",
         "size": 24388,
-        "timestamp": "2025-09-12T12:39:42.815Z"
+        "timestamp": "2025-09-15T09:25:00.249Z"
       }
     }
   }
