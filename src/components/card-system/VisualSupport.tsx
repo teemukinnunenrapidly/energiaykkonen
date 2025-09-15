@@ -8,8 +8,6 @@ interface VisualSupportProps {
   compact?: boolean;
   // Keep objectId for backward compatibility
   objectId?: string;
-  // Widget mode no longer needed in embedded approach; kept for compatibility
-  widgetMode?: boolean;
   bannerHeight?: number;
   hideText?: boolean;
 }
@@ -19,7 +17,6 @@ export function VisualSupport({
   visualConfig,
   compact = false,
   objectId,
-  widgetMode = false,
   bannerHeight,
   hideText = false,
 }: VisualSupportProps) {
@@ -28,20 +25,8 @@ export function VisualSupport({
   const [loadingImages, setLoadingImages] = useState(false);
   const [imageLoadStarted, setImageLoadStarted] = useState(false);
 
-  // Ensure widget mode is picked up even if prop wasn't passed
-  const isWidget = false;
-
-  // Get the visual object from activeCard or visualConfig. Additionally try
-  // to resolve by linked_visual_object_id from global widget data regardless
-  // of explicit widgetMode prop to avoid false negatives at mobile breakpoints.
+  // Get the visual object from activeCard or visualConfig
   let visualObject = visualConfig || activeCard?.visual_objects;
-  if (activeCard?.config?.linked_visual_object_id) {
-    const widgetData = (typeof window !== 'undefined' && (window as any).__E1_WIDGET_DATA) || {};
-    const vo = widgetData.visualObjects?.[activeCard.config.linked_visual_object_id];
-    if (vo && (!visualObject || !visualObject.id || (!visualObject.images && !visualObject.visual_object_images && !visualObject.image_url))) {
-      visualObject = vo;
-    }
-  }
 
   // Debug logging
   console.log('🖼️ VisualSupport render:', {
@@ -53,7 +38,6 @@ export function VisualSupport({
     visualObjectId: visualObject?.id,
     visualObjectTitle: visualObject?.title,
     visualConfigPassed: !!visualConfig,
-    widgetMode: isWidget,
     compact,
   });
 
@@ -71,50 +55,28 @@ export function VisualSupport({
       setImageLoadStarted(true);
       
       try {
-        if (isWidget) {
-          // In widget mode, try both possible field names for images.
-          // If array is empty but the object has a prebuilt image_url, synthesize a single image entry.
-          let images = visualObject?.images || visualObject?.visual_object_images || [];
-          if ((!images || images.length === 0) && visualObject?.image_url) {
-            images = [{ id: visualObject.id || 'vo-image', image_url: visualObject.image_url }];
-          }
-          
-          console.log('✅ Widget mode: Checking images:', {
-            visualObjectId: visualObject?.id,
-            hasImages: images.length > 0,
-            imageCount: images.length,
-            firstImage: images[0]?.cloudflare_image_id,
-            visualObjectStructure: {
-              hasImagesField: !!visualObject?.images,
-              hasVisualObjectImagesField: !!visualObject?.visual_object_images,
-            }
-          });
-          
-          setVisualImages(images);
-        } else {
-          // Normal mode: fetch from Supabase
-          console.log('🎯 Progressive loading: Fetching images for visual object:', visualObject.id);
-          const { supabase } = await import('@/lib/supabase');
-          const { data: images, error } = await supabase
-            .from('visual_object_images')
-            .select('*')
-            .eq('visual_object_id', visualObject.id)
-            .order('display_order');
+        // Fetch from Supabase
+        console.log('🎯 Progressive loading: Fetching images for visual object:', visualObject.id);
+        const { supabase } = await import('@/lib/supabase');
+        const { data: images, error } = await supabase
+          .from('visual_object_images')
+          .select('*')
+          .eq('visual_object_id', visualObject.id)
+          .order('display_order');
 
-          if (error) {
-            console.error('❌ Error fetching visual images:', error);
-            setVisualImages([]);
+        if (error) {
+          console.error('❌ Error fetching visual images:', error);
+          setVisualImages([]);
+        } else {
+          const count = images?.length || 0;
+          console.log('✅ Progressive load complete: Loaded', count, 'images');
+          if (!count && visualObject?.image_url) {
+            // Fallback: use prebuilt image_url stored on the visual object itself
+            setVisualImages([
+              { id: visualObject.id || 'vo-image', image_url: visualObject.image_url },
+            ]);
           } else {
-            const count = images?.length || 0;
-            console.log('✅ Progressive load complete: Loaded', count, 'images');
-            if (!count && visualObject?.image_url) {
-              // Fallback: use prebuilt image_url stored on the visual object itself
-              setVisualImages([
-                { id: visualObject.id || 'vo-image', image_url: visualObject.image_url },
-              ]);
-            } else {
-              setVisualImages(images || []);
-            }
+            setVisualImages(images || []);
           }
         }
       } catch (error) {
@@ -127,17 +89,17 @@ export function VisualSupport({
 
     // Fetch when activeCard changes and has visual objects
     fetchVisualImages();
-  }, [visualObject?.id, activeCard?.id, widgetMode]);
+  }, [visualObject?.id, activeCard?.id]);
 
-  // Helper function to get image URL - prioritize pre-constructed URLs in widget mode
+  // Helper function to get image URL
   const getImageUrl = (image: any) => {
-    // In widget environments, prefer pre-constructed URLs
+    // Check if visual object has pre-constructed URL
     if (visualObject?.image_url) {
       console.log('🔗 Using pre-constructed image URL from visual object:', visualObject.image_url);
       return visualObject.image_url;
     }
     
-    // For individual images in widget mode, check if they have a pre-constructed URL
+    // Check if individual image has pre-constructed URL
     if (image?.image_url) {
       console.log('🔗 Using pre-constructed image URL from image object:', image.image_url);
       return image.image_url;
@@ -158,8 +120,7 @@ export function VisualSupport({
       || process.env.NEXT_PUBLIC_CLOUDFLARE_ACCOUNT_HASH;
       
     console.log('🔧 Fallback to manual URL construction:', {
-      widgetMode: isWidget,
-      accountHash: accountHash ? `${accountHash.substring(0, 8)}...` : 'MISSING',
+        accountHash: accountHash ? `${accountHash.substring(0, 8)}...` : 'MISSING',
       cloudflareImageId,
       variant
     });

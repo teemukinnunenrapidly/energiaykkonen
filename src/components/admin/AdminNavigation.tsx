@@ -8,7 +8,6 @@ import {
   Home,
   Mail,
   Calculator,
-  Eye,
   FileText,
   Image as ImageIcon,
   ChevronDown,
@@ -53,12 +52,6 @@ const secondaryNavigation = [
     href: '/admin/visual-assets',
     icon: ImageIcon,
     description: 'Manage Images and Assets',
-  },
-  {
-    name: 'Preview',
-    href: '/admin/preview',
-    icon: Eye,
-    description: 'Test Calculator',
   },
   {
     name: 'Settings',

@@ -206,7 +206,7 @@ export function CardStream({
                         }}
                       >
                         <div style={{ height: '100%' }}>
-                          <VisualSupport activeCard={card} compact={false} widgetMode={true} />
+                          <VisualSupport activeCard={card} compact={false} />
                         </div>
                       </div>
                     ) : (
@@ -262,7 +262,7 @@ export function CardStream({
                         const bannerH = !tokenH || tokenH === 'auto' ? '180px' : tokenH;
                         return (
                           <div style={{ height: bannerH }}>
-                            <VisualSupport activeCard={card} compact={true} widgetMode={true} hideText={true} />
+                            <VisualSupport activeCard={card} compact={true} hideText={true} />
                           </div>
                         );
                       })()}

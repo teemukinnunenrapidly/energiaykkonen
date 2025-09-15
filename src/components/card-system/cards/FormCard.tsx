@@ -6,10 +6,9 @@ import { useCardStyles, cssValue } from '@/hooks/useCardStyles';
 interface FormCardProps {
   card: CardTemplate;
   onFieldFocus?: (cardId: string, fieldId: string, value?: string) => void;
-  widgetMode?: boolean;
 }
 
-export function FormCard({ card, onFieldFocus, widgetMode = false }: FormCardProps) {
+export function FormCard({ card, onFieldFocus }: FormCardProps) {
   const styles = useCardStyles();
   const {
     formData,

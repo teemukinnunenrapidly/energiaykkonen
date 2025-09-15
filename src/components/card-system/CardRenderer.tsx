@@ -10,16 +10,13 @@ interface CardRendererProps {
 }
 
 export function CardRenderer({ card, onFieldFocus }: CardRendererProps) {
-  // Auto-detect widget mode by checking for widget data
-  const isWidgetMode = typeof window !== 'undefined' && (window as any).__E1_WIDGET_DATA;
-
   switch (card.type) {
     case 'form':
-      return <FormCard card={card} onFieldFocus={onFieldFocus} widgetMode={isWidgetMode} />;
+      return <FormCard card={card} onFieldFocus={onFieldFocus} />;
     case 'calculation':
-      return <CalculationCard card={card} onFieldFocus={onFieldFocus} widgetMode={isWidgetMode} />;
+      return <CalculationCard card={card} onFieldFocus={onFieldFocus} />;
     case 'info':
-      return <InfoCard card={card} widgetMode={isWidgetMode} />;
+      return <InfoCard card={card} />;
     default:
       return null;
   }

@@ -8,10 +8,9 @@ import { useCardStyles } from '@/hooks/useCardStyles';
 interface CalculationCardProps {
   card: CardTemplate;
   onFieldFocus?: (cardId: string, fieldId: string, value: any) => void;
-  widgetMode?: boolean;
 }
 
-export function CalculationCard({ card, widgetMode = false }: CalculationCardProps) {
+export function CalculationCard({ card }: CalculationCardProps) {
   const styles = useCardStyles();
   const {
     formData,
@@ -34,12 +33,6 @@ export function CalculationCard({ card, widgetMode = false }: CalculationCardPro
   const hasProcessedCalculationRef = useRef<boolean>(false);
   const lastDependencyValuesRef = useRef<Record<string, any>>({});
 
-  // Get formulas and lookup tables for widget mode
-  const widgetFormulas = widgetMode ? 
-    ((typeof window !== 'undefined' && (window as any).__E1_WIDGET_DATA?.formulas) || []) : [];
-  
-  const widgetLookupTables = widgetMode ?
-    ((typeof window !== 'undefined' && (window as any).__E1_WIDGET_DATA?.lookupTables) || []) : [];
 
   // Process calculation
   useEffect(() => {
@@ -99,29 +92,12 @@ export function CalculationCard({ card, widgetMode = false }: CalculationCardPro
         try {
           let result: any;
           
-          if (widgetMode) {
-            // Use widget calculation engine (offline)
-            const engine = new WidgetCalculationEngine(
-              widgetFormulas,
-              sessionId,
-              formData,
-              widgetLookupTables
-            );
-            
-            // Clear cache to ensure fresh calculation with current form data
-            engine.clearCache();
-            
-            // Process the calculation
-            result = await engine.process(card.config.main_result);
-            console.log('WidgetCalculationCard received result:', result);
-          } else {
-            // Use unified calculation engine (with Supabase) - dynamic import
-            const { UnifiedCalculationEngine } = await import('@/lib/unified-calculation-engine');
-            const { supabase } = await import('@/lib/supabase');
-            const engine = new UnifiedCalculationEngine(supabase, sessionId, formData);
-            result = await engine.process(card.config.main_result);
-            console.log('CalculationCard received result:', result);
-          }
+          // Use unified calculation engine (with Supabase) - dynamic import
+          const { UnifiedCalculationEngine } = await import('@/lib/unified-calculation-engine');
+          const { supabase } = await import('@/lib/supabase');
+          const engine = new UnifiedCalculationEngine(supabase, sessionId, formData);
+          result = await engine.process(card.config.main_result);
+          console.log('CalculationCard received result:', result);
 
           if (result.success) {
             try {
@@ -205,8 +181,7 @@ export function CalculationCard({ card, widgetMode = false }: CalculationCardPro
               }
               
               // Auto-complete the card if calculation succeeds
-              // In widget mode, always auto-complete calculation cards to enable progressive disclosure
-              if (card.config?.auto_complete_on_success || widgetMode) {
+              if (card.config?.auto_complete_on_success) {
                 completeCard(card.id);
               }
             } catch (innerError) {
@@ -279,7 +254,6 @@ export function CalculationCard({ card, widgetMode = false }: CalculationCardPro
     JSON.stringify(formData), // Stringify to avoid object reference changes
     cardStates[card.id]?.isRevealed, // Only track this card's reveal state
     cardStates[card.id]?.status, // And completion status
-    widgetMode, // Track widget mode changes
   ]);
 
   const handleResultOverride = (newValue: number | string) => {
@@ -301,7 +275,7 @@ export function CalculationCard({ card, widgetMode = false }: CalculationCardPro
 
     // Mark card as complete if needed
     if (
-      (card.config?.auto_complete_on_success || widgetMode) &&
+      card.config?.auto_complete_on_success &&
       cardStates[card.id]?.status !== 'complete'
     ) {
       completeCard(card.id);

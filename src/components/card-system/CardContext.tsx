@@ -67,11 +67,9 @@ const getSessionId = (): string => {
 export function CardProvider({ 
   children,
   initialData,
-  widgetMode = false
 }: { 
   children: React.ReactNode;
   initialData?: any; // Initial data from config.json
-  widgetMode?: boolean; // When true, skip all Supabase operations
 }) {
   const [formData, setFormData] = useState<Record<string, any>>({});
   const [cardStates, setCardStates] = useState<Record<string, CardState>>({});
@@ -91,10 +89,7 @@ export function CardProvider({
       console.log(`Updated formData for ${fieldName}:`, newFormData);
 
       // Also update the session data table (like a waiter writing down the order)
-      // Skip in widget mode - no database connection
-      if (!widgetMode) {
-        updateSessionWithFormData(sessionId, newFormData);
-      }
+      updateSessionWithFormData(sessionId, newFormData);
 
       // Find which card this field belongs to
       const fieldCard = cards.find(card =>
@@ -106,88 +101,22 @@ export function CardProvider({
           `🗃️ Updating field completion in database for card "${fieldCard.name}"`
         );
 
-        // In widget mode, skip database operations and use local logic
-        let shouldBeComplete = false;
-        
-        if (!widgetMode) {
-          // Update field completion in database
-          await updateFieldCompletion(fieldCard.id, fieldName, value, sessionId);
+        // Update field completion in database
+        await updateFieldCompletion(fieldCard.id, fieldName, value, sessionId);
 
-          // Check completion using database logic with proper session isolation
-          shouldBeComplete = await checkCardCompletion(
-            fieldCard.id,
-            sessionId
-          );
+        // Check completion using database logic with proper session isolation
+        const shouldBeComplete = await checkCardCompletion(
+          fieldCard.id,
+          sessionId
+        );
 
-          console.log(
-            `📋 Card "${fieldCard.name}" database completion check (session-isolated): ${shouldBeComplete}`
-          );
+        console.log(
+          `📋 Card "${fieldCard.name}" database completion check (session-isolated): ${shouldBeComplete}`
+        );
 
-          // Update card completion state based on database logic
-          if (shouldBeComplete) {
-            await updateCardCompletion(fieldCard.id, sessionId, true, fieldName);
-          }
-        } else {
-          // Widget mode: Check completion locally using the configured completion_rules
-          const fields = fieldCard.card_fields || [];
-          const rules = fieldCard.completion_rules?.form_completion?.type as
-            | 'all_fields'
-            | 'any_field'
-            | 'required_fields'
-            | undefined;
-
-          const valueFor = (name: string) => newFormData[name];
-
-          if (rules === 'all_fields') {
-            shouldBeComplete = fields.length === 0
-              ? true
-              : fields.every(f => {
-                  const v = valueFor(f.field_name);
-                  return v !== undefined && v !== null && v !== '';
-                });
-          } else if (rules === 'any_field') {
-            shouldBeComplete = fields.some(f => {
-              const v = valueFor(f.field_name);
-              return v !== undefined && v !== null && v !== '';
-            });
-          } else if (rules === 'required_fields') {
-            const requiredNames =
-              fieldCard.completion_rules?.form_completion?.required_field_names || [];
-            if (requiredNames.length > 0) {
-              shouldBeComplete = requiredNames.every(name => {
-                const v = valueFor(name);
-                return v !== undefined && v !== null && v !== '';
-              });
-            } else {
-              // Fallback to field-level required flags
-              const requiredFields = fields.filter(f => f.required);
-              shouldBeComplete = requiredFields.length === 0
-                ? fields.some(f => {
-                    const v = valueFor(f.field_name);
-                    return v !== undefined && v !== null && v !== '';
-                  })
-                : requiredFields.every(f => {
-                    const v = valueFor(f.field_name);
-                    return v !== undefined && v !== null && v !== '';
-                  });
-            }
-          } else {
-            // No explicit rules: preserve current UX - require all required fields; if none, any field
-            const requiredFields = fields.filter(f => f.required);
-            shouldBeComplete = requiredFields.length === 0
-              ? fields.some(f => {
-                  const v = valueFor(f.field_name);
-                  return v !== undefined && v !== null && v !== '';
-                })
-              : requiredFields.every(f => {
-                  const v = valueFor(f.field_name);
-                  return v !== undefined && v !== null && v !== '';
-                });
-          }
-
-          console.log(
-            `📋 Card "${fieldCard.name}" local completion (rules=${rules || 'default'}) -> ${shouldBeComplete}`
-          );
+        // Update card completion state based on database logic
+        if (shouldBeComplete) {
+          await updateCardCompletion(fieldCard.id, sessionId, true, fieldName);
         }
         
         if (shouldBeComplete) {
@@ -203,7 +132,7 @@ export function CardProvider({
         }
       }
     },
-    [cards, sessionId, formData, widgetMode]
+    [cards, sessionId, formData]
   );
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -454,82 +383,7 @@ export function CardProvider({
 
   const submitData = useCallback(
     async (emailTemplate?: string) => {
-      // In widget mode (WordPress), prefer posting to Vercel API if configured
-      if (widgetMode) {
-        try {
-          const globalCfg = (window as any).__E1_WIDGET_DATA || {};
-          // Gather possible sources for lead endpoint
-          let leadApiUrl: string =
-            globalCfg?.settings?.leadApiUrl ||
-            (window as any).__E1_WIDGET_SETTINGS__?.leadApiUrl ||
-            globalCfg?.api?.submitEndpoint ||
-            (window as any).__E1_WIDGET_API__?.submitEndpoint ||
-            '';
-
-          // Ensure absolute URL; fallback to production API if missing
-          if (!leadApiUrl) {
-            leadApiUrl = 'https://energiaykkonen-calculator.vercel.app/api/submit-lead';
-          } else if (leadApiUrl.startsWith('/')) {
-            // If relative, prefix with Vercel origin (prevents posting to WP origin)
-            const defaultOrigin = 'https://energiaykkonen-calculator.vercel.app';
-            leadApiUrl = defaultOrigin + leadApiUrl;
-          }
-
-          if (leadApiUrl) {
-            console.log('📧 Widget mode: Submitting to lead API', { leadApiUrl });
-            const payload = {
-              ...formData,
-              submit_email_template: emailTemplate || '',
-              session_id: sessionId,
-            };
-
-            const res = await fetch(leadApiUrl, {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify(payload),
-              mode: 'cors',
-              credentials: 'omit',
-            });
-
-            if (!res.ok) {
-              const text = await res.text().catch(() => '');
-              throw new Error(`Lead API error (${res.status}): ${text || res.statusText}`);
-            }
-
-            console.log('✅ Lead submitted successfully to Vercel API');
-            return;
-          }
-
-          // Fallback to WordPress AJAX if API not configured
-          console.log('ℹ️ Lead API not configured, falling back to WordPress AJAX');
-          const wpConfig = (window as any).e1_widget_config;
-          if (!wpConfig?.nonce) {
-            throw new Error('WordPress configuration not found');
-          }
-
-          const response = await fetch(wpConfig.ajax_url || '/wp-admin/admin-ajax.php', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-            body: new URLSearchParams({
-              action: 'e1_submit_form',
-              nonce: wpConfig.nonce,
-              formData: JSON.stringify(formData),
-              emailTemplate: emailTemplate || ''
-            })
-          });
-          if (!response.ok) {
-            throw new Error('WordPress submission failed');
-          }
-          await response.json().catch(() => ({}));
-          console.log('✅ Widget form submitted successfully via WordPress');
-          return;
-        } catch (error) {
-          console.error('❌ Widget submission error:', error);
-          throw error;
-        }
-      }
-      
-      // Normal mode: use API endpoint
+      // Use API endpoint
       const submitPayload = {
         ...formData,
         submit_email_template: emailTemplate,
@@ -545,7 +399,7 @@ export function CardProvider({
         throw new Error('Failed to submit form data');
       }
     },
-    [formData, widgetMode]
+    [formData]
   );
 
   const completeCard = useCallback(
@@ -817,18 +671,10 @@ export function CardProvider({
           console.log('📦 Using offline data from config.json');
           cardsData = initialData.cards;
         } 
-        // Check if widget data is available globally (for standalone widget)
-        else if (typeof window !== 'undefined' && (window as any).__E1_WIDGET_DATA?.cards) {
-          console.log('📦 Using widget data from global store');
-          cardsData = (window as any).__E1_WIDGET_DATA.cards;
-        }
-        // Otherwise fetch from Supabase (development mode) - skip in widget mode
-        else if (!widgetMode) {
+        // Otherwise fetch from Supabase
+        else {
           console.log('📞 CardContext: Calling getCardsDirect()...');
           cardsData = await getCardsDirect();
-        } else {
-          console.warn('⚠️ Widget mode enabled but no data provided. Cards will be empty.');
-          cardsData = [];
         }
         
         console.log(
@@ -880,21 +726,11 @@ export function CardProvider({
     };
 
     loadCards();
-  }, [initialData, widgetMode]);
+  }, [initialData]);
 
-  // Initialize clean session on every app load (ensures fresh start) - skip in widget mode
+  // Initialize clean session on every app load (ensures fresh start)
   useEffect(() => {
-    if (widgetMode) {
-      console.log('🌐 Widget mode: Skipping session initialization');
-      return;
-    }
-    
     const initializeSession = async () => {
-      // Skip in widget mode - no database connection
-      if (widgetMode) {
-        console.log('🔧 Widget mode: Skipping session initialization');
-        return;
-      }
       
       console.log('🧹 Cleaning session data for fresh start...');
       try {
@@ -909,7 +745,7 @@ export function CardProvider({
     };
 
     initializeSession();
-  }, [sessionId, widgetMode]);
+  }, [sessionId]);
 
   const value = {
     formData,
