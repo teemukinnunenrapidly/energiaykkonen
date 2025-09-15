@@ -148,29 +148,49 @@ export const SavingsReportPDF: React.FC<{ data: PDFData }> = ({ data }) => (
                 <View style={styles.costRow}>
                   <Text style={styles.costLabel}>1 vuosi</Text>
                   <Text style={[styles.costValue, styles.negative]}>
-                    {data.currentYear1Cost ||
-                      data.current_yearly_cost ||
-                      data.vesikiertoinen ||
-                      '2 600'}{' '}
-                    €
+                    {(data.menekin_hinta_vuosi || data.menekinhintavuosi || data.currentYear1Cost || data.current_yearly_cost || data.vesikiertoinen || '2600')}{' '}€
                   </Text>
                 </View>
                 <View style={[styles.costRow, styles.costRowHighlight]}>
                   <Text style={styles.costLabel}>5 vuotta</Text>
                   <Text style={[styles.costValue, styles.negative]}>
-                    {data.currentYear5Cost ||
-                      data.current_5year_cost ||
-                      '13 000'}{' '}
-                    €
+                    {(() => {
+                      const one = Number(
+                        String(
+                          data.menekin_hinta_vuosi ||
+                            data.menekinhintavuosi ||
+                            data.currentYear1Cost ||
+                            data.current_yearly_cost ||
+                            0
+                        )
+                          .replace(/\s/g, '')
+                          .replace(',', '.')
+                      );
+                      return isNaN(one)
+                        ? (data.currentYear5Cost || data.current_5year_cost || '13000')
+                        : (one * 5).toLocaleString('fi-FI');
+                    })()}{' '}€
                   </Text>
                 </View>
                 <View style={styles.costRow}>
                   <Text style={styles.costLabel}>10 vuotta</Text>
                   <Text style={[styles.costValue, styles.negative]}>
-                    {data.currentYear10Cost ||
-                      data.current_10year_cost ||
-                      '26 000'}{' '}
-                    €
+                    {(() => {
+                      const one = Number(
+                        String(
+                          data.menekin_hinta_vuosi ||
+                            data.menekinhintavuosi ||
+                            data.currentYear1Cost ||
+                            data.current_yearly_cost ||
+                            0
+                        )
+                          .replace(/\s/g, '')
+                          .replace(',', '.')
+                      );
+                      return isNaN(one)
+                        ? (data.currentYear10Cost || data.current_10year_cost || '26000')
+                        : (one * 10).toLocaleString('fi-FI');
+                    })()}{' '}€
                   </Text>
                 </View>
               </View>
