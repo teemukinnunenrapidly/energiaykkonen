@@ -158,11 +158,23 @@ export function CardStream({
       >
         <div
           style={{
-            padding: styles.cardStream.padding,
+            padding:
+              (forceShowInline &&
+                (styles.responsive as any)?.mobile?.cardStream?.padding) ||
+              styles.cardStream.padding,
             gap: styles.cardStream.cardSpacing,
-            maxWidth: (styles.cardStream as any).contentWrapper?.maxWidth || 'none',
-            margin: (styles.cardStream as any).contentWrapper?.margin || '0 auto',
-            width: (styles.cardStream as any).contentWrapper?.width || '100%',
+            ...(forceShowInline
+              ? {
+                  maxWidth:
+                    (styles.cardStream as any).contentWrapper?.maxWidth ||
+                    'none',
+                  margin:
+                    (styles.cardStream as any).contentWrapper?.margin ||
+                    '0 auto',
+                  width:
+                    (styles.cardStream as any).contentWrapper?.width || '100%',
+                }
+              : {}),
           }}
         >
           {/* Spacer for first card */}
