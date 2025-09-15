@@ -347,8 +347,8 @@
                 <div class="document-title">SÄÄSTÖLASKELMA</div>
             </div>
             <div class="header-right">
-                <div class="document-date">2.9.2025</div>
-                <div class="document-number">Laskelma #2025-001</div>
+                <div class="document-date"><span class="formula">new Date()</span></div>
+                <div class="document-number">Laskelma #<span class="formula">{id.slice(0,8)}</span></div>
             </div>
         </div>
 
@@ -359,41 +359,41 @@
                 <div class="customer-column">
                     <div class="customer-row">
                         <div class="customer-label">Nimi:</div>
-                        <div class="customer-value">Matti Meikäläinen</div>
+                        <div class="customer-value"><span class="formula">{nimi}</span></div>
                     </div>
                     <div class="customer-row">
                         <div class="customer-label">Sähköposti:</div>
-                        <div class="customer-value">matti.meikalainen@email.fi</div>
+                        <div class="customer-value"><span class="formula">{sahkoposti}</span></div>
                     </div>
                     <div class="customer-row">
                         <div class="customer-label">Puhelinnumero:</div>
-                        <div class="customer-value">040 123 4567</div>
+                        <div class="customer-value"><span class="formula">{puhelinnumero}</span></div>
                     </div>
                     <div class="customer-row">
                         <div class="customer-label">Osoite:</div>
-                        <div class="customer-value">Kotikatu 123</div>
+                        <div class="customer-value"><span class="formula">{osoite}</span></div>
                     </div>
                     <div class="customer-row">
                         <div class="customer-label">Paikkakunta:</div>
-                        <div class="customer-value">00100 Helsinki</div>
+                        <div class="customer-value"><span class="formula">{postcode} {paikkakunta}</span></div>
                     </div>
                 </div>
                 <div class="customer-column">
                     <div class="customer-row">
                         <div class="customer-label">Henkilömäärä:</div>
-                        <div class="customer-value">4 henkilöä</div>
+                        <div class="customer-value"><span class="formula">{henkilomaara}</span> henkilöä</div>
                     </div>
                     <div class="customer-row">
                         <div class="customer-label">Rakennusvuosi:</div>
-                        <div class="customer-value">1987</div>
+                        <div class="customer-value"><span class="formula">{rakennusvuosi}</span></div>
                     </div>
                     <div class="customer-row">
                         <div class="customer-label">Pinta-ala:</div>
-                        <div class="customer-value">120 m²</div>
+                        <div class="customer-value"><span class="formula">{neliot}</span> m²</div>
                     </div>
                     <div class="customer-row">
                         <div class="customer-label">Kerroksia:</div>
-                        <div class="customer-value">2 kerrosta</div>
+                        <div class="customer-value"><span class="formula">{floors}</span> kerrosta</div>
                     </div>
                     <div class="customer-row">
                         <div class="customer-label">Energiantarve:</div>
@@ -411,7 +411,7 @@
                 <div class="column">
                     <div class="system-box current">
                         <div class="system-title">Nykyinen lämmitysjärjestelmä</div>
-                        <div class="system-title" style="font-size: 9pt; font-weight: normal; margin-bottom: 15pt;">Öljylämmitys</div>
+                        <div class="system-title" style="font-size: 9pt; font-weight: normal; margin-bottom: 15pt;"><span class="formula">{lammitysmuoto}</span></div>
                         
                         <div class="cost-summary">
                             <div style="display: flex; padding: 8pt 0; border-bottom: 1pt solid #e5e7eb; font-size: 9pt; font-weight: bold; color: #6b7280;">
@@ -420,34 +420,34 @@
                             </div>
                             <div class="cost-row">
                                 <div class="cost-label">1 vuosi</div>
-                                <div class="cost-value negative">2 600 €</div>
+                                <div class="cost-value negative"><span class="formula">{menekinhintavuosi}</span> €</div>
                             </div>
                             <div class="cost-row cost-row-highlight">
                                 <div class="cost-label">5 vuotta</div>
-                                <div class="cost-value negative">13 000 €</div>
+                                <div class="cost-value negative"><span class="formula">{menekinhintavuosi} × 5</span> €</div>
                             </div>
                             <div class="cost-row">
                                 <div class="cost-label">10 vuotta</div>
-                                <div class="cost-value negative">26 000 €</div>
+                                <div class="cost-value negative"><span class="formula">{menekinhintavuosi} × 10</span> €</div>
                             </div>
                         </div>
 
                         <div class="system-details">
                             <div class="detail-row">
                                 <div class="detail-label">Öljyn kulutus:</div>
-                                <div class="detail-value">2 000 L/vuosi</div>
+                                <div class="detail-value"><span class="formula">[calc:laskennallinen-energiantarve-kwh] / 10</span> L/vuosi</div>
                             </div>
                             <div class="detail-row">
                                 <div class="detail-label">Öljyn hinta:</div>
-                                <div class="detail-value">1,30 €/litra</div>
+                                <div class="detail-value"><span class="formula">[lookup:oil_price]</span> €/litra</div>
                             </div>
                             <div class="detail-row">
                                 <div class="detail-label">Huoltokustannus:</div>
-                                <div class="detail-value">200 €/vuosi</div>
+                                <div class="detail-value"><span class="formula">[lookup:oil_maintenance]</span> €/vuosi</div>
                             </div>
                             <div class="detail-row">
                                 <div class="detail-label">CO₂-päästöt:</div>
-                                <div class="detail-value">5 320 kg/vuosi</div>
+                                <div class="detail-value"><span class="formula">[calc:current_co2]</span> kg/vuosi</div>
                             </div>
                         </div>
                     </div>
@@ -467,21 +467,21 @@
                             </div>
                             <div style="display: flex; padding: 6pt 0; font-size: 10pt;">
                                 <div style="flex: 1; color: #6b7280;">1 vuosi</div>
-                                <div style="flex: 1; text-align: center; color: #1f2937; font-weight: bold;">975 €</div>
+                                <div style="flex: 1; text-align: center; color: #1f2937; font-weight: bold;"><span class="formula">([calc:laskennallinen-energiantarve-kwh] / 3.8) × [lookup:electricity_price]</span> €</div>
                                 <div style="flex: 1; text-align: right;">
-                                    <div style="color: #10b981; font-weight: bold;">1 625 €</div>
+                                    <div style="color: #10b981; font-weight: bold;"><span class="formula">{menekinhintavuosi} - (([calc:laskennallinen-energiantarve-kwh] / 3.8) × [lookup:electricity_price])</span> €</div>
                                     <div style="font-size: 8pt; color: #059669; font-weight: 500;">+4 000€*</div>
                                 </div>
                             </div>
                             <div style="display: flex; padding: 6pt 0; font-size: 10pt; background-color: #fafafa; margin: 0 -10pt; padding-left: 10pt; padding-right: 10pt;">
                                 <div style="flex: 1; color: #6b7280;">5 vuotta</div>
-                                <div style="flex: 1; text-align: center; color: #1f2937; font-weight: bold;">4 875 €</div>
-                                <div style="flex: 1; text-align: right; color: #10b981; font-weight: bold;">8 125 €</div>
+                                <div style="flex: 1; text-align: center; color: #1f2937; font-weight: bold;"><span class="formula">((([calc:laskennallinen-energiantarve-kwh] / 3.8) × [lookup:electricity_price]) × 5)</span> €</div>
+                                <div style="flex: 1; text-align: right; color: #10b981; font-weight: bold;"><span class="formula">annual_savings × 5</span> €</div>
                             </div>
                             <div style="display: flex; padding: 6pt 0; font-size: 10pt;">
                                 <div style="flex: 1; color: #6b7280;">10 vuotta</div>
-                                <div style="flex: 1; text-align: center; color: #1f2937; font-weight: bold;">9 750 €</div>
-                                <div style="flex: 1; text-align: right; color: #10b981; font-weight: bold;">16 250 €</div>
+                                <div style="flex: 1; text-align: center; color: #1f2937; font-weight: bold;"><span class="formula">((([calc:laskennallinen-energiantarve-kwh] / 3.8) × [lookup:electricity_price]) × 10)</span> €</div>
+                                <div style="flex: 1; text-align: right; color: #10b981; font-weight: bold;"><span class="formula">annual_savings × 10</span> €</div>
                             </div>
                         </div>
 
@@ -497,7 +497,7 @@
                             </div>
                             <div class="detail-row">
                                 <div class="detail-label">Sähkön hinta:</div>
-                                <div class="detail-value">0,15 €/kWh</div>
+                                <div class="detail-value"><span class="formula">[lookup:electricity_price]</span> €/kWh</div>
                             </div>
                             <div class="detail-row">
                                 <div class="detail-label">Huoltokustannus ensimmäiset 5v:</div>
@@ -505,11 +505,11 @@
                             </div>
                             <div class="detail-row">
                                 <div class="detail-label">Huoltokustannus seuraavat 5v:</div>
-                                <div class="detail-value">30 €/vuosi</div>
+                                <div class="detail-value"><span class="formula">[lookup:heat_pump_maintenance_10y]</span> €/vuosi</div>
                             </div>
                             <div class="detail-row">
                                 <div class="detail-label">CO₂-päästöt:</div>
-                                <div class="detail-value">0 kg/vuosi</div>
+                                <div class="detail-value"><span class="formula">([calc:laskennallinen-energiantarve-kwh] / 3.8) × 0.181</span> kg/vuosi</div>
                             </div>
                             <div style="padding: 8pt 0 0 0; margin-top: 4pt;">
                                 <div style="font-size: 7pt; color: #059669; line-height: 1.3;">
@@ -570,8 +570,45 @@
                 www.energiaykkonen.fi | info@energiaykkonen.fi
             </div>
             <div class="footer-right">
-                Sivu 1/1
+                Sivu 1/2
             </div>
+        </div>
+    </div>
+    <div class="page">
+        <div class="section-title">Liite: Käytettävissä olevat kentät</div>
+        <div style="margin-top: 10pt; font-size: 10pt; color: #1f2937; font-weight: bold;">Form data (form_data)</div>
+        <pre style="background:#f9fafb; border:1pt solid #e5e7eb; border-radius:4pt; padding:12pt; font-size:9pt; margin-top:6pt; white-space:pre-wrap;">
+{
+  "nimi": "{nimi}",
+  "sahkoposti": "{sahkoposti}",
+  "puhelinnumero": "{puhelinnumero}",
+  "osoite": "{osoite}",
+  "paikkakunta": "{paikkakunta}",
+  "postcode": "{postcode}",
+  "neliot": "{neliot}",
+  "huonekorkeus": "{huonekorkeus}",
+  "rakennusvuosi": "{rakennusvuosi}",
+  "henkilomaara": "{henkilomaara}",
+  "lammitysmuoto": "{lammitysmuoto}",
+  "kokonaismenekki": "{kokonaismenekki}"
+}
+        </pre>
+        <div style="margin-top: 16pt; font-size: 10pt; color: #1f2937; font-weight: bold;">Laskentatulokset (calculation_results)</div>
+        <pre style="background:#f9fafb; border:1pt solid #e5e7eb; border-radius:4pt; padding:12pt; font-size:9pt; margin-top:6pt; white-space:pre-wrap;">
+{
+  "annual_energy_need": "annual_energy_need",
+  "heat_pump_consumption": "heat_pump_consumption",
+  "heat_pump_cost_annual": "heat_pump_cost_annual",
+  "annual_savings": "annual_savings",
+  "five_year_savings": "five_year_savings",
+  "ten_year_savings": "ten_year_savings",
+  "co2_reduction": "co2_reduction"
+}
+        </pre>
+        <div class="footer">
+            <div class="footer-left">Energiaykkönen Oy | Y-tunnus: 2635343-7</div>
+            <div class="footer-center">www.energiaykkonen.fi | info@energiaykkonen.fi</div>
+            <div class="footer-right">Sivu 2/2</div>
         </div>
     </div>
 </body>
