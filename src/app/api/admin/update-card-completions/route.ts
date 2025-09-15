@@ -3,8 +3,6 @@ import { supabase } from '@/lib/supabase';
 
 export async function POST() {
   try {
-    console.log('Starting card completion rules update...');
-
     // Update all form cards to have proper completion rules
     const { data: formCards, error: fetchError } = await supabase
       .from('card_templates')
@@ -12,7 +10,6 @@ export async function POST() {
       .eq('type', 'form');
 
     if (fetchError) {
-      console.error('Failed to fetch form cards:', fetchError);
       return NextResponse.json(
         {
           success: false,
@@ -22,8 +19,6 @@ export async function POST() {
         { status: 500 }
       );
     }
-
-    console.log(`Found ${formCards?.length || 0} form cards to update`);
 
     const updates: any[] = [];
 
@@ -84,7 +79,6 @@ export async function POST() {
         .eq('id', card.id);
 
       if (updateError) {
-        console.error(`Failed to update card "${card.name}":`, updateError);
       } else {
         updates.push({
           id: card.id,
@@ -128,15 +122,12 @@ export async function POST() {
       }
     }
 
-    console.log(`Successfully updated ${updates.length} cards`);
-
     return NextResponse.json({
       success: true,
       message: `Updated ${updates.length} cards with completion rules`,
       updates,
     });
   } catch (error) {
-    console.error('Error updating card completions:', error);
     return NextResponse.json(
       {
         success: false,

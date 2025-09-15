@@ -35,8 +35,6 @@ export async function POST() {
     }
 
     if (needsMigration) {
-      console.log('Running card reveal system migration...');
-
       // Read and execute the migration file
       try {
         const migrationPath = path.join(
@@ -56,13 +54,10 @@ export async function POST() {
           });
 
           if (error) {
-            console.error('Statement execution error:', error);
             // Continue with other statements even if one fails
           }
         }
       } catch (fileError) {
-        console.error('Failed to read migration file:', fileError);
-
         // Fallback to inline migration
         const { error: alterError } = await supabase
           .from('card_templates')
@@ -70,7 +65,6 @@ export async function POST() {
           .limit(1);
 
         if (alterError) {
-          console.error('Failed to add columns:', alterError);
           return NextResponse.json(
             {
               success: false,
@@ -110,7 +104,6 @@ export async function POST() {
       });
 
       if (migrateError) {
-        console.error('Failed to migrate data:', migrateError);
         return NextResponse.json(
           {
             success: false,
@@ -125,7 +118,6 @@ export async function POST() {
     }
 
     if (needsMigration) {
-      console.log('Migration completed successfully');
       return NextResponse.json({
         success: true,
         message: 'Migration completed successfully',
@@ -151,7 +143,6 @@ export async function POST() {
       );
     }
   } catch (error) {
-    console.error('Migration error:', error);
     return NextResponse.json(
       {
         success: false,

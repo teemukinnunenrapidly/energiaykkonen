@@ -174,7 +174,8 @@ export function AvailableFields() {
         <CardHeader>
           <CardTitle>Erikoisfunktiot</CardTitle>
           <CardDescription>
-            Nämä funktiot ovat käytettävissä kun source_type on &quot;special&quot;.
+            Nämä funktiot ovat käytettävissä kun source_type on
+            &quot;special&quot;.
           </CardDescription>
         </CardHeader>
         <CardContent>

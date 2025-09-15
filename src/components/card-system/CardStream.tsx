@@ -168,7 +168,7 @@ export function CardStream({
           {/* Inline Visual Support for Mobile - per card, image first */}
 
           {/* Visible Cards with inline visual on desktop */}
-          {visibleCards.map((card) => {
+          {visibleCards.map(card => {
             const isActive = activeCardId === card.id;
             const isComplete = cardStates[card.id]?.status === 'complete';
 

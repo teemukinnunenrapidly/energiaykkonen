@@ -23,7 +23,6 @@ export async function POST() {
       .single();
 
     if (infoError) {
-      console.error('Failed to create info card:', infoError);
       return NextResponse.json(
         {
           success: false,
@@ -51,7 +50,6 @@ export async function POST() {
       .single();
 
     if (formError) {
-      console.error('Failed to create form card:', formError);
       return NextResponse.json(
         {
           success: false,
@@ -82,7 +80,6 @@ export async function POST() {
       .single();
 
     if (calcError) {
-      console.error('Failed to create calculation card:', calcError);
       return NextResponse.json(
         {
           success: false,
@@ -125,7 +122,6 @@ export async function POST() {
     ]);
 
     if (fieldsError) {
-      console.error('Failed to create fields:', fieldsError);
       return NextResponse.json(
         {
           success: false,
@@ -136,7 +132,6 @@ export async function POST() {
       );
     }
 
-    console.log('Test cards created successfully');
     return NextResponse.json({
       success: true,
       message: 'Test cards created successfully',
@@ -147,7 +142,6 @@ export async function POST() {
       },
     });
   } catch (error) {
-    console.error('Create test card error:', error);
     return NextResponse.json(
       {
         success: false,

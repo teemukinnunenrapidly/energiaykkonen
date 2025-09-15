@@ -6,13 +6,10 @@ export async function GET(request: Request) {
     const condition =
       url.searchParams.get('condition') || '"Öljylämmitys" == "Öljylämmitys"';
 
-    console.log(`Testing condition: ${condition}`);
-
     // Test the regex validation
     const regexTest = /^[0-9a-zA-ZÀ-ÿ\u0100-\u017F"'\\s==!=<>()._-]+$/.test(
       condition
     );
-    console.log(`Regex test result: ${regexTest}`);
 
     let evaluationResult;
     let evaluationError = null;
@@ -23,10 +20,9 @@ export async function GET(request: Request) {
       console.log(
         `Evaluation result: ${evaluationResult} (type: ${typeof evaluationResult})`
       );
-    } catch (error) {
+    } catch {
       evaluationError =
         error instanceof Error ? error.message : 'Unknown error';
-      console.log(`Evaluation error: ${evaluationError}`);
     }
 
     // Test character by character analysis
@@ -45,7 +41,6 @@ export async function GET(request: Request) {
       length: condition.length,
     });
   } catch (error) {
-    console.error('Test condition error:', error);
     return NextResponse.json(
       { error: 'Failed to test condition' },
       { status: 500 }

@@ -67,7 +67,6 @@ export async function POST(request: NextRequest) {
 
       if (createRpcError) {
         // Fallback: Use a different approach to check columns
-        console.log('Using fallback column check method');
 
         // Try to select the old column to see if it exists
         const { error: selectError } = await supabase
@@ -105,7 +104,6 @@ export async function POST(request: NextRequest) {
         .limit(1);
 
       if (selectError?.message?.includes('does not exist')) {
-        console.log(`Column ${sanitizedOldName} does not exist in leads table`);
         return NextResponse.json(
           {
             message: `Column ${sanitizedOldName} does not exist in leads table, skipping`,
@@ -134,7 +132,7 @@ export async function POST(request: NextRequest) {
 
     if (renameError) {
       // If exec_sql doesn't exist, we need admin to manually update
-      console.error('Cannot rename column automatically:', renameError);
+
       return NextResponse.json(
         {
           warning: `Column rename requires manual database update: ALTER TABLE leads RENAME COLUMN ${sanitizedOldName} TO ${sanitizedNewName}`,
@@ -156,7 +154,6 @@ export async function POST(request: NextRequest) {
       { status: 200 }
     );
   } catch (error) {
-    console.error('Error syncing lead columns:', error);
     return NextResponse.json(
       {
         error: 'Failed to sync lead columns',

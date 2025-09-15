@@ -3,8 +3,6 @@ import { supabase } from '@/lib/supabase';
 
 export async function GET() {
   try {
-    console.log('Testing card loading query...');
-
     // Test the exact same query that Card Builder uses
     const { data, error } = await supabase
       .from('card_templates')
@@ -12,7 +10,6 @@ export async function GET() {
       .order('display_order');
 
     if (error) {
-      console.error('Supabase query error:', error);
       return NextResponse.json(
         {
           success: false,
@@ -22,8 +19,6 @@ export async function GET() {
         { status: 500 }
       );
     }
-
-    console.log(`Query successful, found ${data?.length || 0} cards`);
 
     // Filter out sample data cards (same logic as Card Builder)
     const validCards =
@@ -46,7 +41,6 @@ export async function GET() {
       })),
     });
   } catch (error) {
-    console.error('Test card loading error:', error);
     return NextResponse.json(
       {
         success: false,

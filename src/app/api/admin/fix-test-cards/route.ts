@@ -26,7 +26,6 @@ export async function POST() {
         .eq('id', update.id);
 
       if (error) {
-        console.error(`Failed to update ${update.id}:`, error);
       } else {
         console.log(
           `Updated card ${update.id} to display_order ${update.display_order}`
@@ -40,7 +39,6 @@ export async function POST() {
       updates,
     });
   } catch (error) {
-    console.error('Fix test cards error:', error);
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

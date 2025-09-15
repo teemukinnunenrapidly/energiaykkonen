@@ -33,8 +33,7 @@ export async function POST(request: NextRequest) {
         'Content-Disposition': `attachment; filename="saastolaskelma-${pdfData.calculationNumber}.pdf"`,
       },
     });
-  } catch (error) {
-    console.error('PDF generation failed:', error);
+    } catch {
     return NextResponse.json(
       { error: 'PDF generation failed' },
       { status: 500 }

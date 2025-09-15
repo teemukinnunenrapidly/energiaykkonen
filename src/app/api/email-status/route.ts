@@ -19,8 +19,6 @@ export async function GET() {
       },
     });
   } catch (error) {
-    console.error('Error checking email configuration:', error);
-
     return NextResponse.json(
       {
         status: 'error',

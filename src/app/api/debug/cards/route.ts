@@ -51,7 +51,6 @@ export async function GET() {
       visuals: visuals || [],
     });
   } catch (error) {
-    console.error('Debug cards error:', error);
     return NextResponse.json(
       {
         success: false,

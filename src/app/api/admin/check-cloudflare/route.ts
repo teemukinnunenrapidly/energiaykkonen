@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-export async function GET(_request: NextRequest) {
+export async function GET() {
   // This endpoint helps debug if Cloudflare environment variables are properly set
 
   const config = {

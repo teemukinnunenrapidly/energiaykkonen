@@ -7,8 +7,6 @@ export async function GET(request: NextRequest) {
     const testEmail = searchParams.get('email') || 'test@example.com';
     const mode = searchParams.get('mode') || 'smoke'; // 'smoke' or 'full'
 
-    console.log(`🧪 Running ${mode} email test with: ${testEmail}`);
-
     let results;
 
     if (mode === 'smoke') {
@@ -42,8 +40,6 @@ export async function GET(request: NextRequest) {
       },
     });
   } catch (error) {
-    console.error('Email test suite error:', error);
-
     return NextResponse.json(
       {
         success: false,
@@ -70,8 +66,6 @@ export async function POST(request: NextRequest) {
         { status: 400 }
       );
     }
-
-    console.log(`🧪 Running ${mode} email test with: ${email}`);
 
     let results;
 
@@ -102,8 +96,6 @@ export async function POST(request: NextRequest) {
       },
     });
   } catch (error) {
-    console.error('Email test suite error:', error);
-
     return NextResponse.json(
       {
         success: false,

@@ -20,7 +20,6 @@ export async function GET() {
       .order('event_date', { ascending: false });
 
     if (summaryError) {
-      console.error('Summary data error:', summaryError);
       throw summaryError;
     }
 
@@ -30,7 +29,6 @@ export async function GET() {
       .select('*');
 
     if (deviceError) {
-      console.error('Device data error:', deviceError);
       throw deviceError;
     }
 
@@ -41,7 +39,6 @@ export async function GET() {
       .order('event_step');
 
     if (funnelError) {
-      console.error('Funnel data error:', funnelError);
       throw funnelError;
     }
 
@@ -52,7 +49,6 @@ export async function GET() {
       .limit(50);
 
     if (activityError) {
-      console.error('Recent activity error:', activityError);
       throw activityError;
     }
 
@@ -179,7 +175,6 @@ export async function GET() {
 
     return NextResponse.json(response, { status: 200 });
   } catch (error) {
-    console.error('Analytics dashboard API error:', error);
     return NextResponse.json(
       {
         error: 'Failed to fetch analytics data',

@@ -47,7 +47,6 @@ export async function POST(request: NextRequest) {
       .insert([analyticsRecord]);
 
     if (insertError) {
-      console.error('Supabase analytics insert error:', insertError);
       return NextResponse.json(
         { error: 'Failed to store analytics event' },
         { status: 500 }
@@ -58,8 +57,7 @@ export async function POST(request: NextRequest) {
       { success: true, message: 'Analytics event stored successfully' },
       { status: 201 }
     );
-  } catch (error) {
-    console.error('Analytics API error:', error);
+    } catch {
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }
@@ -97,7 +95,6 @@ export async function GET(request: NextRequest) {
     const { data, error } = await query;
 
     if (error) {
-      console.error('Supabase analytics query error:', error);
       return NextResponse.json(
         { error: 'Failed to fetch analytics data' },
         { status: 500 }
@@ -105,8 +102,7 @@ export async function GET(request: NextRequest) {
     }
 
     return NextResponse.json({ data }, { status: 200 });
-  } catch (error) {
-    console.error('Analytics GET API error:', error);
+    } catch {
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

@@ -8,8 +8,7 @@ export async function GET() {
   try {
     const assets = await getVisualObjects();
     return NextResponse.json(assets);
-  } catch (error) {
-    console.error('Error fetching visual assets:', error);
+    } catch {
     return NextResponse.json(
       { error: 'Failed to fetch visual assets' },
       { status: 500 }
@@ -38,8 +37,7 @@ export async function POST(request: NextRequest) {
     });
 
     return NextResponse.json(newAsset, { status: 201 });
-  } catch (error) {
-    console.error('Error creating visual asset:', error);
+    } catch {
     return NextResponse.json(
       { error: 'Failed to create visual asset' },
       { status: 500 }

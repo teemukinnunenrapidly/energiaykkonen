@@ -98,7 +98,6 @@ export async function POST(_request: NextRequest) {
     const data = await response.json();
 
     if (!data.success) {
-      console.error('Cloudflare error:', data.errors);
       const errorMessage = data.errors?.[0]?.message || 'Upload failed';
       return NextResponse.json({ error: errorMessage }, { status: 500 });
     }
@@ -110,8 +109,7 @@ export async function POST(_request: NextRequest) {
       variants: data.result.variants,
       uploadedAt: data.result.uploaded,
     });
-  } catch (error) {
-    console.error('Upload error:', error);
+    } catch {
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

@@ -7,8 +7,6 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const testEmail = searchParams.get('email') || 'test@example.com';
 
-    console.log(`🧪 Testing email functionality with: ${testEmail}`);
-
     // Send test emails
     const results = await sendTestEmails(testEmail);
 
@@ -19,8 +17,6 @@ export async function GET(request: NextRequest) {
       timestamp: new Date().toISOString(),
     });
   } catch (error) {
-    console.error('Test email error:', error);
-
     return NextResponse.json(
       {
         success: false,
@@ -48,8 +44,6 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    console.log(`🧪 Testing email functionality with: ${email}`);
-
     // Send test emails
     const results = await sendTestEmails(email);
 
@@ -60,8 +54,6 @@ export async function POST(request: NextRequest) {
       timestamp: new Date().toISOString(),
     });
   } catch (error) {
-    console.error('Test email error:', error);
-
     return NextResponse.json(
       {
         success: false,

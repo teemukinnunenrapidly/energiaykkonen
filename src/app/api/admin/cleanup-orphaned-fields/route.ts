@@ -17,7 +17,6 @@ export async function POST() {
       .order('display_order');
 
     if (cardsError) {
-      console.error('Error fetching cards:', cardsError);
       return NextResponse.json(
         { error: 'Failed to fetch cards' },
         { status: 500 }
@@ -30,7 +29,6 @@ export async function POST() {
       .select('id, card_id');
 
     if (fieldsError) {
-      console.error('Error fetching fields:', fieldsError);
       return NextResponse.json(
         { error: 'Failed to fetch fields' },
         { status: 500 }
@@ -70,9 +68,7 @@ export async function POST() {
         );
 
       if (deleteError) {
-        console.error('Error deleting orphaned fields:', deleteError);
       } else {
-        console.log(`Deleted ${orphanedFields.length} orphaned fields`);
       }
     }
 
@@ -88,7 +84,6 @@ export async function POST() {
       },
     });
   } catch (error) {
-    console.error('Cleanup error:', error);
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

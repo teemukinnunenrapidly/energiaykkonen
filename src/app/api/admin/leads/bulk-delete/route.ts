@@ -29,7 +29,6 @@ export async function POST(request: NextRequest) {
     const { error } = await supabase.from('leads').delete().in('id', ids);
 
     if (error) {
-      console.error('Error deleting leads:', error);
       return NextResponse.json(
         { error: 'Failed to delete leads' },
         { status: 500 }
@@ -38,7 +37,6 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ success: true, deleted: ids.length });
   } catch (error) {
-    console.error('Unexpected error:', error);
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

@@ -5,8 +5,7 @@
  */
 
 import { createUnifiedEngine } from './unified-calculation-engine';
-import { supabase } from './supabase';
-import type { CalculationResults } from './supabase';
+import { supabase, type CalculationResults } from './supabase';
 import { generatePDFCalculations } from './pdf-calculation-definitions';
 
 /**

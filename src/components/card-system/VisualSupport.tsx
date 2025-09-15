@@ -24,7 +24,6 @@ export function VisualSupport({
   // Get the visual object from activeCard or visualConfig
   const visualObject = visualConfig || activeCard?.visual_objects;
 
-
   // Progressive loading: Only fetch images when card becomes active
   useEffect(() => {
     const fetchVisualImages = async () => {
@@ -96,7 +95,6 @@ export function VisualSupport({
 
     // Get account hash from environment
     const accountHash = process.env.NEXT_PUBLIC_CLOUDFLARE_ACCOUNT_HASH;
-
 
     if (!accountHash) {
       return null;
@@ -235,7 +233,7 @@ export function VisualSupport({
               justifyContent: 'center',
             }}
           >
-            {visualImages.map((image) => {
+            {visualImages.map(image => {
               const imageUrl = getImageUrl(image);
               return imageUrl ? (
                 <img

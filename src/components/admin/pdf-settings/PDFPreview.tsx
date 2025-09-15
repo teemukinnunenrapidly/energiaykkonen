@@ -139,7 +139,9 @@ export function PDFPreview({
     }
 
     if (value === null || value === undefined) {
-      return <span className="text-gray-400 font-mono text-[9px]">&apos;&apos;</span>;
+      return (
+        <span className="text-gray-400 font-mono text-[9px]">&apos;&apos;</span>
+      );
     }
 
     if (typeof value !== 'string') {

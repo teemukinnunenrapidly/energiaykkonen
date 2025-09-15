@@ -6,14 +6,11 @@ import { Button } from '@/components/ui/button';
 import {
   Settings,
   Home,
-  Mail,
   Calculator,
   FileText,
   Image as ImageIcon,
   ChevronDown,
   MoreHorizontal,
-  Palette,
-  FileCode,
 } from 'lucide-react';
 import {
   DropdownMenu,

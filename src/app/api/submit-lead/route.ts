@@ -141,8 +141,6 @@ export async function POST(request: NextRequest) {
       body.sessionId || body.session_id
     );
 
-    console.log('📊 Calculation results for PDF:', calculationResults);
-
     // Prepare data for database insertion - only fixed columns + JSONB
     const leadData = {
       // Only the 5 fixed columns from Card Builder
@@ -171,7 +169,6 @@ export async function POST(request: NextRequest) {
       .single();
 
     if (insertError) {
-      console.error('Error inserting lead:', insertError);
       return NextResponse.json(
         {
           message: 'Failed to save lead data',
@@ -182,14 +179,10 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    console.log('✅ Lead inserted successfully:', insertedLead.id);
-
     // Generate PDF savings report
     let pdfAttachment: EmailAttachment | undefined;
     let pdfUrl: string | null = null;
     try {
-      console.log('📄 Generating PDF savings report...');
-
       // Process data for PDF using the new lead-based approach
       const pdfData = await processPDFData(insertedLead);
 
@@ -211,7 +204,7 @@ export async function POST(request: NextRequest) {
       const pdfFileName = `${insertedLead.id}/saastolaskelma-${pdfData.calculationNumber || Date.now()}.pdf`;
 
       try {
-        const { data: uploadData, error: uploadError } =
+        const { error: uploadError } =
           await supabaseAdmin.storage
             .from('lead-pdfs')
             .upload(pdfFileName, pdfBuffer, {
@@ -221,10 +214,7 @@ export async function POST(request: NextRequest) {
             });
 
         if (uploadError) {
-          console.error('Failed to upload PDF to storage:', uploadError);
         } else {
-          console.log('✅ PDF uploaded to storage:', uploadData.path);
-
           // Get the public URL for the PDF
           const { data: urlData } = supabaseAdmin.storage
             .from('lead-pdfs')
@@ -247,14 +237,10 @@ export async function POST(request: NextRequest) {
             .eq('id', insertedLead.id);
 
           if (updateError) {
-            console.error('Failed to update lead with PDF URL:', updateError);
           } else {
-            console.log('✅ PDF URL saved to lead:', pdfUrl);
           }
         }
-      } catch (storageError) {
-        console.error('Storage operation failed:', storageError);
-      }
+      } catch {}
 
       // Create attachment object for email
       pdfAttachment = {
@@ -262,8 +248,6 @@ export async function POST(request: NextRequest) {
         content: pdfBuffer,
         contentType: 'application/pdf',
       };
-
-      console.log('✅ PDF generated successfully');
     } catch (pdfError) {
       console.error(
         '⚠️ PDF generation failed (continuing without PDF):',
@@ -279,13 +263,11 @@ export async function POST(request: NextRequest) {
       emailResults = await sendLeadEmails(insertedLead, baseUrl, pdfAttachment);
 
       if (emailResults.errors.length === 0) {
-        console.log('✅ All emails sent successfully');
       } else {
-        console.warn('⚠️ Some emails failed:', emailResults.errors);
       }
     } catch (emailError) {
       // Log email errors but don't fail the API response
-      console.error('❌ Email sending failed:', emailError);
+
       emailResults = {
         customerEmail: null,
         salesEmail: null,
@@ -344,9 +326,7 @@ export async function POST(request: NextRequest) {
         },
       }
     );
-  } catch (error) {
-    console.error('Unexpected error in submit-lead API:', error);
-
+    } catch {
     return NextResponse.json(
       {
         message: 'Internal server error',

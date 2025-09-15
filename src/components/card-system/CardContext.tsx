@@ -455,7 +455,7 @@ export function CardProvider({
 
               // If this is the next card in sequence and no other card is active, activate it
               const activeCard = Object.entries(newStates).find(
-                ([_, state]) => state.status === 'active'
+                ([, state]) => state.status === 'active'
               );
               if (!activeCard) {
                 newStates[card.id].status = 'active';

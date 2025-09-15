@@ -3,8 +3,6 @@ import { verifyLeadsTableStructure } from '@/lib/verify-table-structure';
 
 export async function GET() {
   try {
-    console.log('Starting table structure verification...');
-
     const isValid = await verifyLeadsTableStructure();
 
     return NextResponse.json({
@@ -15,8 +13,6 @@ export async function GET() {
       timestamp: new Date().toISOString(),
     });
   } catch (error) {
-    console.error('Error verifying table structure:', error);
-
     return NextResponse.json(
       {
         success: false,

@@ -14,7 +14,6 @@ export async function POST() {
       ]);
 
     if (deleteObjectsError) {
-      console.error('Error deleting sample objects:', deleteObjectsError);
       return NextResponse.json(
         { error: 'Failed to delete sample objects' },
         { status: 500 }
@@ -36,7 +35,6 @@ export async function POST() {
       ]);
 
     if (deleteImagesError) {
-      console.error('Error deleting sample images:', deleteImagesError);
       // Don't return error here as objects were deleted
     }
 
@@ -45,7 +43,6 @@ export async function POST() {
       message: 'Sample data cleared successfully',
     });
   } catch (error) {
-    console.error('Error clearing sample data:', error);
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

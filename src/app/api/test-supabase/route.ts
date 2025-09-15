@@ -13,8 +13,6 @@ export async function GET() {
       timestamp: new Date().toISOString(),
     });
   } catch (error) {
-    console.error('Error testing Supabase connection:', error);
-
     return NextResponse.json(
       {
         success: false,

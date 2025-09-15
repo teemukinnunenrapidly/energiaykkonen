@@ -100,7 +100,6 @@ export async function POST(request: NextRequest) {
 
     return response;
   } catch (error) {
-    console.error('Authentication error:', error);
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }
@@ -121,7 +120,6 @@ export async function DELETE() {
 
     return response;
   } catch (error) {
-    console.error('Logout error:', error);
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

@@ -46,7 +46,6 @@ function CardSystemInner({
             : containerMaxWidth,
       };
 
-
   // Determine if we should show desktop or mobile layout
   const [detectedMobile, setDetectedMobile] = useState(false);
   useEffect(() => {
@@ -92,7 +91,6 @@ function CardSystemInner({
 
   // Get visual object from active card
   const visualObject = activeCard?.visual_objects;
-
 
   // Auto-select first card with visual objects for better UX (when no active card)
   useEffect(() => {

@@ -46,7 +46,6 @@ export async function GET() {
       },
     });
   } catch (error) {
-    console.error('Debug cards error:', error);
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

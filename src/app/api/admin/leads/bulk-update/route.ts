@@ -39,7 +39,6 @@ export async function POST(request: NextRequest) {
       .in('id', ids);
 
     if (error) {
-      console.error('Error updating leads:', error);
       return NextResponse.json(
         { error: 'Failed to update leads' },
         { status: 500 }
@@ -48,7 +47,6 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ success: true, updated: ids.length });
   } catch (error) {
-    console.error('Unexpected error:', error);
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

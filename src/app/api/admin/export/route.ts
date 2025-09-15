@@ -36,8 +36,6 @@ export async function GET(request: NextRequest) {
       message: `Retrieved ${leadsData.leads.length} leads for export`,
     });
   } catch (error) {
-    console.error('Export API error:', error);
-
     if (error instanceof Error && error.message.includes('Authentication')) {
       return NextResponse.json(
         { error: 'Authentication required' },

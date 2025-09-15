@@ -76,8 +76,7 @@ export async function POST(request: NextRequest) {
           { status: 400 }
         );
     }
-  } catch (error) {
-    console.error('GDPR request error:', error);
+    } catch {
     return NextResponse.json(
       {
         success: false,
@@ -96,7 +95,6 @@ async function handleDataAccess(email: string) {
     });
 
     if (error) {
-      console.error('Data access error:', error);
       return NextResponse.json(
         {
           success: false,
@@ -128,8 +126,7 @@ async function handleDataAccess(email: string) {
         canRequestDeletion: true,
       },
     });
-  } catch (error) {
-    console.error('Data access error:', error);
+    } catch {
     return NextResponse.json(
       {
         success: false,
@@ -165,7 +162,6 @@ async function handleDataDeletion(email: string, verificationCode?: string) {
     });
 
     if (error) {
-      console.error('Data deletion error:', error);
       return NextResponse.json(
         {
           success: false,
@@ -193,8 +189,7 @@ async function handleDataDeletion(email: string, verificationCode?: string) {
       deletionDate: new Date().toISOString(),
       confirmationId: `DEL_${Date.now()}`,
     });
-  } catch (error) {
-    console.error('Data deletion error:', error);
+    } catch {
     return NextResponse.json(
       {
         success: false,
@@ -288,7 +283,6 @@ async function handleDataRectification(
       .eq('id', existingLead.id);
 
     if (updateError) {
-      console.error('Data rectification error:', updateError);
       return NextResponse.json(
         {
           success: false,
@@ -306,8 +300,7 @@ async function handleDataRectification(
       ),
       updateDate: new Date().toISOString(),
     });
-  } catch (error) {
-    console.error('Data rectification error:', error);
+    } catch {
     return NextResponse.json(
       {
         success: false,

@@ -31,14 +31,13 @@ export async function DELETE(_request: NextRequest) {
 
     if (!response.ok) {
       const error = await response.text();
-      console.error('Cloudflare deletion failed:', error);
+
       return NextResponse.json({ error: 'Deletion failed' }, { status: 500 });
     }
 
     const data = await response.json();
 
     if (!data.success) {
-      console.error('Cloudflare error:', data.errors);
       return NextResponse.json({ error: 'Deletion failed' }, { status: 500 });
     }
 
@@ -47,7 +46,6 @@ export async function DELETE(_request: NextRequest) {
       message: 'Image deleted successfully',
     });
   } catch (error) {
-    console.error('Deletion error:', error);
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }
