@@ -483,58 +483,143 @@ export function PDFPreview({
                 </div>
 
                 <div className="pt-3 border-t border-gray-200 space-y-1">
-                  <div className="flex justify-between text-[8px]">
-                    <span className="text-gray-500">Öljyn kulutus:</span>
-                    <span className="text-gray-600">
-                      {showShortcodes ? (
-                        <Input
-                          value={formulas?.oilConsumption || ''}
-                          onChange={e =>
-                            setFormulas({
-                              ...(formulas || {}),
-                              oilConsumption: e.target.value,
-                            })
-                          }
-                          className="h-6 text-[10px]"
-                        />
-                      ) : (
-                        renderValue(previewData.oilConsumption as string)
-                      )}{' '}
-                      L/vuosi
-                    </span>
-                  </div>
-                  <div className="flex justify-between text-[8px]">
-                    <span className="text-gray-500">Öljyn hinta:</span>
-                    <span className="text-gray-600">
-                      {previewData.oilPrice} €/litra
-                    </span>
-                  </div>
-                  <div className="flex justify-between text-[8px]">
-                    <span className="text-gray-500">Huoltokustannus:</span>
-                    <span className="text-gray-600">
-                      {previewData.currentMaintenance} €/vuosi
-                    </span>
-                  </div>
-                  <div className="flex justify-between text-[8px]">
-                    <span className="text-gray-500">CO₂-päästöt:</span>
-                    <span className="text-gray-600">
-                      {showShortcodes ? (
-                        <Input
-                          value={formulas?.currentCO2 || ''}
-                          onChange={e =>
-                            setFormulas({
-                              ...(formulas || {}),
-                              currentCO2: e.target.value,
-                            })
-                          }
-                          className="h-6 text-[10px]"
-                        />
-                      ) : (
-                        renderValue(previewData.currentCO2 as string)
-                      )}{' '}
-                      kg/vuosi
-                    </span>
-                  </div>
+                  {String(previewData.currentSystem || '')
+                    .toLowerCase()
+                    .includes('kaasu') && (
+                    <>
+                      <div className="flex justify-between text-[8px]">
+                        <span className="text-gray-500">Kaasun kulutus:</span>
+                        <span className="text-gray-600">
+                          {renderValue(
+                            (data.kokonaismenekki || data.currentConsumption || '0') as string
+                          )}{' '}
+                          m³/vuosi
+                        </span>
+                      </div>
+                      <div className="flex justify-between text-[8px]">
+                        <span className="text-gray-500">Kaasun hinta:</span>
+                        <span className="text-gray-600">
+                          {renderValue((data.gas_price || '0,10') as string)} €/kWh
+                        </span>
+                      </div>
+                      <div className="flex justify-between text-[8px]">
+                        <span className="text-gray-500">Huoltokustannus:</span>
+                        <span className="text-gray-600">300 €/vuosi</span>
+                      </div>
+                      <div className="flex justify-between text-[8px]">
+                        <span className="text-gray-500">CO₂-päästöt:</span>
+                        <span className="text-gray-600">{renderValue('0')} kg/vuosi</span>
+                      </div>
+                    </>
+                  )}
+
+                  {String(previewData.currentSystem || '')
+                    .toLowerCase()
+                    .includes('puu') && (
+                    <>
+                      <div className="flex justify-between text-[8px]">
+                        <span className="text-gray-500">Puun menekki:</span>
+                        <span className="text-gray-600">
+                          {renderValue(
+                            (data.kokonaismenekki || data.currentConsumption || '0') as string
+                          )}{' '}
+                          puumottia/vuosi
+                        </span>
+                      </div>
+                      <div className="flex justify-between text-[8px]">
+                        <span className="text-gray-500">Puun hinta:</span>
+                        <span className="text-gray-600">
+                          {renderValue(
+                            (formulas?.currentYear1Cost || previewData.currentYear1Cost) as string
+                          )}{' '}
+                          €
+                        </span>
+                      </div>
+                      <div className="flex justify-between text-[8px]">
+                        <span className="text-gray-500">Huoltokustannus:</span>
+                        <span className="text-gray-600">200 €/vuosi</span>
+                      </div>
+                      <div className="flex justify-between text-[8px]">
+                        <span className="text-gray-500">CO₂-päästöt:</span>
+                        <span className="text-gray-600">
+                          {showShortcodes ? (
+                            <Input
+                              value={formulas?.currentCO2 || ''}
+                              onChange={e =>
+                                setFormulas({
+                                  ...(formulas || {}),
+                                  currentCO2: e.target.value,
+                                })
+                              }
+                              className="h-6 text-[10px]"
+                            />
+                          ) : (
+                            renderValue(previewData.currentCO2 as string)
+                          )}{' '}
+                          kg/vuosi
+                        </span>
+                      </div>
+                    </>
+                  )}
+
+                  {String(previewData.currentSystem || '')
+                    .toLowerCase()
+                    .includes('öljy') && (
+                    <>
+                      <div className="flex justify-between text-[8px]">
+                        <span className="text-gray-500">Öljyn kulutus:</span>
+                        <span className="text-gray-600">
+                          {showShortcodes ? (
+                            <Input
+                              value={formulas?.oilConsumption || ''}
+                              onChange={e =>
+                                setFormulas({
+                                  ...(formulas || {}),
+                                  oilConsumption: e.target.value,
+                                })
+                              }
+                              className="h-6 text-[10px]"
+                            />
+                          ) : (
+                            renderValue(previewData.oilConsumption as string)
+                          )}{' '}
+                          L/vuosi
+                        </span>
+                      </div>
+                      <div className="flex justify-between text-[8px]">
+                        <span className="text-gray-500">Öljyn hinta:</span>
+                        <span className="text-gray-600">
+                          {previewData.oilPrice} €/litra
+                        </span>
+                      </div>
+                      <div className="flex justify-between text-[8px]">
+                        <span className="text-gray-500">Huoltokustannus:</span>
+                        <span className="text-gray-600">
+                          {previewData.currentMaintenance} €/vuosi
+                        </span>
+                      </div>
+                      <div className="flex justify-between text-[8px]">
+                        <span className="text-gray-500">CO₂-päästöt:</span>
+                        <span className="text-gray-600">
+                          {showShortcodes ? (
+                            <Input
+                              value={formulas?.currentCO2 || ''}
+                              onChange={e =>
+                                setFormulas({
+                                  ...(formulas || {}),
+                                  currentCO2: e.target.value,
+                                })
+                              }
+                              className="h-6 text-[10px]"
+                            />
+                          ) : (
+                            renderValue(previewData.currentCO2 as string)
+                          )}{' '}
+                          kg/vuosi
+                        </span>
+                      </div>
+                    </>
+                  )}
                 </div>
               </div>
             </div>

@@ -284,12 +284,12 @@ export const SavingsReportPDF: React.FC<{ data: PDFData }> = ({ data }) => (
                   </>
                 )}
 
-                {/* Oil (default) */}
-                {!String(
+                {/* Oil */}
+                {String(
                   (data.lammitysmuoto || data.current_heating || '')
                 )
                   .toLowerCase()
-                  .includes('kaasu') && (
+                  .includes('öljy') && (
                   <>
                     <View style={styles.detailRow}>
                       <Text style={styles.detailLabel}>Öljyn kulutus:</Text>
