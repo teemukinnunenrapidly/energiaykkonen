@@ -17,5 +17,17 @@
         }
       ]
     }
+  ],
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/calculator",
+      "has": [
+        {
+          "type": "host",
+          "value": "saastolaskuri.energiaykkonen.fi"
+        }
+      ]
+    }
   ]
 }
