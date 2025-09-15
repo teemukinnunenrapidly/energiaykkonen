@@ -72,10 +72,6 @@ export async function POST(_request: NextRequest) {
 
     if (!response.ok) {
       const errorText = await response.text();
-        status: response.status,
-        statusText: response.statusText,
-        error: errorText,
-      });
 
       // Try to parse the error for better messaging
       let errorMessage = 'Upload failed';
