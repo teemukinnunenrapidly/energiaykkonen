@@ -969,7 +969,7 @@
         },
         "cardStream": {
           "width": "100%",
-          "padding": "16px",
+          "padding": "0",
           "maxHeight": "none"
         },
         "card": {
