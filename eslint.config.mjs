@@ -28,6 +28,7 @@ const eslintConfig = [
       'no-duplicate-imports': 'error',
       'no-unreachable': 'error',
       'no-unused-expressions': 'error',
+      'react-hooks/exhaustive-deps': 'warn',
     },
   },
   {
