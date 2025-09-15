@@ -573,20 +573,73 @@ export function CardProvider({
     [cardStates, cards]
   );
 
-  // Load cards automatically when the provider initializes
+  // Load cards and bootstrap caches once on init
   useEffect(() => {
     const loadCards = async () => {
       try {
         let cardsData;
 
-        // Check if we have initial data (offline mode)
+        // If provided, use initial data; else call our bootstrap API to minimize DB roundtrips
         if (initialData?.cards) {
           cardsData = initialData.cards;
+        } else {
+          try {
+            const res = await fetch('/api/bootstrap', { cache: 'no-store' });
+            if (res.ok) {
+              const payload = await res.json();
+
+              // Prefill EnhancedLookupEngine caches when available
+              try {
+                const { getEnhancedLookupEngine } = await import(
+                  '@/lib/enhanced-lookup-engine'
+                );
+                const engine = getEnhancedLookupEngine();
+                // Cast to any to set internal caches; acceptable at bootstrap to avoid extra DB calls
+                const engAny: any = engine as any;
+                engAny.lookupCache = new Map(
+                  (payload.lookups || []).map((l: any) => [l.name, l])
+                );
+                engAny.rulesCache = new Map();
+                (payload.rules || []).forEach((r: any) => {
+                  if (!engAny.rulesCache.has(r.lookup_id)) {
+                    engAny.rulesCache.set(r.lookup_id, []);
+                  }
+                  engAny.rulesCache.get(r.lookup_id).push(r);
+                });
+                engAny.defaultsCache = new Map(
+                  (payload.defaults || []).map((d: any) => [d.lookup_id, d])
+                );
+                engAny.cacheTimestamp = Date.now();
+              } catch {}
+
+              // Prefill UnifiedCalculationEngine formulas cache for the first instance
+              try {
+                const { UnifiedCalculationEngine } = await import(
+                  '@/lib/unified-calculation-engine'
+                );
+                // Create a temp engine instance and set formulas cache
+                const temp = new UnifiedCalculationEngine(
+                  (await import('@/lib/supabase')).supabase,
+                  'bootstrap'
+                );
+                // Access private cache via any to prime it; reduces DB calls during session
+                (temp as any).formulasCache = {
+                  formulas: payload.formulas || [],
+                  timestamp: Date.now(),
+                  ttl: 5 * 60 * 1000,
+                };
+              } catch {}
+
+              cardsData = payload.cards || [];
+            } else {
+              // Fallback to direct fetch
+              cardsData = await getCardsDirect();
+            }
+          } catch {
+            cardsData = await getCardsDirect();
+          }
         }
-        // Otherwise fetch from Supabase
-        else {
-          cardsData = await getCardsDirect();
-        }
+
         // Inline setCardsAndInitialize logic to avoid dependency issues
         setCards(cardsData);
         const orderedCardIds = cardsData.map((card: any) => card.id);
