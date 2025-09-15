@@ -1,4 +1,4 @@
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import { Inter } from 'next/font/google';
 import { Analytics } from '@vercel/analytics/react';
 import './globals.css';
@@ -16,7 +16,11 @@ export const metadata: Metadata = {
   keywords:
     'heat pump, energy calculator, energy savings, payback period, CO2 reduction',
   authors: [{ name: 'Energiaykkönen' }],
-  viewport: 'width=device-width, initial-scale=1',
+};
+
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
 };
 
 export default function RootLayout({

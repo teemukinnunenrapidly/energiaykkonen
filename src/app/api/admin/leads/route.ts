@@ -2,10 +2,15 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { requireAdmin } from '@/lib/auth';
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-);
+// Use service role on the server to bypass RLS safely for admin-only API
+function getSupabaseAdmin() {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+  const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
+  if (!url || !serviceKey) {
+    throw new Error('Supabase admin env vars missing');
+  }
+  return createClient(url, serviceKey);
+}
 
 export async function GET(request: NextRequest) {
   // Check authentication
@@ -16,6 +21,7 @@ export async function GET(request: NextRequest) {
   }
 
   try {
+    const supabase = getSupabaseAdmin();
     // Fetch leads from database, ordered by creation date (newest first)
     const { data: leads, error } = await supabase
       .from('leads')
