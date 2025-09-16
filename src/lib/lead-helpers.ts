@@ -34,6 +34,9 @@ export function flattenLeadData(lead: Lead): any {
 
     // Calculations (check both form_data and calculation_results)
     laskennallinenenergiantarve: lead.form_data?.laskennallinenenergiantarve,
+    // Bring through cost/consumption fields used by PDF
+    menekinhintavuosi: lead.form_data?.menekinhintavuosi,
+    kokonaismenekki: lead.form_data?.kokonaismenekki,
     annual_energy_need:
       lead.form_data?.annual_energy_need ||
       lead.calculation_results?.annual_energy_need,
