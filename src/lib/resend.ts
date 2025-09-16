@@ -14,7 +14,7 @@ export const emailConfig = {
   // Use onboarding@resend.dev for testing until domain is verified
   from: (() => {
     const vercelEnv = process.env.VERCEL_ENV || process.env.NODE_ENV;
-    const defaultProdFrom = 'Energiaykkönen Oy <noreply@energiaykkonen.fi>';
+    const defaultProdFrom = 'Energiaykkönen <no-reply@energiaykkonen.fi>';
     const defaultDevFrom = 'Energiaykkönen Test <onboarding@resend.dev>';
     // Allow override via env var to unblock sending while domain is being verified
     return (
