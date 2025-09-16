@@ -76,8 +76,25 @@ export function CardProvider({
 
   const updateField = useCallback(
     async (fieldName: string, value: any) => {
+      // Normalize numeric-like strings: convert Finnish comma decimals to dots
+      let normalizedValue = value;
+      if (
+        typeof value === 'string' &&
+        /^(?:\s*-?)?\d{1,3}(?:[\s.,]\d{3})*(?:[.,]\d+)?\s*$/.test(value)
+      ) {
+        // Remove thousands separators (space or narrow space) and unify decimal separator to dot
+        const compact = value
+          .replace(/\s/g, '')
+          .replace(/\.(?=\d{3}(?:\D|$))/g, '')
+          .replace(/,(?=\d+($))/g, '.')
+          .replace(/,(?=\d{3}(?:\D|$))/g, '');
+        const asNumber = Number(compact.replace(',', '.'));
+        if (!Number.isNaN(asNumber)) {
+          normalizedValue = asNumber;
+        }
+      }
       // Update local formData immediately for UI responsiveness
-      const newFormData = { ...formData, [fieldName]: value };
+      const newFormData = { ...formData, [fieldName]: normalizedValue };
       setFormData(newFormData);
 
       // Also update the session data table (like a waiter writing down the order)
@@ -90,7 +107,12 @@ export function CardProvider({
 
       if (fieldCard) {
         // Update field completion in database
-        await updateFieldCompletion(fieldCard.id, fieldName, value, sessionId);
+        await updateFieldCompletion(
+          fieldCard.id,
+          fieldName,
+          normalizedValue,
+          sessionId
+        );
 
         // Check completion using database logic with proper session isolation
         const shouldBeComplete = await checkCardCompletion(
