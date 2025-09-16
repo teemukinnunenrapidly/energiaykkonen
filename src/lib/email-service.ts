@@ -1,12 +1,12 @@
-import { Lead, supabase } from './supabase';
+import { Lead } from './supabase';
 import { sendEmail, emailConfig, EmailAttachment } from './resend';
 import {
   generateSalesEmailHtml,
   calculateLeadScore,
   emailSubjects,
   getAdminUrl,
-  CustomerEmailData,
   SalesEmailData,
+  generateCustomerEmailText,
 } from './email-templates';
 import { UnifiedCalculationEngine } from './unified-calculation-engine';
 import { flattenLeadData } from './lead-helpers';
@@ -26,9 +26,7 @@ export async function sendCustomerResultsEmail(
     // Use hardcoded template
     const subject: string = emailSubjects.customer();
 
-    const firstName: string = flatLead.nimi?.split(' ')[0] || '';
-
-    const text = `Hei ${firstName},\n\nKiitos kiinnostuksestasi Energiaykkösen säästölaskuriin. Sähköpostin liitteenä säästölaskelma antamiesi tietojen perusteella.\n\nYstävällisin terveisin,\nEnergiaykkönen Oy`;
+    const text = generateCustomerEmailText();
 
     // Send email with optional PDF attachment
     const result = await sendEmail({

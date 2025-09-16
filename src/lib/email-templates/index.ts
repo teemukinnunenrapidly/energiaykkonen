@@ -1,8 +1,5 @@
 // Email template exports for Resend integration
-export {
-  CustomerResultsTemplate,
-  generateCustomerEmailHtml,
-} from './customer-results';
+export { generateCustomerEmailText } from './customer-results';
 
 export {
   SalesNotificationTemplate,
