@@ -47,7 +47,11 @@ export async function processPDFData(lead: Lead): Promise<Record<string, any>> {
     // Bring through menekinhintavuosi if available so PDF can compute 1/5/10y
     menekin_hinta_vuosi: flatLead.menekinhintavuosi,
     // Fuel-specific fields (defaults for oil). Gas/Wood handled in template with conditional UI
-    kokonaismenekki: flatLead.kokonaismenekki, // from lookup if present
+    kokonaismenekki:
+      flatLead.kokonaismenekki ??
+      flatLead.menekki ??
+      flatLead.currentConsumption ??
+      flatLead.kokonais_menekki ?? 0,
     gas_price: flatLead.gas_price, // €/kWh if present
     gas_price_mwh: flatLead.gas_price_mwh || 55, // €/MWh default
     gas_consumption_m3:

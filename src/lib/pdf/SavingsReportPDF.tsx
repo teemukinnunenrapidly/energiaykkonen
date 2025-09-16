@@ -268,7 +268,7 @@ export const SavingsReportPDF: React.FC<{ data: PDFData }> = ({ data }) => (
                             ? (data.menekin_hinta_vuosi || data.menekinhintavuosi || '0')
                             : val.toLocaleString('fi-FI');
                         })()}{' '}
-                        €
+                        € / vuosi
                       </Text>
                     </View>
                     <View style={styles.detailRow}>
@@ -284,12 +284,12 @@ export const SavingsReportPDF: React.FC<{ data: PDFData }> = ({ data }) => (
                   </>
                 )}
 
-                {/* Oil (default) */}
-                {!String(
+                {/* Oil (default) - only when heating includes 'öljy' */}
+                {String(
                   (data.lammitysmuoto || data.current_heating || '')
                 )
                   .toLowerCase()
-                  .includes('kaasu') && (
+                  .includes('öljy') && (
                   <>
                     <View style={styles.detailRow}>
                       <Text style={styles.detailLabel}>Öljyn kulutus:</Text>
