@@ -18,6 +18,15 @@ const parseEuroNumber = (value: any): number | null => {
 const formatFi = (value: number | null): string =>
   value === null ? '0' : value.toLocaleString('fi-FI');
 
+// Pick the first meaningful (> 0) numeric value from candidates
+const firstNonZero = (...candidates: any[]): number | null => {
+  for (const c of candidates) {
+    const n = parseEuroNumber(c);
+    if (n !== null && n > 0) return n;
+  }
+  return null;
+};
+
 export const SavingsReportPDF: React.FC<{ data: PDFData }> = ({ data }) => (
   <Document>
     <Page size="A4" style={styles.page}>
@@ -160,13 +169,13 @@ export const SavingsReportPDF: React.FC<{ data: PDFData }> = ({ data }) => (
                   <Text style={styles.costLabel}>1 vuosi</Text>
                   <Text style={[styles.costValue, styles.negative]}>
                     {(() => {
-                      const one =
-                        parseEuroNumber(
-                          data.menekin_hinta_vuosi ??
-                            data.menekinhintavuosi ??
-                            data.currentYear1Cost ??
-                            data.current_yearly_cost
-                        );
+                      const one = firstNonZero(
+                        data.menekin_hinta_vuosi,
+                        data.menekinhintavuosi,
+                        data.currentYear1Cost,
+                        data.current_cost_1year,
+                        data.current_yearly_cost
+                      );
                       return `${formatFi(one)} €`;
                     })()}
                   </Text>
@@ -175,13 +184,13 @@ export const SavingsReportPDF: React.FC<{ data: PDFData }> = ({ data }) => (
                   <Text style={styles.costLabel}>5 vuotta</Text>
                   <Text style={[styles.costValue, styles.negative]}>
                     {(() => {
-                      const one =
-                        parseEuroNumber(
-                          data.menekin_hinta_vuosi ??
-                            data.menekinhintavuosi ??
-                            data.currentYear1Cost ??
-                            data.current_yearly_cost
-                        );
+                      const one = firstNonZero(
+                        data.menekin_hinta_vuosi,
+                        data.menekinhintavuosi,
+                        data.currentYear1Cost,
+                        data.current_cost_1year,
+                        data.current_yearly_cost
+                      );
                       return `${formatFi(one === null ? null : one * 5)} €`;
                     })()}
                   </Text>
@@ -190,13 +199,13 @@ export const SavingsReportPDF: React.FC<{ data: PDFData }> = ({ data }) => (
                   <Text style={styles.costLabel}>10 vuotta</Text>
                   <Text style={[styles.costValue, styles.negative]}>
                     {(() => {
-                      const one =
-                        parseEuroNumber(
-                          data.menekin_hinta_vuosi ??
-                            data.menekinhintavuosi ??
-                            data.currentYear1Cost ??
-                            data.current_yearly_cost
-                        );
+                      const one = firstNonZero(
+                        data.menekin_hinta_vuosi,
+                        data.menekinhintavuosi,
+                        data.currentYear1Cost,
+                        data.current_cost_1year,
+                        data.current_yearly_cost
+                      );
                       return `${formatFi(one === null ? null : one * 10)} €`;
                     })()}
                   </Text>
