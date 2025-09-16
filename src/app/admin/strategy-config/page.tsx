@@ -141,55 +141,72 @@ export default function StrategyConfiguratorPage() {
     <div className="mx-auto max-w-6xl px-6 py-8">
       <h1 className="text-2xl font-semibold mb-6">PDF Strategy Configurator (demo)</h1>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2 space-y-6">
-          <section className="bg-white rounded-lg border p-4">
-            <h2 className="font-semibold mb-4">Global defaults</h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <label className="text-sm">
-                <span className="block text-gray-600 mb-1">Sähkön hinta (€/kWh)</span>
-                <input
-                  type="number"
-                  step="0.001"
-                  className="w-full border rounded px-3 py-2"
-                  value={defaults.electricityPrice}
-                  onChange={e => setDefaults({ ...defaults, electricityPrice: Number(e.target.value) })}
-                />
-              </label>
-              <label className="text-sm">
-                <span className="block text-gray-600 mb-1">Öljyn hinta (€/L)</span>
-                <input
-                  type="number"
-                  step="0.01"
-                  className="w-full border rounded px-3 py-2"
-                  value={defaults.oilPrice}
-                  onChange={e => setDefaults({ ...defaults, oilPrice: Number(e.target.value) })}
-                />
-              </label>
-              <label className="text-sm">
-                <span className="block text-gray-600 mb-1">Kaasun hinta (€/MWh)</span>
-                <input
-                  type="number"
-                  step="1"
-                  className="w-full border rounded px-3 py-2"
-                  value={defaults.gasPricePerMWh}
-                  onChange={e => setDefaults({ ...defaults, gasPricePerMWh: Number(e.target.value) })}
-                />
-              </label>
-              <label className="text-sm">
-                <span className="block text-gray-600 mb-1">CO₂ sähkö (kg/kWh)</span>
-                <input
-                  type="number"
-                  step="0.001"
-                  className="w-full border rounded px-3 py-2"
-                  value={defaults.co2.electricityPerKWh}
-                  onChange={e => setDefaults({ ...defaults, co2: { ...defaults.co2, electricityPerKWh: Number(e.target.value) } })}
-                />
-              </label>
-            </div>
-          </section>
+      <div className="space-y-6">
+        <section className="bg-white rounded-lg border p-4">
+          <h2 className="font-semibold mb-4">Global defaults</h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <label className="text-sm">
+              <span className="block text-gray-600 mb-1">Sähkön hinta (€/kWh)</span>
+              <input
+                type="number"
+                step="0.001"
+                className="w-full border rounded px-3 py-2"
+                value={defaults.electricityPrice}
+                onChange={e => setDefaults({ ...defaults, electricityPrice: Number(e.target.value) })}
+              />
+            </label>
+            <label className="text-sm">
+              <span className="block text-gray-600 mb-1">Öljyn hinta (€/L)</span>
+              <input
+                type="number"
+                step="0.01"
+                className="w-full border rounded px-3 py-2"
+                value={defaults.oilPrice}
+                onChange={e => setDefaults({ ...defaults, oilPrice: Number(e.target.value) })}
+              />
+            </label>
+            <label className="text-sm">
+              <span className="block text-gray-600 mb-1">Kaasun hinta (€/MWh)</span>
+              <input
+                type="number"
+                step="1"
+                className="w-full border rounded px-3 py-2"
+                value={defaults.gasPricePerMWh}
+                onChange={e => setDefaults({ ...defaults, gasPricePerMWh: Number(e.target.value) })}
+              />
+            </label>
+            <label className="text-sm">
+              <span className="block text-gray-600 mb-1">CO₂ sähkö (kg/kWh)</span>
+              <input
+                type="number"
+                step="0.001"
+                className="w-full border rounded px-3 py-2"
+                value={defaults.co2.electricityPerKWh}
+                onChange={e => setDefaults({ ...defaults, co2: { ...defaults.co2, electricityPerKWh: Number(e.target.value) } })}
+              />
+            </label>
+          </div>
+        </section>
 
-          <section className="bg-white rounded-lg border p-4">
+        {/* Strategy tabs */}
+        <section className="bg-white rounded-lg border p-0">
+          <div className="border-b px-4 pt-3">
+            <div className="flex flex-wrap gap-2">
+              {strategies.map((st, i) => (
+                <button
+                  key={st.id}
+                  className={`px-3 py-2 rounded-t border-b-2 transition-colors ${
+                    i === selected ? 'border-green-500 text-green-700 bg-green-50' : 'border-transparent hover:bg-gray-50'
+                  }`}
+                  onClick={() => setSelected(i)}
+                >
+                  {st.title}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="p-4">
             <h2 className="font-semibold mb-4">Strategy: {s.title}</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <label className="text-sm">
@@ -264,33 +281,16 @@ export default function StrategyConfiguratorPage() {
                 ))}
               </div>
             </div>
-          </section>
-        </div>
+          </div>
+        </section>
 
-        <aside className="space-y-6">
-          <section className="bg-white rounded-lg border p-4">
-            <h2 className="font-semibold mb-3">Strategiat</h2>
-            <div className="flex flex-col gap-2">
-              {strategies.map((st, i) => (
-                <button
-                  key={st.id}
-                  className={`text-left border rounded px-3 py-2 ${i === selected ? 'border-green-500 bg-green-50' : 'hover:bg-gray-50'}`}
-                  onClick={() => setSelected(i)}
-                >
-                  {st.title}
-                </button>
-              ))}
-            </div>
-          </section>
-
-          <section className="bg-white rounded-lg border p-4">
-            <h2 className="font-semibold mb-3">Esimerkkikonfiguraatio (JSON)</h2>
-            <pre className="text-xs bg-gray-50 border rounded p-3 overflow-auto max-h-[400px] whitespace-pre-wrap">
+        <section className="bg-white rounded-lg border p-4">
+          <h2 className="font-semibold mb-3">Esimerkkikonfiguraatio (JSON)</h2>
+          <pre className="text-xs bg-gray-50 border rounded p-3 overflow-auto max-h-[400px] whitespace-pre-wrap">
 {jsonPreview}
-            </pre>
-            <p className="text-xs text-gray-500 mt-2">Tämä on havainnollistus. Ei vielä kytketty tuotantoputkeen.</p>
-          </section>
-        </aside>
+          </pre>
+          <p className="text-xs text-gray-500 mt-2">Tämä on havainnollistus. Ei vielä kytketty tuotantoputkeen.</p>
+        </section>
       </div>
     </div>
   );
