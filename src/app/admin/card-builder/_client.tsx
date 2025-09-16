@@ -241,8 +241,59 @@ export default function CardBuilderPage() {
   return (
     <div className="min-h-screen bg-background">
       <AdminNavigation />
-      {/* Rest of layout omitted for brevity in this scaffold; identical structure to previous page */}
-      {/* For UI parity keep as‑is from existing implementation */}
+      <div className="flex h-screen bg-gray-50">
+        <div className="fixed top-16 left-0 right-0 h-16 bg-white border-b z-10 flex items-center justify-between px-6">
+          <h1 className="text-xl font-semibold">Card Builder</h1>
+          <div className="flex items-center gap-4">
+            {hasUnsavedChanges && (
+              <span className="flex items-center gap-2 text-amber-600">
+                <AlertCircle className="w-4 h-4" /> Unsaved changes
+              </span>
+            )}
+            <button onClick={saveAllChanges} disabled={!hasUnsavedChanges || loading} className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50">
+              <Save className="w-4 h-4" /> Save All Changes
+            </button>
+          </div>
+        </div>
+
+        <div className="flex w-full pt-32">
+          <div className="flex-[3] flex">
+            <DndContext collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+              <SortableContext items={cards} strategy={verticalListSortingStrategy}>
+                <CardList
+                  cards={cards}
+                  selectedCardId={selectedCardId}
+                  onSelectCard={setSelectedCardId}
+                  onCreateCard={createNewCard}
+                  onDuplicateCard={duplicateCard}
+                  onDeleteCard={deleteCard}
+                />
+              </SortableContext>
+            </DndContext>
+
+            {selectedCard && (
+              <CardEditor
+                card={selectedCard}
+                onUpdateCard={updates => updateCard(selectedCard.id, updates)}
+                onSelectField={setSelectedFieldId}
+                selectedFieldId={selectedFieldId}
+                allCards={cards}
+                onDuplicateField={duplicateField}
+              />
+            )}
+          </div>
+
+          <div className="flex-[1] min-w-[400px]">
+            <PropertiesPanel
+              card={selectedCard}
+              selectedFieldId={selectedFieldId}
+              shortcodes={shortcodes}
+              allCards={cards}
+              onUpdateCard={updates => selectedCard && updateCard(selectedCard.id, updates)}
+            />
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

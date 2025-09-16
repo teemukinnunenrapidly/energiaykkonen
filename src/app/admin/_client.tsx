@@ -133,7 +133,76 @@ export default function AdminDashboard() {
               <div className="text-center py-8">Loading leads...</div>
             ) : (
               <div className="overflow-x-auto">
-                {/* table code omitted for brevity; identical to previous file */}
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead className="w-12">
+                        <Checkbox
+                          checked={selectedLeads.size === leads.length && leads.length > 0}
+                          onCheckedChange={checked => handleSelectAll(!!checked)}
+                          aria-label="Select all"
+                        />
+                      </TableHead>
+                      <TableHead>Nimi</TableHead>
+                      <TableHead>Sähköposti</TableHead>
+                      <TableHead>Puhelin</TableHead>
+                      <TableHead>Paikkakunta</TableHead>
+                      <TableHead>Luotu</TableHead>
+                      <TableHead>PDF</TableHead>
+                      <TableHead className="text-right">Toiminnot</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {leads.length === 0 ? (
+                      <TableRow>
+                        <TableCell colSpan={8} className="text-center text-sm text-gray-500 py-10">
+                          Ei liidejä näytettäväksi.
+                        </TableCell>
+                      </TableRow>
+                    ) : (
+                      leads.map(lead => (
+                        <TableRow key={lead.id}>
+                          <TableCell>
+                            <Checkbox
+                              checked={selectedLeads.has(lead.id)}
+                              onCheckedChange={checked => handleSelectLead(lead.id, !!checked)}
+                              aria-label={`Select ${lead.nimi || lead.id}`}
+                            />
+                          </TableCell>
+                          <TableCell className="font-medium flex items-center gap-2">
+                            <FileText className="w-4 h-4 text-gray-400" /> {lead.nimi || '—'}
+                          </TableCell>
+                          <TableCell className="flex items-center gap-2">
+                            <Mail className="w-4 h-4 text-gray-400" /> {lead.sahkoposti || '—'}
+                          </TableCell>
+                          <TableCell className="flex items-center gap-2">
+                            <Phone className="w-4 h-4 text-gray-400" /> {lead.puhelinnumero || '—'}
+                          </TableCell>
+                          <TableCell className="flex items-center gap-2">
+                            <MapPin className="w-4 h-4 text-gray-400" /> {lead.paikkakunta || '—'}
+                          </TableCell>
+                          <TableCell className="flex items-center gap-2">
+                            <Calendar className="w-4 h-4 text-gray-400" /> {formatDate(lead.created_at)}
+                          </TableCell>
+                          <TableCell>
+                            {lead.pdf_url ? (
+                              <a href={lead.pdf_url} target="_blank" rel="noreferrer" className="text-blue-600 hover:underline">
+                                Lataa
+                              </a>
+                            ) : (
+                              '—'
+                            )}
+                          </TableCell>
+                          <TableCell className="text-right">
+                            <Button variant="outline" size="sm" onClick={() => handleShowFormData(lead)}>
+                              <Code className="w-4 h-4 mr-2" /> Näytä data
+                            </Button>
+                          </TableCell>
+                        </TableRow>
+                      ))
+                    )}
+                  </TableBody>
+                </Table>
               </div>
             )}
           </CardContent>
