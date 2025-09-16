@@ -131,6 +131,7 @@ export function FormCard({ card, onFieldFocus }: FormCardProps) {
       case 'text':
       case 'email':
       case 'number':
+      case 'phone':
         return (
           <div
             style={{ marginBottom: styles.formElements.formGroup.marginBottom }}
@@ -142,7 +143,9 @@ export function FormCard({ card, onFieldFocus }: FormCardProps) {
               )}
             </label>
             <input
-              type={field.field_type}
+              type={field.field_type === 'phone' ? 'tel' : field.field_type}
+              inputMode={field.field_type === 'phone' ? 'tel' : undefined}
+              autoComplete={field.field_type === 'phone' ? 'tel' : undefined}
               value={value}
               onChange={e =>
                 handleFieldChange(field.field_name, e.target.value)
