@@ -176,9 +176,13 @@ export default function AdminDashboard() {
                             <span className="inline-flex items-center gap-2"><Calendar className="w-4 h-4 text-gray-400" />{formatDate(lead.created_at)}</span>
                           </td>
                           <td className="p-4 align-middle">
-                            {lead.pdf_url ? (
-                              <a href={lead.pdf_url} target="_blank" rel="noreferrer" className="text-blue-600 hover:underline">Lataa</a>
-                            ) : '—'}
+                            {/* Prefer top-level column if exists; fallback to JSONB form_data.pdf_url */}
+                            {(() => {
+                              const url = (lead as any).pdf_url || (lead as any).form_data?.pdf_url;
+                              return url ? (
+                                <a href={url} target="_blank" rel="noreferrer" className="text-blue-600 hover:underline">Lataa</a>
+                              ) : '—';
+                            })()}
                           </td>
                           <td className="p-4 align-middle text-right">
                             <Button variant="outline" size="sm" onClick={() => handleShowFormData(lead)}>
