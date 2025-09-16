@@ -63,8 +63,23 @@ export async function processPDFData(lead: Lead): Promise<Record<string, any>> {
     gas_price_mwh: flatLead.gas_price_mwh || 55, // €/MWh default
     gas_consumption_m3:
       Math.round((flatLead.laskennallinenenergiantarve || 0) / 10) || 0,
-    oilConsumption:
-      Math.round((flatLead.laskennallinenenergiantarve || 0) / 10) || 2000,
+    oilConsumption: (() => {
+      const raw =
+        flatLead.kokonaismenekki ??
+        flatLead.oil_consumption ??
+        flatLead.oil_liters ??
+        null;
+      if (raw !== null && raw !== undefined) {
+        const n = parseFloat(String(raw).replace(/\s/g, '').replace(',', '.'));
+        if (!Number.isNaN(n) && n > 0) {
+          return Math.round(n);
+        }
+      }
+      const energy = parseFloat(
+        String(flatLead.laskennallinenenergiantarve || 0).replace(',', '.')
+      );
+      return Math.round(energy / 10) || 0;
+    })(),
     oilPrice: '1,30',
     currentMaintenance: 200,
 
