@@ -98,7 +98,7 @@ export async function processPDFData(lead: Lead): Promise<Record<string, any>> {
     calculationDate: new Date().toLocaleDateString('fi-FI'),
 
     // Energy calculations
-    energyNeed: flatLead.laskennallinenenergiantarve || 0,
+    energyNeed: parseFloat(String(flatLead.laskennallinenenergiantarve || 0).toString().replace(',', '.')) || 0,
     annual_energy_need: flatLead.laskennallinenenergiantarve || 0,
     total_energy_need: flatLead.laskennallinenenergiantarve || 0,
   };

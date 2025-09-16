@@ -30,7 +30,6 @@ export function flattenLeadData(lead: Lead): any {
 
     // Heating
     lammitysmuoto: lead.form_data?.lammitysmuoto,
-    vesikiertoinen: lead.form_data?.vesikiertoinen,
     current_energy_consumption: lead.form_data?.current_energy_consumption,
 
     // Calculations (check both form_data and calculation_results)

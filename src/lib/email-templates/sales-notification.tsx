@@ -310,13 +310,15 @@ export const SalesNotificationTemplate = ({
                   <span className="data-label">Nykyinen lämmitys:</span>
                   <span className="data-value">{flatLead.lammitysmuoto}</span>
                 </div>
-                <div className="data-item">
-                  <span className="data-label">Lämmityskustannus:</span>
-                  <span className="data-value">
-                    {flatLead.vesikiertoinen?.toLocaleString('fi-FI') || '0'}
-                    €/vuosi
-                  </span>
-                </div>
+                {flatLead.menekinhintavuosi !== undefined && (
+                  <div className="data-item">
+                    <span className="data-label">Lämmityskustannus:</span>
+                    <span className="data-value">
+                      {flatLead.menekinhintavuosi?.toLocaleString('fi-FI') || '0'}
+                      €/vuosi
+                    </span>
+                  </div>
+                )}
                 <div className="data-item">
                   <span className="data-label">Asukkaat:</span>
                   <span className="data-value">
@@ -591,7 +593,7 @@ export const generateSalesEmailHtml = (data: SalesEmailData): string => {
                 <div><strong>Kerrokset:</strong> ${flatLead.floors} krs</div>
                 <div><strong>Rakennusvuosi:</strong> ${flatLead.rakennusvuosi}</div>
                 <div><strong>Nykyinen lämmitys:</strong> ${flatLead.lammitysmuoto}</div>
-                <div><strong>Lämmityskustannus:</strong> ${flatLead.vesikiertoinen?.toLocaleString('fi-FI') || '0'}€/vuosi</div>
+                ${flatLead.menekinhintavuosi !== undefined ? `<div><strong>Lämmityskustannus:</strong> ${flatLead.menekinhintavuosi?.toLocaleString('fi-FI') || '0'}€/vuosi</div>` : ''}
                 <div><strong>Asukkaat:</strong> ${flatLead.henkilomaara} henkilöä</div>
                 <div><strong>LKV käyttö:</strong> ${flatLead.hot_water_usage}</div>
               </div>

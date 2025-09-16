@@ -56,9 +56,9 @@ export function extractFormData(lead: any): PDFFormData {
 
   return {
     // Required calculation fields
-    menekinhintavuosi: parseFloat(formData.menekinhintavuosi || 0),
+    menekinhintavuosi: parseFloat(String(formData.menekinhintavuosi || 0).replace(',', '.')),
     laskennallinenenergiantarve: parseFloat(
-      formData.laskennallinenenergiantarve || 0
+      String(formData.laskennallinenenergiantarve || 0).replace(',', '.')
     ),
     lammitysmuoto: formData.lammitysmuoto || '',
 
