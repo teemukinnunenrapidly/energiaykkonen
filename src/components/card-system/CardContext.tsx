@@ -78,7 +78,9 @@ export function CardProvider({
     async (fieldName: string, value: any) => {
       // Normalize numeric-like strings: convert Finnish comma decimals to dots
       let normalizedValue = value;
+      const isLikelyPhoneField = /phone|puhelin/.test(fieldName.toLowerCase());
       if (
+        !isLikelyPhoneField &&
         typeof value === 'string' &&
         /^(?:\s*-?)?\d{1,3}(?:[\s.,]\d{3})*(?:[.,]\d+)?\s*$/.test(value)
       ) {
