@@ -247,12 +247,13 @@ export const SavingsReportPDF: React.FC<{ data: PDFData }> = ({ data }) => (
                   </>
                 )}
 
-                {/* Wood heating */}
-                {String(
-                  (data.lammitysmuoto || data.current_heating || '')
-                )
-                  .toLowerCase()
-                  .includes('puu') && (
+                {/* Wood heating (only when exclusively wood; skip for mixed oil+wood) */}
+                {(() => {
+                  const ht = String(
+                    (data.lammitysmuoto || data.current_heating || '')
+                  ).toLowerCase();
+                  return ht.includes('puu') && !ht.includes('öljy');
+                })() && (
                   <>
                     <View style={styles.detailRow}>
                       <Text style={styles.detailLabel}>Puun menekki:</Text>
