@@ -18,6 +18,7 @@ export const PDF_CALCULATION_CONSTANTS = {
 
   // Conversion factors
   KWH_PER_LITER_OIL: 10, // kWh/liter of heating oil
+  OIL_PRICE_EUR_PER_LITER: 1.3,
 };
 
 /**
@@ -81,6 +82,33 @@ export function extractFormData(lead: any): PDFFormData {
   };
 }
 
+// Small helpers
+const parseNumberFi = (v: any): number => {
+  if (v === undefined || v === null) return 0;
+  const num = parseFloat(String(v).replace(/\s/g, '').replace(',', '.'));
+  return Number.isNaN(num) ? 0 : num;
+};
+
+function getAnnualCurrentCost(formData: PDFFormData): number {
+  const direct = parseNumberFi(formData.menekinhintavuosi);
+  if (direct > 0) return Math.round(direct);
+
+  const ht = (formData.lammitysmuoto || '').toLowerCase();
+  // Fallbacks per heating type (only oil needed for now)
+  if (ht.includes('öljy')) {
+    const liters =
+      parseNumberFi((formData as any).kokonaismenekki) ||
+      (parseNumberFi(formData.laskennallinenenergiantarve) /
+        PDF_CALCULATION_CONSTANTS.KWH_PER_LITER_OIL);
+    const oilPrice =
+      parseNumberFi((formData as any).oilPrice) ||
+      PDF_CALCULATION_CONSTANTS.OIL_PRICE_EUR_PER_LITER;
+    return Math.round(liters * oilPrice);
+  }
+
+  return 0;
+}
+
 /**
  * Calculate CO2 emissions based on heating type and energy consumption
  */
@@ -130,13 +158,13 @@ export const PDF_CALCULATIONS = {
   currentSystem: {
     // Current energy cost for 5 years
     cost5Years: (formData: PDFFormData): number => {
-      const annualCost = formData.menekinhintavuosi || 0;
+      const annualCost = getAnnualCurrentCost(formData);
       return Math.round(annualCost * 5);
     },
 
     // Current energy cost for 10 years
     cost10Years: (formData: PDFFormData): number => {
-      const annualCost = formData.menekinhintavuosi || 0;
+      const annualCost = getAnnualCurrentCost(formData);
       return Math.round(annualCost * 10);
     },
 
@@ -248,7 +276,7 @@ export function generatePDFCalculations(lead: any) {
     ...formData,
 
     // Current system values
-    current_cost_1year: formData.menekinhintavuosi,
+    current_cost_1year: getAnnualCurrentCost(formData),
     current_cost_5years: PDF_CALCULATIONS.currentSystem.cost5Years(formData),
     current_cost_10years: PDF_CALCULATIONS.currentSystem.cost10Years(formData),
     current_co2_yearly: PDF_CALCULATIONS.currentSystem.co2PerYear(formData),
