@@ -1,4 +1,11 @@
-'use client';
+import { requireAdmin } from '@/lib/auth';
+export const dynamic = 'force-dynamic';
+
+export default async function CardBuilderPageWrapper() {
+  await requireAdmin();
+  const Page = (await import('./_client')).default;
+  return <Page />;
+}
 
 import { useState, useEffect, useCallback } from 'react';
 import { DndContext, DragEndEvent, closestCenter } from '@dnd-kit/core';
@@ -489,7 +496,7 @@ export default function CardBuilderPage() {
               required: field.required ?? false,
             };
             // Ensure 'id' appears only once
-            const { id: _ignoreId, ...rest } = completeFieldData as any;
+            const { id: _, ...rest } = completeFieldData as any;
             fieldsToUpdate.push({ id: field.id, ...rest });
           }
         }

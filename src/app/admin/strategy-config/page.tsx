@@ -112,7 +112,11 @@ const initStrategies: StrategyConfig[] = [
   },
 ];
 
-export default function StrategyConfiguratorPage() {
+import { requireAdmin } from '@/lib/auth';
+export const dynamic = 'force-dynamic';
+
+export default async function StrategyConfiguratorPage() {
+  await requireAdmin();
   const [defaults, setDefaults] = useState<DefaultLookups>(initialDefaults);
   const [strategies, setStrategies] = useState<StrategyConfig[]>(initStrategies);
   const [selected, setSelected] = useState(0);
