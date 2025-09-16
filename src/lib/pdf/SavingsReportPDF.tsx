@@ -7,6 +7,17 @@ export interface PDFData {
   [key: string]: any;
 }
 
+// Helpers for robust number parsing/formatting from user/lookup inputs
+const parseEuroNumber = (value: any): number | null => {
+  if (value === undefined || value === null) return null;
+  const normalized = String(value).replace(/\s/g, '').replace(',', '.');
+  const number = Number(normalized);
+  return Number.isNaN(number) ? null : number;
+};
+
+const formatFi = (value: number | null): string =>
+  value === null ? '0' : value.toLocaleString('fi-FI');
+
 export const SavingsReportPDF: React.FC<{ data: PDFData }> = ({ data }) => (
   <Document>
     <Page size="A4" style={styles.page}>
@@ -148,49 +159,46 @@ export const SavingsReportPDF: React.FC<{ data: PDFData }> = ({ data }) => (
                 <View style={styles.costRow}>
                   <Text style={styles.costLabel}>1 vuosi</Text>
                   <Text style={[styles.costValue, styles.negative]}>
-                    {(data.menekin_hinta_vuosi || data.menekinhintavuosi || data.currentYear1Cost || data.current_yearly_cost || data.vesikiertoinen || '2600')}{' '}€
+                    {(() => {
+                      const one =
+                        parseEuroNumber(
+                          data.menekin_hinta_vuosi ??
+                            data.menekinhintavuosi ??
+                            data.currentYear1Cost ??
+                            data.current_yearly_cost
+                        );
+                      return `${formatFi(one)} €`;
+                    })()}
                   </Text>
                 </View>
                 <View style={[styles.costRow, styles.costRowHighlight]}>
                   <Text style={styles.costLabel}>5 vuotta</Text>
                   <Text style={[styles.costValue, styles.negative]}>
                     {(() => {
-                      const one = Number(
-                        String(
-                          data.menekin_hinta_vuosi ||
-                            data.menekinhintavuosi ||
-                            data.currentYear1Cost ||
-                            data.current_yearly_cost ||
-                            0
-                        )
-                          .replace(/\s/g, '')
-                          .replace(',', '.')
-                      );
-                      return isNaN(one)
-                        ? (data.currentYear5Cost || data.current_5year_cost || '13000')
-                        : (one * 5).toLocaleString('fi-FI');
-                    })()}{' '}€
+                      const one =
+                        parseEuroNumber(
+                          data.menekin_hinta_vuosi ??
+                            data.menekinhintavuosi ??
+                            data.currentYear1Cost ??
+                            data.current_yearly_cost
+                        );
+                      return `${formatFi(one === null ? null : one * 5)} €`;
+                    })()}
                   </Text>
                 </View>
                 <View style={styles.costRow}>
                   <Text style={styles.costLabel}>10 vuotta</Text>
                   <Text style={[styles.costValue, styles.negative]}>
                     {(() => {
-                      const one = Number(
-                        String(
-                          data.menekin_hinta_vuosi ||
-                            data.menekinhintavuosi ||
-                            data.currentYear1Cost ||
-                            data.current_yearly_cost ||
-                            0
-                        )
-                          .replace(/\s/g, '')
-                          .replace(',', '.')
-                      );
-                      return isNaN(one)
-                        ? (data.currentYear10Cost || data.current_10year_cost || '26000')
-                        : (one * 10).toLocaleString('fi-FI');
-                    })()}{' '}€
+                      const one =
+                        parseEuroNumber(
+                          data.menekin_hinta_vuosi ??
+                            data.menekinhintavuosi ??
+                            data.currentYear1Cost ??
+                            data.current_yearly_cost
+                        );
+                      return `${formatFi(one === null ? null : one * 10)} €`;
+                    })()}
                   </Text>
                 </View>
               </View>
@@ -249,8 +257,12 @@ export const SavingsReportPDF: React.FC<{ data: PDFData }> = ({ data }) => (
                     <View style={styles.detailRow}>
                       <Text style={styles.detailLabel}>Puun menekki:</Text>
                       <Text style={styles.detailValue}>
-                        {(data.kokonaismenekki || data.currentConsumption || '0')}{' '}
-                        puumottia/vuosi
+                        {(() => {
+                          const n = parseEuroNumber(
+                            data.kokonaismenekki ?? data.currentConsumption ?? 0
+                          );
+                          return `${formatFi(n)} puumottia/vuosi`;
+                        })()}
                       </Text>
                     </View>
                     <View style={styles.detailRow}>
