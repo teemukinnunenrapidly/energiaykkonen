@@ -26,17 +26,13 @@ export default function CardBuilderPage() {
 
   const loadCards = useCallback(async () => {
     try {
-      const { data, error } = await supabase
-        .from('card_templates')
-        .select(`*, card_fields(*), visual_objects(*)`)
-        .order('display_order')
-        .order('display_order', { foreignTable: 'card_fields' });
-      if (error) {
-        console.error(`Failed to load cards: ${error.message}`);
-        return;
-      }
+      // Prefer server API for stable dev auth/env handling
+      const resp = await fetch('/api/admin/card-templates', { cache: 'no-store' });
+      if (!resp.ok) throw new Error('HTTP ' + resp.status);
+      const payload = await resp.json();
+      const data = payload.cards as CardTemplate[] | undefined;
       if (data) {
-        const validCards = data.filter(card => !card.id.startsWith('00000000-0000-0000-0000-'));
+        const validCards = data.filter(card => !card.id.startsWith('00000000-0000-0000-0000-')) as any;
         const fieldsMap: Record<string, CardField> = {};
         validCards.forEach(card => card.card_fields?.forEach((f: CardField) => (fieldsMap[f.id] = { ...f })));
         setOriginalFields(fieldsMap);
