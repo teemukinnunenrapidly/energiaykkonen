@@ -32,7 +32,7 @@ export default function CardBuilderPage() {
         .order('display_order')
         .order('display_order', { foreignTable: 'card_fields' });
       if (error) {
-        alert(`Failed to load cards: ${error.message}`);
+        console.error(`Failed to load cards: ${error.message}`);
         return;
       }
       if (data) {
@@ -48,8 +48,8 @@ export default function CardBuilderPage() {
       } else {
         setCards([]);
       }
-    } catch {
-      alert('Failed to load cards from database');
+    } catch (e) {
+      console.error('Failed to load cards from database', e);
     }
   }, []);
 
