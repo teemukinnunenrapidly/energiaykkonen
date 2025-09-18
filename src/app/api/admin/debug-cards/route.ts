@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { supabase } from '@/lib/supabase';
+import { supabase, DEPLOY_ENV } from '@/lib/supabase';
 
 export async function GET() {
   try {
@@ -7,6 +7,7 @@ export async function GET() {
     const { data: allCards, error: allError } = await supabase
       .from('card_templates')
       .select('*')
+      .in('visibility', ['both', DEPLOY_ENV])
       .order('display_order');
 
     if (allError) {
@@ -18,6 +19,7 @@ export async function GET() {
       .from('card_templates')
       .select('*')
       .eq('is_active', true)
+      .in('visibility', ['both', DEPLOY_ENV])
       .order('display_order');
 
     if (activeError) {
@@ -29,6 +31,7 @@ export async function GET() {
       .from('card_templates')
       .select('*, card_fields(*)')
       .eq('is_active', true)
+      .in('visibility', ['both', DEPLOY_ENV])
       .order('display_order');
 
     if (fieldsError) {
