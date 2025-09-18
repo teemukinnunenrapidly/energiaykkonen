@@ -32,7 +32,9 @@ export default function CardBuilderPage() {
       const payload = await resp.json();
       const data = payload.cards as CardTemplate[] | undefined;
       if (data) {
-        const validCards = data.filter(card => !card.id.startsWith('00000000-0000-0000-0000-')) as any;
+        const validCards: CardTemplate[] = data.filter(
+          (card: CardTemplate) => !card.id.startsWith('00000000-0000-0000-0000-'),
+        );
         const fieldsMap: Record<string, CardField> = {};
         validCards.forEach(card => card.card_fields?.forEach((f: CardField) => (fieldsMap[f.id] = { ...f })));
         setOriginalFields(fieldsMap);
