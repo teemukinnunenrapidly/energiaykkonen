@@ -102,8 +102,16 @@ export default function CardBuilderPage() {
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
     } as any;
-    setCards([...cards, newCard]);
+    // Use functional updates to avoid stale state in React batched updates
+    setCards(prev => {
+      const next = [...prev, newCard];
+      return next.map((c, i) => ({ ...c, display_order: i + 1 }));
+    });
+    // Select the newly created card immediately and on next frame to be safe
     setSelectedCardId(newCard.id);
+    if (typeof window !== 'undefined') {
+      requestAnimationFrame(() => setSelectedCardId(newCard.id));
+    }
     setHasUnsavedChanges(true);
   };
 
