@@ -483,7 +483,21 @@ export function FormCard({ card, onFieldFocus }: FormCardProps) {
             style={{ marginBottom: styles.formElements.formGroup.marginBottom }}
           >
             {/* Button groups should display label and required indicator for context & accessibility */}
-            <label id={labelId} style={getLabelStyle(field.field_name)}>
+            <label
+              id={labelId}
+              style={{
+                ...getLabelStyle(field.field_name),
+                position: 'absolute',
+                width: '1px',
+                height: '1px',
+                padding: 0,
+                margin: '-1px',
+                overflow: 'hidden',
+                clip: 'rect(0, 0, 0, 0)',
+                whiteSpace: 'nowrap',
+                border: 0,
+              }}
+            >
               {field.label}
               {field.required && (
                 <span style={{ color: styles.colors.state.error }}>*</span>
