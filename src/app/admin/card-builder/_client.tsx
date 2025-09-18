@@ -32,7 +32,9 @@ export default function CardBuilderPage() {
       const payload = await resp.json();
       const data = payload.cards as CardTemplate[] | undefined;
       if (data) {
-        const validCards = data.filter(card => !card.id.startsWith('00000000-0000-0000-0000-')) as any;
+        const validCards: CardTemplate[] = data.filter(
+          (card: CardTemplate) => !card.id.startsWith('00000000-0000-0000-0000-'),
+        );
         const fieldsMap: Record<string, CardField> = {};
         validCards.forEach(card => card.card_fields?.forEach((f: CardField) => (fieldsMap[f.id] = { ...f })));
         setOriginalFields(fieldsMap);
@@ -174,8 +176,30 @@ export default function CardBuilderPage() {
       const tempCards = ordered.filter(c => c.id.startsWith('temp-'));
       const existing = ordered.filter(c => !c.id.startsWith('temp-') && !c.id.startsWith('00000000-'));
       let toProcess = ordered;
+      // Helper: sanitize card payloads for DB by removing client-only fields
+      const sanitizeForInsert = (card: CardTemplate) => {
+        const { card_fields, ...rest } = card as any;
+        const payload: any = {
+          ...rest,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+        };
+        // Let DB generate UUID if client created a temporary id
+        if (typeof payload.id === 'string' && payload.id.startsWith('temp-')) {
+          delete payload.id;
+        }
+        return payload;
+      };
+      const sanitizeForUpdate = (card: CardTemplate) => {
+        const { card_fields, id, ...rest } = card as any;
+        return { ...rest, updated_at: new Date().toISOString() };
+      };
       if (tempCards.length > 0) {
-        const { data: newCards, error } = await supabase.from('card_templates').insert(tempCards.map(tc => ({ ...tc, created_at: new Date().toISOString(), updated_at: new Date().toISOString() }))).select();
+        const inserts = tempCards.map(tc => sanitizeForInsert(tc));
+        const { data: newCards, error } = await supabase
+          .from('card_templates')
+          .insert(inserts)
+          .select();
         if (error) throw new Error(`Failed to create cards: ${error.message}`);
         const updated = ordered.map(card => (card.id.startsWith('temp-') ? newCards?.find(nc => nc.name === card.name) || card : card));
         toProcess = updated as any;
@@ -183,7 +207,8 @@ export default function CardBuilderPage() {
       }
       if (existing.length > 0) {
         for (const card of existing) {
-          await supabase.from('card_templates').update({ ...card, updated_at: new Date().toISOString() }).eq('id', card.id);
+          const updatePayload = sanitizeForUpdate(card);
+          await supabase.from('card_templates').update(updatePayload).eq('id', card.id);
         }
       }
       await batchProcessFields(toProcess as any);
