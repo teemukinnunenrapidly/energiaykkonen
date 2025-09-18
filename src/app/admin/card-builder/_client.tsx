@@ -41,14 +41,17 @@ export default function CardBuilderPage() {
         validCards.forEach(card => card.card_fields?.forEach((f: CardField) => (fieldsMap[f.id] = { ...f })));
         setOriginalFields(fieldsMap);
         setCards(validCards);
-        if (validCards.length > 0 && !selectedCardId) setSelectedCardId(validCards[0].id);
+        // Only set a default selection if none exists yet
+        if (validCards.length > 0) {
+          setSelectedCardId(prev => prev ?? validCards[0].id);
+        }
       } else {
         setCards([]);
       }
     } catch {
       alert('Failed to load cards from database');
     }
-  }, [selectedCardId]);
+  }, []);
 
   const loadShortcodes = useCallback(async () => {
     const { data: formulas } = await supabase.from('formulas').select('name').eq('is_active', true);
