@@ -465,6 +465,13 @@ export function FormCard({ card, onFieldFocus }: FormCardProps) {
 
       case 'buttons':
         const selectOnlyOne = field.validation_rules?.selectOnlyOne !== false;
+        const labelId = `label-${field.field_name}`;
+        const helpTextId = field.help_text
+          ? `help-${field.field_name}`
+          : undefined;
+        const errorId = errors[field.field_name]
+          ? `error-${field.field_name}`
+          : undefined;
         const selectedValues = Array.isArray(value)
           ? value
           : value
@@ -475,9 +482,16 @@ export function FormCard({ card, onFieldFocus }: FormCardProps) {
           <div
             style={{ marginBottom: styles.formElements.formGroup.marginBottom }}
           >
-            {/* For button groups, hide the field label to avoid redundancy */}
+            {/* Button groups should display label and required indicator for context & accessibility */}
+            <label id={labelId} style={getLabelStyle(field.field_name)}>
+              {field.label}
+              {field.required && (
+                <span style={{ color: styles.colors.state.error }}>*</span>
+              )}
+            </label>
             {field.help_text && (
               <p
+                id={helpTextId}
                 style={{
                   fontSize: styles.typography.fontSizeBase,
                   color: styles.colors.text.tertiary,
@@ -489,6 +503,13 @@ export function FormCard({ card, onFieldFocus }: FormCardProps) {
               </p>
             )}
             <div
+              role={selectOnlyOne ? 'radiogroup' : 'group'}
+              aria-labelledby={labelId}
+              aria-required={selectOnlyOne && field.required ? true : undefined}
+              aria-invalid={selectOnlyOne && error ? true : undefined}
+              aria-describedby={
+                [helpTextId, errorId].filter(Boolean).join(' ') || undefined
+              }
               style={
                 styles.formElements.buttons.container as React.CSSProperties
               }
@@ -537,6 +558,9 @@ export function FormCard({ card, onFieldFocus }: FormCardProps) {
                       e.currentTarget.style.outlineOffset = '0';
                     }}
                     disabled={isCardCompleted}
+                    role={selectOnlyOne ? 'radio' : undefined}
+                    aria-checked={selectOnlyOne ? isSelected : undefined}
+                    aria-pressed={!selectOnlyOne ? isSelected : undefined}
                     style={{
                       ...(styles.formElements.buttons
                         .button as React.CSSProperties),
@@ -625,6 +649,7 @@ export function FormCard({ card, onFieldFocus }: FormCardProps) {
             </div>
             {error && (
               <p
+                id={errorId}
                 style={{
                   fontSize: styles.formElements.errorMessage.fontSize,
                   color: styles.formElements.errorMessage.color,
