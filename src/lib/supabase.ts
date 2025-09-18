@@ -10,6 +10,10 @@ if (!supabaseUrl || !supabaseAnonKey) {
 // Create Supabase client with basic configuration
 export const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
+// Deployment environment for filtering preview vs production content
+export const DEPLOY_ENV =
+  (process.env.NEXT_PUBLIC_DEPLOY_ENV as 'preview' | 'production') || 'production';
+
 // Dynamic field data stored in JSONB
 export interface LeadFormData {
   // Property Details
@@ -291,6 +295,8 @@ export async function getActiveCards() {
     )
     .eq('stream_id', streamData.id)
     .eq('is_visible', true)
+    // Only include cards visible to this environment
+    .in('card_templates.visibility', ['both', DEPLOY_ENV])
     .order('card_position');
 
   if (error) {
@@ -318,6 +324,7 @@ export async function getCardsDirect() {
       `
       )
       .eq('is_active', true)
+      .in('visibility', ['both', DEPLOY_ENV])
       .order('display_order');
 
     if (error) {

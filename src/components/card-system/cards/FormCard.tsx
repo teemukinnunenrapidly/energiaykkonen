@@ -475,12 +475,7 @@ export function FormCard({ card, onFieldFocus }: FormCardProps) {
           <div
             style={{ marginBottom: styles.formElements.formGroup.marginBottom }}
           >
-            <label style={getLabelStyle(field.field_name)}>
-              {field.label}
-              {field.required && (
-                <span style={{ color: styles.colors.state.error }}>*</span>
-              )}
-            </label>
+            {/* For button groups, hide the field label to avoid redundancy */}
             {field.help_text && (
               <p
                 style={{

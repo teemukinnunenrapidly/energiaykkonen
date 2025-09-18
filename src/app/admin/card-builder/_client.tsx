@@ -11,7 +11,7 @@ import { CardList } from '@/components/admin/card-builder/CardList';
 import { CardEditor } from '@/components/admin/card-builder/CardEditor';
 import { PropertiesPanel } from '@/components/admin/card-builder/PropertiesPanel';
 import AdminNavigation from '@/components/admin/AdminNavigation';
-import { supabase, type CardTemplate, type CardField } from '@/lib/supabase';
+import { supabase, DEPLOY_ENV, type CardTemplate, type CardField } from '@/lib/supabase';
 import { Save, AlertCircle } from 'lucide-react';
 
 export default function CardBuilderPage() {
@@ -183,6 +183,8 @@ export default function CardBuilderPage() {
           ...rest,
           created_at: new Date().toISOString(),
           updated_at: new Date().toISOString(),
+          // Ensure new cards are visible only in current environment by default
+          visibility: DEPLOY_ENV,
         };
         // Let DB generate UUID if client created a temporary id
         if (typeof payload.id === 'string' && payload.id.startsWith('temp-')) {

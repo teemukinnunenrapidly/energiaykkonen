@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { requireAdmin } from '@/lib/auth';
+import { DEPLOY_ENV } from '@/lib/supabase';
 
 function getSupabaseAdmin() {
   const url =
@@ -40,6 +41,7 @@ export async function GET(request: NextRequest) {
     const { data, error } = await supabase
       .from('card_templates')
       .select(`*, card_fields(*)`)
+      .in('visibility', ['both', DEPLOY_ENV])
       .order('display_order')
       .order('display_order', { foreignTable: 'card_fields' });
 
