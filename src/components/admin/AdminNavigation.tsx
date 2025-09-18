@@ -1,5 +1,6 @@
 'use client';
 
+import { useEffect, useState } from 'react';
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
@@ -60,6 +61,8 @@ const secondaryNavigation = [
 
 export default function AdminNavigation() {
   const pathname = usePathname();
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
 
   const isActive = (href: string) => {
     return (
@@ -123,132 +126,136 @@ export default function AdminNavigation() {
             })}
           </div>
 
-          {/* Secondary Navigation Dropdown */}
+          {/* Secondary Navigation Dropdown - render only after mount to avoid SSR hydration id mismatches */}
           <div className="hidden md:block">
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="h-9 px-4 text-blue-100 hover:bg-gradient-to-r hover:from-blue-700/80 hover:to-indigo-700/80 hover:text-white backdrop-blur-sm transition-all duration-300 hover:shadow-md border-2 border-transparent hover:border-blue-300/30"
+            {mounted && (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-9 px-4 text-blue-100 hover:bg-gradient-to-r hover:from-blue-700/80 hover:to-indigo-700/80 hover:text-white backdrop-blur-sm transition-all duration-300 hover:shadow-md border-2 border-transparent hover:border-blue-300/30"
+                  >
+                    <MoreHorizontal className="w-4 h-4 mr-2" />
+                    More
+                    <ChevronDown className="w-4 h-4 ml-2" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent
+                  align="end"
+                  className="w-56 bg-gradient-to-b from-blue-900/95 to-indigo-900/95 border border-blue-400/30 backdrop-blur-md shadow-2xl"
                 >
-                  <MoreHorizontal className="w-4 h-4 mr-2" />
-                  More
-                  <ChevronDown className="w-4 h-4 ml-2" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent
-                align="end"
-                className="w-56 bg-gradient-to-b from-blue-900/95 to-indigo-900/95 border border-blue-400/30 backdrop-blur-md shadow-2xl"
-              >
-                {secondaryNavigation.map(item => {
-                  const active = isActive(item.href);
-                  return (
-                    <DropdownMenuItem key={item.name} asChild>
-                      <Link
-                        href={item.href}
-                        className={`flex items-center w-full px-3 py-2 text-sm transition-colors ${
-                          active
-                            ? 'bg-gradient-to-r from-blue-600/80 to-indigo-600/80 text-white'
-                            : 'text-blue-100 hover:bg-gradient-to-r hover:from-blue-700/80 hover:to-indigo-700/80 hover:text-white'
-                        }`}
-                      >
-                        <item.icon className="w-4 h-4 mr-3" />
-                        <div>
-                          <div className="font-medium">{item.name}</div>
-                          <div className="text-xs text-blue-200/70">
-                            {item.description}
+                  {secondaryNavigation.map(item => {
+                    const active = isActive(item.href);
+                    return (
+                      <DropdownMenuItem key={item.name} asChild>
+                        <Link
+                          href={item.href}
+                          className={`flex items-center w-full px-3 py-2 text-sm transition-colors ${
+                            active
+                              ? 'bg-gradient-to-r from-blue-600/80 to-indigo-600/80 text-white'
+                              : 'text-blue-100 hover:bg-gradient-to-r hover:from-blue-700/80 hover:to-indigo-700/80 hover:text-white'
+                          }`}
+                        >
+                          <item.icon className="w-4 h-4 mr-3" />
+                          <div>
+                            <div className="font-medium">{item.name}</div>
+                            <div className="text-xs text-blue-200/70">
+                              {item.description}
+                            </div>
                           </div>
-                        </div>
-                      </Link>
-                    </DropdownMenuItem>
-                  );
-                })}
-              </DropdownMenuContent>
-            </DropdownMenu>
+                        </Link>
+                      </DropdownMenuItem>
+                    );
+                  })}
+                </DropdownMenuContent>
+              </DropdownMenu>
+            )}
           </div>
 
-          {/* Mobile menu button */}
+          {/* Mobile menu button - render only after mount */}
           <div className="md:hidden">
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="h-9 px-3 text-blue-100 hover:bg-gradient-to-r hover:from-blue-700/80 hover:to-indigo-700/80 hover:text-white backdrop-blur-sm transition-all duration-300 hover:shadow-md"
-                >
-                  <svg
-                    className="w-5 h-5"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
+            {mounted && (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-9 px-3 text-blue-100 hover:bg-gradient-to-r hover:from-blue-700/80 hover:to-indigo-700/80 hover:text-white backdrop-blur-sm transition-all duration-300 hover:shadow-md"
                   >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M4 6h16M4 12h16M4 18h16"
-                    />
-                  </svg>
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent
-                align="end"
-                className="w-64 bg-gradient-to-b from-blue-900/95 to-indigo-900/95 border border-blue-400/30 backdrop-blur-md shadow-2xl"
-              >
-                {/* Primary items */}
-                {primaryNavigation.map(item => {
-                  const active = isActive(item.href);
-                  return (
-                    <DropdownMenuItem key={item.name} asChild>
-                      <Link
-                        href={item.href}
-                        className={`flex items-center w-full px-3 py-2 text-sm transition-colors ${
-                          active
-                            ? 'bg-gradient-to-r from-blue-600/80 to-indigo-600/80 text-white'
-                            : 'text-blue-100 hover:bg-gradient-to-r hover:from-blue-700/80 hover:to-indigo-700/80 hover:text-white'
-                        }`}
-                      >
-                        <item.icon className="w-4 h-4 mr-3" />
-                        <div>
-                          <div className="font-medium">{item.name}</div>
-                          <div className="text-xs text-blue-200/70">
-                            {item.description}
+                    <svg
+                      className="w-5 h-5"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M4 6h16M4 12h16M4 18h16"
+                      />
+                    </svg>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent
+                  align="end"
+                  className="w-64 bg-gradient-to-b from-blue-900/95 to-indigo-900/95 border border-blue-400/30 backdrop-blur-md shadow-2xl"
+                >
+                  {/* Primary items */}
+                  {primaryNavigation.map(item => {
+                    const active = isActive(item.href);
+                    return (
+                      <DropdownMenuItem key={item.name} asChild>
+                        <Link
+                          href={item.href}
+                          className={`flex items-center w-full px-3 py-2 text-sm transition-colors ${
+                            active
+                              ? 'bg-gradient-to-r from-blue-600/80 to-indigo-600/80 text-white'
+                              : 'text-blue-100 hover:bg-gradient-to-r hover:from-blue-700/80 hover:to-indigo-700/80 hover:text-white'
+                          }`}
+                        >
+                          <item.icon className="w-4 h-4 mr-3" />
+                          <div>
+                            <div className="font-medium">{item.name}</div>
+                            <div className="text-xs text-blue-200/70">
+                              {item.description}
+                            </div>
                           </div>
-                        </div>
-                      </Link>
-                    </DropdownMenuItem>
-                  );
-                })}
+                        </Link>
+                      </DropdownMenuItem>
+                    );
+                  })}
 
-                <DropdownMenuSeparator className="bg-blue-400/30" />
+                  <DropdownMenuSeparator className="bg-blue-400/30" />
 
-                {/* Secondary items */}
-                {secondaryNavigation.map(item => {
-                  const active = isActive(item.href);
-                  return (
-                    <DropdownMenuItem key={item.name} asChild>
-                      <Link
-                        href={item.href}
-                        className={`flex items-center w-full px-3 py-2 text-sm transition-colors ${
-                          active
-                            ? 'bg-gradient-to-r from-blue-600/80 to-indigo-600/80 text-white'
-                            : 'text-blue-100 hover:bg-gradient-to-r hover:from-blue-700/80 hover:to-indigo-700/80 hover:text-white'
-                        }`}
-                      >
-                        <item.icon className="w-4 h-4 mr-3" />
-                        <div>
-                          <div className="font-medium">{item.name}</div>
-                          <div className="text-xs text-blue-200/70">
-                            {item.description}
+                  {/* Secondary items */}
+                  {secondaryNavigation.map(item => {
+                    const active = isActive(item.href);
+                    return (
+                      <DropdownMenuItem key={item.name} asChild>
+                        <Link
+                          href={item.href}
+                          className={`flex items-center w-full px-3 py-2 text-sm transition-colors ${
+                            active
+                              ? 'bg-gradient-to-r from-blue-600/80 to-indigo-600/80 text-white'
+                              : 'text-blue-100 hover:bg-gradient-to-r hover:from-blue-700/80 hover:to-indigo-700/80 hover:text-white'
+                          }`}
+                        >
+                          <item.icon className="w-4 h-4 mr-3" />
+                          <div>
+                            <div className="font-medium">{item.name}</div>
+                            <div className="text-xs text-blue-200/70">
+                              {item.description}
+                            </div>
                           </div>
-                        </div>
-                      </Link>
-                    </DropdownMenuItem>
-                  );
-                })}
-              </DropdownMenuContent>
-            </DropdownMenu>
+                        </Link>
+                      </DropdownMenuItem>
+                    );
+                  })}
+                </DropdownMenuContent>
+              </DropdownMenu>
+            )}
           </div>
         </div>
       </div>
