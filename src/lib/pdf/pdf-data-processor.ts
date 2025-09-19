@@ -174,7 +174,8 @@ export async function processPDFData(lead: Lead): Promise<Record<string, any>> {
       allText.includes('kotitalous') &&
       (allText.includes('normaali') || allText.includes('korotettu'));
     const phraseEly = 'ely-keskus tuki';
-    const choseEly = normalizedText.includes(phraseEly);
+    const choseEly =
+      normalizedText.includes(phraseEly) || supportField === 'ely-keskus tuki';
 
     const shouldUse7000 =
       choseReplaceField && isOilOrOilWoodField && isHouseholdDeductionField;
