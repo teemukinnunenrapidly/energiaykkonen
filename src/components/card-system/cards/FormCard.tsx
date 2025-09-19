@@ -23,6 +23,23 @@ export function FormCard({ card, onFieldFocus }: FormCardProps) {
   const [submitSuccess, setSubmitSuccess] = useState(false);
   const [pdfUrl, setPdfUrl] = useState<string | null>(null);
   const [focusedField, setFocusedField] = useState<string | null>(null);
+  // Track button hover/focus state per option to compute styles purely from config
+  const [buttonInteraction, setButtonInteraction] = useState<
+    Record<string, { isHovered: boolean; isFocused: boolean }>
+  >({});
+
+  const getButtonKey = (fieldName: string, optionValue: string) =>
+    `${fieldName}:${optionValue}`;
+  const setButtonHover = (key: string, value: boolean) =>
+    setButtonInteraction(prev => ({
+      ...prev,
+      [key]: { ...prev[key], isHovered: value },
+    }));
+  const setButtonFocus = (key: string, value: boolean) =>
+    setButtonInteraction(prev => ({
+      ...prev,
+      [key]: { ...prev[key], isFocused: value },
+    }));
 
   // Check if this card is completed - removed auto-disable for completed cards
   // const isCardCompleted = cardStates[card.id]?.status === 'complete';
@@ -533,12 +550,19 @@ export function FormCard({ card, onFieldFocus }: FormCardProps) {
                 const optValue = typeof opt === 'string' ? opt : opt.value;
                 const optLabel = typeof opt === 'string' ? opt : opt.label;
                 const isSelected = selectedValues.includes(optValue);
+                const key = getButtonKey(field.field_name, optValue);
+                const interaction = buttonInteraction[key] || {
+                  isHovered: false,
+                  isFocused: false,
+                };
+                const isHovered = interaction.isHovered;
+                const isFocused = interaction.isFocused;
 
                 return (
                   <button
                     key={optValue}
                     type="button"
-                    onClick={() => {
+                    onClick={e => {
                       if (isCardCompleted) {
                         return;
                       }
@@ -556,20 +580,21 @@ export function FormCard({ card, onFieldFocus }: FormCardProps) {
                           : [...selectedValues, optValue];
                         handleFieldChange(field.field_name, newValues);
                       }
-                    }}
-                    onFocus={e => {
-                      handleFieldFocus(field);
-                      if (!isCardCompleted) {
-                        Object.assign(
-                          e.currentTarget.style,
-                          styles.formElements.buttons.buttonFocus
-                        );
+                      // Remove lingering focus ring after mouse click (prevents double borders)
+                      setButtonFocus(key, false);
+                      if (e.detail !== 0) {
+                        (e.currentTarget as HTMLButtonElement).blur();
                       }
                     }}
-                    onBlur={e => {
+                    onFocus={() => {
+                      handleFieldFocus(field);
+                      if (!isCardCompleted) {
+                        setButtonFocus(key, true);
+                      }
+                    }}
+                    onBlur={() => {
                       handleFieldBlur(field);
-                      e.currentTarget.style.outline = 'none';
-                      e.currentTarget.style.outlineOffset = '0';
+                      setButtonFocus(key, false);
                     }}
                     disabled={isCardCompleted}
                     role={selectOnlyOne ? 'radio' : undefined}
@@ -587,29 +612,31 @@ export function FormCard({ card, onFieldFocus }: FormCardProps) {
                                     styles.formElements.buttons.buttonDisabled
                                       .background,
                                 }
-                              : {}), // Use disabled background when completed
+                              : {}),
                           }
                         : {}),
+                      // Apply hover/focus only when not selected to avoid double borders
+                      ...(!isSelected && isHovered
+                        ? (styles.formElements.buttons
+                            .buttonHover as React.CSSProperties)
+                        : {}),
+                      ...(!isSelected && isFocused
+                        ? (styles.formElements.buttons
+                            .buttonFocus as React.CSSProperties)
+                        : {}),
                       ...(isCardCompleted && !isSelected
-                        ? styles.formElements.buttons.buttonDisabled
+                        ? (styles.formElements.buttons
+                            .buttonDisabled as React.CSSProperties)
                         : {}),
                     }}
-                    onMouseEnter={e => {
-                      if (!isCardCompleted && !isSelected) {
-                        // Apply hover styles
-                        Object.assign(
-                          e.currentTarget.style,
-                          styles.formElements.buttons.buttonHover
-                        );
+                    onMouseEnter={() => {
+                      if (!isCardCompleted) {
+                        setButtonHover(key, true);
                       }
                     }}
-                    onMouseLeave={e => {
-                      if (!isCardCompleted && !isSelected) {
-                        // Reset to base styles
-                        Object.assign(
-                          e.currentTarget.style,
-                          styles.formElements.buttons.button
-                        );
+                    onMouseLeave={() => {
+                      if (!isCardCompleted) {
+                        setButtonHover(key, false);
                       }
                     }}
                   >
@@ -619,23 +646,6 @@ export function FormCard({ card, onFieldFocus }: FormCardProps) {
                           .buttonContent as React.CSSProperties
                       }
                     >
-                      {!selectOnlyOne && (
-                        <input
-                          type="checkbox"
-                          checked={isSelected}
-                          onChange={() => {}} // Handled by button click
-                          style={{
-                            ...(styles.formElements.buttons.multiSelect
-                              .checkbox as React.CSSProperties),
-                            ...(isSelected
-                              ? styles.formElements.buttons.multiSelect
-                                  .checkboxChecked
-                              : {}),
-                          }}
-                          disabled={isCardCompleted}
-                          onClick={e => e.stopPropagation()}
-                        />
-                      )}
                       <span
                         style={
                           styles.formElements.buttons
@@ -645,18 +655,7 @@ export function FormCard({ card, onFieldFocus }: FormCardProps) {
                         {optLabel}
                       </span>
                     </span>
-                    {isSelected && selectOnlyOne && (
-                      <span
-                        style={{
-                          ...(styles.formElements.buttons
-                            .buttonIndicator as React.CSSProperties),
-                          ...styles.formElements.buttons
-                            .buttonIndicatorSelected,
-                        }}
-                      >
-                        ✓
-                      </span>
-                    )}
+                    {/* Checkmark indicator intentionally removed */}
                   </button>
                 );
               })}
