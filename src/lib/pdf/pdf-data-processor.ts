@@ -179,7 +179,9 @@ export async function processPDFData(lead: Lead): Promise<Record<string, any>> {
 
     // Emissions and consumption
     pdfData.currentCO2 = metrics.current.co2.year;
-    pdfData.newCO2 = metrics.newSystem.co2Year;
+    // Per business rule: show new system (VILP) CO₂ as 0 kg/vuosi
+    // regardless of grid emission factors
+    pdfData.newCO2 = 0;
     pdfData.electricityConsumption = metrics.newSystem.electricityKWh;
 
     // Expose matched strategy id for debugging/telemetry

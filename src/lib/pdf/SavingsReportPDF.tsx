@@ -508,10 +508,7 @@ export const SavingsReportPDF: React.FC<{ data: PDFData }> = ({ data }) => (
                 </View>
                 <View style={styles.detailRow}>
                   <Text style={styles.detailLabel}>CO₂-päästöt:</Text>
-                  <Text style={styles.detailValue}>
-                    {(data.newCO2 ?? data.new_co2 ?? 0).toLocaleString('fi-FI')}{' '}
-                    kg/vuosi
-                  </Text>
+                  <Text style={styles.detailValue}>{0} kg/vuosi</Text>
                 </View>
                 <Text style={styles.elyNoteDescription}>
                   {data.subsidyNoteText ||
