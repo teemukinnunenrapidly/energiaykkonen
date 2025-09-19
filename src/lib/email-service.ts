@@ -1,13 +1,6 @@
 import { Lead } from './supabase';
 import { sendEmail, emailConfig, EmailAttachment } from './resend';
-import {
-  generateSalesEmailHtml,
-  calculateLeadScore,
-  emailSubjects,
-  getAdminUrl,
-  SalesEmailData,
-  generateCustomerEmailText,
-} from './email-templates';
+import { emailSubjects, generateCustomerEmailText } from './email-templates';
 import { flattenLeadData } from './lead-helpers';
 
 /**
@@ -49,34 +42,34 @@ export async function sendCustomerResultsEmail(
  */
 export async function sendSalesNotificationEmail(
   lead: Lead,
-  baseUrl?: string,
+  _baseUrl?: string,
   pdfAttachment?: EmailAttachment
 ) {
   try {
     console.log(`Sending sales notification for lead ${lead.id}`);
 
-    // Calculate lead score
-    const leadScore = calculateLeadScore(lead);
+    // Build plain text body with only requested fields
+    const textBody = [
+      'Uusi liidi',
+      '',
+      `Nimi: ${lead.nimi || ''}`,
+      `Puhelin: ${lead.puhelinnumero || ''}`,
+      `Sähköposti: ${lead.sahkoposti || ''}`,
+      `Paikkakunta: ${lead.paikkakunta || ''}`,
+      `Osoite: ${lead.osoite || ''}`,
+      '',
+      'Liitteenä asiakkaalle lähetetty PDF.',
+    ].join('\n');
 
-    // Prepare email data
-    const emailData: SalesEmailData = {
-      lead,
-      leadScore,
-      adminUrl: getAdminUrl(lead.id, baseUrl),
-    };
-
-    // Generate HTML content
-    const html = generateSalesEmailHtml(emailData);
-
-    // Send email
+    // Send email (text-only) with optional PDF attachment
     const result = await sendEmail({
       to: emailConfig.salesTo,
       subject: emailSubjects.sales(lead),
-      html,
+      text: textBody,
       attachments: pdfAttachment ? [pdfAttachment] : undefined,
     });
 
-    return { ...result, leadScore };
+    return result;
   } catch (error) {
     console.error('Failed to send sales notification sahkoposti:', error);
     throw new Error(
