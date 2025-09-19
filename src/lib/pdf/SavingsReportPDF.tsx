@@ -395,11 +395,23 @@ export const SavingsReportPDF: React.FC<{ data: PDFData }> = ({ data }) => (
                     €
                   </Text>
                   <View style={styles.savingsColumn}>
-                    <Text style={[styles.costValue, styles.positive]}>
-                      {data.savings1Year ||
-                        data.yearly_savings ||
-                        data.annual_savings ||
-                        '1 625'}{' '}
+                    <Text
+                      style={[
+                        styles.costValue,
+                        (data.savings1Year ?? 0) >= 0
+                          ? styles.positive
+                          : styles.negative,
+                      ]}
+                    >
+                      {(
+                        data.savings1Year ??
+                        data.yearly_savings ??
+                        data.annual_savings ??
+                        (Number.isFinite(data.currentYear1Cost) &&
+                        Number.isFinite(data.newYear1Cost)
+                          ? data.currentYear1Cost - data.newYear1Cost
+                          : 0)
+                      ).toLocaleString('fi-FI')}{' '}
                       €
                     </Text>
                     <Text style={styles.elyNote}>

@@ -172,6 +172,11 @@ export async function processPDFData(lead: Lead): Promise<Record<string, any>> {
     pdfData.newYear5Cost = metrics.newSystem.cost.year5;
     pdfData.newYear10Cost = metrics.newSystem.cost.year10;
 
+    // Savings derived from strategy-based costs (ensure consistency)
+    pdfData.savings1Year = pdfData.currentYear1Cost - pdfData.newYear1Cost;
+    pdfData.savings5Year = pdfData.currentYear5Cost - pdfData.newYear5Cost;
+    pdfData.savings10Year = pdfData.currentYear10Cost - pdfData.newYear10Cost;
+
     // Emissions and consumption
     pdfData.currentCO2 = metrics.current.co2.year;
     pdfData.newCO2 = metrics.newSystem.co2Year;
