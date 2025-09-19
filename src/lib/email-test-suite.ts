@@ -308,19 +308,8 @@ async function testSalesEmails(testEmail: string): Promise<TestResult[]> {
         throw new Error('Sales email sending failed');
       }
 
-      // Verify lead scoring
-      const expectedScore =
-        scenario === 'high-value'
-          ? 'high'
-          : scenario === 'medium-value'
-            ? 'medium'
-            : 'low';
-
-      if (result.leadScore !== expectedScore) {
-        throw new Error(
-          `Expected lead score ${expectedScore}, got ${result.leadScore}`
-        );
-      }
+      // Lead scoring is covered separately in testLeadScoring();
+      // sales email send no longer returns a score.
     });
 
     results.push(result);
