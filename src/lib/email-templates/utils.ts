@@ -1,5 +1,5 @@
 import { Lead } from '@/lib/supabase';
-import { flattenLeadData, getLeadValue } from '@/lib/lead-helpers';
+import { flattenLeadData } from '@/lib/lead-helpers';
 
 /**
  * Calculate lead score based on savings potential and other factors
@@ -77,10 +77,7 @@ export function calculateLeadScore(lead: Lead): 'high' | 'medium' | 'low' {
 export const emailSubjects = {
   customer: () => `Säästölaskurin tulokset - Energiaykkönen`,
 
-  sales: (lead: Lead) => {
-    const flatLead = flattenLeadData(lead) as any;
-    return `New Lead: ${flatLead.nimi} - ${flatLead.paikkakunta || 'Ei kaupunkia'} - Savings: ${flatLead.annual_savings?.toLocaleString('fi-FI') || '0'}€/year`;
-  },
+  sales: () => `Uusi liidi laskurista`,
 };
 
 /**
