@@ -205,8 +205,8 @@ export function CardStream({
                     marginBottom: styles.card.base.marginBottom,
                   }}
                 >
-                  {/* Left: visual column (default placement). Always reserve space so layout width stays consistent */}
-                  {!forceShowInline && (
+                  {/* Left: visual column (default placement) */}
+                  {!forceShowInline && shouldRenderVisual(card) && (
                     <div
                       style={{
                         flex: `0 0 ${styles.layout.visualSupportRatio || '35%'}`,
@@ -231,16 +231,7 @@ export function CardStream({
                           </div>
                         </div>
                       ) : (
-                        <div
-                          style={{
-                            background: styles.card.base.background,
-                            borderRadius: styles.card.base.borderRadius,
-                            overflow: styles.card.base.overflow,
-                            border: styles.card.base.border,
-                            boxShadow: styles.card.base.boxShadow,
-                            height: '100%',
-                          }}
-                        />
+                        <div style={{ height: '100%' }} />
                       )}
                     </div>
                   )}
