@@ -152,6 +152,8 @@ export async function processPDFData(lead: Lead): Promise<Record<string, any>> {
     const changeField = String(
       (flatLead as any).heating_system_change ||
         (flatLead as any).heatingSystemChange ||
+        (flatLead as any).form_data?.heating_system_change ||
+        (flatLead as any).form_data?.heatingSystemChange ||
         ''
     )
       .toLowerCase()
