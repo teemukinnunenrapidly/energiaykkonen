@@ -629,8 +629,116 @@ export function VisualSupport({
                     Arvioitu säästö 1 230 €/vuosi
                   </span>
                 </div>
+                {/* Customer info section */}
+                <div
+                  style={{
+                    background: '#f9fafb',
+                    border: '1px solid #e5e7eb',
+                    borderRadius: 6,
+                    padding: 12,
+                    marginTop: 12,
+                  }}
+                >
+                  <div
+                    style={{
+                      fontSize: 12,
+                      fontWeight: 700,
+                      color: '#1f2937',
+                      paddingBottom: 6,
+                      borderBottom: '1px solid #e5e7eb',
+                      marginBottom: 10,
+                    }}
+                  >
+                    Asiakkaan tiedot
+                  </div>
+                  <div style={{ display: 'flex', gap: 18 }}>
+                    <div style={{ flex: 1, filter: 'blur(4px)' }}>
+                      <div
+                        style={{
+                          height: 10,
+                          width: '90%',
+                          background: '#e5e7eb',
+                          borderRadius: 4,
+                          marginBottom: 6,
+                        }}
+                      />
+                      <div
+                        style={{
+                          height: 10,
+                          width: '80%',
+                          background: '#e5e7eb',
+                          borderRadius: 4,
+                          marginBottom: 6,
+                        }}
+                      />
+                      <div
+                        style={{
+                          height: 10,
+                          width: '75%',
+                          background: '#e5e7eb',
+                          borderRadius: 4,
+                          marginBottom: 6,
+                        }}
+                      />
+                      <div
+                        style={{
+                          height: 10,
+                          width: '70%',
+                          background: '#e5e7eb',
+                          borderRadius: 4,
+                        }}
+                      />
+                    </div>
+                    <div style={{ flex: 1, filter: 'blur(4px)' }}>
+                      <div
+                        style={{
+                          height: 10,
+                          width: '85%',
+                          background: '#e5e7eb',
+                          borderRadius: 4,
+                          marginBottom: 6,
+                        }}
+                      />
+                      <div
+                        style={{
+                          height: 10,
+                          width: '65%',
+                          background: '#e5e7eb',
+                          borderRadius: 4,
+                          marginBottom: 6,
+                        }}
+                      />
+                      <div
+                        style={{
+                          height: 10,
+                          width: '60%',
+                          background: '#e5e7eb',
+                          borderRadius: 4,
+                          marginBottom: 6,
+                        }}
+                      />
+                      <div
+                        style={{
+                          height: 10,
+                          width: '72%',
+                          background: '#e5e7eb',
+                          borderRadius: 4,
+                        }}
+                      />
+                    </div>
+                  </div>
+                </div>
+                {/* System comparison boxes */}
                 <div style={{ display: 'flex', gap: 18, marginTop: 18 }}>
-                  <div style={{ flex: 1 }}>
+                  <div
+                    style={{
+                      flex: 1,
+                      background: '#fef2f2',
+                      border: '2px solid #ef4444',
+                      borderRadius: 8,
+                      padding: 10,
+                    }}
+                  >
                     <div
                       style={{
                         fontSize: 12,
@@ -643,34 +751,44 @@ export function VisualSupport({
                     >
                       Nykyinen järjestelmä
                     </div>
-                    <div
-                      style={{
-                        height: 12,
-                        width: '96%',
-                        background: '#eef2f7',
-                        borderRadius: 4,
-                        marginBottom: 8,
-                      }}
-                    />
-                    <div
-                      style={{
-                        height: 12,
-                        width: '85%',
-                        background: '#eef2f7',
-                        borderRadius: 4,
-                        marginBottom: 8,
-                      }}
-                    />
-                    <div
-                      style={{
-                        height: 12,
-                        width: '78%',
-                        background: '#eef2f7',
-                        borderRadius: 4,
-                      }}
-                    />
+                    <div style={{ filter: 'blur(5px)' }}>
+                      <div
+                        style={{
+                          height: 12,
+                          width: '96%',
+                          background: '#fee2e2',
+                          borderRadius: 4,
+                          marginBottom: 8,
+                        }}
+                      />
+                      <div
+                        style={{
+                          height: 12,
+                          width: '85%',
+                          background: '#fee2e2',
+                          borderRadius: 4,
+                          marginBottom: 8,
+                        }}
+                      />
+                      <div
+                        style={{
+                          height: 12,
+                          width: '78%',
+                          background: '#fee2e2',
+                          borderRadius: 4,
+                        }}
+                      />
+                    </div>
                   </div>
-                  <div style={{ flex: 1 }}>
+                  <div
+                    style={{
+                      flex: 1,
+                      background: '#ecfdf5',
+                      border: '2px solid #10b981',
+                      borderRadius: 8,
+                      padding: 10,
+                    }}
+                  >
                     <div
                       style={{
                         fontSize: 12,
@@ -683,48 +801,59 @@ export function VisualSupport({
                     >
                       VILP-järjestelmä
                     </div>
-                    <div
-                      style={{
-                        height: 12,
-                        width: '94%',
-                        background: '#eef2f7',
-                        borderRadius: 4,
-                        marginBottom: 8,
-                      }}
-                    />
-                    <div
-                      style={{
-                        height: 12,
-                        width: '80%',
-                        background: '#eef2f7',
-                        borderRadius: 4,
-                        marginBottom: 8,
-                      }}
-                    />
-                    <div
-                      style={{
-                        height: 12,
-                        width: '70%',
-                        background: '#eef2f7',
-                        borderRadius: 4,
-                      }}
-                    />
+                    <div style={{ filter: 'blur(5px)' }}>
+                      <div
+                        style={{
+                          height: 12,
+                          width: '94%',
+                          background: '#d1fae5',
+                          borderRadius: 4,
+                          marginBottom: 8,
+                        }}
+                      />
+                      <div
+                        style={{
+                          height: 12,
+                          width: '80%',
+                          background: '#d1fae5',
+                          borderRadius: 4,
+                          marginBottom: 8,
+                        }}
+                      />
+                      <div
+                        style={{
+                          height: 12,
+                          width: '70%',
+                          background: '#d1fae5',
+                          borderRadius: 4,
+                        }}
+                      />
+                    </div>
                   </div>
                 </div>
-              </div>
-              <div
-                style={{
-                  position: 'absolute',
-                  left: 16,
-                  bottom: 16,
-                  color: '#ffffff',
-                  background: 'rgba(0,0,0,.35)',
-                  padding: '8px 12px',
-                  borderRadius: 8,
-                  fontSize: 12,
-                }}
-              >
-                Esimerkkiesikatselu
+                {/* Footer markers */}
+                <div
+                  style={{
+                    position: 'absolute',
+                    left: 16,
+                    bottom: 12,
+                    color: '#9ca3af',
+                    fontSize: 10,
+                  }}
+                >
+                  EnergiaYkkönen Oy
+                </div>
+                <div
+                  style={{
+                    position: 'absolute',
+                    right: 16,
+                    bottom: 12,
+                    color: '#9ca3af',
+                    fontSize: 10,
+                  }}
+                >
+                  Sivu 1/1
+                </div>
               </div>
             </div>
           </div>
