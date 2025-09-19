@@ -8,7 +8,6 @@ import {
   SalesEmailData,
   generateCustomerEmailText,
 } from './email-templates';
-import { UnifiedCalculationEngine } from './unified-calculation-engine';
 import { flattenLeadData } from './lead-helpers';
 
 /**
@@ -48,7 +47,11 @@ export async function sendCustomerResultsEmail(
 /**
  * Send sales notification email with lead details
  */
-export async function sendSalesNotificationEmail(lead: Lead, baseUrl?: string) {
+export async function sendSalesNotificationEmail(
+  lead: Lead,
+  baseUrl?: string,
+  pdfAttachment?: EmailAttachment
+) {
   try {
     console.log(`Sending sales notification for lead ${lead.id}`);
 
@@ -70,6 +73,7 @@ export async function sendSalesNotificationEmail(lead: Lead, baseUrl?: string) {
       to: emailConfig.salesTo,
       subject: emailSubjects.sales(lead),
       html,
+      attachments: pdfAttachment ? [pdfAttachment] : undefined,
     });
 
     return { ...result, leadScore };
@@ -106,9 +110,13 @@ export async function sendLeadEmails(
     results.errors.push(errorMessage);
   }
 
-  // Send sales notification
+  // Send sales notification (attach the same PDF sent to customer)
   try {
-    results.salesEmail = await sendSalesNotificationEmail(lead, baseUrl);
+    results.salesEmail = await sendSalesNotificationEmail(
+      lead,
+      baseUrl,
+      pdfAttachment
+    );
     console.log('✅ Sales notification sent successfully');
   } catch (error) {
     const errorMessage = `Sales email failed: ${error instanceof Error ? error.message : 'Unknown error'}`;
