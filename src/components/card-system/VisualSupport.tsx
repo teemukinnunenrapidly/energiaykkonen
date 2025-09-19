@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useCardStyles } from '@/hooks/useCardStyles';
+import { useCardContext } from './CardContext';
 import type { CardTemplate } from '@/lib/supabase';
 
 interface VisualSupportProps {
@@ -18,10 +19,12 @@ export function VisualSupport({
   hideText = false,
 }: VisualSupportProps) {
   const styles = useCardStyles();
+  const { sessionId } = useCardContext();
   const [visualImages, setVisualImages] = useState<any[]>([]);
   const [loadingImages, setLoadingImages] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
   const [mobilePanelOpen, setMobilePanelOpen] = useState(false);
+  const [latestPdfUrl, setLatestPdfUrl] = useState<string | null>(null);
 
   // Get the visual object from activeCard or visualConfig
   const visualObject = visualConfig || activeCard?.visual_objects;
@@ -139,6 +142,35 @@ export function VisualSupport({
     (activeCard?.title &&
       /Lataa\s+säästölaskelma/i.test(activeCard.title || ''));
 
+  // Fetch latest PDF URL for this session to show real preview (blurred)
+  useEffect(() => {
+    const fetchLatestPdf = async () => {
+      if (!isPdfPreviewCard || !sessionId) {
+        setLatestPdfUrl(null);
+        return;
+      }
+      try {
+        const { supabase } = await import('@/lib/supabase');
+        // Find the latest lead for this session (order by created_at desc)
+        const { data } = await supabase
+          .from('leads')
+          .select('id, created_at, pdf_url, form_data')
+          .eq('form_data->>session_id', sessionId)
+          .order('created_at', { ascending: false })
+          .limit(1);
+
+        const lead = (data && data[0]) || null;
+        const url =
+          (lead as any)?.pdf_url || (lead as any)?.form_data?.pdf_url || null;
+        setLatestPdfUrl(url);
+      } catch {
+        setLatestPdfUrl(null);
+      }
+    };
+
+    fetchLatestPdf();
+  }, [isPdfPreviewCard, sessionId]);
+
   if (compact) {
     // Mobile version - compact banner with optional image
     return (
@@ -178,72 +210,88 @@ export function VisualSupport({
                 'linear-gradient(135deg,#10b981,#34d399)',
             }}
           >
-            {/* Blurred PDF mock */}
-            <div
-              aria-label="PDF preview (blurred)"
-              style={{
-                width: '86%',
-                height: '86%',
-                background: '#ffffff',
-                borderRadius: 8,
-                boxShadow: '0 20px 60px rgba(0,0,0,.25)',
-                overflow: 'hidden',
-                position: 'relative',
-              }}
-            >
-              <div style={{ height: 36, background: '#f1f5f9' }} />
-              <div style={{ padding: 16, filter: 'blur(6px)' }}>
-                <div
-                  style={{
-                    height: 18,
-                    width: '60%',
-                    background: '#e5e7eb',
-                    borderRadius: 4,
-                    marginBottom: 12,
-                  }}
-                />
-                <div
-                  style={{
-                    height: 12,
-                    width: '90%',
-                    background: '#eef2f7',
-                    borderRadius: 4,
-                    marginBottom: 8,
-                  }}
-                />
-                <div
-                  style={{
-                    height: 12,
-                    width: '85%',
-                    background: '#eef2f7',
-                    borderRadius: 4,
-                    marginBottom: 8,
-                  }}
-                />
-                <div
-                  style={{
-                    height: 160,
-                    background: '#f9fafb',
-                    borderRadius: 6,
-                    marginTop: 8,
-                  }}
-                />
-              </div>
-              <div
+            {/* If we have a real PDF URL, show a blurred iframe preview; else mock */}
+            {latestPdfUrl ? (
+              <iframe
+                src={`${latestPdfUrl}#view=FitH&toolbar=0&navpanes=0`}
+                title="PDF preview"
                 style={{
-                  position: 'absolute',
-                  left: 12,
-                  bottom: 12,
-                  color: '#ffffff',
-                  background: 'rgba(0,0,0,.35)',
-                  padding: '6px 10px',
-                  borderRadius: 6,
-                  fontSize: 12,
+                  width: '92%',
+                  height: '92%',
+                  border: 'none',
+                  borderRadius: 10,
+                  boxShadow: '0 20px 60px rgba(0,0,0,.25)',
+                  filter: 'blur(6px)',
+                  background: '#ffffff',
+                }}
+              />
+            ) : (
+              <div
+                aria-label="PDF preview (blurred)"
+                style={{
+                  width: '86%',
+                  height: '86%',
+                  background: '#ffffff',
+                  borderRadius: 8,
+                  boxShadow: '0 20px 60px rgba(0,0,0,.25)',
+                  overflow: 'hidden',
+                  position: 'relative',
                 }}
               >
-                PDF-esikatselu (sumennettu)
+                <div style={{ height: 36, background: '#f1f5f9' }} />
+                <div style={{ padding: 16, filter: 'blur(6px)' }}>
+                  <div
+                    style={{
+                      height: 18,
+                      width: '60%',
+                      background: '#e5e7eb',
+                      borderRadius: 4,
+                      marginBottom: 12,
+                    }}
+                  />
+                  <div
+                    style={{
+                      height: 12,
+                      width: '90%',
+                      background: '#eef2f7',
+                      borderRadius: 4,
+                      marginBottom: 8,
+                    }}
+                  />
+                  <div
+                    style={{
+                      height: 12,
+                      width: '85%',
+                      background: '#eef2f7',
+                      borderRadius: 4,
+                      marginBottom: 8,
+                    }}
+                  />
+                  <div
+                    style={{
+                      height: 160,
+                      background: '#f9fafb',
+                      borderRadius: 6,
+                      marginTop: 8,
+                    }}
+                  />
+                </div>
+                <div
+                  style={{
+                    position: 'absolute',
+                    left: 12,
+                    bottom: 12,
+                    color: '#ffffff',
+                    background: 'rgba(0,0,0,.35)',
+                    padding: '6px 10px',
+                    borderRadius: 6,
+                    fontSize: 12,
+                  }}
+                >
+                  PDF-esikatselu (sumennettu)
+                </div>
               </div>
-            </div>
+            )}
           </div>
         ) : (
           (() => {
@@ -446,71 +494,87 @@ export function VisualSupport({
               justifyContent: 'center',
             }}
           >
-            <div
-              aria-label="PDF preview (blurred)"
-              style={{
-                width: '78%',
-                height: '82%',
-                background: '#ffffff',
-                borderRadius: 10,
-                boxShadow: '0 30px 80px rgba(0,0,0,.25)',
-                overflow: 'hidden',
-                position: 'relative',
-              }}
-            >
-              <div style={{ height: 48, background: '#eef2f7' }} />
-              <div style={{ padding: 22, filter: 'blur(7px)' }}>
-                <div
-                  style={{
-                    height: 22,
-                    width: '58%',
-                    background: '#e5e7eb',
-                    borderRadius: 5,
-                    marginBottom: 16,
-                  }}
-                />
-                <div
-                  style={{
-                    height: 14,
-                    width: '92%',
-                    background: '#f3f4f6',
-                    borderRadius: 4,
-                    marginBottom: 8,
-                  }}
-                />
-                <div
-                  style={{
-                    height: 14,
-                    width: '85%',
-                    background: '#f3f4f6',
-                    borderRadius: 4,
-                    marginBottom: 8,
-                  }}
-                />
-                <div
-                  style={{
-                    height: 200,
-                    background: '#f9fafb',
-                    borderRadius: 8,
-                    marginTop: 10,
-                  }}
-                />
-              </div>
-              <div
+            {latestPdfUrl ? (
+              <iframe
+                src={`${latestPdfUrl}#view=FitH&toolbar=0&navpanes=0`}
+                title="PDF preview"
                 style={{
-                  position: 'absolute',
-                  left: 16,
-                  bottom: 16,
-                  color: '#ffffff',
-                  background: 'rgba(0,0,0,.35)',
-                  padding: '8px 12px',
-                  borderRadius: 8,
-                  fontSize: 12,
+                  width: '78%',
+                  height: '82%',
+                  border: 'none',
+                  borderRadius: 10,
+                  boxShadow: '0 30px 80px rgba(0,0,0,.25)',
+                  filter: 'blur(7px)',
+                  background: '#ffffff',
+                }}
+              />
+            ) : (
+              <div
+                aria-label="PDF preview (blurred)"
+                style={{
+                  width: '78%',
+                  height: '82%',
+                  background: '#ffffff',
+                  borderRadius: 10,
+                  boxShadow: '0 30px 80px rgba(0,0,0,.25)',
+                  overflow: 'hidden',
+                  position: 'relative',
                 }}
               >
-                PDF-esikatselu (sumennettu)
+                <div style={{ height: 48, background: '#eef2f7' }} />
+                <div style={{ padding: 22, filter: 'blur(7px)' }}>
+                  <div
+                    style={{
+                      height: 22,
+                      width: '58%',
+                      background: '#e5e7eb',
+                      borderRadius: 5,
+                      marginBottom: 16,
+                    }}
+                  />
+                  <div
+                    style={{
+                      height: 14,
+                      width: '92%',
+                      background: '#f3f4f6',
+                      borderRadius: 4,
+                      marginBottom: 8,
+                    }}
+                  />
+                  <div
+                    style={{
+                      height: 14,
+                      width: '85%',
+                      background: '#f3f4f6',
+                      borderRadius: 4,
+                      marginBottom: 8,
+                    }}
+                  />
+                  <div
+                    style={{
+                      height: 200,
+                      background: '#f9fafb',
+                      borderRadius: 8,
+                      marginTop: 10,
+                    }}
+                  />
+                </div>
+                <div
+                  style={{
+                    position: 'absolute',
+                    left: 16,
+                    bottom: 16,
+                    color: '#ffffff',
+                    background: 'rgba(0,0,0,.35)',
+                    padding: '8px 12px',
+                    borderRadius: 8,
+                    fontSize: 12,
+                  }}
+                >
+                  PDF-esikatselu (sumennettu)
+                </div>
               </div>
-            </div>
+            )}
           </div>
         ) : loadingImages ? null : content.hasImages &&
           visualImages.length > 0 ? (
