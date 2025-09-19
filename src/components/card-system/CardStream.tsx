@@ -205,8 +205,8 @@ export function CardStream({
                     marginBottom: styles.card.base.marginBottom,
                   }}
                 >
-                  {/* Left: visual column (default placement) */}
-                  {!forceShowInline && shouldRenderVisual(card) && (
+                  {/* Left: visual column (default placement) - always reserve width to keep card sizes consistent */}
+                  {!forceShowInline && (
                     <div
                       style={{
                         flex: `0 0 ${styles.layout.visualSupportRatio || '35%'}`,
