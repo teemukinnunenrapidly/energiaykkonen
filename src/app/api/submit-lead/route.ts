@@ -133,6 +133,8 @@ export async function POST(request: NextRequest) {
       user_agent: userAgent,
       ip_address: clientIp,
       consent_timestamp: new Date().toISOString(),
+      // Persist session identifier so client can query latest PDF for this session
+      session_id: body.sessionId || body.session_id || null,
     };
 
     // Calculate all values needed for PDF generation

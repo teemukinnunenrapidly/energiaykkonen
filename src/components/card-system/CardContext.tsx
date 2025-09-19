@@ -365,6 +365,8 @@ export function CardProvider({
       const submitPayload = {
         ...formData,
         submit_email_template: emailTemplate,
+        // Include session identifier so the backend can link and we can query
+        sessionId,
       };
 
       const response = await fetch('/api/submit-lead', {

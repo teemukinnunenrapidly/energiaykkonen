@@ -169,6 +169,9 @@ export function VisualSupport({
     };
 
     fetchLatestPdf();
+    // Poll for availability shortly after submit; stop when found
+    const interval = setInterval(fetchLatestPdf, 3000);
+    return () => clearInterval(interval);
   }, [isPdfPreviewCard, sessionId]);
 
   if (compact) {
