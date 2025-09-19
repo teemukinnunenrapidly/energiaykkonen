@@ -583,32 +583,12 @@ export function VisualSupport({
                 />
                 <div
                   style={{
-                    height: 120,
+                    height: 80,
                     background:
                       'linear-gradient(180deg,#f9fafb 0%, #ffffff 100%)',
                     borderRadius: 8,
                   }}
                 />
-                {/* Compact savings highlight (desktop) */}
-                <div
-                  style={{
-                    marginTop: 10,
-                    background: '#ecfdf5',
-                    border: '1px solid #10b981',
-                    borderRadius: 6,
-                    padding: '8px 10px',
-                  }}
-                >
-                  <span
-                    style={{
-                      fontSize: 12,
-                      fontWeight: 700,
-                      color: '#065f46',
-                    }}
-                  >
-                    Arvioitu säästö 1 230 €/vuosi
-                  </span>
-                </div>
                 {/* Customer info section - pulled up */}
                 <div
                   style={{
@@ -616,7 +596,7 @@ export function VisualSupport({
                     border: '1px solid #e5e7eb',
                     borderRadius: 6,
                     padding: 12,
-                    marginTop: 10,
+                    marginTop: 8,
                   }}
                 >
                   <div
@@ -709,7 +689,7 @@ export function VisualSupport({
                   </div>
                 </div>
                 {/* System comparison boxes - pulled up */}
-                <div style={{ display: 'flex', gap: 18, marginTop: 12 }}>
+                <div style={{ display: 'flex', gap: 18, marginTop: 8 }}>
                   <div
                     style={{
                       flex: 1,
