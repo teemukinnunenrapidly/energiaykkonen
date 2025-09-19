@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { requireAdmin } from '@/lib/auth';
-import { DEPLOY_ENV } from '@/lib/supabase';
+import { DEPLOY_ENV, supabase as publicClient } from '@/lib/supabase';
 
 function getSupabaseAdmin() {
   const url =
@@ -19,7 +19,9 @@ function getSupabaseAdmin() {
     '';
 
   if (!url || !serviceKey) {
-    if (process.env.NODE_ENV !== 'production') return null;
+    if (process.env.NODE_ENV !== 'production') {
+      return null;
+    }
     throw new Error('Supabase admin env vars missing');
   }
   return createClient(url, serviceKey);
@@ -34,11 +36,9 @@ export async function GET(request: NextRequest) {
 
   try {
     const supabase = getSupabaseAdmin();
-    if (!supabase) {
-      return NextResponse.json({ cards: [] });
-    }
 
-    const { data, error } = await supabase
+    const client = supabase || publicClient;
+    const { data, error } = await client
       .from('card_templates')
       .select(`*, card_fields(*)`)
       .in('visibility', ['both', DEPLOY_ENV])
@@ -63,5 +63,3 @@ export async function GET(request: NextRequest) {
     );
   }
 }
-
-
