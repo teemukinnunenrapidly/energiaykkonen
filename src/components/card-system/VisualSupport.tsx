@@ -224,20 +224,20 @@ export function VisualSupport({
                     width: '82%',
                     background: '#f3f4f6',
                     borderRadius: 4,
-                    marginBottom: 18,
+                    marginBottom: 10,
                   }}
                 />
                 {/* Chart/hero block */}
                 <div
                   style={{
-                    height: 80,
+                    height: 60,
                     background:
                       'linear-gradient(180deg,#f9fafb 0%, #ffffff 100%)',
                     borderRadius: 8,
                   }}
                 />
                 {/* Two-column sections with headings */}
-                <div style={{ display: 'flex', gap: 16, marginTop: 18 }}>
+                <div style={{ display: 'flex', gap: 16, marginTop: 10 }}>
                   <div style={{ flex: 1 }}>
                     <div
                       style={{
