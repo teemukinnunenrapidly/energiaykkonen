@@ -198,15 +198,17 @@ export function VisualSupport({
               <div style={{ height: 42, background: '#eef2f7' }} />
               {/* Title + meta rows */}
               <div style={{ padding: 18 }}>
+                {/* Title: Säästölaskelma */}
                 <div
                   style={{
-                    height: 20,
-                    width: '55%',
-                    background: '#e5e7eb',
-                    borderRadius: 5,
-                    marginBottom: 14,
+                    fontSize: 18,
+                    fontWeight: 600,
+                    color: '#0f172a',
+                    marginBottom: 10,
                   }}
-                />
+                >
+                  Säästölaskelma
+                </div>
                 <div
                   style={{
                     height: 12,
@@ -234,9 +236,21 @@ export function VisualSupport({
                     borderRadius: 8,
                   }}
                 />
-                {/* Two-column text blocks */}
+                {/* Two-column sections with headings */}
                 <div style={{ display: 'flex', gap: 16, marginTop: 18 }}>
                   <div style={{ flex: 1 }}>
+                    <div
+                      style={{
+                        fontSize: 12,
+                        fontWeight: 700,
+                        color: '#334155',
+                        textTransform: 'uppercase',
+                        letterSpacing: 0.5,
+                        marginBottom: 8,
+                      }}
+                    >
+                      Nykyinen järjestelmä
+                    </div>
                     <div
                       style={{
                         height: 12,
@@ -265,6 +279,18 @@ export function VisualSupport({
                     />
                   </div>
                   <div style={{ flex: 1 }}>
+                    <div
+                      style={{
+                        fontSize: 12,
+                        fontWeight: 700,
+                        color: '#334155',
+                        textTransform: 'uppercase',
+                        letterSpacing: 0.5,
+                        marginBottom: 8,
+                      }}
+                    >
+                      VILP-järjestelmä
+                    </div>
                     <div
                       style={{
                         height: 12,
@@ -525,15 +551,17 @@ export function VisualSupport({
             >
               <div style={{ height: 48, background: '#eef2f7' }} />
               <div style={{ padding: 22 }}>
+                {/* Title: Säästölaskelma */}
                 <div
                   style={{
-                    height: 22,
-                    width: '58%',
-                    background: '#e5e7eb',
-                    borderRadius: 5,
-                    marginBottom: 16,
+                    fontSize: 18,
+                    fontWeight: 600,
+                    color: '#0f172a',
+                    marginBottom: 10,
                   }}
-                />
+                >
+                  Säästölaskelma
+                </div>
                 <div
                   style={{
                     height: 14,
@@ -564,6 +592,18 @@ export function VisualSupport({
                   <div style={{ flex: 1 }}>
                     <div
                       style={{
+                        fontSize: 12,
+                        fontWeight: 700,
+                        color: '#334155',
+                        textTransform: 'uppercase',
+                        letterSpacing: 0.5,
+                        marginBottom: 8,
+                      }}
+                    >
+                      Nykyinen järjestelmä
+                    </div>
+                    <div
+                      style={{
                         height: 12,
                         width: '96%',
                         background: '#eef2f7',
@@ -590,6 +630,18 @@ export function VisualSupport({
                     />
                   </div>
                   <div style={{ flex: 1 }}>
+                    <div
+                      style={{
+                        fontSize: 12,
+                        fontWeight: 700,
+                        color: '#334155',
+                        textTransform: 'uppercase',
+                        letterSpacing: 0.5,
+                        marginBottom: 8,
+                      }}
+                    >
+                      VILP-järjestelmä
+                    </div>
                     <div
                       style={{
                         height: 12,
