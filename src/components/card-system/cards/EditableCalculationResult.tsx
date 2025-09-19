@@ -20,7 +20,7 @@ export const EditableCalculationResult: React.FC<
   originalValue,
   unit,
   onUpdate,
-  editButtonText = 'Syötä lukema',
+  editButtonText = 'Korjaa lukemaa',
   isCalculating = false,
   validationMin,
   validationMax,
@@ -128,84 +128,119 @@ export const EditableCalculationResult: React.FC<
 
   if (isEditing) {
     return (
-      <div>
+      <div
+        style={
+          styles.calculationCard.editMode?.container as React.CSSProperties
+        }
+      >
         <div
-          style={{
-            display: 'flex',
-            gap: '8px',
-            alignItems: 'center',
-            marginBottom: '8px',
-          }}
+          style={
+            styles.calculationCard.editMode?.inputGroup as React.CSSProperties
+          }
         >
-          <input
-            type="text"
-            value={editValue}
-            onChange={e => setEditValue(e.target.value)}
-            onKeyDown={e => {
-              if (e.key === 'Enter') {
-                handleSave();
-              }
-              if (e.key === 'Escape') {
-                handleCancel();
-              }
-            }}
-            style={{
-              padding: styles.formElements.input.padding,
-              border: `1px solid ${error ? styles.colors.state.error : styles.colors.border.default}`,
-              borderRadius: styles.formElements.input.borderRadius,
-              fontSize: styles.formElements.input.fontSize,
-              flex: 1,
-            }}
-            placeholder="Syötä arvo"
-            autoFocus
-          />
-          {unit && (
-            <span
-              style={{
-                color: styles.colors.text.secondary,
-                fontSize: styles.typography.fontSizeBase,
-                minWidth: 'max-content',
+          <div
+            style={
+              styles.calculationCard.editMode
+                ?.inputWrapper as React.CSSProperties
+            }
+          >
+            <input
+              type="text"
+              value={editValue}
+              onChange={e => setEditValue(e.target.value)}
+              onKeyDown={e => {
+                if (e.key === 'Enter') {
+                  handleSave();
+                }
+                if (e.key === 'Escape') {
+                  handleCancel();
+                }
               }}
-            >
-              {unit}
-            </span>
-          )}
+              style={{
+                ...(styles.calculationCard.editMode
+                  ?.input as React.CSSProperties),
+                border: 'none',
+              }}
+              placeholder="Syötä arvo"
+              autoFocus
+            />
+            {unit && (
+              <span
+                style={
+                  styles.calculationCard.editMode
+                    ?.unitLabel as React.CSSProperties
+                }
+              >
+                {unit}
+              </span>
+            )}
+          </div>
         </div>
 
-        <div style={{ display: 'flex', gap: '8px' }}>
+        <div
+          style={
+            styles.calculationCard.editMode
+              ?.actionButtons as React.CSSProperties
+          }
+        >
           <button
             onClick={handleSave}
             style={
-              {
-                flex: 1,
-                padding: '0.625rem 1.5rem',
-                background: styles.colors.state.success,
-                color: '#fff',
-                border: 'none',
-                borderRadius: '0.5rem',
-                cursor: 'pointer',
-                fontSize: '1rem',
-                fontWeight: '500',
-              } as React.CSSProperties
+              styles.calculationCard.editMode?.saveButton as React.CSSProperties
             }
+            onMouseEnter={e => {
+              const hover = styles.calculationCard.editMode as any;
+              if (hover?.saveButtonHover?.background) {
+                e.currentTarget.style.background =
+                  hover.saveButtonHover.background;
+              }
+              if (hover?.saveButtonHover?.transform) {
+                e.currentTarget.style.transform =
+                  hover.saveButtonHover.transform;
+              }
+              if (hover?.saveButtonHover?.boxShadow) {
+                e.currentTarget.style.boxShadow =
+                  hover.saveButtonHover.boxShadow;
+              }
+            }}
+            onMouseLeave={e => {
+              const base = styles.calculationCard.editMode as any;
+              if (base?.saveButton?.background) {
+                e.currentTarget.style.background = base.saveButton.background;
+              }
+              e.currentTarget.style.transform = '';
+              e.currentTarget.style.boxShadow = '';
+            }}
           >
             ✓ Tallenna
           </button>
           <button
             onClick={handleCancel}
             style={
-              {
-                flex: 1,
-                padding: '0.625rem 1.5rem',
-                background: styles.colors.text.secondary,
-                color: '#fff',
-                border: 'none',
-                borderRadius: '0.5rem',
-                cursor: 'pointer',
-                fontSize: '1rem',
-                fontWeight: '500',
-              } as React.CSSProperties
+              styles.calculationCard.editMode
+                ?.cancelButton as React.CSSProperties
             }
+            onMouseEnter={e => {
+              const hover = styles.calculationCard.editMode as any;
+              if (hover?.cancelButtonHover?.background) {
+                e.currentTarget.style.background =
+                  hover.cancelButtonHover.background;
+              }
+              if (hover?.cancelButtonHover?.borderColor) {
+                e.currentTarget.style.borderColor =
+                  hover.cancelButtonHover.borderColor;
+              }
+            }}
+            onMouseLeave={e => {
+              const base = styles.calculationCard.editMode as any;
+              if (base?.cancelButton?.background) {
+                e.currentTarget.style.background = base.cancelButton.background;
+              }
+              if (base?.cancelButton?.borderColor) {
+                e.currentTarget.style.borderColor =
+                  base.cancelButton.borderColor;
+              }
+            }}
           >
             ✕ Peruuta
           </button>
@@ -281,33 +316,42 @@ export const EditableCalculationResult: React.FC<
       <button
         onClick={handleEdit}
         style={{
+          ...(styles.calculationCard.editButton as React.CSSProperties),
           width: '100%',
-          padding: styles.formElements.input.padding,
-          background: 'transparent',
-          color: styles.colors.brand.primary,
-          border: `1px solid ${styles.colors.brand.primary}`,
-          borderRadius: styles.formElements.input.borderRadius,
-          cursor: 'pointer',
-          fontSize: styles.typography.fontSizeBase,
-          fontWeight: styles.typography.fontWeightMedium,
           marginTop: '16px',
           marginBottom: isOverridden ? '8px' : '0',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
           gap: '8px',
-          transition: 'all 0.2s ease',
         }}
         onMouseEnter={e => {
-          e.currentTarget.style.background = styles.colors.brand.primary;
-          e.currentTarget.style.color = 'white';
+          const hover = styles.calculationCard as any;
+          if (hover?.editButtonHover?.background) {
+            e.currentTarget.style.background = hover.editButtonHover.background;
+          }
+          if (hover?.editButtonHover?.color) {
+            e.currentTarget.style.color = hover.editButtonHover.color;
+          }
+          if (hover?.editButtonHover?.borderColor) {
+            e.currentTarget.style.borderColor =
+              hover.editButtonHover.borderColor;
+          }
         }}
         onMouseLeave={e => {
-          e.currentTarget.style.background = 'transparent';
-          e.currentTarget.style.color = styles.colors.brand.primary;
+          const base = styles.calculationCard as any;
+          if (base?.editButton?.background) {
+            e.currentTarget.style.background = base.editButton.background;
+          }
+          if (base?.editButton?.color) {
+            e.currentTarget.style.color = base.editButton.color;
+          }
+          if (base?.editButton?.borderColor) {
+            e.currentTarget.style.borderColor = base.editButton.borderColor;
+          }
         }}
       >
-        ✏️ {editButtonText || 'Syötä lukema'}
+        ✏️ {editButtonText || 'Korjaa lukemaa'}
       </button>
 
       {isOverridden && (

@@ -542,27 +542,27 @@
         "display": "inline-block"
       },
       "editButton": {
-        "padding": "6px 8px",
-        "fontSize": "12px",
-        "fontWeight": "400",
-        "color": "#6b7280",
+        "padding": "10px 16px",
+        "fontSize": "14px",
+        "fontWeight": "500",
+        "color": "#10b981",
         "background": "transparent",
         "borderWidth": "1px",
         "borderStyle": "solid",
-        "borderColor": "#e5e7eb",
-        "borderRadius": "6px",
+        "borderColor": "#10b981",
+        "borderRadius": "8px",
         "cursor": "pointer",
         "transition": "all 200ms ease",
         "display": "flex",
         "alignItems": "center",
-        "gap": "4px",
+        "gap": "8px",
         "flexShrink": "0",
-        "height": "28px"
+        "height": "40px"
       },
       "editButtonHover": {
-        "borderColor": "#d1d5db",
-        "background": "#f9fafb",
-        "color": "#4b5563"
+        "borderColor": "#059669",
+        "background": "#10b981",
+        "color": "#ffffff"
       },
       "editButtonFocus": {
         "outline": "2px solid #10b981",

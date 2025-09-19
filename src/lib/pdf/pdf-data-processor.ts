@@ -5,6 +5,9 @@
 
 import { Lead } from '@/lib/supabase';
 import { flattenLeadData } from '@/lib/lead-helpers';
+import { normalizeLead } from '@/domain/normalize/normalizeLead';
+import { computeMetrics, pickStrategy } from '@/domain/calc/CalculationService';
+import { DEFAULT_LOOKUPS } from '@/domain/calc/types';
 
 /**
  * Process lead data into PDF-ready format using hardcoded calculations
@@ -120,10 +123,38 @@ export async function processPDFData(lead: Lead): Promise<Record<string, any>> {
     calculationDate: new Date().toLocaleDateString('fi-FI'),
 
     // Energy calculations
-    energyNeed: parseFloat(String(flatLead.laskennallinenenergiantarve || 0).toString().replace(',', '.')) || 0,
+    energyNeed:
+      parseFloat(
+        String(flatLead.laskennallinenenergiantarve || 0)
+          .toString()
+          .replace(',', '.')
+      ) || 0,
     annual_energy_need: flatLead.laskennallinenenergiantarve || 0,
     total_energy_need: flatLead.laskennallinenenergiantarve || 0,
   };
+
+  // Strategy-based overrides (new pipeline)
+  try {
+    const { normalized } = normalizeLead(flatLead);
+    const strategy = pickStrategy(normalized);
+    const metrics = computeMetrics(normalized, DEFAULT_LOOKUPS);
+
+    // Costs
+    pdfData.currentYear1Cost = metrics.current.cost.year1;
+    pdfData.currentYear5Cost = metrics.current.cost.year5;
+    pdfData.currentYear10Cost = metrics.current.cost.year10;
+    pdfData.newYear1Cost = metrics.newSystem.cost.year1;
+    pdfData.newYear5Cost = metrics.newSystem.cost.year5;
+    pdfData.newYear10Cost = metrics.newSystem.cost.year10;
+
+    // Emissions and consumption
+    pdfData.currentCO2 = metrics.current.co2.year;
+    pdfData.newCO2 = metrics.newSystem.co2Year;
+    pdfData.electricityConsumption = metrics.newSystem.electricityKWh;
+
+    // Expose matched strategy id for debugging/telemetry
+    pdfData.strategyId = strategy.id;
+  } catch {}
 
   return pdfData;
 }

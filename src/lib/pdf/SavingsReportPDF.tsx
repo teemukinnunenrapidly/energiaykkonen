@@ -9,7 +9,9 @@ export interface PDFData {
 
 // Helpers for robust number parsing/formatting from user/lookup inputs
 const parseEuroNumber = (value: any): number | null => {
-  if (value === undefined || value === null) return null;
+  if (value === undefined || value === null) {
+    return null;
+  }
   const normalized = String(value).replace(/\s/g, '').replace(',', '.');
   const number = Number(normalized);
   return Number.isNaN(number) ? null : number;
@@ -22,7 +24,9 @@ const formatFi = (value: number | null): string =>
 const firstNonZero = (...candidates: any[]): number | null => {
   for (const c of candidates) {
     const n = parseEuroNumber(c);
-    if (n !== null && n > 0) return n;
+    if (n !== null && n > 0) {
+      return n;
+    }
   }
   return null;
 };
@@ -215,16 +219,20 @@ export const SavingsReportPDF: React.FC<{ data: PDFData }> = ({ data }) => (
               <View style={styles.systemDetails}>
                 {/* Fuel-specific rows */}
                 {/* Gas */}
-                {String(
-                  (data.lammitysmuoto || data.current_heating || '')
-                )
+                {String(data.lammitysmuoto || data.current_heating || '')
                   .toLowerCase()
                   .includes('kaasu') && (
                   <>
                     <View style={styles.detailRow}>
                       <Text style={styles.detailLabel}>Kaasun kulutus:</Text>
                       <Text style={styles.detailValue}>
-                        {(data.kokonaismenekki || data.gas_consumption_m3 || data.currentConsumption || 0).toLocaleString('fi-FI')} m³/vuosi
+                        {(
+                          data.kokonaismenekki ||
+                          data.gas_consumption_m3 ||
+                          data.currentConsumption ||
+                          0
+                        ).toLocaleString('fi-FI')}{' '}
+                        m³/vuosi
                       </Text>
                     </View>
                     <View style={styles.detailRow}>
@@ -246,7 +254,11 @@ export const SavingsReportPDF: React.FC<{ data: PDFData }> = ({ data }) => (
                     <View style={styles.detailRow}>
                       <Text style={styles.detailLabel}>CO₂-päästöt:</Text>
                       <Text style={styles.detailValue}>
-                        {((data.laskennallinenenergiantarve || data.energyNeed || 0) * 0.21)
+                        {(
+                          (data.laskennallinenenergiantarve ||
+                            data.energyNeed ||
+                            0) * 0.21
+                        )
                           .toFixed(0)
                           .toString()
                           .replace(/\B(?=(\d{3})+(?!\d))/g, ' ')}{' '}
@@ -259,7 +271,7 @@ export const SavingsReportPDF: React.FC<{ data: PDFData }> = ({ data }) => (
                 {/* Wood heating (only when exclusively wood; skip for mixed oil+wood) */}
                 {(() => {
                   const ht = String(
-                    (data.lammitysmuoto || data.current_heating || '')
+                    data.lammitysmuoto || data.current_heating || ''
                   ).toLowerCase();
                   return ht.includes('puu') && !ht.includes('öljy');
                 })() && (
@@ -281,13 +293,17 @@ export const SavingsReportPDF: React.FC<{ data: PDFData }> = ({ data }) => (
                         {(() => {
                           const val = Number(
                             String(
-                              data.menekin_hinta_vuosi || data.menekinhintavuosi || 0
+                              data.menekin_hinta_vuosi ||
+                                data.menekinhintavuosi ||
+                                0
                             )
                               .replace(/\s/g, '')
                               .replace(',', '.')
                           );
                           return isNaN(val)
-                            ? (data.menekin_hinta_vuosi || data.menekinhintavuosi || '0')
+                            ? data.menekin_hinta_vuosi ||
+                                data.menekinhintavuosi ||
+                                '0'
                             : val.toLocaleString('fi-FI');
                         })()}{' '}
                         € / vuosi
@@ -300,23 +316,27 @@ export const SavingsReportPDF: React.FC<{ data: PDFData }> = ({ data }) => (
                     <View style={styles.detailRow}>
                       <Text style={styles.detailLabel}>CO₂-päästöt:</Text>
                       <Text style={styles.detailValue}>
-                        {(data.currentCO2 || data.current_co2 || '0').toString()} kg/vuosi
+                        {(
+                          data.currentCO2 ||
+                          data.current_co2 ||
+                          '0'
+                        ).toString()}{' '}
+                        kg/vuosi
                       </Text>
                     </View>
                   </>
                 )}
 
                 {/* Oil (default) - only when heating includes 'öljy' */}
-                {String(
-                  (data.lammitysmuoto || data.current_heating || '')
-                )
+                {String(data.lammitysmuoto || data.current_heating || '')
                   .toLowerCase()
                   .includes('öljy') && (
                   <>
                     <View style={styles.detailRow}>
                       <Text style={styles.detailLabel}>Öljyn kulutus:</Text>
                       <Text style={styles.detailValue}>
-                        {data.oilConsumption || data.oil_consumption || '2 000'} L/vuosi
+                        {data.oilConsumption || data.oil_consumption || '2 000'}{' '}
+                        L/vuosi
                       </Text>
                     </View>
                     <View style={styles.detailRow}>
@@ -334,7 +354,8 @@ export const SavingsReportPDF: React.FC<{ data: PDFData }> = ({ data }) => (
                     <View style={styles.detailRow}>
                       <Text style={styles.detailLabel}>CO₂-päästöt:</Text>
                       <Text style={styles.detailValue}>
-                        {data.currentCO2 || data.current_co2 || '5 320'} kg/vuosi
+                        {data.currentCO2 || data.current_co2 || '5 320'}{' '}
+                        kg/vuosi
                       </Text>
                     </View>
                   </>
@@ -360,10 +381,12 @@ export const SavingsReportPDF: React.FC<{ data: PDFData }> = ({ data }) => (
                 <View style={styles.costRowWithSavings}>
                   <Text style={styles.costLabel}>1 vuosi</Text>
                   <Text style={styles.costCenter}>
-                    {data.newYear1Cost ||
-                      data.new_yearly_cost ||
-                      data.heat_pump_cost_annual ||
-                      '975'}{' '}
+                    {(
+                      data.newYear1Cost ??
+                      data.new_yearly_cost ??
+                      data.heat_pump_cost_annual ??
+                      975
+                    ).toLocaleString('fi-FI')}{' '}
                     €
                   </Text>
                   <View style={styles.savingsColumn}>
@@ -382,7 +405,12 @@ export const SavingsReportPDF: React.FC<{ data: PDFData }> = ({ data }) => (
                 >
                   <Text style={styles.costLabel}>5 vuotta</Text>
                   <Text style={styles.costCenter}>
-                    {data.newYear5Cost || data.new_5year_cost || '4 875'} €
+                    {(
+                      data.newYear5Cost ??
+                      data.new_5year_cost ??
+                      4875
+                    ).toLocaleString('fi-FI')}{' '}
+                    €
                   </Text>
                   <View style={styles.savingsColumn}>
                     <Text style={[styles.costValue, styles.positive]}>
@@ -393,7 +421,12 @@ export const SavingsReportPDF: React.FC<{ data: PDFData }> = ({ data }) => (
                 <View style={styles.costRowWithSavings}>
                   <Text style={styles.costLabel}>10 vuotta</Text>
                   <Text style={styles.costCenter}>
-                    {data.newYear10Cost || data.new_10year_cost || '9 750'} €
+                    {(
+                      data.newYear10Cost ??
+                      data.new_10year_cost ??
+                      9750
+                    ).toLocaleString('fi-FI')}{' '}
+                    €
                   </Text>
                   <View style={styles.savingsColumn}>
                     <Text style={[styles.costValue, styles.positive]}>
@@ -408,9 +441,11 @@ export const SavingsReportPDF: React.FC<{ data: PDFData }> = ({ data }) => (
                 <View style={styles.detailRow}>
                   <Text style={styles.detailLabel}>Sähkön kulutus:</Text>
                   <Text style={styles.detailValue}>
-                    {data.electricityConsumption ||
-                      data.heat_pump_consumption ||
-                      '6 500'}{' '}
+                    {(
+                      data.electricityConsumption ??
+                      data.heat_pump_consumption ??
+                      6500
+                    ).toLocaleString('fi-FI')}{' '}
                     kWh/vuosi
                   </Text>
                 </View>
@@ -422,7 +457,9 @@ export const SavingsReportPDF: React.FC<{ data: PDFData }> = ({ data }) => (
                 <View style={styles.detailRow}>
                   <Text style={styles.detailLabel}>Sähkön hinta:</Text>
                   <Text style={styles.detailValue}>
-                    {data.electricityPrice || data.electricity_price || '0,15'}{' '}
+                    {(data.electricityPrice ?? data.electricity_price ?? 0.15)
+                      .toString()
+                      .replace('.', ',')}{' '}
                     €/kWh
                   </Text>
                 </View>
@@ -437,16 +474,19 @@ export const SavingsReportPDF: React.FC<{ data: PDFData }> = ({ data }) => (
                     Huoltokustannus seuraavat 5v:
                   </Text>
                   <Text style={styles.detailValue}>
-                    {data.newMaintenance10Years ||
-                      data.heat_pump_maintenance_10y ||
-                      '30'}{' '}
+                    {(
+                      data.newMaintenance10Years ??
+                      data.heat_pump_maintenance_10y ??
+                      30
+                    ).toLocaleString('fi-FI')}{' '}
                     €/vuosi
                   </Text>
                 </View>
                 <View style={styles.detailRow}>
                   <Text style={styles.detailLabel}>CO₂-päästöt:</Text>
                   <Text style={styles.detailValue}>
-                    {data.newCO2 || data.new_co2 || '0'} kg/vuosi
+                    {(data.newCO2 ?? data.new_co2 ?? 0).toLocaleString('fi-FI')}{' '}
+                    kg/vuosi
                   </Text>
                 </View>
                 <Text style={styles.elyNoteDescription}>
