@@ -133,6 +133,11 @@ export function VisualSupport({
   };
 
   const content = getVisualContent();
+  // Heuristic: show PDF preview on the final download card
+  const isPdfPreviewCard =
+    (activeCard?.name && activeCard.name === 'new_card_11') ||
+    (activeCard?.title &&
+      /Lataa\s+säästölaskelma/i.test(activeCard.title || ''));
 
   if (compact) {
     // Mobile version - compact banner with optional image
@@ -159,42 +164,124 @@ export function VisualSupport({
           })(),
         }}
       >
-        {/* Image layer (actual <img> for reliability) */}
-        {(() => {
-          if (loadingImages) {
-            return null;
-          }
-          const firstImage = visualImages[0];
-          const imageUrl = firstImage
-            ? getImageUrl(firstImage)
-            : visualObject?.image_url || null;
-          if (!imageUrl) {
-            return null;
-          }
-          return (
-            <img
-              src={imageUrl}
-              alt={visualObject?.title || 'Visual'}
+        {/* Image/PDF layer */}
+        {isPdfPreviewCard ? (
+          <div
+            style={{
+              position: 'absolute',
+              inset: 0,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              background:
+                (styles.visualSupport.content.background as any) ||
+                'linear-gradient(135deg,#10b981,#34d399)',
+            }}
+          >
+            {/* Blurred PDF mock */}
+            <div
+              aria-label="PDF preview (blurred)"
               style={{
-                position: 'absolute',
-                top: 0,
-                left: 0,
-                width: '100%',
-                height: '100%',
-                objectFit: 'cover',
-                opacity: 1,
-                zIndex: 0,
-                borderTopLeftRadius: styles.card.base.borderRadius,
-                borderTopRightRadius: styles.card.base.borderRadius,
-                borderBottomLeftRadius: 0,
-                borderBottomRightRadius: 0,
+                width: '86%',
+                height: '86%',
+                background: '#ffffff',
+                borderRadius: 8,
+                boxShadow: '0 20px 60px rgba(0,0,0,.25)',
+                overflow: 'hidden',
+                position: 'relative',
               }}
-              onError={e => {
-                (e.currentTarget as HTMLImageElement).style.display = 'none';
-              }}
-            />
-          );
-        })()}
+            >
+              <div style={{ height: 36, background: '#f1f5f9' }} />
+              <div style={{ padding: 16, filter: 'blur(6px)' }}>
+                <div
+                  style={{
+                    height: 18,
+                    width: '60%',
+                    background: '#e5e7eb',
+                    borderRadius: 4,
+                    marginBottom: 12,
+                  }}
+                />
+                <div
+                  style={{
+                    height: 12,
+                    width: '90%',
+                    background: '#eef2f7',
+                    borderRadius: 4,
+                    marginBottom: 8,
+                  }}
+                />
+                <div
+                  style={{
+                    height: 12,
+                    width: '85%',
+                    background: '#eef2f7',
+                    borderRadius: 4,
+                    marginBottom: 8,
+                  }}
+                />
+                <div
+                  style={{
+                    height: 160,
+                    background: '#f9fafb',
+                    borderRadius: 6,
+                    marginTop: 8,
+                  }}
+                />
+              </div>
+              <div
+                style={{
+                  position: 'absolute',
+                  left: 12,
+                  bottom: 12,
+                  color: '#ffffff',
+                  background: 'rgba(0,0,0,.35)',
+                  padding: '6px 10px',
+                  borderRadius: 6,
+                  fontSize: 12,
+                }}
+              >
+                PDF-esikatselu (sumennettu)
+              </div>
+            </div>
+          </div>
+        ) : (
+          (() => {
+            if (loadingImages) {
+              return null;
+            }
+            const firstImage = visualImages[0];
+            const imageUrl = firstImage
+              ? getImageUrl(firstImage)
+              : visualObject?.image_url || null;
+            if (!imageUrl) {
+              return null;
+            }
+            return (
+              <img
+                src={imageUrl}
+                alt={visualObject?.title || 'Visual'}
+                style={{
+                  position: 'absolute',
+                  top: 0,
+                  left: 0,
+                  width: '100%',
+                  height: '100%',
+                  objectFit: 'cover',
+                  opacity: 1,
+                  zIndex: 0,
+                  borderTopLeftRadius: styles.card.base.borderRadius,
+                  borderTopRightRadius: styles.card.base.borderRadius,
+                  borderBottomLeftRadius: 0,
+                  borderBottomRightRadius: 0,
+                }}
+                onError={e => {
+                  (e.currentTarget as HTMLImageElement).style.display = 'none';
+                }}
+              />
+            );
+          })()
+        )}
 
         {/* Mobile overlay: button to toggle slide-up panel */}
         {(() => {
@@ -348,8 +435,85 @@ export function VisualSupport({
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
       >
-        {/* Visual Content - image only */}
-        {loadingImages ? null : content.hasImages && visualImages.length > 0 ? (
+        {/* Visual Content - image or blurred PDF mock */}
+        {isPdfPreviewCard ? (
+          <div
+            style={{
+              position: 'absolute',
+              inset: 0,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+          >
+            <div
+              aria-label="PDF preview (blurred)"
+              style={{
+                width: '78%',
+                height: '82%',
+                background: '#ffffff',
+                borderRadius: 10,
+                boxShadow: '0 30px 80px rgba(0,0,0,.25)',
+                overflow: 'hidden',
+                position: 'relative',
+              }}
+            >
+              <div style={{ height: 48, background: '#eef2f7' }} />
+              <div style={{ padding: 22, filter: 'blur(7px)' }}>
+                <div
+                  style={{
+                    height: 22,
+                    width: '58%',
+                    background: '#e5e7eb',
+                    borderRadius: 5,
+                    marginBottom: 16,
+                  }}
+                />
+                <div
+                  style={{
+                    height: 14,
+                    width: '92%',
+                    background: '#f3f4f6',
+                    borderRadius: 4,
+                    marginBottom: 8,
+                  }}
+                />
+                <div
+                  style={{
+                    height: 14,
+                    width: '85%',
+                    background: '#f3f4f6',
+                    borderRadius: 4,
+                    marginBottom: 8,
+                  }}
+                />
+                <div
+                  style={{
+                    height: 200,
+                    background: '#f9fafb',
+                    borderRadius: 8,
+                    marginTop: 10,
+                  }}
+                />
+              </div>
+              <div
+                style={{
+                  position: 'absolute',
+                  left: 16,
+                  bottom: 16,
+                  color: '#ffffff',
+                  background: 'rgba(0,0,0,.35)',
+                  padding: '8px 12px',
+                  borderRadius: 8,
+                  fontSize: 12,
+                }}
+              >
+                PDF-esikatselu (sumennettu)
+              </div>
+            </div>
+          </div>
+        ) : loadingImages ? null : content.hasImages &&
+          visualImages.length > 0 ? (
           <div
             style={{
               position: 'absolute',
