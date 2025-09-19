@@ -149,13 +149,25 @@ export async function processPDFData(lead: Lead): Promise<Record<string, any>> {
     const choseHouseholdDeduction =
       allText.includes('kotitalous') &&
       (allText.includes('normaali') || allText.includes('korotettu'));
+    const choseEly = allText.includes('ely');
 
     const shouldUse7000 = isOil && choseVilp && choseHouseholdDeduction;
 
-    pdfData.subsidyNoteAmount = shouldUse7000 ? 7000 : 4000;
-    pdfData.subsidyNoteText = shouldUse7000
-      ? 'Maksimaalinen kotitalousvähennys öljylämmityksestä luopuvalle on 7000e.'
-      : '* ELY-keskuksen energiatuki öljylämmityksestä luopumiseen. Tuki on 4 000 € pientaloille. Edellyttää hakemuksen tekemistä ennen töiden aloittamista.';
+    if (shouldUse7000) {
+      pdfData.subsidyNoteAmount = 7000;
+      pdfData.subsidyNoteText =
+        'Maksimaalinen kotitalousvähennys öljylämmityksestä luopuvalle on 7000e.';
+    } else if (choseEly) {
+      pdfData.subsidyNoteAmount = 4000;
+      pdfData.subsidyNoteText =
+        '* ELY-keskuksen energiatuki öljylämmityksestä luopumiseen. Tuki on 4 000 € pientaloille. Edellyttää hakemuksen tekemistä ennen töiden aloittamista.';
+    } else if (choseHouseholdDeduction) {
+      pdfData.subsidyNoteAmount = 3200;
+      pdfData.subsidyNoteText = 'Normaali kotitalousvähennys.';
+    } else {
+      pdfData.subsidyNoteAmount = 0;
+      pdfData.subsidyNoteText = '';
+    }
   } catch {}
 
   // Strategy-based overrides (new pipeline)
