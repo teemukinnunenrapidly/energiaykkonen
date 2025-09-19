@@ -1,6 +1,7 @@
 // src/lib/pdf/SavingsReportPDF.tsx
 import React from 'react';
 import { Document, Page, Text, View } from '@react-pdf/renderer';
+import { PDF_CALCULATION_CONSTANTS } from '../pdf-calculation-definitions';
 import { styles } from './pdf-styles';
 
 export interface PDFData {
@@ -459,11 +460,14 @@ export const SavingsReportPDF: React.FC<{ data: PDFData }> = ({ data }) => (
                   3.8 hyötysuhdetta.
                 </Text>
                 <View style={styles.detailRow}>
-                  <Text style={styles.detailLabel}>Sähkön hinta:</Text>
+                  <Text style={styles.detailLabel}>
+                    Sähkön hinta (sis. siirto):
+                  </Text>
                   <Text style={styles.detailValue}>
-                    {(data.electricityPrice ?? data.electricity_price ?? 0.15)
-                      .toString()
-                      .replace('.', ',')}{' '}
+                    {PDF_CALCULATION_CONSTANTS.ELECTRICITY_PRICE.toString().replace(
+                      '.',
+                      ','
+                    )}{' '}
                     €/kWh
                   </Text>
                 </View>
