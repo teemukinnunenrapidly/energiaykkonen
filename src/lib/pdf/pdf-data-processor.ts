@@ -143,16 +143,16 @@ export async function processPDFData(lead: Lead): Promise<Record<string, any>> {
     // Treat both pure oil and oil+wood (tuplapesäkattila) as eligible
     const isOilOrOilWood =
       lammitys.includes('öljy') || lammitys.includes('oil');
-    // Consider any occurrence of 'vilp' as heat pump replacement selection,
-    // since stored values may not include the exact label words
+    // Detect VILP selection and require the word 'tilalle' for replacement
     const choseVilp = allText.includes('vilp');
+    const containsTilalle = allText.includes('tilalle');
     const choseHouseholdDeduction =
       allText.includes('kotitalous') &&
       (allText.includes('normaali') || allText.includes('korotettu'));
     const choseEly = allText.includes('ely');
 
     const shouldUse7000 =
-      isOilOrOilWood && choseVilp && choseHouseholdDeduction;
+      isOilOrOilWood && choseVilp && containsTilalle && choseHouseholdDeduction;
 
     if (shouldUse7000) {
       pdfData.subsidyNoteAmount = 7000;
