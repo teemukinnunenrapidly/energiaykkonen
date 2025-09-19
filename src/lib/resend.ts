@@ -22,7 +22,7 @@ export const emailConfig = {
       (vercelEnv === 'production' ? defaultProdFrom : defaultDevFrom)
     );
   })(),
-  salesTo: 'sales@energiaykkonen.fi', // Update with actual sales email
+  salesTo: 'teemu.kinnunen@rapidly.fi',
   replyTo: 'info@energiaykkonen.fi',
 } as const;
 
