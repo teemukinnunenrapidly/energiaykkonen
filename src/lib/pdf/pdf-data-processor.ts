@@ -133,6 +133,31 @@ export async function processPDFData(lead: Lead): Promise<Record<string, any>> {
     total_energy_need: flatLead.laskennallinenenergiantarve || 0,
   };
 
+  // Business rule: upgrade subsidy note to 7 000€ when conditions match
+  try {
+    const lammitys = String(
+      (flatLead.lammitysmuoto || flatLead.current_heating || '') as string
+    ).toLowerCase();
+    const allText = JSON.stringify(flatLead).toLowerCase();
+
+    const isOil = lammitys.includes('öljy');
+    const choseVilp =
+      allText.includes('vilp') &&
+      (allText.includes('vaihto') ||
+        allText.includes('järjestel') ||
+        allText.includes('tilalle'));
+    const choseHouseholdDeduction =
+      allText.includes('kotitalous') &&
+      (allText.includes('normaali') || allText.includes('korotettu'));
+
+    const shouldUse7000 = isOil && choseVilp && choseHouseholdDeduction;
+
+    pdfData.subsidyNoteAmount = shouldUse7000 ? 7000 : 4000;
+    pdfData.subsidyNoteText = shouldUse7000
+      ? 'Maksimaalinen kotitalousvähennys öljylämmityksestä luopuvalle on 7000e.'
+      : '* ELY-keskuksen energiatuki öljylämmityksestä luopumiseen. Tuki on 4 000 € pientaloille. Edellyttää hakemuksen tekemistä ennen töiden aloittamista.';
+  } catch {}
+
   // Strategy-based overrides (new pipeline)
   try {
     const { normalized } = normalizeLead(flatLead);

@@ -402,7 +402,11 @@ export const SavingsReportPDF: React.FC<{ data: PDFData }> = ({ data }) => (
                         '1 625'}{' '}
                       €
                     </Text>
-                    <Text style={styles.elyNote}>+4 000€*</Text>
+                    <Text style={styles.elyNote}>
+                      +
+                      {(data.subsidyNoteAmount ?? 4000).toLocaleString('fi-FI')}
+                      €*
+                    </Text>
                   </View>
                 </View>
                 <View
@@ -498,9 +502,8 @@ export const SavingsReportPDF: React.FC<{ data: PDFData }> = ({ data }) => (
                   </Text>
                 </View>
                 <Text style={styles.elyNoteDescription}>
-                  * ELY-keskuksen energiatuki öljylämmityksestä luopumiseen.
-                  Tuki on 4 000 € pientaloille. Edellyttää hakemuksen tekemistä
-                  ennen töiden aloittamista.
+                  {data.subsidyNoteText ||
+                    '* ELY-keskuksen energiatuki öljylämmityksestä luopumiseen. Tuki on 4 000 € pientaloille. Edellyttää hakemuksen tekemistä ennen töiden aloittamista.'}
                 </Text>
               </View>
             </View>
