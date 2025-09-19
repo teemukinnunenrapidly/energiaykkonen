@@ -18,10 +18,16 @@ export interface PdfModel {
     electricityKWh: string;
     co2Year: string;
   };
+  strategyId?: StrategyDefinition['id'];
 }
 
-export function buildPdfModel(n: LeadNormalized, metrics: Metrics, strategy: StrategyDefinition): PdfModel {
-  const fmt = (num: number, unit = '') => `${num.toLocaleString('fi-FI')} ${unit}`.trim();
+export function buildPdfModel(
+  n: LeadNormalized,
+  metrics: Metrics,
+  strategy: StrategyDefinition
+): PdfModel {
+  const fmt = (num: number, unit = '') =>
+    `${num.toLocaleString('fi-FI')} ${unit}`.trim();
 
   const rows: PdfRow[] = [];
   for (const r of strategy.pdfRows) {
@@ -31,12 +37,18 @@ export function buildPdfModel(n: LeadNormalized, metrics: Metrics, strategy: Str
       rows.push({ label: r.label, value: fmt(val, r.unit) });
     } else if (r.key === 'price') {
       // display using annual current cost when price row requested
-      rows.push({ label: r.label, value: fmt(metrics.current.cost.year1, r.unit) });
+      rows.push({
+        label: r.label,
+        value: fmt(metrics.current.cost.year1, r.unit),
+      });
     } else if (r.key === 'maintenance') {
       // static example; strategy could carry value in future
       rows.push({ label: r.label, value: fmt(200, r.unit) });
     } else if (r.key === 'co2') {
-      rows.push({ label: r.label, value: fmt(metrics.current.co2.year, r.unit) });
+      rows.push({
+        label: r.label,
+        value: fmt(metrics.current.co2.year, r.unit),
+      });
     }
   }
 
@@ -60,5 +72,6 @@ export function buildPdfModel(n: LeadNormalized, metrics: Metrics, strategy: Str
       electricityKWh: fmt(metrics.newSystem.electricityKWh, 'kWh/vuosi'),
       co2Year: fmt(metrics.newSystem.co2Year, 'kg/vuosi'),
     },
+    strategyId: strategy.id,
   };
 }

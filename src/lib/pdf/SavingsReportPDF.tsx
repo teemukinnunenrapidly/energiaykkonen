@@ -217,11 +217,12 @@ export const SavingsReportPDF: React.FC<{ data: PDFData }> = ({ data }) => (
               </View>
 
               <View style={styles.systemDetails}>
-                {/* Fuel-specific rows */}
+                {/* Fuel-specific rows (strategy-aware) */}
                 {/* Gas */}
-                {String(data.lammitysmuoto || data.current_heating || '')
-                  .toLowerCase()
-                  .includes('kaasu') && (
+                {(data.strategyId === 'gas' ||
+                  String(data.lammitysmuoto || data.current_heating || '')
+                    .toLowerCase()
+                    .includes('kaasu')) && (
                   <>
                     <View style={styles.detailRow}>
                       <Text style={styles.detailLabel}>Kaasun kulutus:</Text>
@@ -269,12 +270,13 @@ export const SavingsReportPDF: React.FC<{ data: PDFData }> = ({ data }) => (
                 )}
 
                 {/* Wood heating (only when exclusively wood; skip for mixed oil+wood) */}
-                {(() => {
-                  const ht = String(
-                    data.lammitysmuoto || data.current_heating || ''
-                  ).toLowerCase();
-                  return ht.includes('puu') && !ht.includes('öljy');
-                })() && (
+                {(data.strategyId === 'wood' ||
+                  (() => {
+                    const ht = String(
+                      data.lammitysmuoto || data.current_heating || ''
+                    ).toLowerCase();
+                    return ht.includes('puu') && !ht.includes('öljy');
+                  })()) && (
                   <>
                     <View style={styles.detailRow}>
                       <Text style={styles.detailLabel}>Puun menekki:</Text>
@@ -327,10 +329,12 @@ export const SavingsReportPDF: React.FC<{ data: PDFData }> = ({ data }) => (
                   </>
                 )}
 
-                {/* Oil (default) - only when heating includes 'öljy' */}
-                {String(data.lammitysmuoto || data.current_heating || '')
-                  .toLowerCase()
-                  .includes('öljy') && (
+                {/* Oil (default) */}
+                {(data.strategyId === 'oil' ||
+                  data.strategyId === 'oilwood' ||
+                  String(data.lammitysmuoto || data.current_heating || '')
+                    .toLowerCase()
+                    .includes('öljy')) && (
                   <>
                     <View style={styles.detailRow}>
                       <Text style={styles.detailLabel}>Öljyn kulutus:</Text>
