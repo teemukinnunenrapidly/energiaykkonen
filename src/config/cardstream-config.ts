@@ -1,7 +1,7 @@
 // CardStream Configuration Module
 // This exports the JSON config as a TypeScript module for better compatibility
 
-import configData from '../../cardstream-complete-config.json';
+import configData from '../../cardstream-complete-config.json' with { type: 'json' };
 
 export const cardStreamConfig = configData.cardStreamConfig;
 

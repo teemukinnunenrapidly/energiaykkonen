@@ -427,7 +427,6 @@ For technical issues:
 
 ### Documentation
 
-- **API Reference**: See embed.js source code
 - **Examples**: Check embed-test.html and wordpress-demo.html
 - **Updates**: Monitor for calculator updates
 

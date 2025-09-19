@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import type { CardTemplate } from '@/lib/supabase';
-import { useCardStyles, cssValue } from '@/hooks/useCardStyles';
+import { useCardStyles } from '@/hooks/useCardStyles';
 import { useCardContext } from '../CardContext';
 
 interface InfoCardProps {

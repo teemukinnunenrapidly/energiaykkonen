@@ -321,7 +321,6 @@ energiaykkonen-calculator/
 │   ├── supabase.ts
 │   └── resend.ts
 └── public/
-    └── embed.js          # WordPress embed script
 ```
 
 **Environment Variables:**

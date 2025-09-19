@@ -20,6 +20,8 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
+import { Switch } from '@/components/ui/switch';
+import { Label as UiLabel } from '@/components/ui/label';
 import { getSafeImageUrl } from '@/lib/visual-assets-service';
 
 interface VisualFolder {
@@ -61,6 +63,7 @@ export function CreateEditModal({
     title: editingObject?.title || '',
     description: editingObject?.description || '',
     folder_id: editingObject?.folder_id || '',
+    show_overlay: editingObject ? (editingObject as any).show_overlay ?? false : false,
   });
 
   const [newImages, setNewImages] = useState<File[]>([]);
@@ -152,6 +155,7 @@ export function CreateEditModal({
         title: editingObject.title || '',
         description: editingObject.description || '',
         folder_id: editingObject.folder_id || '',
+        show_overlay: (editingObject as any).show_overlay ?? false,
       });
       setExistingImages(editingObject.images || []);
       setImagesToDelete([]);
@@ -163,6 +167,7 @@ export function CreateEditModal({
         title: '',
         description: '',
         folder_id: '',
+        show_overlay: false,
       });
       setExistingImages([]);
       setImagesToDelete([]);
@@ -374,6 +379,16 @@ export function CreateEditModal({
               placeholder="Optional description"
               rows={3}
             />
+          </div>
+
+          {/* Overlay Toggle */}
+          <div className="flex items-center justify-between">
+            <UiLabel htmlFor="show_overlay" className="text-sm">Enable Visual Overlay</UiLabel>
+            <div className="flex items-center gap-3">
+              <span className="text-xs text-gray-500">Off</span>
+              <Switch id="show_overlay" checked={!!formData.show_overlay} onCheckedChange={v => setFormData(prev => ({ ...prev, show_overlay: v }))} />
+              <span className="text-xs text-gray-900">On</span>
+            </div>
           </div>
 
           {/* Folder Selection */}

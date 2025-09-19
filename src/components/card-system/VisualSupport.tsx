@@ -20,6 +20,8 @@ export function VisualSupport({
   const styles = useCardStyles();
   const [visualImages, setVisualImages] = useState<any[]>([]);
   const [loadingImages, setLoadingImages] = useState(false);
+  const [isHovered, setIsHovered] = useState(false);
+  const [mobilePanelOpen, setMobilePanelOpen] = useState(false);
 
   // Get the visual object from activeCard or visualConfig
   const visualObject = visualConfig || activeCard?.visual_objects;
@@ -195,8 +197,130 @@ export function VisualSupport({
           );
         })()}
 
-        {/* No text in mobile banner */}
-        {!hideText && null}
+        {/* Mobile overlay: button to toggle slide-up panel */}
+        {(() => {
+          const overlay = (styles.visualSupport as any)?.image?.overlay || {};
+          const mobile = overlay.mobile || {};
+          const hasText =
+            !hideText && (content.title || content.description);
+          const overlayEnabled = (visualObject as any)?.show_overlay === true;
+          if (!hasText || !overlayEnabled) {
+            return null;
+          }
+          return (
+            <>
+              {/* Toggle button */}
+              <button
+                aria-label={
+                  (styles.accessibility as any)?.ariaLabels?.toggleButton ||
+                  'Näytä lisätiedot'
+                }
+                onClick={() => setMobilePanelOpen(v => !v)}
+                style={{
+                  display: mobile.button?.display || 'block',
+                  position: 'absolute',
+                  bottom: '24px',
+                  left: '50%',
+                  transform: `translateX(-50%)${
+                    mobilePanelOpen ? ' scale(0.98)' : ''
+                  }`,
+                  background:
+                    mobile.button?.background ||
+                    'rgba(255, 255, 255, 0.1)',
+                  backdropFilter:
+                    mobile.button?.backdropFilter || 'blur(12px)',
+                  WebkitBackdropFilter:
+                    mobile.button?.backdropFilter || 'blur(12px)',
+                  border:
+                    mobile.button?.border ||
+                    '1px solid rgba(255, 255, 255, 0.2)',
+                  borderRadius: mobile.button?.borderRadius || '100px',
+                  padding: mobile.button?.padding || '14px 28px',
+                  cursor: 'pointer',
+                  transition:
+                    (styles.animations as any)?.transitions?.fast ||
+                    'all 200ms cubic-bezier(0.4, 0, 0.2, 1)',
+                  zIndex: 10,
+                  color: mobile.button?.color || '#ffffff',
+                  fontSize: mobile.button?.fontSize || '14px',
+                  fontWeight: mobile.button?.fontWeight || '500',
+                  letterSpacing: mobile.button?.letterSpacing || '0.5px',
+                }}
+              >
+                {mobilePanelOpen ? 'Sulje' : 'Lisätiedot'}
+              </button>
+              {/* Slide-up panel */}
+              <div
+                role="dialog"
+                aria-modal="true"
+                aria-label={
+                  (styles.accessibility as any)?.ariaLabels?.closePanel ||
+                  'Lisätiedot'
+                }
+                style={{
+                  position: 'absolute',
+                  bottom: 0,
+                  left: 0,
+                  right: 0,
+                  background: mobile.panel?.background || 'rgba(0, 0, 0, 0.85)',
+                  backdropFilter:
+                    mobile.panel?.backdropFilter || 'blur(20px)',
+                  WebkitBackdropFilter:
+                    mobile.panel?.backdropFilter || 'blur(20px)',
+                  borderTop:
+                    mobile.panel?.borderTop ||
+                    '1px solid rgba(255, 255, 255, 0.1)',
+                  padding: mobile.panel?.padding || '32px 24px 24px',
+                  transform: mobilePanelOpen
+                    ? 'translateY(0)'
+                    : 'translateY(100%)',
+                  transition:
+                    mobile.panel?.transition ||
+                    'all 300ms cubic-bezier(0.4, 0, 0.2, 1)',
+                  zIndex: 9,
+                }}
+              >
+                <div
+                  style={{
+                    width: '40px',
+                    height: '4px',
+                    background: 'rgba(255, 255, 255, 0.3)',
+                    borderRadius: '100px',
+                    margin: '0 auto 20px',
+                  }}
+                />
+                {content.title && (
+                  <div
+                    style={{
+                      fontSize: mobile.panel?.title?.fontSize || '24px',
+                      fontWeight: mobile.panel?.title?.fontWeight || '300',
+                      color: mobile.panel?.title?.color || '#ffffff',
+                      marginBottom: mobile.panel?.title?.marginBottom || '16px',
+                      lineHeight: '1.2',
+                    }}
+                  >
+                    {content.title}
+                  </div>
+                )}
+                {content.description && (
+                  <div
+                    style={{
+                      fontSize: mobile.panel?.subtitle?.fontSize || '14px',
+                      color:
+                        mobile.panel?.subtitle?.color ||
+                        'rgba(255, 255, 255, 0.9)',
+                      lineHeight: mobile.panel?.subtitle?.lineHeight || '1.6',
+                      marginBottom:
+                        mobile.panel?.subtitle?.marginBottom || '20px',
+                    }}
+                  >
+                    {content.description}
+                  </div>
+                )}
+              </div>
+            </>
+          );
+        })()}
       </div>
     );
   }
@@ -222,6 +346,8 @@ export function VisualSupport({
           position: 'relative',
           overflow: 'hidden',
         }}
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}
       >
         {/* Visual Content - image only */}
         {loadingImages ? null : content.hasImages && visualImages.length > 0 ? (
@@ -259,6 +385,117 @@ export function VisualSupport({
             })}
           </div>
         ) : null}
+
+        {/* Desktop overlay - always visible card at bottom if there is text */}
+        {(() => {
+          const overlay = (styles.visualSupport as any)?.image?.overlay || {};
+          const hasText =
+            !hideText && (content.title || content.description);
+          const overlayEnabled = (visualObject as any)?.show_overlay === true;
+          if (!hasText || overlay.enabled === false || !overlayEnabled) {
+            return null;
+          }
+          return (
+            <div
+              style={{
+                position: 'absolute',
+                left: '24px',
+                right: '24px',
+                bottom: '24px',
+                background: isHovered
+                  ? overlay.hoverBackground || overlay.background
+                  : overlay.background,
+                backdropFilter: isHovered
+                  ? overlay.hoverBackdropFilter || overlay.backdropFilter
+                  : overlay.backdropFilter,
+                WebkitBackdropFilter: isHovered
+                  ? overlay.hoverBackdropFilter || overlay.backdropFilter
+                  : overlay.backdropFilter,
+                border: isHovered
+                  ? overlay.hoverBorder || overlay.border
+                  : overlay.border,
+                borderRadius: overlay.borderRadius || '12px',
+                padding: overlay.padding || '24px 28px',
+                transition:
+                  overlay.transition ||
+                  'all 300ms cubic-bezier(0.4, 0, 0.2, 1)',
+                transform:
+                  isHovered && overlay.hoverLift
+                    ? `translateY(${overlay.hoverLift})`
+                    : 'translateY(0)',
+                boxShadow: isHovered
+                  ? '0 10px 40px rgba(0, 0, 0, 0.15)'
+                  : 'none',
+              }}
+            >
+              {/* Optional gradient overlay layer */}
+              {overlay.gradientOverlay?.enabled && (
+                <div
+                  aria-hidden
+                  style={{
+                    position: 'absolute',
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    bottom: 0,
+                    background:
+                      overlay.gradientOverlay.background ||
+                      'linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0) 100%)',
+                    borderRadius:
+                      overlay.gradientOverlay.borderRadius ||
+                      overlay.borderRadius ||
+                      '12px',
+                    opacity: isHovered
+                      ? overlay.gradientOverlay.hoverOpacity || '1'
+                      : overlay.gradientOverlay.opacity || '0',
+                    transition:
+                      (styles.animations as any)?.transitions?.hover ||
+                      'opacity 300ms ease',
+                    pointerEvents: 'none',
+                  }}
+                />
+              )}
+              {/* Content */}
+              {content.title && (
+                <div
+                  style={{
+                    position: 'relative',
+                    zIndex: 1,
+                    fontSize: overlay.title?.fontSize || '28px',
+                    fontWeight: overlay.title?.fontWeight || '300',
+                    color: overlay.title?.color || '#ffffff',
+                    marginBottom: overlay.title?.marginBottom || '12px',
+                    letterSpacing: overlay.title?.letterSpacing || '-0.02em',
+                    lineHeight: overlay.title?.lineHeight || '1.2',
+                    transform:
+                      isHovered && overlay.title?.hoverScale
+                        ? `scale(${overlay.title.hoverScale})`
+                        : 'scale(1)',
+                    transition:
+                      (styles.animations as any)?.transitions?.hover ||
+                      'all 300ms ease',
+                  }}
+                >
+                  {content.title}
+                </div>
+              )}
+              {content.description && (
+                <div
+                  style={{
+                    position: 'relative',
+                    zIndex: 1,
+                    fontSize: overlay.subtitle?.fontSize || '16px',
+                    fontWeight: overlay.subtitle?.fontWeight || '400',
+                    color: overlay.subtitle?.color || 'rgba(255, 255, 255, 0.9)',
+                    lineHeight: overlay.subtitle?.lineHeight || '1.5',
+                  }}
+                >
+                  {content.description}
+                </div>
+              )}
+            </div>
+          );
+        })()}
       </div>
     </div>
   );

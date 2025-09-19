@@ -22,7 +22,6 @@ export const EditableCalculationResult: React.FC<
   onUpdate,
   editButtonText = 'Syötä lukema',
   isCalculating = false,
-  editPrompt,
   validationMin,
   validationMax,
 }) => {

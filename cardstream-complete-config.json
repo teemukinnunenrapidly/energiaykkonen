@@ -6,7 +6,7 @@
     "container": {
       "_comment": "Main wrapper for the entire card system",
       "width": "100%",
-      "maxWidth": "1140px",
+      "maxWidth": "1000px",
       "minHeight": "600px",
       "height": "auto",
       "margin": "0 auto",
@@ -57,27 +57,6 @@
         "flex": "1",
         "minHeight": "500px"
       },
-      "title": {
-        "fontSize": "28px",
-        "fontWeight": "300",
-        "color": "#ffffff",
-        "marginBottom": "12px",
-        "textAlign": "center",
-        "letterSpacing": "-0.02em"
-      },
-      "subtitle": {
-        "fontSize": "16px",
-        "fontWeight": "400",
-        "color": "rgba(255, 255, 255, 0.9)",
-        "textAlign": "center",
-        "lineHeight": "1.5"
-      },
-      "icon": {
-        "fontSize": "100px",
-        "marginBottom": "20px",
-        "animation": "float 3s ease-in-out infinite",
-        "opacity": "1"
-      },
       "image": {
         "aspectRatio": "16/9",
         "borderRadius": "0",
@@ -91,41 +70,80 @@
         "overlay": {
           "enabled": true,
           "position": "bottom",
-          "spacing": "20px",
-          "background": "rgba(0, 0, 0, 0.7)",
-          "padding": "12px 16px",
-          "borderRadius": "8px",
-          "backdropFilter": "blur(4px)",
-          "textAlign": "center",
-          "titleColor": "#ffffff"
-        }
-      },
-      "infoSection": {
-        "background": "#ffffff",
-        "padding": "24px",
-        "borderTop": "1px solid #e5e7eb",
-        "title": {
-          "fontSize": "22px",
-          "fontWeight": "300",
-          "color": "#1f2937",
-          "marginBottom": "8px"
-        },
-        "description": {
-          "fontSize": "14px",
-          "fontWeight": "400",
-          "color": "#6b7280",
-          "lineHeight": "1.5",
-          "maxLines": "4"
-        },
-        "tip": {
-          "marginTop": "16px",
-          "padding": "12px",
-          "background": "#ecfdf5",
-          "borderLeft": "4px solid #10b981",
-          "borderRadius": "4px",
-          "fontSize": "13px",
-          "color": "#047857",
-          "display": "block"
+          "spacing": "24px",
+          "background": "rgba(255, 255, 255, 0.08)",
+          "hoverBackground": "rgba(255, 255, 255, 0.12)",
+          "backdropFilter": "blur(12px)",
+          "hoverBackdropFilter": "blur(16px)",
+          "border": "1px solid rgba(255, 255, 255, 0.18)",
+          "hoverBorder": "1px solid rgba(255, 255, 255, 0.25)",
+          "borderRadius": "12px",
+          "padding": "24px 28px",
+          "transition": "all 300ms cubic-bezier(0.4, 0, 0.2, 1)",
+          "hoverLift": "-8px",
+          "title": {
+            "fontSize": "28px",
+            "fontWeight": "300",
+            "color": "#ffffff",
+            "letterSpacing": "-0.02em",
+            "lineHeight": "1.2",
+            "marginBottom": "12px",
+            "hoverScale": "1.02"
+          },
+          "subtitle": {
+            "fontSize": "16px",
+            "fontWeight": "400",
+            "color": "rgba(255, 255, 255, 0.9)",
+            "lineHeight": "1.5"
+          },
+          "stepIndicator": {
+            "fontSize": "12px",
+            "fontWeight": "600",
+            "color": "rgba(255, 255, 255, 0.7)",
+            "textTransform": "uppercase",
+            "letterSpacing": "1px",
+            "marginBottom": "12px"
+          },
+          "gradientOverlay": {
+            "enabled": true,
+            "background": "linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0) 100%)",
+            "opacity": "0",
+            "hoverOpacity": "1",
+            "borderRadius": "12px"
+          },
+          "mobile": {
+            "button": {
+              "display": "block",
+              "background": "rgba(255, 255, 255, 0.1)",
+              "backdropFilter": "blur(12px)",
+              "border": "1px solid rgba(255, 255, 255, 0.2)",
+              "borderRadius": "100px",
+              "padding": "14px 28px",
+              "color": "#ffffff",
+              "fontSize": "14px",
+              "fontWeight": "500",
+              "letterSpacing": "0.5px"
+            },
+            "panel": {
+              "background": "rgba(0, 0, 0, 0.85)",
+              "backdropFilter": "blur(20px)",
+              "borderTop": "1px solid rgba(255, 255, 255, 0.1)",
+              "padding": "32px 24px 24px",
+              "transition": "all 300ms cubic-bezier(0.4, 0, 0.2, 1)",
+              "title": {
+                "fontSize": "24px",
+                "fontWeight": "300",
+                "color": "#ffffff",
+                "marginBottom": "16px"
+              },
+              "subtitle": {
+                "fontSize": "14px",
+                "color": "rgba(255, 255, 255, 0.9)",
+                "lineHeight": "1.6",
+                "marginBottom": "20px"
+              }
+            }
+          }
         }
       },
       "mobile": {
@@ -133,12 +151,7 @@
         "breakpoint": "768px",
         "collapseMode": "visible",
         "drawerBehavior": "disabled",
-        "touchGestures": false,
-        "overlayOptions": {
-          "enabled": false,
-          "background": "rgba(0, 0, 0, 0.5)",
-          "closeOnClick": true
-        }
+        "touchGestures": false
       }
     },
     "cardStream": {

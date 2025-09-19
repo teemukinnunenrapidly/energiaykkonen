@@ -10,6 +10,7 @@ export interface VisualObject {
   view_count: number;
   created_at: string;
   updated_at: string;
+  show_overlay?: boolean;
 }
 
 // Visual Object Image - individual images within a visual object
@@ -63,6 +64,7 @@ export interface CreateVisualObjectData {
   title: string;
   description?: string;
   folder_id?: string;
+  show_overlay?: boolean;
 }
 
 export interface UpdateVisualObjectData {
@@ -70,6 +72,7 @@ export interface UpdateVisualObjectData {
   title?: string;
   description?: string;
   folder_id?: string;
+  show_overlay?: boolean;
 }
 
 export interface CreateVisualObjectImageData {

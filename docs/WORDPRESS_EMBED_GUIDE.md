@@ -9,9 +9,8 @@ This guide explains how to embed the E1 Calculator into any WordPress website us
 ### ✅ Already Implemented:
 
 1. **CORS Headers** - Application allows embedding from any domain (`frame-ancestors *`)
-2. **Auto-resize Script** - `/public/embed.js` handles dynamic height adjustment
-3. **Responsive Design** - Calculator adapts to container width
-4. **Mobile Support** - Works on all devices
+2. **Responsive Design** - Calculator adapts to container width
+3. **Mobile Support** - Works on all devices
 
 ### 🎯 Embed Methods Available:
 

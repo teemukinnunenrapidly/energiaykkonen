@@ -1,8 +1,8 @@
 // /src/hooks/useCardStyles.ts
-// Use import attribute so Turbopack treats this as a JSON module in HMR
-import config from '../../cardstream-complete-config.json' with { type: 'json' };
+// Import from wrapper to keep a single import site for JSON and avoid HMR pattern mismatches
+import { cardStreamConfig as styles } from '@/config/cardstream-config';
 
-const styles = config.cardStreamConfig;
+// `styles` now references the token object directly
 
 export function useCardStyles() {
   return {
