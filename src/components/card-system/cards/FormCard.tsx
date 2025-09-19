@@ -593,7 +593,9 @@ export function FormCard({ card, onFieldFocus }: FormCardProps) {
                       }
                     }}
                     onBlur={() => {
-                      handleFieldBlur(field);
+                      // For button groups, avoid on-blur required validation which can
+                      // briefly fire before state updates, causing a flicker of
+                      // "This field is required" despite a valid selection.
                       setButtonFocus(key, false);
                     }}
                     disabled={isCardCompleted}
