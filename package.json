@@ -15,7 +15,17 @@
     "test:email": "node scripts/validate-email-system.js",
     "test:email:full": "node scripts/validate-email-system.js --mode full",
     "test:error-unit": "jest src/components/error-handling/__tests__/",
-    "test:error-all": "npm run test:error-unit"
+    "test:error-all": "npm run test:error-unit",
+    "lint:staged": "lint-staged"
+  },
+  "lint-staged": {
+    "*.{js,jsx,ts,tsx}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "*.{json,css,md,mdx}": [
+      "prettier --write"
+    ]
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",
