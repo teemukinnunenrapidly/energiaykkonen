@@ -319,6 +319,112 @@ export function VisualSupport({
                     />
                   </div>
                 </div>
+                {/* Savings highlight */}
+                <div
+                  style={{
+                    marginTop: 16,
+                    background: '#ecfdf5',
+                    border: '2px solid #10b981',
+                    borderRadius: 8,
+                    padding: 12,
+                  }}
+                >
+                  <div
+                    style={{
+                      fontSize: 12,
+                      fontWeight: 700,
+                      color: '#10b981',
+                      marginBottom: 6,
+                    }}
+                  >
+                    Arvioitu vuosittainen säästö
+                  </div>
+                  <div
+                    style={{
+                      fontSize: 22,
+                      fontWeight: 800,
+                      color: '#065f46',
+                    }}
+                  >
+                    1 A0230  A0 A0 84/ A0vuosi
+                  </div>
+                  <div
+                    style={{
+                      marginTop: 6,
+                      fontSize: 11,
+                      color: '#059669',
+                    }}
+                  >
+                    ELY-tuki huomioitu
+                  </div>
+                </div>
+                {/* Cost summary rows (sample) */}
+                <div
+                  style={{
+                    marginTop: 14,
+                    background: '#ffffff',
+                    border: '1px solid #e5e7eb',
+                    borderRadius: 8,
+                    padding: 10,
+                  }}
+                >
+                  <div
+                    style={{
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      padding: '6px 0',
+                      borderBottom: '1px solid #e5e7eb',
+                      color: '#6b7280',
+                      fontWeight: 600,
+                      fontSize: 12,
+                    }}
+                  >
+                    <span>Vuotuinen lämmityskustannus</span>
+                    <span>€/vuosi</span>
+                  </div>
+                  <div
+                    style={{
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      padding: '6px 0',
+                      fontSize: 12,
+                    }}
+                  >
+                    <span style={{ color: '#6b7280' }}>Nykyinen</span>
+                    <span style={{ fontWeight: 700, color: '#1f2937' }}>
+                      2 A0450
+                    </span>
+                  </div>
+                  <div
+                    style={{
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      padding: '6px 0',
+                      background: '#fafafa',
+                      fontSize: 12,
+                    }}
+                  >
+                    <span style={{ color: '#6b7280' }}>VILP</span>
+                    <span style={{ fontWeight: 700, color: '#1f2937' }}>
+                      1 A0220
+                    </span>
+                  </div>
+                </div>
+                {/* Info note */}
+                <div
+                  style={{
+                    marginTop: 12,
+                    background: '#f3f4f6',
+                    borderLeft: '3px solid #6b7280',
+                    padding: 8,
+                    borderRadius: 4,
+                    color: '#4b5563',
+                    fontSize: 12,
+                  }}
+                >
+                  Sisältää arvion laite- ja asennuskuluista sekä sähkön hinnan
+                  vaihtelusta.
+                </div>
               </div>
               <div
                 style={{
