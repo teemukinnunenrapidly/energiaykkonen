@@ -362,14 +362,15 @@ export function VisualSupport({
               justifyContent: 'center',
             }}
           >
-            {visualImages.map(image => {
-              const imageUrl = getImageUrl(image);
+            {(() => {
+              const firstImage = visualImages[0];
+              const imageUrl = getImageUrl(firstImage);
               return imageUrl ? (
                 <img
-                  key={image.id}
+                  key={firstImage.id || 'vo-first-image'}
                   src={imageUrl}
                   alt={content.title || 'Visual content'}
-                  loading="lazy" // Enable browser lazy loading
+                  loading="lazy"
                   style={{
                     width: '100%',
                     height: '100%',
@@ -381,7 +382,7 @@ export function VisualSupport({
                   }}
                 />
               ) : null;
-            })}
+            })()}
           </div>
         ) : null}
 
