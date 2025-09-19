@@ -157,19 +157,21 @@ export async function processPDFData(lead: Lead): Promise<Record<string, any>> {
       .toLowerCase()
       .trim();
     const choseReplaceField = changeField === 'replace';
-    // Strict field checks for 7000€ rule
-    const lammitysField = String(flatLead.lammitysmuoto || '')
-      .toLowerCase()
-      .trim();
+    // Strict field checks for 7000€ rule (use normalized comparisons)
+    const normalize = (s: any) =>
+      String(s || '')
+        .toLowerCase()
+        .replace(/[\s]+/g, ' ')
+        .replace(/[.,]/g, '')
+        .trim();
+    const lammitysField = normalize(flatLead.lammitysmuoto);
     const isOilOrOilWoodField =
       lammitysField.includes('öljylämmitys') ||
       lammitysField.includes('öljy+puu');
-    const supportField = String((flatLead as any).valittutukimuoto || '')
-      .toLowerCase()
-      .trim();
+    const supportField = normalize((flatLead as any).valittutukimuoto);
     const isHouseholdDeductionField =
-      supportField === 'normaali kotitalousvähennys' ||
-      supportField === 'korotettu kotitalousvähennys';
+      supportField.includes('normaali kotitalousvähennys') ||
+      supportField.includes('korotettu kotitalousvähennys');
     const choseHouseholdDeduction =
       allText.includes('kotitalous') &&
       (allText.includes('normaali') || allText.includes('korotettu'));
