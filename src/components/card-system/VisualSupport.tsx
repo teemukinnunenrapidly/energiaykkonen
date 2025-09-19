@@ -236,9 +236,99 @@ export function VisualSupport({
                     borderRadius: 8,
                   }}
                 />
-                {/* Two-column sections with headings */}
-                <div style={{ display: 'flex', gap: 16, marginTop: 10 }}>
-                  <div style={{ flex: 1 }}>
+                {/* Customer info section (mobile) */}
+                <div
+                  style={{
+                    background: '#f9fafb',
+                    border: '1px solid #e5e7eb',
+                    borderRadius: 6,
+                    padding: 10,
+                    marginTop: 8,
+                  }}
+                >
+                  <div
+                    style={{
+                      fontSize: 12,
+                      fontWeight: 700,
+                      color: '#1f2937',
+                      paddingBottom: 6,
+                      borderBottom: '1px solid #e5e7eb',
+                      marginBottom: 8,
+                    }}
+                  >
+                    Asiakkaan tiedot
+                  </div>
+                  <div style={{ display: 'flex', gap: 12 }}>
+                    <div style={{ flex: 1, filter: 'blur(4px)' }}>
+                      <div
+                        style={{
+                          height: 10,
+                          width: '92%',
+                          background: '#e5e7eb',
+                          borderRadius: 4,
+                          marginBottom: 6,
+                        }}
+                      />
+                      <div
+                        style={{
+                          height: 10,
+                          width: '84%',
+                          background: '#e5e7eb',
+                          borderRadius: 4,
+                          marginBottom: 6,
+                        }}
+                      />
+                      <div
+                        style={{
+                          height: 10,
+                          width: '72%',
+                          background: '#e5e7eb',
+                          borderRadius: 4,
+                        }}
+                      />
+                    </div>
+                    <div style={{ flex: 1, filter: 'blur(4px)' }}>
+                      <div
+                        style={{
+                          height: 10,
+                          width: '88%',
+                          background: '#e5e7eb',
+                          borderRadius: 4,
+                          marginBottom: 6,
+                        }}
+                      />
+                      <div
+                        style={{
+                          height: 10,
+                          width: '70%',
+                          background: '#e5e7eb',
+                          borderRadius: 4,
+                          marginBottom: 6,
+                        }}
+                      />
+                      <div
+                        style={{
+                          height: 10,
+                          width: '76%',
+                          background: '#e5e7eb',
+                          borderRadius: 4,
+                        }}
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* System comparison boxes (mobile) */}
+                <div style={{ display: 'flex', gap: 12, marginTop: 8 }}>
+                  <div
+                    style={{
+                      flex: 1,
+                      background: '#fef2f2',
+                      border: '2px solid #ef4444',
+                      borderRadius: 8,
+                      padding: 10,
+                    }}
+                  >
                     <div
                       style={{
                         fontSize: 12,
@@ -251,34 +341,44 @@ export function VisualSupport({
                     >
                       Nykyinen järjestelmä
                     </div>
-                    <div
-                      style={{
-                        height: 12,
-                        width: '96%',
-                        background: '#eef2f7',
-                        borderRadius: 4,
-                        marginBottom: 8,
-                      }}
-                    />
-                    <div
-                      style={{
-                        height: 12,
-                        width: '85%',
-                        background: '#eef2f7',
-                        borderRadius: 4,
-                        marginBottom: 8,
-                      }}
-                    />
-                    <div
-                      style={{
-                        height: 12,
-                        width: '78%',
-                        background: '#eef2f7',
-                        borderRadius: 4,
-                      }}
-                    />
+                    <div style={{ filter: 'blur(5px)' }}>
+                      <div
+                        style={{
+                          height: 12,
+                          width: '96%',
+                          background: '#fee2e2',
+                          borderRadius: 4,
+                          marginBottom: 8,
+                        }}
+                      />
+                      <div
+                        style={{
+                          height: 12,
+                          width: '85%',
+                          background: '#fee2e2',
+                          borderRadius: 4,
+                          marginBottom: 8,
+                        }}
+                      />
+                      <div
+                        style={{
+                          height: 12,
+                          width: '78%',
+                          background: '#fee2e2',
+                          borderRadius: 4,
+                        }}
+                      />
+                    </div>
                   </div>
-                  <div style={{ flex: 1 }}>
+                  <div
+                    style={{
+                      flex: 1,
+                      background: '#ecfdf5',
+                      border: '2px solid #10b981',
+                      borderRadius: 8,
+                      padding: 10,
+                    }}
+                  >
                     <div
                       style={{
                         fontSize: 12,
@@ -291,35 +391,36 @@ export function VisualSupport({
                     >
                       VILP-järjestelmä
                     </div>
-                    <div
-                      style={{
-                        height: 12,
-                        width: '94%',
-                        background: '#eef2f7',
-                        borderRadius: 4,
-                        marginBottom: 8,
-                      }}
-                    />
-                    <div
-                      style={{
-                        height: 12,
-                        width: '80%',
-                        background: '#eef2f7',
-                        borderRadius: 4,
-                        marginBottom: 8,
-                      }}
-                    />
-                    <div
-                      style={{
-                        height: 12,
-                        width: '70%',
-                        background: '#eef2f7',
-                        borderRadius: 4,
-                      }}
-                    />
+                    <div style={{ filter: 'blur(5px)' }}>
+                      <div
+                        style={{
+                          height: 12,
+                          width: '94%',
+                          background: '#d1fae5',
+                          borderRadius: 4,
+                          marginBottom: 8,
+                        }}
+                      />
+                      <div
+                        style={{
+                          height: 12,
+                          width: '80%',
+                          background: '#d1fae5',
+                          borderRadius: 4,
+                          marginBottom: 8,
+                        }}
+                      />
+                      <div
+                        style={{
+                          height: 12,
+                          width: '70%',
+                          background: '#d1fae5',
+                          borderRadius: 4,
+                        }}
+                      />
+                    </div>
                   </div>
                 </div>
-                {/* Keep rest minimal to avoid overflow */}
               </div>
               <div
                 style={{
