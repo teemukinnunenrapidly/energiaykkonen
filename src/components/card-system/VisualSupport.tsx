@@ -230,32 +230,12 @@ export function VisualSupport({
                 {/* Chart/hero block */}
                 <div
                   style={{
-                    height: 120,
+                    height: 80,
                     background:
                       'linear-gradient(180deg,#f9fafb 0%, #ffffff 100%)',
                     borderRadius: 8,
                   }}
                 />
-                {/* Compact savings highlight (above the fold) */}
-                <div
-                  style={{
-                    marginTop: 10,
-                    background: '#ecfdf5',
-                    border: '1px solid #10b981',
-                    borderRadius: 6,
-                    padding: '8px 10px',
-                  }}
-                >
-                  <span
-                    style={{
-                      fontSize: 12,
-                      fontWeight: 700,
-                      color: '#065f46',
-                    }}
-                  >
-                    Arvioitu säästö 1 230 €/vuosi
-                  </span>
-                </div>
                 {/* Two-column sections with headings */}
                 <div style={{ display: 'flex', gap: 16, marginTop: 18 }}>
                   <div style={{ flex: 1 }}>
@@ -629,14 +609,14 @@ export function VisualSupport({
                     Arvioitu säästö 1 230 €/vuosi
                   </span>
                 </div>
-                {/* Customer info section */}
+                {/* Customer info section - pulled up */}
                 <div
                   style={{
                     background: '#f9fafb',
                     border: '1px solid #e5e7eb',
                     borderRadius: 6,
                     padding: 12,
-                    marginTop: 12,
+                    marginTop: 10,
                   }}
                 >
                   <div
@@ -728,8 +708,8 @@ export function VisualSupport({
                     </div>
                   </div>
                 </div>
-                {/* System comparison boxes */}
-                <div style={{ display: 'flex', gap: 18, marginTop: 18 }}>
+                {/* System comparison boxes - pulled up */}
+                <div style={{ display: 'flex', gap: 18, marginTop: 12 }}>
                   <div
                     style={{
                       flex: 1,
