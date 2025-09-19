@@ -155,7 +155,8 @@ export async function processPDFData(lead: Lead): Promise<Record<string, any>> {
     const choseHouseholdDeduction =
       allText.includes('kotitalous') &&
       (allText.includes('normaali') || allText.includes('korotettu'));
-    const choseEly = allText.includes('ely');
+    const phraseEly = 'ely-keskus tuki';
+    const choseEly = normalizedText.includes(phraseEly);
 
     const shouldUse7000 =
       isOilOrOilWood && choseExactReplacement && choseHouseholdDeduction;
