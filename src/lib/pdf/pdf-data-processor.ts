@@ -166,12 +166,11 @@ export async function processPDFData(lead: Lead): Promise<Record<string, any>> {
         .trim();
     const lammitysField = normalize(flatLead.lammitysmuoto);
     const isOilOrOilWoodField =
-      lammitysField.includes('öljylämmitys') ||
-      lammitysField.includes('öljy+puu');
+      lammitysField.includes('öljy') || lammitysField.includes('oil');
     const supportField = normalize((flatLead as any).valittutukimuoto);
     const isHouseholdDeductionField =
-      supportField.includes('normaali kotitalousvähennys') ||
-      supportField.includes('korotettu kotitalousvähennys');
+      supportField.includes('kotitalous') &&
+      (supportField.includes('normaali') || supportField.includes('korotettu'));
     const choseHouseholdDeduction =
       allText.includes('kotitalous') &&
       (allText.includes('normaali') || allText.includes('korotettu'));
