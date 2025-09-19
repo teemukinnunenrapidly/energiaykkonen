@@ -143,11 +143,9 @@ export async function processPDFData(lead: Lead): Promise<Record<string, any>> {
     // Treat both pure oil and oil+wood (tuplapesäkattila) as eligible
     const isOilOrOilWood =
       lammitys.includes('öljy') || lammitys.includes('oil');
-    const choseVilp =
-      allText.includes('vilp') &&
-      (allText.includes('vaihto') ||
-        allText.includes('järjestel') ||
-        allText.includes('tilalle'));
+    // Consider any occurrence of 'vilp' as heat pump replacement selection,
+    // since stored values may not include the exact label words
+    const choseVilp = allText.includes('vilp');
     const choseHouseholdDeduction =
       allText.includes('kotitalous') &&
       (allText.includes('normaali') || allText.includes('korotettu'));
