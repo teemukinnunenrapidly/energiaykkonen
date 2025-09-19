@@ -138,21 +138,27 @@ export async function processPDFData(lead: Lead): Promise<Record<string, any>> {
     const lammitys = String(
       (flatLead.lammitysmuoto || flatLead.current_heating || '') as string
     ).toLowerCase();
-    const allText = JSON.stringify(flatLead).toLowerCase();
+    const rawAllText = JSON.stringify(flatLead);
+    const allText = rawAllText.toLowerCase();
+    const normalizedText = allText
+      .replace(/[–—]/g, '-') // normalize dashes
+      .replace(/\s+/g, ' ')
+      .trim();
 
     // Treat both pure oil and oil+wood (tuplapesäkattila) as eligible
     const isOilOrOilWood =
       lammitys.includes('öljy') || lammitys.includes('oil');
-    // Detect VILP selection and require the word 'tilalle' for replacement
-    const choseVilp = allText.includes('vilp');
-    const containsTilalle = allText.includes('tilalle');
+    // Detect that the user selected the exact button:
+    // "VILP-järjestelmä nykyisen järjestelmän tilalle"
+    const phraseTilalle = 'vilp-järjestelmä nykyisen järjestelmän tilalle';
+    const choseExactReplacement = normalizedText.includes(phraseTilalle);
     const choseHouseholdDeduction =
       allText.includes('kotitalous') &&
       (allText.includes('normaali') || allText.includes('korotettu'));
     const choseEly = allText.includes('ely');
 
     const shouldUse7000 =
-      isOilOrOilWood && choseVilp && containsTilalle && choseHouseholdDeduction;
+      isOilOrOilWood && choseExactReplacement && choseHouseholdDeduction;
 
     if (shouldUse7000) {
       pdfData.subsidyNoteAmount = 7000;
