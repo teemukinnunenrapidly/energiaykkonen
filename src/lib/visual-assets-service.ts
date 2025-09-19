@@ -365,6 +365,9 @@ export async function uploadToCloudflare(file: File): Promise<string> {
   try {
     const response = await fetch('/api/admin/upload-image', {
       method: 'POST',
+      headers: {
+        'X-CSRF-Token': getCsrfToken(),
+      },
       body: formData,
     });
 
@@ -458,6 +461,9 @@ export async function deleteFromCloudflare(imageId: string): Promise<void> {
       `/api/admin/delete-image?imageId=${encodeURIComponent(imageId)}`,
       {
         method: 'DELETE',
+        headers: {
+          'X-CSRF-Token': getCsrfToken(),
+        },
       }
     );
 
@@ -479,6 +485,17 @@ export async function deleteFromCloudflare(imageId: string): Promise<void> {
     console.error('Failed to delete from Cloudflare:', error);
     throw error;
   }
+}
+
+// CSRF helper – mirrors implementation used in LogoutButton
+function getCsrfToken(): string {
+  if (typeof document === 'undefined') {
+    return '';
+  }
+  const match = document.cookie
+    .split('; ')
+    .find(row => row.startsWith('csrf-token='));
+  return match ? decodeURIComponent(match.split('=')[1]) : '';
 }
 
 /**
