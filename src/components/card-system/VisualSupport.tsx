@@ -62,8 +62,7 @@ export function VisualSupport({
             setVisualImages(images || []);
           }
         }
-      } catch (error) {
-        console.error('❌ Error fetching visual images:', error);
+      } catch {
         setVisualImages([]);
       } finally {
         setLoadingImages(false);
@@ -201,54 +200,52 @@ export function VisualSupport({
         {(() => {
           const overlay = (styles.visualSupport as any)?.image?.overlay || {};
           const mobile = overlay.mobile || {};
-          const hasText =
-            !hideText && (content.title || content.description);
+          const hasText = !hideText && (content.title || content.description);
           const overlayEnabled = (visualObject as any)?.show_overlay === true;
           if (!hasText || !overlayEnabled) {
             return null;
           }
           return (
             <>
-              {/* Toggle button */}
-              <button
-                aria-label={
-                  (styles.accessibility as any)?.ariaLabels?.toggleButton ||
-                  'Näytä lisätiedot'
-                }
-                onClick={() => setMobilePanelOpen(v => !v)}
-                style={{
-                  display: mobile.button?.display || 'block',
-                  position: 'absolute',
-                  bottom: '24px',
-                  left: '50%',
-                  transform: `translateX(-50%)${
-                    mobilePanelOpen ? ' scale(0.98)' : ''
-                  }`,
-                  background:
-                    mobile.button?.background ||
-                    'rgba(255, 255, 255, 0.1)',
-                  backdropFilter:
-                    mobile.button?.backdropFilter || 'blur(12px)',
-                  WebkitBackdropFilter:
-                    mobile.button?.backdropFilter || 'blur(12px)',
-                  border:
-                    mobile.button?.border ||
-                    '1px solid rgba(255, 255, 255, 0.2)',
-                  borderRadius: mobile.button?.borderRadius || '100px',
-                  padding: mobile.button?.padding || '14px 28px',
-                  cursor: 'pointer',
-                  transition:
-                    (styles.animations as any)?.transitions?.fast ||
-                    'all 200ms cubic-bezier(0.4, 0, 0.2, 1)',
-                  zIndex: 10,
-                  color: mobile.button?.color || '#ffffff',
-                  fontSize: mobile.button?.fontSize || '14px',
-                  fontWeight: mobile.button?.fontWeight || '500',
-                  letterSpacing: mobile.button?.letterSpacing || '0.5px',
-                }}
-              >
-                {mobilePanelOpen ? 'Sulje' : 'Lisätiedot'}
-              </button>
+              {/* Toggle button (hidden while panel is open to avoid covering text) */}
+              {!mobilePanelOpen && (
+                <button
+                  aria-label={
+                    (styles.accessibility as any)?.ariaLabels?.toggleButton ||
+                    'Näytä lisätiedot'
+                  }
+                  onClick={() => setMobilePanelOpen(true)}
+                  style={{
+                    display: mobile.button?.display || 'block',
+                    position: 'absolute',
+                    bottom: '24px',
+                    left: '50%',
+                    transform: 'translateX(-50%)',
+                    background:
+                      mobile.button?.background || 'rgba(255, 255, 255, 0.1)',
+                    backdropFilter:
+                      mobile.button?.backdropFilter || 'blur(12px)',
+                    WebkitBackdropFilter:
+                      mobile.button?.backdropFilter || 'blur(12px)',
+                    border:
+                      mobile.button?.border ||
+                      '1px solid rgba(255, 255, 255, 0.2)',
+                    borderRadius: mobile.button?.borderRadius || '100px',
+                    padding: mobile.button?.padding || '14px 28px',
+                    cursor: 'pointer',
+                    transition:
+                      (styles.animations as any)?.transitions?.fast ||
+                      'all 200ms cubic-bezier(0.4, 0, 0.2, 1)',
+                    zIndex: 10,
+                    color: mobile.button?.color || '#ffffff',
+                    fontSize: mobile.button?.fontSize || '14px',
+                    fontWeight: mobile.button?.fontWeight || '500',
+                    letterSpacing: mobile.button?.letterSpacing || '0.5px',
+                  }}
+                >
+                  Lisätiedot
+                </button>
+              )}
               {/* Slide-up panel */}
               <div
                 role="dialog"
@@ -262,9 +259,8 @@ export function VisualSupport({
                   bottom: 0,
                   left: 0,
                   right: 0,
-                  background: mobile.panel?.background || 'rgba(0, 0, 0, 0.85)',
-                  backdropFilter:
-                    mobile.panel?.backdropFilter || 'blur(20px)',
+                  background: mobile.panel?.background || '#0d9530bd',
+                  backdropFilter: mobile.panel?.backdropFilter || 'blur(20px)',
                   WebkitBackdropFilter:
                     mobile.panel?.backdropFilter || 'blur(20px)',
                   borderTop:
@@ -278,7 +274,9 @@ export function VisualSupport({
                     mobile.panel?.transition ||
                     'all 300ms cubic-bezier(0.4, 0, 0.2, 1)',
                   zIndex: 9,
+                  cursor: 'pointer',
                 }}
+                onClick={() => setMobilePanelOpen(false)}
               >
                 <div
                   style={{
@@ -317,6 +315,7 @@ export function VisualSupport({
                     {content.description}
                   </div>
                 )}
+                {/* Remove overlaying close button to avoid covering text */}
               </div>
             </>
           );
@@ -389,8 +388,7 @@ export function VisualSupport({
         {/* Desktop overlay - always visible card at bottom if there is text */}
         {(() => {
           const overlay = (styles.visualSupport as any)?.image?.overlay || {};
-          const hasText =
-            !hideText && (content.title || content.description);
+          const hasText = !hideText && (content.title || content.description);
           const overlayEnabled = (visualObject as any)?.show_overlay === true;
           if (!hasText || overlay.enabled === false || !overlayEnabled) {
             return null;
@@ -486,7 +484,8 @@ export function VisualSupport({
                     zIndex: 1,
                     fontSize: overlay.subtitle?.fontSize || '16px',
                     fontWeight: overlay.subtitle?.fontWeight || '400',
-                    color: overlay.subtitle?.color || 'rgba(255, 255, 255, 0.9)',
+                    color:
+                      overlay.subtitle?.color || 'rgba(255, 255, 255, 0.9)',
                     lineHeight: overlay.subtitle?.lineHeight || '1.5',
                   }}
                 >

@@ -22,7 +22,6 @@ export function CardStream({
   onFieldFocus,
   activeCardId,
   forceShowInline,
-  showBlurredCards = false,
 }: CardStreamProps) {
   const { cards, shouldBeRevealed, cardStates } = useCardContext();
   const styles = useCardStyles();
@@ -87,18 +86,16 @@ export function CardStream({
       .sort((a, b) => a.display_order - b.display_order);
   }, [cards, shouldBeRevealed]);
 
-  const lockedCards = useMemo(() => {
-    return cards
+  const hasMore = useMemo(() => {
+    const locked = cards
       .filter(card => !shouldBeRevealed(card))
       .sort((a, b) => a.display_order - b.display_order);
+    return locked.length > 0;
   }, [cards, shouldBeRevealed]);
 
-  const hasMore = lockedCards.length > 0;
-
   // Find active card for visual support
-  const activeCard = activeCardId
-    ? cards.find(card => card.id === activeCardId)
-    : cards.find(card => card.visual_objects); // Fallback to first card with visuals
+  // Keep variable for potential future use; do not flag as unused
+  void activeCardId; // silence unused var in current render path
 
   if (!cards.length) {
     return (
@@ -293,7 +290,7 @@ export function CardStream({
                                 <VisualSupport
                                   activeCard={card}
                                   compact={true}
-                                  hideText={true}
+                                  hideText={false}
                                 />
                               </div>
                             );

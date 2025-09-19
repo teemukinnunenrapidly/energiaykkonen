@@ -19,8 +19,8 @@
     },
     "layout": {
       "_comment": "Layout proportions and spacing",
-      "visualSupportRatio": "65%",
-      "cardStreamRatio": "35%",
+      "visualSupportRatio": "60%",
+      "cardStreamRatio": "40%",
       "gapBetweenPanels": "10px",
       "verticalSpacing": "default",
       "display": "flex",
@@ -71,8 +71,8 @@
           "enabled": true,
           "position": "bottom",
           "spacing": "24px",
-          "background": "rgba(255, 255, 255, 0.08)",
-          "hoverBackground": "rgba(255, 255, 255, 0.12)",
+          "background": "#0d9530bd",
+          "hoverBackground": "#0d9530bd",
           "backdropFilter": "blur(12px)",
           "hoverBackdropFilter": "blur(16px)",
           "border": "1px solid rgba(255, 255, 255, 0.18)",
@@ -125,7 +125,7 @@
               "letterSpacing": "0.5px"
             },
             "panel": {
-              "background": "rgba(0, 0, 0, 0.85)",
+              "background": "#0d9530bd",
               "backdropFilter": "blur(20px)",
               "borderTop": "1px solid rgba(255, 255, 255, 0.1)",
               "padding": "32px 24px 24px",
