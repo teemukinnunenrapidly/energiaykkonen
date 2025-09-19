@@ -145,11 +145,10 @@ export async function processPDFData(lead: Lead): Promise<Record<string, any>> {
       .replace(/\s+/g, ' ')
       .trim();
 
-    // Treat both pure oil and oil+wood (tuplapesäkattila) as eligible
-    const isOilOrOilWood =
-      lammitys.includes('öljy') || lammitys.includes('oil');
+    // Legacy text signals (kept for backward compatibility in other rules)
+    // intentionally not used
+    void (lammitys.includes('öljy') || lammitys.includes('oil'));
     // Detect replacement selection either from structured field
-    // or from the exact button label text
     const changeField = String(
       (flatLead as any).heating_system_change ||
         (flatLead as any).heatingSystemChange ||
@@ -157,11 +156,20 @@ export async function processPDFData(lead: Lead): Promise<Record<string, any>> {
     )
       .toLowerCase()
       .trim();
-    const choseReplaceField =
-      changeField === 'replace' || changeField === 'tilalle';
-    const phraseTilalle = 'vilp-järjestelmä nykyisen järjestelmän tilalle';
-    const choseExactReplacement = normalizedText.includes(phraseTilalle);
-    const choseReplacement = choseReplaceField || choseExactReplacement;
+    const choseReplaceField = changeField === 'replace';
+    // Strict field checks for 7000€ rule
+    const lammitysField = String(flatLead.lammitysmuoto || '')
+      .toLowerCase()
+      .trim();
+    const isOilOrOilWoodField =
+      lammitysField.includes('öljylämmitys') ||
+      lammitysField.includes('öljy+puu');
+    const supportField = String((flatLead as any).valittutukimuoto || '')
+      .toLowerCase()
+      .trim();
+    const isHouseholdDeductionField =
+      supportField === 'normaali kotitalousvähennys' ||
+      supportField === 'korotettu kotitalousvähennys';
     const choseHouseholdDeduction =
       allText.includes('kotitalous') &&
       (allText.includes('normaali') || allText.includes('korotettu'));
@@ -169,7 +177,7 @@ export async function processPDFData(lead: Lead): Promise<Record<string, any>> {
     const choseEly = normalizedText.includes(phraseEly);
 
     const shouldUse7000 =
-      isOilOrOilWood && choseReplacement && choseHouseholdDeduction;
+      choseReplaceField && isOilOrOilWoodField && isHouseholdDeductionField;
 
     if (shouldUse7000) {
       pdfData.subsidyNoteAmount = 7000;
