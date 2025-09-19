@@ -25,6 +25,15 @@ export function CardStream({
 }: CardStreamProps) {
   const { cards, shouldBeRevealed, cardStates } = useCardContext();
   const styles = useCardStyles();
+  // Temporary rule: hide visuals for specific cards entirely
+  const shouldRenderVisual = useCallback((card: any) => {
+    const title = String(card?.title || card?.name || '').toLowerCase();
+    const blocked: string[] = [
+      'arvio kokonaiskulutuksesta vuositasolla',
+      'energian hinta vuodessa',
+    ];
+    return !blocked.some(key => title.includes(key));
+  }, []);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const [scrollIndicators, setScrollIndicators] = useState({
     showTop: false,
@@ -197,32 +206,36 @@ export function CardStream({
                   }}
                 >
                   {/* Left: visual column (default placement) */}
-                  {!forceShowInline && (
+                  {!forceShowInline && shouldRenderVisual(card) && (
                     <div
                       style={{
                         flex: `0 0 ${styles.layout.visualSupportRatio || '35%'}`,
                         minWidth: 0,
                       }}
                     >
-                      {card.visual_objects ||
-                      (card as any).config?.linked_visual_object_id ? (
-                        <div
-                          style={{
-                            background: styles.card.base.background,
-                            borderRadius: styles.card.base.borderRadius,
-                            overflow: styles.card.base.overflow,
-                            border: styles.card.base.border,
-                            boxShadow: styles.card.base.boxShadow,
-                            height: '100%',
-                          }}
-                        >
-                          <div style={{ height: '100%' }}>
-                            <VisualSupport activeCard={card} compact={false} />
+                      {shouldRenderVisual(card) &&
+                        (card.visual_objects ||
+                        (card as any).config?.linked_visual_object_id ? (
+                          <div
+                            style={{
+                              background: styles.card.base.background,
+                              borderRadius: styles.card.base.borderRadius,
+                              overflow: styles.card.base.overflow,
+                              border: styles.card.base.border,
+                              boxShadow: styles.card.base.boxShadow,
+                              height: '100%',
+                            }}
+                          >
+                            <div style={{ height: '100%' }}>
+                              <VisualSupport
+                                activeCard={card}
+                                compact={false}
+                              />
+                            </div>
                           </div>
-                        </div>
-                      ) : (
-                        <div style={{ height: '100%' }} />
-                      )}
+                        ) : (
+                          <div style={{ height: '100%' }} />
+                        ))}
                     </div>
                   )}
 
@@ -267,6 +280,7 @@ export function CardStream({
                   >
                     {/* On mobile, render the visual banner inside the card container at the top */}
                     {forceShowInline &&
+                      shouldRenderVisual(card) &&
                       (card.visual_objects ||
                         (card as any).config?.linked_visual_object_id) && (
                         <div
