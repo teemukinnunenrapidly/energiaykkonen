@@ -140,7 +140,9 @@ export async function processPDFData(lead: Lead): Promise<Record<string, any>> {
     ).toLowerCase();
     const allText = JSON.stringify(flatLead).toLowerCase();
 
-    const isOil = lammitys.includes('öljy');
+    // Treat both pure oil and oil+wood (tuplapesäkattila) as eligible
+    const isOilOrOilWood =
+      lammitys.includes('öljy') || lammitys.includes('oil');
     const choseVilp =
       allText.includes('vilp') &&
       (allText.includes('vaihto') ||
@@ -151,7 +153,8 @@ export async function processPDFData(lead: Lead): Promise<Record<string, any>> {
       (allText.includes('normaali') || allText.includes('korotettu'));
     const choseEly = allText.includes('ely');
 
-    const shouldUse7000 = isOil && choseVilp && choseHouseholdDeduction;
+    const shouldUse7000 =
+      isOilOrOilWood && choseVilp && choseHouseholdDeduction;
 
     if (shouldUse7000) {
       pdfData.subsidyNoteAmount = 7000;
