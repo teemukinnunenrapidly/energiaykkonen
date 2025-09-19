@@ -74,6 +74,19 @@ export async function middleware(request: NextRequest) {
       // Return 403 if user doesn't have admin role
       return new NextResponse('Forbidden', { status: 403 });
     }
+
+    // CSRF check for state-changing admin API calls (double-submit cookie pattern)
+    if (
+      pathname.startsWith('/api/admin') &&
+      ['POST', 'PUT', 'PATCH', 'DELETE'].includes(request.method)
+    ) {
+      const csrfHeader = request.headers.get('x-csrf-token');
+      const csrfCookie = request.cookies.get('csrf-token')?.value;
+
+      if (!csrfHeader || !csrfCookie || csrfHeader !== csrfCookie) {
+        return new NextResponse('Invalid CSRF token', { status: 403 });
+      }
+    }
   }
 
   return NextResponse.next();

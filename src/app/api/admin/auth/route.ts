@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { randomBytes } from 'crypto';
 import {
   verifyAdminPassword,
   createSessionToken,
@@ -98,6 +99,16 @@ export async function POST(request: NextRequest) {
 
     response.cookies.set(name, sessionToken, options);
 
+    // Generate CSRF token (double submit cookie pattern)
+    const csrfToken = randomBytes(32).toString('hex');
+    response.cookies.set('csrf-token', csrfToken, {
+      httpOnly: false,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+      path: '/',
+      maxAge: 8 * 60 * 60, // 8 hours in seconds
+    });
+
     return response;
   } catch {
     return NextResponse.json(
@@ -117,6 +128,13 @@ export async function DELETE() {
     });
 
     response.cookies.set(name, '', options);
+    response.cookies.set('csrf-token', '', {
+      httpOnly: false,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+      path: '/',
+      maxAge: 0,
+    });
 
     return response;
   } catch {

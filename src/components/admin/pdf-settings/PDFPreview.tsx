@@ -121,9 +121,21 @@ export function PDFPreview({
     try {
       const res = await fetch('/api/admin/pdf-preview-formulas', {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-Token': getCsrfToken(),
+        },
         body: JSON.stringify({ formulas }),
       });
+      function getCsrfToken(): string {
+        if (typeof document === 'undefined') {
+          return '';
+        }
+        const match = document.cookie
+          .split('; ')
+          .find(row => row.startsWith('csrf-token='));
+        return match ? decodeURIComponent(match.split('=')[1]) : '';
+      }
       if (!res.ok) {
         throw new Error('Save failed');
       }

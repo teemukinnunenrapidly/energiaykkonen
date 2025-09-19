@@ -27,6 +27,7 @@ function AdminLoginForm() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'X-CSRF-Token': getCsrfTokenSafely(),
         },
         body: JSON.stringify({ password }),
       });
@@ -88,6 +89,16 @@ function AdminLoginForm() {
       </form>
     </Card>
   );
+}
+
+function getCsrfTokenSafely(): string {
+  if (typeof document === 'undefined') {
+    return '';
+  }
+  const match = document.cookie
+    .split('; ')
+    .find(row => row.startsWith('csrf-token='));
+  return match ? decodeURIComponent(match.split('=')[1]) : '';
 }
 
 // Main page component with Suspense boundary

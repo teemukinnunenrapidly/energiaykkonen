@@ -14,6 +14,9 @@ export default function LogoutButton() {
     try {
       const response = await fetch('/api/admin/auth', {
         method: 'DELETE',
+        headers: {
+          'X-CSRF-Token': getCsrfToken(),
+        },
       });
 
       if (response.ok) {
@@ -38,4 +41,14 @@ export default function LogoutButton() {
       {isLoading ? 'Logging out...' : 'Logout'}
     </Button>
   );
+}
+
+function getCsrfToken(): string {
+  if (typeof document === 'undefined') {
+    return '';
+  }
+  const match = document.cookie
+    .split('; ')
+    .find(row => row.startsWith('csrf-token='));
+  return match ? decodeURIComponent(match.split('=')[1]) : '';
 }
