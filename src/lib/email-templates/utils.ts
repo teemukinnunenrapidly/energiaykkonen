@@ -77,7 +77,8 @@ export function calculateLeadScore(lead: Lead): 'high' | 'medium' | 'low' {
 export const emailSubjects = {
   customer: () => `Säästölaskurin tulokset - Energiaykkönen`,
 
-  sales: () => `Uusi liidi laskurista`,
+  sales: (lead?: Lead) =>
+    `Uusi liidi laskurista${lead?.nimi ? ` - ${lead.nimi}` : ''}`,
 };
 
 /**
