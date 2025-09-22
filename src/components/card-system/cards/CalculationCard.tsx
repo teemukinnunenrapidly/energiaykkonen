@@ -209,11 +209,6 @@ export function CalculationCard({ card }: CalculationCardProps) {
               }
             } catch (innerError) {
               console.error('Error in result.success block:', innerError);
-              trackCalculationError(
-                card.name || 'unknown-calculation',
-                innerError as Error,
-                { cardId: card.id, stage: 'result-processing' }
-              );
               setError(
                 'Result processing failed: ' +
                   (innerError instanceof Error
