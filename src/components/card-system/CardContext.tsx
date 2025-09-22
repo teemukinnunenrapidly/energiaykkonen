@@ -656,12 +656,8 @@ export function CardProvider({
                   ttl: 5 * 60 * 1000,
                 };
               } catch (error) {
-                captureException(error as Error, {
-                  tags: {
-                    component: 'card-context',
-                    operation: 'cache-formulas',
-                  },
-                });
+                // eslint-disable-next-line no-console
+                console.error('Cache formulas bootstrap failed', error);
               }
 
               cardsData = payload.cards || [];
@@ -670,12 +666,8 @@ export function CardProvider({
               cardsData = await getCardsDirect();
             }
           } catch (error) {
-            captureException(error as Error, {
-              tags: {
-                component: 'card-context',
-                operation: 'load-cards-config',
-              },
-            });
+            // eslint-disable-next-line no-console
+            console.error('Load cards config failed', error);
             cardsData = await getCardsDirect();
           }
         }
@@ -700,9 +692,8 @@ export function CardProvider({
         }
         setCardStates(newStates);
       } catch (error) {
-        captureException(error as Error, {
-          tags: { component: 'card-context', operation: 'load-cards-main' },
-        });
+        // eslint-disable-next-line no-console
+        console.error('Load cards main failed', error);
       }
     };
 
