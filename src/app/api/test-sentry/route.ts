@@ -71,6 +71,7 @@ export async function GET(request: NextRequest) {
     }
   } catch (error) {
     // This will be captured by Sentry
+    console.log('API Error caught, sending to Sentry:', error);
     Sentry.captureException(error, {
       tags: {
         component: 'sentry-test-api',
@@ -81,6 +82,9 @@ export async function GET(request: NextRequest) {
         userAgent: request.headers.get('user-agent'),
       },
     });
+    
+    // Force flush to ensure event is sent
+    await Sentry.flush(2000);
 
     return NextResponse.json({
       success: true,
