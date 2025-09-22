@@ -1,10 +1,19 @@
 import { LeadNormalized } from '../../schemas/lead';
-import { LookupContext, StrategyDefinition, StrategyResultBasics } from '../types';
+import {
+  LookupContext,
+  StrategyDefinition,
+  StrategyResultBasics,
+} from '../types';
 
 export const WoodStrategy: StrategyDefinition = {
   id: 'wood',
-  matches: (n: LeadNormalized) => (n.lammitysmuoto || '').toLowerCase().includes('puu') && !(n.lammitysmuoto || '').toLowerCase().includes('öljy'),
-  computeBasics: (n: LeadNormalized, lookups: LookupContext): StrategyResultBasics => {
+  matches: (n: LeadNormalized) =>
+    (n.lammitysmuoto || '').toLowerCase().includes('puu') &&
+    !(n.lammitysmuoto || '').toLowerCase().includes('öljy'),
+  computeBasics: (
+    n: LeadNormalized,
+    lookups: LookupContext
+  ): StrategyResultBasics => {
     const puumotti = n.kokonaismenekki || 0;
     const annualCurrentCost = n.menekinhintavuosi || 0;
     return {

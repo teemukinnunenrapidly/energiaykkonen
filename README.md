@@ -224,11 +224,34 @@ ADMIN_PASSWORD=your_secure_admin_password
 **Production Environment Variables:**
 
 ```bash
+# Core Services
 NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your_production_anon_key
+SUPABASE_SERVICE_ROLE_KEY=your_service_role_key
 RESEND_API_KEY=your_production_resend_key
 ADMIN_PASSWORD=your_production_admin_password
+JWT_SECRET=your_jwt_secret
+
+# Error Tracking (Sentry) - NEW!
+NEXT_PUBLIC_SENTRY_DSN=https://your-sentry-dsn@sentry.io/project-id
+SENTRY_ORG=energiaykkonen
+SENTRY_PROJECT=calculator
+SENTRY_AUTH_TOKEN=your_sentry_auth_token
+
+# Environment
+NODE_ENV=production
 ```
+
+### Sentry Setup (Error Monitoring)
+
+1. **Create Sentry Account**: Sign up at [sentry.io](https://sentry.io)
+2. **Create Project**: 
+   - Choose "Next.js" as platform
+   - Project name: `calculator`
+   - Organization: `energiaykkonen`
+3. **Get DSN**: Copy the DSN from project settings
+4. **Set Environment Variables**: Add Sentry variables to Vercel
+5. **Test Error Tracking**: Sentry will automatically capture errors
 
 ### Post-Deployment Verification
 
@@ -236,6 +259,7 @@ ADMIN_PASSWORD=your_production_admin_password
 2. **Verify Emails**: Check email delivery
 3. **Test Admin Panel**: Access admin with production credentials
 4. **Check Analytics**: Verify Vercel Analytics are working
+5. **Check Error Tracking**: Verify Sentry is receiving events
 
 ## 🔄 Maintenance & Updates
 

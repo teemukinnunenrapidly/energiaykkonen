@@ -63,7 +63,9 @@ export function CreateEditModal({
     title: editingObject?.title || '',
     description: editingObject?.description || '',
     folder_id: editingObject?.folder_id || '',
-    show_overlay: editingObject ? (editingObject as any).show_overlay ?? false : false,
+    show_overlay: editingObject
+      ? ((editingObject as any).show_overlay ?? false)
+      : false,
   });
 
   const [newImages, setNewImages] = useState<File[]>([]);
@@ -383,10 +385,18 @@ export function CreateEditModal({
 
           {/* Overlay Toggle */}
           <div className="flex items-center justify-between">
-            <UiLabel htmlFor="show_overlay" className="text-sm">Enable Visual Overlay</UiLabel>
+            <UiLabel htmlFor="show_overlay" className="text-sm">
+              Enable Visual Overlay
+            </UiLabel>
             <div className="flex items-center gap-3">
               <span className="text-xs text-gray-500">Off</span>
-              <Switch id="show_overlay" checked={!!formData.show_overlay} onCheckedChange={v => setFormData(prev => ({ ...prev, show_overlay: v }))} />
+              <Switch
+                id="show_overlay"
+                checked={!!formData.show_overlay}
+                onCheckedChange={v =>
+                  setFormData(prev => ({ ...prev, show_overlay: v }))
+                }
+              />
               <span className="text-xs text-gray-900">On</span>
             </div>
           </div>

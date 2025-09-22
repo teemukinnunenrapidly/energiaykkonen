@@ -1,11 +1,21 @@
 import { LeadNormalized } from '../../schemas/lead';
-import { LookupContext, StrategyDefinition, StrategyResultBasics } from '../types';
+import {
+  LookupContext,
+  StrategyDefinition,
+  StrategyResultBasics,
+} from '../types';
 
 export const OilStrategy: StrategyDefinition = {
   id: 'oil',
-  matches: (n: LeadNormalized) => (n.lammitysmuoto || '').toLowerCase().includes('öljy') && !(n.lammitysmuoto || '').toLowerCase().includes('puu'),
-  computeBasics: (n: LeadNormalized, lookups: LookupContext): StrategyResultBasics => {
-    const liters = n.kokonaismenekki ?? ((n.laskennallinenenergiantarve || 0) / 10);
+  matches: (n: LeadNormalized) =>
+    (n.lammitysmuoto || '').toLowerCase().includes('öljy') &&
+    !(n.lammitysmuoto || '').toLowerCase().includes('puu'),
+  computeBasics: (
+    n: LeadNormalized,
+    lookups: LookupContext
+  ): StrategyResultBasics => {
+    const liters =
+      n.kokonaismenekki ?? (n.laskennallinenenergiantarve || 0) / 10;
     const oilPrice = n.oilPrice ?? lookups.oilPrice ?? 1.3;
     const annualCurrentCost = (n.menekinhintavuosi ?? liters * oilPrice) || 0;
     const co2 = (liters || 0) * (lookups.co2.oilPerLiter || 2.66);

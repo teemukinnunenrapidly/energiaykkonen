@@ -11,4 +11,3 @@ export default async function CardBuilderPageWrapper() {
   const Page = (await import('./_client')).default;
   return <Page />;
 }
-

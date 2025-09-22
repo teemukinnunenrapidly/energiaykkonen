@@ -52,8 +52,15 @@ export interface StrategyResultBasics {
 export interface StrategyDefinition {
   id: 'oil' | 'gas' | 'wood' | 'oilwood';
   matches: (normalized: LeadNormalized) => boolean;
-  computeBasics: (normalized: LeadNormalized, lookups: LookupContext) => StrategyResultBasics;
-  pdfRows: Array<{ key: 'consumption' | 'price' | 'maintenance' | 'co2'; label: string; unit: string }>;
+  computeBasics: (
+    normalized: LeadNormalized,
+    lookups: LookupContext
+  ) => StrategyResultBasics;
+  pdfRows: Array<{
+    key: 'consumption' | 'price' | 'maintenance' | 'co2';
+    label: string;
+    unit: string;
+  }>;
 }
 
 export const DEFAULT_LOOKUPS: LookupContext = {

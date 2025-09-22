@@ -64,7 +64,7 @@ export async function sendSalesNotificationEmail(
     // Send email (text-only) with optional PDF attachment
     const result = await sendEmail({
       to: emailConfig.salesTo,
-      subject: emailSubjects.sales(lead),
+      subject: emailSubjects.sales(),
       text: textBody,
       attachments: pdfAttachment ? [pdfAttachment] : undefined,
     });

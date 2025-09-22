@@ -12,7 +12,8 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 // Deployment environment for filtering preview vs production content
 export const DEPLOY_ENV =
-  (process.env.NEXT_PUBLIC_DEPLOY_ENV as 'preview' | 'production') || 'production';
+  (process.env.NEXT_PUBLIC_DEPLOY_ENV as 'preview' | 'production') ||
+  'production';
 
 // Dynamic field data stored in JSONB
 export interface LeadFormData {

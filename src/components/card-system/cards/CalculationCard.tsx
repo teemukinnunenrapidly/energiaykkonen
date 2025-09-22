@@ -3,6 +3,7 @@ import { type CardTemplate } from '@/lib/supabase';
 import { useCardContext } from '../CardContext';
 import { EditableCalculationResult } from './EditableCalculationResult';
 import { useCardStyles } from '@/hooks/useCardStyles';
+import { trackCalculationError } from '@/lib/sentry-utils';
 
 interface CalculationCardProps {
   card: CardTemplate;
@@ -25,7 +26,7 @@ export function CalculationCard({ card }: CalculationCardProps) {
   const [isCalculating, setIsCalculating] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [fieldDependencies, setFieldDependencies] = useState<string[]>([]);
-  const [formulaName, setFormulaName] = useState<string | null>(null);
+  // const [formulaName, setFormulaName] = useState<string | null>(null); // Unused for now
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitSuccess, setSubmitSuccess] = useState(false);
   const hasProcessedCalculationRef = useRef<boolean>(false);
@@ -208,6 +209,11 @@ export function CalculationCard({ card }: CalculationCardProps) {
               }
             } catch (innerError) {
               console.error('Error in result.success block:', innerError);
+              trackCalculationError(
+                card.name || 'unknown-calculation',
+                innerError as Error,
+                { cardId: card.id, stage: 'result-processing' }
+              );
               setError(
                 'Result processing failed: ' +
                   (innerError instanceof Error
@@ -236,12 +242,17 @@ export function CalculationCard({ card }: CalculationCardProps) {
             /\[(?:calc|lookup):([^\]]+)\]/
           );
           if (shortcodeMatch) {
-            setFormulaName(shortcodeMatch[1]);
+            // setFormulaName(shortcodeMatch[1]); // Unused for now
           }
         } catch (error) {
           console.error(
             `Error processing calculation for card "${card.name}":`,
             error
+          );
+          trackCalculationError(
+            card.name || 'unknown-calculation',
+            error as Error,
+            { cardId: card.id, formData, stage: 'main-calculation' }
           );
           setError(
             error instanceof Error ? error.message : 'Calculation failed'

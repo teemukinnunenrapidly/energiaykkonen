@@ -54,9 +54,19 @@ const initStrategies: StrategyConfig[] = [
     priceFormula: 'menekinhintavuosi TAI (liters * oilPrice)',
     maintenanceYearly: 200,
     pdfRows: [
-      { key: 'consumption', label: 'Öljyn kulutus', unit: 'L/vuosi', enabled: true },
+      {
+        key: 'consumption',
+        label: 'Öljyn kulutus',
+        unit: 'L/vuosi',
+        enabled: true,
+      },
       { key: 'price', label: 'Öljyn hinta', unit: '€/vuosi', enabled: true },
-      { key: 'maintenance', label: 'Huoltokustannus', unit: '€/vuosi', enabled: true },
+      {
+        key: 'maintenance',
+        label: 'Huoltokustannus',
+        unit: '€/vuosi',
+        enabled: true,
+      },
       { key: 'co2', label: 'CO₂-päästöt', unit: 'kg/vuosi', enabled: true },
     ],
   },
@@ -68,9 +78,19 @@ const initStrategies: StrategyConfig[] = [
     priceFormula: 'menekinhintavuosi (tai €/MWh * kulutus MWh)',
     maintenanceYearly: 300,
     pdfRows: [
-      { key: 'consumption', label: 'Kaasun kulutus', unit: 'm³/vuosi', enabled: true },
+      {
+        key: 'consumption',
+        label: 'Kaasun kulutus',
+        unit: 'm³/vuosi',
+        enabled: true,
+      },
       { key: 'price', label: 'Kaasun hinta', unit: '€/MWh', enabled: true },
-      { key: 'maintenance', label: 'Huoltokustannus', unit: '€/vuosi', enabled: true },
+      {
+        key: 'maintenance',
+        label: 'Huoltokustannus',
+        unit: '€/vuosi',
+        enabled: true,
+      },
       { key: 'co2', label: 'CO₂-päästöt', unit: 'kg/vuosi', enabled: true },
     ],
   },
@@ -83,9 +103,19 @@ const initStrategies: StrategyConfig[] = [
     priceFormula: 'menekinhintavuosi',
     maintenanceYearly: 200,
     pdfRows: [
-      { key: 'consumption', label: 'Puun menekki', unit: 'puumottia/vuosi', enabled: true },
+      {
+        key: 'consumption',
+        label: 'Puun menekki',
+        unit: 'puumottia/vuosi',
+        enabled: true,
+      },
       { key: 'price', label: 'Puun hinta', unit: '€/vuosi', enabled: true },
-      { key: 'maintenance', label: 'Huoltokustannus', unit: '€/vuosi', enabled: true },
+      {
+        key: 'maintenance',
+        label: 'Huoltokustannus',
+        unit: '€/vuosi',
+        enabled: true,
+      },
       { key: 'co2', label: 'CO₂-päästöt', unit: 'kg/vuosi', enabled: true },
     ],
   },
@@ -97,9 +127,19 @@ const initStrategies: StrategyConfig[] = [
     priceFormula: 'menekinhintavuosi TAI (liters * oilPrice)',
     maintenanceYearly: 200,
     pdfRows: [
-      { key: 'consumption', label: 'Öljyn kulutus', unit: 'L/vuosi', enabled: true },
+      {
+        key: 'consumption',
+        label: 'Öljyn kulutus',
+        unit: 'L/vuosi',
+        enabled: true,
+      },
       { key: 'price', label: 'Öljyn hinta', unit: '€/vuosi', enabled: true },
-      { key: 'maintenance', label: 'Huoltokustannus', unit: '€/vuosi', enabled: true },
+      {
+        key: 'maintenance',
+        label: 'Huoltokustannus',
+        unit: '€/vuosi',
+        enabled: true,
+      },
       { key: 'co2', label: 'CO₂-päästöt', unit: 'kg/vuosi', enabled: true },
     ],
   },
@@ -107,7 +147,8 @@ const initStrategies: StrategyConfig[] = [
 
 export default function StrategyConfiguratorClient() {
   const [defaults, setDefaults] = useState<DefaultLookups>(initialDefaults);
-  const [strategies, setStrategies] = useState<StrategyConfig[]>(initStrategies);
+  const [strategies, setStrategies] =
+    useState<StrategyConfig[]>(initStrategies);
   const [selected, setSelected] = useState(0);
 
   const jsonPreview = useMemo(() => {
@@ -117,14 +158,21 @@ export default function StrategyConfiguratorClient() {
   const s = strategies[selected];
 
   const updateStrategy = (patch: Partial<StrategyConfig>) => {
-    setStrategies(prev => prev.map((it, i) => (i === selected ? { ...it, ...patch } : it)));
+    setStrategies(prev =>
+      prev.map((it, i) => (i === selected ? { ...it, ...patch } : it))
+    );
   };
 
   const updateRow = (idx: number, patch: Partial<PdfRowConfig>) => {
     setStrategies(prev =>
       prev.map((it, i) =>
         i === selected
-          ? { ...it, pdfRows: it.pdfRows.map((r, ri) => (ri === idx ? { ...r, ...patch } : r)) }
+          ? {
+              ...it,
+              pdfRows: it.pdfRows.map((r, ri) =>
+                ri === idx ? { ...r, ...patch } : r
+              ),
+            }
           : it
       )
     );
@@ -132,50 +180,80 @@ export default function StrategyConfiguratorClient() {
 
   return (
     <div className="mx-auto max-w-6xl px-6 py-8">
-      <h1 className="text-2xl font-semibold mb-6">PDF Strategy Configurator (demo)</h1>
+      <h1 className="text-2xl font-semibold mb-6">
+        PDF Strategy Configurator (demo)
+      </h1>
 
       <div className="space-y-6">
         <section className="bg-white rounded-lg border p-4">
           <h2 className="font-semibold mb-4">Global defaults</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <label className="text-sm">
-              <span className="block text-gray-600 mb-1">Sähkön hinta (€/kWh)</span>
+              <span className="block text-gray-600 mb-1">
+                Sähkön hinta (€/kWh)
+              </span>
               <input
                 type="number"
                 step="0.001"
                 className="w-full border rounded px-3 py-2"
                 value={defaults.electricityPrice}
-                onChange={e => setDefaults({ ...defaults, electricityPrice: Number(e.target.value) })}
+                onChange={e =>
+                  setDefaults({
+                    ...defaults,
+                    electricityPrice: Number(e.target.value),
+                  })
+                }
               />
             </label>
             <label className="text-sm">
-              <span className="block text-gray-600 mb-1">Öljyn hinta (€/L)</span>
+              <span className="block text-gray-600 mb-1">
+                Öljyn hinta (€/L)
+              </span>
               <input
                 type="number"
                 step="0.01"
                 className="w-full border rounded px-3 py-2"
                 value={defaults.oilPrice}
-                onChange={e => setDefaults({ ...defaults, oilPrice: Number(e.target.value) })}
+                onChange={e =>
+                  setDefaults({ ...defaults, oilPrice: Number(e.target.value) })
+                }
               />
             </label>
             <label className="text-sm">
-              <span className="block text-gray-600 mb-1">Kaasun hinta (€/MWh)</span>
+              <span className="block text-gray-600 mb-1">
+                Kaasun hinta (€/MWh)
+              </span>
               <input
                 type="number"
                 step="1"
                 className="w-full border rounded px-3 py-2"
                 value={defaults.gasPricePerMWh}
-                onChange={e => setDefaults({ ...defaults, gasPricePerMWh: Number(e.target.value) })}
+                onChange={e =>
+                  setDefaults({
+                    ...defaults,
+                    gasPricePerMWh: Number(e.target.value),
+                  })
+                }
               />
             </label>
             <label className="text-sm">
-              <span className="block text-gray-600 mb-1">CO₂ sähkö (kg/kWh)</span>
+              <span className="block text-gray-600 mb-1">
+                CO₂ sähkö (kg/kWh)
+              </span>
               <input
                 type="number"
                 step="0.001"
                 className="w-full border rounded px-3 py-2"
                 value={defaults.co2.electricityPerKWh}
-                onChange={e => setDefaults({ ...defaults, co2: { ...defaults.co2, electricityPerKWh: Number(e.target.value) } })}
+                onChange={e =>
+                  setDefaults({
+                    ...defaults,
+                    co2: {
+                      ...defaults.co2,
+                      electricityPerKWh: Number(e.target.value),
+                    },
+                  })
+                }
               />
             </label>
           </div>
@@ -189,7 +267,9 @@ export default function StrategyConfiguratorClient() {
                 <button
                   key={st.id}
                   className={`px-3 py-2 rounded-t border-b-2 transition-colors ${
-                    i === selected ? 'border-green-500 text-green-700 bg-green-50' : 'border-transparent hover:bg-gray-50'
+                    i === selected
+                      ? 'border-green-500 text-green-700 bg-green-50'
+                      : 'border-transparent hover:bg-gray-50'
                   }`}
                   onClick={() => setSelected(i)}
                 >
@@ -203,27 +283,39 @@ export default function StrategyConfiguratorClient() {
             <h2 className="font-semibold mb-4">Strategy: {s.title}</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <label className="text-sm">
-                <span className="block text-gray-600 mb-1">Tunniste (sisältää)</span>
+                <span className="block text-gray-600 mb-1">
+                  Tunniste (sisältää)
+                </span>
                 <input
                   className="w-full border rounded px-3 py-2"
                   value={s.matchesWhenIncludes}
-                  onChange={e => updateStrategy({ matchesWhenIncludes: e.target.value })}
+                  onChange={e =>
+                    updateStrategy({ matchesWhenIncludes: e.target.value })
+                  }
                 />
               </label>
               <label className="text-sm">
-                <span className="block text-gray-600 mb-1">Poissulje jos sisältää</span>
+                <span className="block text-gray-600 mb-1">
+                  Poissulje jos sisältää
+                </span>
                 <input
                   className="w-full border rounded px-3 py-2"
                   value={s.excludeIfIncludes || ''}
-                  onChange={e => updateStrategy({ excludeIfIncludes: e.target.value })}
+                  onChange={e =>
+                    updateStrategy({ excludeIfIncludes: e.target.value })
+                  }
                 />
               </label>
               <label className="text-sm sm:col-span-2">
-                <span className="block text-gray-600 mb-1">Kulutuksen lähde</span>
+                <span className="block text-gray-600 mb-1">
+                  Kulutuksen lähde
+                </span>
                 <input
                   className="w-full border rounded px-3 py-2"
                   value={s.consumptionSource}
-                  onChange={e => updateStrategy({ consumptionSource: e.target.value })}
+                  onChange={e =>
+                    updateStrategy({ consumptionSource: e.target.value })
+                  }
                 />
               </label>
               <label className="text-sm sm:col-span-2">
@@ -231,17 +323,25 @@ export default function StrategyConfiguratorClient() {
                 <input
                   className="w-full border rounded px-3 py-2"
                   value={s.priceFormula}
-                  onChange={e => updateStrategy({ priceFormula: e.target.value })}
+                  onChange={e =>
+                    updateStrategy({ priceFormula: e.target.value })
+                  }
                 />
               </label>
               <label className="text-sm">
-                <span className="block text-gray-600 mb-1">Huoltokustannus (€/vuosi)</span>
+                <span className="block text-gray-600 mb-1">
+                  Huoltokustannus (€/vuosi)
+                </span>
                 <input
                   type="number"
                   step="1"
                   className="w-full border rounded px-3 py-2"
                   value={s.maintenanceYearly}
-                  onChange={e => updateStrategy({ maintenanceYearly: Number(e.target.value) })}
+                  onChange={e =>
+                    updateStrategy({
+                      maintenanceYearly: Number(e.target.value),
+                    })
+                  }
                 />
               </label>
             </div>
@@ -250,8 +350,13 @@ export default function StrategyConfiguratorClient() {
               <h3 className="font-medium mb-2">PDF‑rivit</h3>
               <div className="space-y-3">
                 {s.pdfRows.map((row, idx) => (
-                  <div key={row.key} className="grid grid-cols-12 gap-2 items-center">
-                    <div className="col-span-2 text-sm text-gray-600">{row.key}</div>
+                  <div
+                    key={row.key}
+                    className="grid grid-cols-12 gap-2 items-center"
+                  >
+                    <div className="col-span-2 text-sm text-gray-600">
+                      {row.key}
+                    </div>
                     <input
                       className="col-span-4 border rounded px-3 py-2"
                       value={row.label}
@@ -266,7 +371,9 @@ export default function StrategyConfiguratorClient() {
                       <input
                         type="checkbox"
                         checked={row.enabled}
-                        onChange={e => updateRow(idx, { enabled: e.target.checked })}
+                        onChange={e =>
+                          updateRow(idx, { enabled: e.target.checked })
+                        }
                       />
                       Näytä
                     </label>
@@ -279,12 +386,14 @@ export default function StrategyConfiguratorClient() {
 
         <section className="bg-white rounded-lg border p-4">
           <h2 className="font-semibold mb-3">Esimerkkikonfiguraatio (JSON)</h2>
-          <pre className="text-xs bg-gray-50 border rounded p-3 overflow-auto max-h-[400px] whitespace-pre-wrap">{jsonPreview}</pre>
-          <p className="text-xs text-gray-500 mt-2">Tämä on havainnollistus. Ei vielä kytketty tuotantoputkeen.</p>
+          <pre className="text-xs bg-gray-50 border rounded p-3 overflow-auto max-h-[400px] whitespace-pre-wrap">
+            {jsonPreview}
+          </pre>
+          <p className="text-xs text-gray-500 mt-2">
+            Tämä on havainnollistus. Ei vielä kytketty tuotantoputkeen.
+          </p>
         </section>
       </div>
     </div>
   );
 }
-
-

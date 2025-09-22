@@ -314,7 +314,8 @@ export const SalesNotificationTemplate = ({
                   <div className="data-item">
                     <span className="data-label">Lämmityskustannus:</span>
                     <span className="data-value">
-                      {flatLead.menekinhintavuosi?.toLocaleString('fi-FI') || '0'}
+                      {flatLead.menekinhintavuosi?.toLocaleString('fi-FI') ||
+                        '0'}
                       €/vuosi
                     </span>
                   </div>

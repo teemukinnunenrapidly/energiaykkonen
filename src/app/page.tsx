@@ -28,9 +28,7 @@ export default function Home() {
           className="border-2 mb-8 text-center max-w-4xl mx-auto bg-white rounded-lg p-6 sm:p-8 md:p-12"
           style={{ borderColor: '#0d9430' }}
         >
-          <h1
-            className="mb-4 sm:mb-6 font-bold tracking-tight text-[#0d9430] text-2xl leading-8 sm:text-3xl sm:leading-10 md:text-[32px] md:leading-[44px]"
-          >
+          <h1 className="mb-4 sm:mb-6 font-bold tracking-tight text-[#0d9430] text-2xl leading-8 sm:text-3xl sm:leading-10 md:text-[32px] md:leading-[44px]">
             Testaa kuinka paljon säästäisit ilmavesilämpöpumpulla
           </h1>
           <p className="text-gray-700 text-base sm:text-lg leading-6 sm:leading-7 max-w-2xl mx-auto">

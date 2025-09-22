@@ -31,7 +31,7 @@ export async function GET() {
       )
     );
 
-    let visualObjectsById: Record<string, any> = {};
+    const visualObjectsById: Record<string, any> = {};
     if (visualIds.length > 0) {
       const { data: visuals } = await supabase
         .from('visual_objects')
@@ -98,5 +98,3 @@ export async function GET() {
     );
   }
 }
-
-

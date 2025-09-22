@@ -57,7 +57,9 @@ export function extractFormData(lead: any): PDFFormData {
 
   return {
     // Required calculation fields
-    menekinhintavuosi: parseFloat(String(formData.menekinhintavuosi || 0).replace(',', '.')),
+    menekinhintavuosi: parseFloat(
+      String(formData.menekinhintavuosi || 0).replace(',', '.')
+    ),
     laskennallinenenergiantarve: parseFloat(
       String(formData.laskennallinenenergiantarve || 0).replace(',', '.')
     ),
@@ -84,22 +86,26 @@ export function extractFormData(lead: any): PDFFormData {
 
 // Small helpers
 const parseNumberFi = (v: any): number => {
-  if (v === undefined || v === null) return 0;
+  if (v === undefined || v === null) {
+    return 0;
+  }
   const num = parseFloat(String(v).replace(/\s/g, '').replace(',', '.'));
   return Number.isNaN(num) ? 0 : num;
 };
 
 function getAnnualCurrentCost(formData: PDFFormData): number {
   const direct = parseNumberFi(formData.menekinhintavuosi);
-  if (direct > 0) return Math.round(direct);
+  if (direct > 0) {
+    return Math.round(direct);
+  }
 
   const ht = (formData.lammitysmuoto || '').toLowerCase();
   // Fallbacks per heating type (only oil needed for now)
   if (ht.includes('öljy')) {
     const liters =
       parseNumberFi((formData as any).kokonaismenekki) ||
-      (parseNumberFi(formData.laskennallinenenergiantarve) /
-        PDF_CALCULATION_CONSTANTS.KWH_PER_LITER_OIL);
+      parseNumberFi(formData.laskennallinenenergiantarve) /
+        PDF_CALCULATION_CONSTANTS.KWH_PER_LITER_OIL;
     const oilPrice =
       parseNumberFi((formData as any).oilPrice) ||
       PDF_CALCULATION_CONSTANTS.OIL_PRICE_EUR_PER_LITER;

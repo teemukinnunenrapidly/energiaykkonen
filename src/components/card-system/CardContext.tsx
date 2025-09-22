@@ -15,6 +15,7 @@ import {
   initializeCleanSession,
 } from '@/lib/supabase';
 import { updateSessionWithFormData } from '@/lib/session-data-table';
+import { captureException } from '@/lib/sentry-utils';
 
 interface CardState {
   status: 'hidden' | 'locked' | 'unlocked' | 'active' | 'complete';
@@ -654,14 +655,27 @@ export function CardProvider({
                   timestamp: Date.now(),
                   ttl: 5 * 60 * 1000,
                 };
-              } catch {}
+              } catch (error) {
+                captureException(error as Error, {
+                  tags: {
+                    component: 'card-context',
+                    operation: 'cache-formulas',
+                  },
+                });
+              }
 
               cardsData = payload.cards || [];
             } else {
               // Fallback to direct fetch
               cardsData = await getCardsDirect();
             }
-          } catch {
+          } catch (error) {
+            captureException(error as Error, {
+              tags: {
+                component: 'card-context',
+                operation: 'load-cards-config',
+              },
+            });
             cardsData = await getCardsDirect();
           }
         }
@@ -685,8 +699,10 @@ export function CardProvider({
           }
         }
         setCardStates(newStates);
-      } catch {
-        // ignore
+      } catch (error) {
+        captureException(error as Error, {
+          tags: { component: 'card-context', operation: 'load-cards-main' },
+        });
       }
     };
 

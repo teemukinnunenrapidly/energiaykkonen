@@ -11,5 +11,3 @@ export default async function StrategyConfiguratorPage() {
   const Page = (await import('./_client')).default;
   return <Page />;
 }
-
-
