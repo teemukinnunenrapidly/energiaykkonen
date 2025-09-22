@@ -15,7 +15,7 @@ import {
   initializeCleanSession,
 } from '@/lib/supabase';
 import { updateSessionWithFormData } from '@/lib/session-data-table';
-import { captureException } from '@/lib/sentry-utils';
+// Sentry utilities removed; logging handled by Vercel integration
 
 interface CardState {
   status: 'hidden' | 'locked' | 'unlocked' | 'active' | 'complete';

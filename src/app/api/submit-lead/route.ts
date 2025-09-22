@@ -10,7 +10,6 @@ import { SavingsReportPDF } from '@/lib/pdf/SavingsReportPDF';
 import { processPDFData } from '@/lib/pdf/pdf-data-processor';
 import { calculatePDFValues } from '@/lib/pdf-calculations';
 import { EmailAttachment } from '@/lib/resend';
-import * as Sentry from '@sentry/nextjs';
 
 // Enhanced rate limiting with security logging
 const RATE_LIMIT = 10;
@@ -243,10 +242,7 @@ export async function POST(request: NextRequest) {
           }
         }
       } catch (pdfError) {
-        Sentry.captureException(pdfError, {
-          tags: { component: 'pdf-generation' },
-          extra: { leadId: insertedLead?.id, pdfData },
-        });
+        // logging intentionally minimal; Sentry disabled per Vercel integration
       }
 
       // Create attachment object for email
@@ -257,10 +253,6 @@ export async function POST(request: NextRequest) {
       };
     } catch (pdfGenerationError) {
       // Continue without PDF attachment if generation fails
-      Sentry.captureException(pdfGenerationError, {
-        tags: { component: 'pdf-generation', stage: 'main' },
-        extra: { leadId: insertedLead?.id },
-      });
     }
 
     // Send emails (don't block response on email failures)
@@ -274,10 +266,6 @@ export async function POST(request: NextRequest) {
       }
     } catch (emailError) {
       // Log email errors but don't fail the API response
-      Sentry.captureException(emailError, {
-        tags: { component: 'email-service' },
-        extra: { leadId: insertedLead?.id, baseUrl: request.nextUrl.origin },
-      });
 
       emailResults = {
         customerEmail: null,
@@ -339,18 +327,7 @@ export async function POST(request: NextRequest) {
       }
     );
   } catch (error) {
-    // Capture the error in Sentry with context
-    Sentry.captureException(error, {
-      tags: {
-        component: 'submit-lead-api',
-        endpoint: '/api/submit-lead',
-      },
-      extra: {
-        url: request.url,
-        method: request.method,
-        userAgent: request.headers.get('user-agent'),
-      },
-    });
+    // Error logging handled by Vercel integration; keep response generic
 
     return NextResponse.json(
       {

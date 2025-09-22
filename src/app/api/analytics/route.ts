@@ -6,7 +6,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabase } from '@/lib/supabase';
 import type { AnalyticsEventData } from '@/lib/analytics';
-import * as Sentry from '@sentry/nextjs';
 
 export async function POST(request: NextRequest) {
   try {
@@ -48,10 +47,7 @@ export async function POST(request: NextRequest) {
       .insert([analyticsRecord]);
 
     if (insertError) {
-      Sentry.captureException(insertError, {
-        tags: { component: 'analytics-api', operation: 'insert' },
-        extra: { eventData, analyticsRecord },
-      });
+      // logging intentionally minimal; Sentry disabled per Vercel integration
       return NextResponse.json(
         { error: 'Failed to store analytics event' },
         { status: 500 }
@@ -63,13 +59,7 @@ export async function POST(request: NextRequest) {
       { status: 201 }
     );
   } catch (error) {
-    Sentry.captureException(error, {
-      tags: {
-        component: 'analytics-api',
-        endpoint: '/api/analytics',
-        method: 'POST',
-      },
-    });
+    // logging intentionally minimal; Sentry disabled per Vercel integration
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }
@@ -107,12 +97,7 @@ export async function GET(request: NextRequest) {
     const { data, error } = await query;
 
     if (error) {
-      Sentry.captureException(error, {
-        tags: { component: 'analytics-api', operation: 'fetch' },
-        extra: {
-          searchParams: Object.fromEntries(new URL(request.url).searchParams),
-        },
-      });
+      // logging intentionally minimal; Sentry disabled per Vercel integration
       return NextResponse.json(
         { error: 'Failed to fetch analytics data' },
         { status: 500 }
@@ -121,13 +106,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({ data }, { status: 200 });
   } catch (error) {
-    Sentry.captureException(error, {
-      tags: {
-        component: 'analytics-api',
-        endpoint: '/api/analytics',
-        method: 'GET',
-      },
-    });
+    // logging intentionally minimal; Sentry disabled per Vercel integration
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

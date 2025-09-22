@@ -3,7 +3,7 @@ import { type CardTemplate } from '@/lib/supabase';
 import { useCardContext } from '../CardContext';
 import { EditableCalculationResult } from './EditableCalculationResult';
 import { useCardStyles } from '@/hooks/useCardStyles';
-import { trackCalculationError } from '@/lib/sentry-utils';
+// Sentry utilities removed; calculation errors will surface via UI or server logs
 
 interface CalculationCardProps {
   card: CardTemplate;
@@ -249,11 +249,7 @@ export function CalculationCard({ card }: CalculationCardProps) {
             `Error processing calculation for card "${card.name}":`,
             error
           );
-          trackCalculationError(
-            card.name || 'unknown-calculation',
-            error as Error,
-            { cardId: card.id, formData, stage: 'main-calculation' }
-          );
+          // tracking disabled; rely on UI error and Vercel logs
           setError(
             error instanceof Error ? error.message : 'Calculation failed'
           );

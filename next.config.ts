@@ -1,5 +1,4 @@
 import type { NextConfig } from 'next';
-import { withSentryConfig } from '@sentry/nextjs';
 
 const nextConfig: NextConfig = {
   /* config options here */
@@ -54,21 +53,4 @@ const nextConfig: NextConfig = {
   },
 };
 
-// Sentry configuration options
-const sentryWebpackPluginOptions = {
-  // Additional config options for the Sentry webpack plugin. Keep in mind that
-  // the following options are set automatically, and overriding them is not
-  // recommended:
-  //   release, url, configFile, stripPrefix, urlPrefix, include, ignore
-
-  org: 'rapid-responses-oy',
-  project: 'energiaykkonen-laskuri',
-
-  // Only print logs for uploading source maps in CI
-  silent: !process.env.CI,
-
-  // For all available options, see:
-  // https://github.com/getsentry/sentry-webpack-plugin#options.
-};
-
-export default withSentryConfig(nextConfig, sentryWebpackPluginOptions);
+export default nextConfig;

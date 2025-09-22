@@ -232,26 +232,15 @@ RESEND_API_KEY=your_production_resend_key
 ADMIN_PASSWORD=your_production_admin_password
 JWT_SECRET=your_jwt_secret
 
-# Error Tracking (Sentry) - NEW!
-NEXT_PUBLIC_SENTRY_DSN=https://your-sentry-dsn@sentry.io/project-id
-SENTRY_ORG=energiaykkonen
-SENTRY_PROJECT=calculator
-SENTRY_AUTH_TOKEN=your_sentry_auth_token
+# Error Tracking (Sentry)
+This project uses Vercel's native Sentry integration. Manage configuration in Vercel → Integrations → Sentry. No SDK setup files are included in this repository.
 
 # Environment
 NODE_ENV=production
 ```
 
 ### Sentry Setup (Error Monitoring)
-
-1. **Create Sentry Account**: Sign up at [sentry.io](https://sentry.io)
-2. **Create Project**: 
-   - Choose "Next.js" as platform
-   - Project name: `calculator`
-   - Organization: `energiaykkonen`
-3. **Get DSN**: Copy the DSN from project settings
-4. **Set Environment Variables**: Add Sentry variables to Vercel
-5. **Test Error Tracking**: Sentry will automatically capture errors
+Use the Vercel integration to link your Sentry org/project. Environment variables like DSN and auth token are managed by Vercel and do not need to live in the repo.
 
 ### Post-Deployment Verification
 
@@ -259,7 +248,7 @@ NODE_ENV=production
 2. **Verify Emails**: Check email delivery
 3. **Test Admin Panel**: Access admin with production credentials
 4. **Check Analytics**: Verify Vercel Analytics are working
-5. **Check Error Tracking**: Verify Sentry is receiving events
+5. **Check Error Tracking**: Verify Sentry is receiving events (via Vercel integration)
 
 ## 🔄 Maintenance & Updates
 
