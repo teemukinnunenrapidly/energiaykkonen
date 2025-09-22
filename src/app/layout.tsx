@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from 'next';
 import { Inter } from 'next/font/google';
 import { Analytics } from '@vercel/analytics/react';
 import './globals.css';
+import DisableConsole from '@/components/DisableConsole';
 
 const inter = Inter({
   variable: '--font-inter',
@@ -37,6 +38,7 @@ export default function RootLayout({
         />
       </head>
       <body className={`${inter.variable} font-sans antialiased`}>
+        <DisableConsole />
         {children}
         {/* Vercel Analytics */}
         <Analytics />
