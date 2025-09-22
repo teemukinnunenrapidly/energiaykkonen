@@ -23,4 +23,13 @@ Sentry.init({
       application: 'energiaykkonen-calculator',
     },
   },
+
+  integrations: [
+    Sentry.consoleLoggingIntegration({ levels: ['log', 'warn', 'error'] }),
+  ],
+
+  _experiments: {
+    enableLogs: true,
+  },
+  enableLogs: true,
 });

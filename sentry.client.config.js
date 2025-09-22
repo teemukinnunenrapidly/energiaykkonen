@@ -26,6 +26,8 @@ Sentry.init({
       maskAllText: true,
       blockAllMedia: true,
     }),
+    // Send console.log / warn / error as logs to Sentry
+    Sentry.consoleLoggingIntegration({ levels: ['log', 'warn', 'error'] }),
   ],
 
   // Environment-specific configuration
@@ -76,4 +78,11 @@ Sentry.init({
 
     return event;
   },
+
+  // Enable Sentry SDK logs (useful while validating setup)
+  _experiments: {
+    enableLogs: true,
+  },
+  // Back-compat flag for some versions of the SDK
+  enableLogs: true,
 });

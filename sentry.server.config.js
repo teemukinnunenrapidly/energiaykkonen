@@ -27,6 +27,8 @@ Sentry.init({
   // Server-specific integrations
   integrations: [
     // Add server-specific integrations here if needed
+    // Send console logs to Sentry as logs
+    Sentry.consoleLoggingIntegration({ levels: ['log', 'warn', 'error'] }),
   ],
 
   // Filter server-side events
@@ -55,4 +57,10 @@ Sentry.init({
 
     return event;
   },
+
+  // Enable SDK logs to help with diagnosing setup in production
+  _experiments: {
+    enableLogs: true,
+  },
+  enableLogs: true,
 });
