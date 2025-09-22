@@ -61,8 +61,8 @@ const sentryWebpackPluginOptions = {
   // recommended:
   //   release, url, configFile, stripPrefix, urlPrefix, include, ignore
 
-  org: 'energiaykkonen',
-  project: 'calculator',
+  org: 'rapid-responses-oy',
+  project: 'javascript-nextjs',
 
   // Only print logs for uploading source maps in CI
   silent: !process.env.CI,
