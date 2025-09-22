@@ -1,0 +1,213 @@
+---
+description: Sentry error tracking and performance monitoring integration guidelines
+globs: src/**/*.{ts,tsx,js,jsx}, sentry.*.config.js, next.config.ts
+alwaysApply: true
+---
+
+# Sentry Integration Guidelines
+
+- **Import Pattern:**
+  ```typescript
+  // ✅ DO: Always use this import pattern
+  import * as Sentry from '@sentry/nextjs';
+  
+  // ❌ DON'T: Use default imports or other patterns
+  import Sentry from '@sentry/nextjs';
+  ```
+
+- **Exception Catching:**
+  - Use `Sentry.captureException(error)` in try-catch blocks
+  - Always provide context with tags and extra data
+  - Use our custom utility functions when available
+
+  ```typescript
+  // ✅ DO: Capture exceptions with context
+  try {
+    await riskyOperation();
+  } catch (error) {
+    Sentry.captureException(error, {
+      tags: { component: 'user-action', operation: 'risky-operation' },
+      extra: { userId, formData }
+    });
+  }
+  
+  // ✅ DO: Use custom utilities for specific error types
+  import { trackCalculationError, trackFormError } from '@/lib/sentry-utils';
+  
+  trackCalculationError('card-name', error, { cardId, formData });
+  trackFormError('form-submission', error, { formData, stage: 'validation' });
+  ```
+
+- **Performance Tracing:**
+  - Use `Sentry.startSpan` for meaningful operations
+  - Create spans for button clicks, API calls, and function calls
+  - Attach relevant attributes and metrics
+
+  ```typescript
+  // ✅ DO: Trace user interactions
+  const handleButtonClick = () => {
+    Sentry.startSpan(
+      {
+        op: "ui.click",
+        name: "Calculate Savings Button Click",
+      },
+      (span) => {
+        span.setAttribute("formData", JSON.stringify(formData));
+        span.setAttribute("cardId", cardId);
+        
+        performCalculation();
+      },
+    );
+  };
+  
+  // ✅ DO: Trace API calls
+  async function fetchCalculationResults(data) {
+    return Sentry.startSpan(
+      {
+        op: "http.client",
+        name: "POST /api/calculate",
+      },
+      async () => {
+        const response = await fetch('/api/calculate', {
+          method: 'POST',
+          body: JSON.stringify(data)
+        });
+        return response.json();
+      },
+    );
+  }
+  ```
+
+- **Logging Integration:**
+  - Enable logs in Sentry configuration
+  - Use structured logging with `logger.fmt`
+  - Prefer Sentry logger over console methods in production
+
+  ```typescript
+  // ✅ DO: Use Sentry logger for structured logging
+  const { logger } = Sentry;
+  
+  logger.info("User submitted form", { 
+    userId: user.id, 
+    formType: "calculator",
+    timestamp: new Date().toISOString()
+  });
+  
+  logger.warn("Rate limit approaching", {
+    endpoint: "/api/submit-lead",
+    currentRequests: 95,
+    limit: 100
+  });
+  
+  logger.error("PDF generation failed", {
+    leadId: lead.id,
+    error: error.message,
+    retryCount: 3
+  });
+  
+  // ✅ DO: Use logger.fmt for template literals
+  logger.debug(logger.fmt`Processing calculation for card: ${cardName}`);
+  ```
+
+- **Configuration Files:**
+  - Client: `sentry.client.config.js`
+  - Server: `sentry.server.config.js` 
+  - Edge: `sentry.edge.config.js`
+  - Next.js: `next.config.ts` with `withSentryConfig`
+
+  ```javascript
+  // ✅ DO: Standard Sentry init pattern
+  Sentry.init({
+    dsn: process.env.NEXT_PUBLIC_SENTRY_DSN,
+    environment: process.env.NODE_ENV,
+    release: process.env.NEXT_PUBLIC_SENTRY_RELEASE,
+    tracesSampleRate: 1.0,
+    debug: false,
+    integrations: [
+      Sentry.consoleLoggingIntegration({ levels: ["log", "warn", "error"] }),
+    ],
+    _experiments: {
+      enableLogs: true,
+    },
+  });
+  ```
+
+- **Error Boundaries:**
+  - Use `SentryErrorBoundary` for React error catching
+  - Provide meaningful fallback UI
+  - Include error reset functionality
+
+  ```typescript
+  // ✅ DO: Wrap components with error boundary
+  <SentryErrorBoundary
+    fallback={CustomErrorFallback}
+    tags={{ component: 'calculator-form' }}
+  >
+    <CalculatorForm />
+  </SentryErrorBoundary>
+  ```
+
+- **Context and Tags:**
+  - Always provide meaningful context
+  - Use consistent tag naming (kebab-case)
+  - Include user information when available
+
+  ```typescript
+  // ✅ DO: Rich context for errors
+  Sentry.withScope(scope => {
+    scope.setTag('component', 'pdf-generation');
+    scope.setTag('operation', 'create-savings-report');
+    scope.setUser({ id: lead.id, email: lead.email });
+    scope.setExtra('leadData', sanitizedLeadData);
+    scope.setLevel('error');
+    Sentry.captureException(error);
+  });
+  ```
+
+- **Data Sanitization:**
+  - Never log sensitive data (passwords, API keys)
+  - Use sanitization functions for user data
+  - Be mindful of PII in error reports
+
+  ```typescript
+  // ✅ DO: Sanitize sensitive data
+  import { sanitizeForLogging } from '@/lib/sentry-utils';
+  
+  const sanitizedData = sanitizeForLogging(formData);
+  Sentry.captureException(error, {
+    extra: { formData: sanitizedData }
+  });
+  ```
+
+- **Testing and Development:**
+  - Use test endpoints for Sentry functionality
+  - Filter out development errors in production
+  - Test error tracking before deployment
+
+  ```typescript
+  // ✅ DO: Test Sentry integration
+  // Visit /test-sentry page to test various error scenarios
+  // Use /api/test-sentry endpoint for server-side testing
+  ```
+
+- **Performance Monitoring:**
+  - Monitor critical user journeys
+  - Track form submission performance
+  - Monitor PDF generation times
+  - Track email sending performance
+
+- **Common Patterns:**
+  - API route error handling
+  - Form validation errors
+  - PDF generation failures
+  - Email sending errors
+  - Database operation failures
+  - External service failures
+
+- **Integration Points:**
+  - Card system calculations
+  - Form submissions
+  - PDF generation
+  - Email sending
+  - Lead processing
+  - Analytics tracking

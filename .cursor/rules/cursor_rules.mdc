@@ -50,4 +50,10 @@ alwaysApply: true
   - Keep descriptions concise
   - Include both DO and DON'T examples
   - Reference actual code over theoretical examples
-  - Use consistent formatting across rules 
+  - Use consistent formatting across rules
+
+- **Available Rule Sets:**
+  - [sentry.mdc](mdc:.cursor/rules/sentry.mdc) - Sentry error tracking and performance monitoring
+  - [prisma.mdc](mdc:.cursor/rules/prisma.mdc) - Database and ORM patterns
+  - [react.mdc](mdc:.cursor/rules/react.mdc) - React component patterns
+  - [typescript.mdc](mdc:.cursor/rules/typescript.mdc) - TypeScript best practices 
