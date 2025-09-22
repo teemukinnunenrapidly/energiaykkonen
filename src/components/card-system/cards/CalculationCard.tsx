@@ -184,7 +184,7 @@ export function CalculationCard({ card }: CalculationCardProps) {
               }
               setResultUnit(finalUnit);
 
-              setFormulaName(null);
+              // setFormulaName(null); // Unused for now
 
               // Store the calculated result in formData using the configured field_name
               if (card.config?.field_name && formattedResult) {
