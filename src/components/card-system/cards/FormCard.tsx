@@ -114,6 +114,30 @@ export function FormCard({ card, onFieldFocus }: FormCardProps) {
       return;
     }
 
+    // Validate required fields before attempting submission
+    const validationErrors: Record<string, string> = {};
+    const fields = card.card_fields || [];
+    for (const f of fields) {
+      if (!f.required) {
+        continue;
+      }
+      const fieldValue = formData[f.field_name];
+      const isFilled =
+        f.field_type === 'checkbox'
+          ? fieldValue === true
+          : fieldValue !== undefined &&
+            fieldValue !== null &&
+            String(fieldValue).trim() !== '';
+      if (!isFilled) {
+        validationErrors[f.field_name] = 'This field is required';
+      }
+    }
+
+    if (Object.keys(validationErrors).length > 0) {
+      setErrors(prev => ({ ...prev, ...validationErrors }));
+      return; // Block submission until required fields are satisfied
+    }
+
     setIsSubmitting(true);
     try {
       // Submit the form data using the CardContext submit functionality
@@ -395,7 +419,25 @@ export function FormCard({ card, onFieldFocus }: FormCardProps) {
                     accentColor: styles.colors.brand.primary,
                   }}
                 />
-                {field.label}
+                {field.field_name === 'gdpr_consent' ? (
+                  <>
+                    Hyväksyn{' '}
+                    <a
+                      href="https://energiaykkonen.fi/tietosuojaseloste/"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      style={{
+                        color: styles.colors.brand.primary,
+                        textDecoration: 'underline',
+                      }}
+                      onClick={e => e.stopPropagation()}
+                    >
+                      tietosuojaselosteen
+                    </a>
+                  </>
+                ) : (
+                  field.label
+                )}
               </label>
             </div>
             {field.help_text && (

@@ -46,6 +46,7 @@ export interface LeadFormData {
   valittutukimuoto?: string;
   message?: string;
   consent_timestamp?: string;
+  gdpr_consent?: boolean;
 
   // Any other dynamic fields from Card Builder
   [key: string]: any;
