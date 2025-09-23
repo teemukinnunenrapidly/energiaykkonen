@@ -101,7 +101,7 @@ export default function Home() {
                 </li>
                 <li>
                   <a
-                    href="https://energiaykkonen.fi/palvelut/lampoverkköremontti"
+                    href="https://energiaykkonen.fi/palvelut/lampoverkkoremontti"
                     className="hover:text-white transition-colors"
                   >
                     Lämpöverkköremontti
@@ -134,7 +134,7 @@ export default function Home() {
               <ul className="space-y-2 text-base text-gray-300">
                 <li>
                   <a
-                    href="https://energiaykkonen.fi/kokemuksia/tietopankki"
+                    href="https://energiaykkonen.fi/tietopankki/"
                     className="hover:text-white transition-colors font-semibold"
                   >
                     Tietopankki
@@ -142,7 +142,7 @@ export default function Home() {
                 </li>
                 <li>
                   <a
-                    href="https://energiaykkonen.fi/kokemuksia/yritys"
+                    href="https://energiaykkonen.fi/yritys/"
                     className="hover:text-white transition-colors font-semibold"
                   >
                     Yritys
@@ -150,7 +150,7 @@ export default function Home() {
                 </li>
                 <li>
                   <a
-                    href="https://energiaykkonen.fi/kokemuksia/huoltopyynto"
+                    href="https://energiaykkonen.fi/huoltopyynto/"
                     className="hover:text-white transition-colors font-semibold"
                   >
                     Huoltopyyntö
@@ -158,7 +158,7 @@ export default function Home() {
                 </li>
                 <li>
                   <a
-                    href="https://energiaykkonen.fi/kokemuksia/tyopaikat"
+                    href="https://energiaykkonen.fi/tyopaikat/"
                     className="hover:text-white transition-colors font-semibold"
                   >
                     Työpaikat
@@ -166,7 +166,7 @@ export default function Home() {
                 </li>
                 <li>
                   <a
-                    href="https://energiaykkonen.fi/kokemuksia/evasteseloste"
+                    href="https://energiaykkonen.fi/evasteseloste/"
                     className="hover:text-white transition-colors font-semibold"
                   >
                     Evästseloste
@@ -174,7 +174,7 @@ export default function Home() {
                 </li>
                 <li>
                   <a
-                    href="https://energiaykkonen.fi/kokemuksia/tietosuojaseloste"
+                    href="https://energiaykkonen.fi/tietosuojaseloste/"
                     className="hover:text-white transition-colors font-semibold"
                   >
                     Tietosuojaseloste
