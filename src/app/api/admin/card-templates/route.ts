@@ -15,7 +15,6 @@ function getSupabaseAdmin() {
     process.env.SUPABASE_SERVICE_ROLE ||
     process.env.SUPABASE_SERVICE_KEY ||
     process.env.SUPABASE_SECRET ||
-    process.env.NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY ||
     '';
 
   if (!url || !serviceKey) {
