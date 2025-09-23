@@ -22,7 +22,8 @@ export const emailConfig = {
       (vercelEnv === 'production' ? defaultProdFrom : defaultDevFrom)
     );
   })(),
-  salesTo: 'teemu.kinnunen@rapidly.fi',
+  salesTo:
+    'teemu.kinnunen@rapidly.fi, antti.kinnunen@energiaykkonen.fi, andrew.stewart@energiaykkonen.fi',
   replyTo: 'info@energiaykkonen.fi',
 } as const;
 

@@ -25,6 +25,9 @@
       "env": {
         "SUPABASE_ACCESS_TOKEN": "sbp_17de0d4a6a035a3bcd88a8830be820a13e56553c"
       }
+    },
+    "Sentry": {
+      "url": "https://mcp.sentry.dev/mcp/rapid-responses-oy-1v/energiaykkonen-calculator"
     }
   }
 }
