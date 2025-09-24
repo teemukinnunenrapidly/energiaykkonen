@@ -85,7 +85,7 @@ export const pdfShortcodeMappings = {
   benefit1: '10 vuoden huoltovapaat laitteet modernilla tekniikalla',
   benefit2: '5 vuoden täystakuu kaikille komponenteille',
   benefit3:
-    'Kotitalousvähennys 40% työn osuudesta (max [format:tax_deduction_max:currency])',
+    'Kotitalousvähennys 35% työn osuudesta (max [format:tax_deduction_max:currency])',
   benefit4: 'Kiinteistön arvon nousu ja parempi energialuokka',
   benefit5: 'Älykäs etäohjaus mobiilisovelluksella',
 
