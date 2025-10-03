@@ -4,6 +4,7 @@
  */
 
 import { track } from '@vercel/analytics';
+import { getSessionStorageSafe } from './safe-storage';
 
 // Types for analytics events
 export type AnalyticsEvent =
@@ -75,10 +76,11 @@ export function getSessionId(): string {
     return 'server';
   }
 
-  let sessionId = sessionStorage.getItem('hpc_session_id');
+  const ss = getSessionStorageSafe();
+  let sessionId = ss.getItem('hpc_session_id');
   if (!sessionId) {
     sessionId = `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-    sessionStorage.setItem('hpc_session_id', sessionId);
+    ss.setItem('hpc_session_id', sessionId);
   }
   return sessionId;
 }

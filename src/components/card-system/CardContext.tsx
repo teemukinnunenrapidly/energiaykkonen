@@ -15,6 +15,7 @@ import {
   initializeCleanSession,
 } from '@/lib/supabase';
 import { updateSessionWithFormData } from '@/lib/session-data-table';
+import { getLocalStorageSafe } from '@/lib/safe-storage';
 // Sentry utilities removed; logging handled by Vercel integration
 
 interface CardState {
@@ -52,11 +53,12 @@ const getSessionId = (): string => {
   const forceNewSession =
     new URLSearchParams(window.location.search).get('new_session') === 'true';
 
-  let sessionId = localStorage.getItem('card_session_id');
+  const ls = getLocalStorageSafe();
+  let sessionId = ls.getItem('card_session_id');
 
   if (!sessionId || forceNewSession) {
     sessionId = `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-    localStorage.setItem('card_session_id', sessionId);
+    ls.setItem('card_session_id', sessionId);
   }
 
   return sessionId;
@@ -706,7 +708,9 @@ export function CardProvider({
       try {
         await initializeCleanSession(sessionId);
         // Remove the cleanup flag if it exists
-        localStorage.removeItem('session_needs_cleanup');
+        try {
+          getLocalStorageSafe().removeItem('session_needs_cleanup');
+        } catch {}
       } catch {
         // Continue anyway - don't break the user experience
       }

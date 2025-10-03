@@ -25,6 +25,52 @@ Sentry.init({
 
   // Setting this option to true will print useful information to the console while you're setting up Sentry.
   debug: false,
+
+  beforeSend(event, hint) {
+    try {
+      const message =
+        hint?.originalException instanceof Error
+          ? hint.originalException.message
+          : String((hint as any)?.originalException || event.message || '');
+
+      // Drop known noisy client-side errors we explicitly guard elsewhere
+      if (
+        /Cannot assign to read only property 'pushState' of object '#<History>'/i.test(
+          message
+        )
+      ) {
+        return null;
+      }
+
+      if (
+        /Cannot read properties of null \(reading 'getItem'\)/i.test(message)
+      ) {
+        return null;
+      }
+    } catch {}
+    return event;
+  },
 });
 
 export const onRouterTransitionStart = Sentry.captureRouterTransitionStart;
+
+// Mitigate Safari mutation of history methods causing pushState assignment errors
+if (typeof window !== 'undefined') {
+  try {
+    // Accessors only – do not assign to pushState/replaceState
+    // Also, add a lightweight global error filter for the specific message
+    window.addEventListener('error', e => {
+      const msg = String(e?.message || '');
+      if (
+        /Cannot assign to read only property 'pushState' of object '#<History>'/i.test(
+          msg
+        )
+      ) {
+        e.preventDefault();
+        e.stopImmediatePropagation();
+        return false;
+      }
+      return undefined as unknown as boolean;
+    });
+  } catch {}
+}

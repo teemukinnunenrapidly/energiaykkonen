@@ -429,15 +429,15 @@ class ErrorManager {
 
         // Store in sessionStorage for debugging
         try {
-          const existingLogs = JSON.parse(
-            sessionStorage.getItem('e1-debug-logs') || '[]'
-          );
+          const { getSessionStorageSafe } = await import('@/lib/safe-storage');
+          const ss = getSessionStorageSafe();
+          const existingLogs = JSON.parse(ss.getItem('e1-debug-logs') || '[]');
           existingLogs.unshift(debugInfo);
-          sessionStorage.setItem(
+          ss.setItem(
             'e1-debug-logs',
             JSON.stringify(existingLogs.slice(0, 20))
           );
-        } catch (e) {
+        } catch {
           // Ignore storage errors
         }
       }
