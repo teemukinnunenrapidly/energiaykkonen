@@ -1,4 +1,5 @@
 import { ErrorType, ErrorInfo } from './ErrorDisplay';
+import { getSessionStorageSafe } from '@/lib/safe-storage';
 
 // Error detection patterns for automatic classification
 const ERROR_PATTERNS: Array<{
@@ -429,7 +430,6 @@ class ErrorManager {
 
         // Store in sessionStorage for debugging
         try {
-          const { getSessionStorageSafe } = await import('@/lib/safe-storage');
           const ss = getSessionStorageSafe();
           const existingLogs = JSON.parse(ss.getItem('e1-debug-logs') || '[]');
           existingLogs.unshift(debugInfo);
