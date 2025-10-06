@@ -21,7 +21,7 @@ import {
 } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { Switch } from '@/components/ui/switch';
-import { Label as UiLabel } from '@/components/ui/label';
+// Use a single Label import to avoid duplicate-import lint
 import { getSafeImageUrl } from '@/lib/visual-assets-service';
 
 interface VisualFolder {
@@ -127,10 +127,7 @@ export function CreateEditModal({
       return;
     }
 
-    if (!editingObject && newImages.length === 0) {
-      alert('Please add at least one image');
-      return;
-    }
+    // Images are optional to allow "overlay-only" visual objects
 
     setLoading(true);
     try {
@@ -216,7 +213,7 @@ export function CreateEditModal({
         <div className="space-y-6">
           {/* Image Section */}
           <div>
-            <Label className="mb-2 block">Images</Label>
+            <Label className="mb-2 block">Images (optional)</Label>
 
             {/* Image Carousel */}
             {allImages.length > 0 && (
@@ -385,9 +382,9 @@ export function CreateEditModal({
 
           {/* Overlay Toggle */}
           <div className="flex items-center justify-between">
-            <UiLabel htmlFor="show_overlay" className="text-sm">
+            <Label htmlFor="show_overlay" className="text-sm">
               Enable Visual Overlay
-            </UiLabel>
+            </Label>
             <div className="flex items-center gap-3">
               <span className="text-xs text-gray-500">Off</span>
               <Switch

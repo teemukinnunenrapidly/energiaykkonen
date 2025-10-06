@@ -604,7 +604,7 @@ export function VisualSupport({
     );
   }
 
-  // Desktop version - image-only (remove text/info sections)
+  // Desktop version - image-only if available; support overlay-only when no image
   return (
     <div
       style={{
@@ -954,7 +954,10 @@ export function VisualSupport({
               ) : null;
             })()}
           </div>
-        ) : null}
+        ) : (
+          // Overlay-only mode: no image – keep background and show overlay card below
+          <div aria-hidden style={{ position: 'absolute', inset: 0 }} />
+        )}
 
         {/* Desktop overlay - always visible card at bottom if there is text */}
         {(() => {
