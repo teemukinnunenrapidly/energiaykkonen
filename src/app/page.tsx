@@ -76,10 +76,15 @@ export default function Home() {
                 </div>
               </div>
 
-              <div className="mt-6">
+              <div className="mt-6 flex items-center gap-4">
                 <img
                   src="/LK_valkoinen_rgb.jpg"
                   alt="Luotettava kumppani"
+                  className="w-32 h-auto"
+                />
+                <img
+                  src="/finlands-strongest-platinum.svg"
+                  alt="Finland's Strongest Platinum"
                   className="w-32 h-auto"
                 />
               </div>
@@ -167,6 +172,8 @@ export default function Home() {
                 <li>
                   <a
                     href="https://energiaykkonen.fi/evasteseloste/"
+                    target="_blank"
+                    rel="noopener noreferrer"
                     className="hover:text-white transition-colors font-semibold"
                   >
                     Evästseloste
@@ -175,6 +182,8 @@ export default function Home() {
                 <li>
                   <a
                     href="https://energiaykkonen.fi/tietosuojaseloste/"
+                    target="_blank"
+                    rel="noopener noreferrer"
                     className="hover:text-white transition-colors font-semibold"
                   >
                     Tietosuojaseloste
