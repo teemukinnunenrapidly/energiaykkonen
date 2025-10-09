@@ -3,6 +3,11 @@ import { Inter } from 'next/font/google';
 import { Analytics } from '@vercel/analytics/react';
 import './globals.css';
 import DisableConsole from '@/components/DisableConsole';
+import GoogleTagManager, {
+  GoogleTagManagerNoScript,
+} from '@/components/GoogleTagManager';
+import { CookieConsentBanner } from '@/components/CookieConsentBanner';
+import { GTM_ID } from '@/config/gtm';
 
 const inter = Inter({
   variable: '--font-inter',
@@ -45,10 +50,16 @@ export default function RootLayout({
           href="https://fonts.googleapis.com/icon?family=Material+Icons"
           rel="stylesheet"
         />
+        {/* Google Tag Manager */}
+        <GoogleTagManager gtmId={GTM_ID} />
       </head>
       <body className={`${inter.variable} font-sans antialiased`}>
+        {/* Google Tag Manager (noscript) */}
+        <GoogleTagManagerNoScript gtmId={GTM_ID} />
         <DisableConsole />
         {children}
+        {/* Cookie Consent Banner */}
+        <CookieConsentBanner />
         {/* Vercel Analytics */}
         <Analytics />
       </body>

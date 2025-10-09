@@ -393,8 +393,27 @@ export function CardProvider({
       setCardStates(prev => {
         const newStates = { ...prev };
 
+        // Check if this is the first card to be completed
+        const isFirstCompletion = !Object.values(prev).some(
+          state => state.status === 'complete'
+        );
+
         // Mark current card as complete
         newStates[cardId] = { ...newStates[cardId], status: 'complete' };
+
+        // Track first card completion milestone
+        if (isFirstCompletion) {
+          const completedCard = cards.find(c => c.id === cardId);
+          if (completedCard) {
+            // Dynamically import gtmEvents to avoid circular dependencies
+            import('@/config/gtm').then(({ gtmEvents }) => {
+              gtmEvents.firstCardCompleted(
+                completedCard.title || completedCard.name || 'unknown_card',
+                cardId
+              );
+            });
+          }
+        }
 
         // Check all cards to see if any should now be revealed based on this completion
         cards.forEach(card => {

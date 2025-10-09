@@ -3,6 +3,7 @@ import { type CardTemplate } from '@/lib/supabase';
 import { useCardContext } from '../CardContext';
 import { EditableCalculationResult } from './EditableCalculationResult';
 import { useCardStyles } from '@/hooks/useCardStyles';
+import { gtmEvents } from '@/config/gtm';
 // Sentry utilities removed; calculation errors will surface via UI or server logs
 
 interface CalculationCardProps {
@@ -60,10 +61,7 @@ export function CalculationCard({ card }: CalculationCardProps) {
             JSON.stringify(lastDependencyValuesRef.current);
 
           if (dependenciesChanged) {
-            console.log(`Dependencies changed for card ${card.id}:`, {
-              old: lastDependencyValuesRef.current,
-              new: currentDependencyValues,
-            });
+            // Dependencies changed for card
             lastDependencyValuesRef.current = currentDependencyValues;
           }
         }
@@ -100,7 +98,7 @@ export function CalculationCard({ card }: CalculationCardProps) {
             formData
           );
           const result = await engine.process(card.config.main_result);
-          console.log('CalculationCard received result:', result);
+          // 'CalculationCard received result:', result);
 
           if (result.success) {
             try {
@@ -184,6 +182,17 @@ export function CalculationCard({ card }: CalculationCardProps) {
               }
               setResultUnit(finalUnit);
 
+              // Track successful calculation
+              gtmEvents.calculationComplete(
+                card.title || card.name || 'unknown_calculation',
+                {
+                  card_id: card.id,
+                  result: formattedResult,
+                  unit: finalUnit,
+                  formula: card.config?.main_result,
+                }
+              );
+
               // setFormulaName(null); // Unused for now
 
               // Store the calculated result in formData using the configured field_name
@@ -217,7 +226,10 @@ export function CalculationCard({ card }: CalculationCardProps) {
               );
             }
           } else {
-            setError(result.error || 'Calculation failed');
+            const errorMessage = result.error || 'Calculation failed';
+            setError(errorMessage);
+            // Track calculation error
+            gtmEvents.errorOccurred('calculation_failed', errorMessage);
           }
 
           // Update field dependencies for future re-calculations
@@ -245,14 +257,16 @@ export function CalculationCard({ card }: CalculationCardProps) {
             error
           );
           // tracking disabled; rely on UI error and Vercel logs
-          setError(
-            error instanceof Error ? error.message : 'Calculation failed'
-          );
+          const errorMessage =
+            error instanceof Error ? error.message : 'Calculation failed';
+          setError(errorMessage);
+          // Track calculation error
+          gtmEvents.errorOccurred('calculation_process_failed', errorMessage);
         } finally {
-          console.log('🔵 About to call setIsCalculating(false)');
+          // '🔵 About to call setIsCalculating(false)');
           try {
             setIsCalculating(false);
-            console.log('✅ setIsCalculating(false) completed');
+            // '✅ setIsCalculating(false) completed');
           } catch (finallyError) {
             console.error('❌ Error in finally block:', finallyError);
           }
@@ -274,7 +288,7 @@ export function CalculationCard({ card }: CalculationCardProps) {
 
     // Prevent infinite loops by checking if we're already processing
     if (isCalculating) {
-      console.log('Already calculating, skipping...');
+      // 'Already calculating, skipping...');
       return;
     }
 
@@ -306,9 +320,7 @@ export function CalculationCard({ card }: CalculationCardProps) {
       );
       if (!isNaN(numericResult)) {
         updateField(card.config.field_name, numericResult);
-        console.log(
-          `💾 Stored overridden result in field "${card.config.field_name}": ${numericResult}`
-        );
+        // Stored overridden result in field
       }
     }
 
@@ -326,21 +338,38 @@ export function CalculationCard({ card }: CalculationCardProps) {
       return;
     }
 
+    // Track calculation start event
+    gtmEvents.calculationStart(
+      card.title || card.name || 'unknown_calculation'
+    );
+
     setIsSubmitting(true);
     setSubmitSuccess(false);
 
     try {
       const emailTemplate = card.config?.email_template || 'default';
-      await submitData(emailTemplate);
+      const result = await submitData(emailTemplate);
       setSubmitSuccess(true);
 
       // Mark card as complete after successful submission
       completeCard(card.id);
 
-      console.log('✅ Form submitted successfully');
+      // Track successful form submission
+      gtmEvents.formSubmit(card.title || card.name || 'unknown_calculation', {
+        card_id: card.id,
+        email_template: emailTemplate,
+        calculation_result: calculatedResult,
+        lead_id: result?.leadId,
+      });
+
+      // '✅ Form submitted successfully');
     } catch (error) {
       console.error('❌ Error submitting form:', error);
-      setError(error instanceof Error ? error.message : 'Submission failed');
+      const errorMessage =
+        error instanceof Error ? error.message : 'Submission failed';
+      setError(errorMessage);
+      // Track submission error
+      gtmEvents.errorOccurred('calculation_submission_failed', errorMessage);
     } finally {
       setIsSubmitting(false);
     }

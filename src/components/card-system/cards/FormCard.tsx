@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useCardContext } from '../CardContext';
 import type { CardTemplate } from '@/lib/supabase';
 import { useCardStyles, cssValue } from '@/hooks/useCardStyles';
+import { gtmEvents } from '@/config/gtm';
 
 interface FormCardProps {
   card: CardTemplate;
@@ -114,6 +115,9 @@ export function FormCard({ card, onFieldFocus }: FormCardProps) {
       return;
     }
 
+    // Track form start event
+    gtmEvents.formStart(card.title || card.name || 'unknown_form');
+
     // Validate required fields before attempting submission
     const validationErrors: Record<string, string> = {};
     const fields = card.card_fields || [];
@@ -146,6 +150,13 @@ export function FormCard({ card, onFieldFocus }: FormCardProps) {
         if (result?.pdfUrl) {
           setPdfUrl(result.pdfUrl as string);
         }
+
+        // Track successful form submission
+        gtmEvents.formSubmit(card.title || card.name || 'unknown_form', {
+          card_id: card.id,
+          lead_id: result?.leadId,
+          pdf_generated: !!result?.pdfUrl,
+        });
       }
 
       // Mark this card as complete when submit button is clicked
@@ -157,7 +168,12 @@ export function FormCard({ card, onFieldFocus }: FormCardProps) {
       // Keep success message visible - don't auto-hide
       // setTimeout(() => setSubmitSuccess(false), 3000);
     } catch (error) {
-      console.error('Submission failed:', error);
+      // Submission failed
+      // Track error event
+      gtmEvents.errorOccurred(
+        'form_submission',
+        error instanceof Error ? error.message : 'Unknown error'
+      );
       // Could add error state here if needed
     } finally {
       setIsSubmitting(false);
