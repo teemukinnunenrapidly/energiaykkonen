@@ -46,7 +46,7 @@ const nextConfig: NextConfig = {
           {
             key: 'Content-Security-Policy',
             value:
-              "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https: blob:; script-src-elem 'self' 'unsafe-inline' 'unsafe-eval' https: blob:; script-src-attr 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: https: blob:; media-src 'self' data: https: blob:; connect-src 'self' https: wss: blob:; worker-src 'self' blob:; frame-ancestors *;",
+              "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https: blob: https://www.googletagmanager.com https://www.google-analytics.com https://code.jquery.com; script-src-elem 'self' 'unsafe-inline' 'unsafe-eval' https: blob: https://www.googletagmanager.com https://www.google-analytics.com https://code.jquery.com; script-src-attr 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: https: blob:; media-src 'self' data: https: blob:; connect-src 'self' https: wss: blob: https://www.google-analytics.com https://analytics.google.com; worker-src 'self' blob:; frame-src 'self' https://vercel.live https://consentcdn.cookiebot.com https://consent.cookiebot.com https://www.googletagmanager.com; frame-ancestors *;",
           },
         ],
       },
