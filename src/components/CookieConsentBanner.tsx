@@ -6,6 +6,13 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
 import { X, Cookie, Settings, Shield } from 'lucide-react';
 
+declare global {
+  interface Window {
+    gtag: (...args: any[]) => void;
+    dataLayer: any[];
+  }
+}
+
 interface ConsentPreferences {
   necessary: boolean;
   analytics: boolean;
@@ -92,6 +99,16 @@ export function CookieConsentBanner({
         functionality_storage: preferences.preferences ? 'granted' : 'denied',
         personalization_storage: preferences.preferences ? 'granted' : 'denied',
         security_storage: 'granted', // Always granted
+      });
+
+      // Push custom event for GTM compatibility with energiaykkonen.fi
+      window.dataLayer = window.dataLayer || [];
+      window.dataLayer.push({
+        event: 'cookie_consent_update',
+        consent_analytics: preferences.analytics,
+        consent_marketing: preferences.marketing,
+        consent_preferences: preferences.preferences,
+        consent_necessary: preferences.necessary,
       });
     }
   }, [preferences]);

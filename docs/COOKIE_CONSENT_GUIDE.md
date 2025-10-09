@@ -119,6 +119,22 @@ gtag('consent', 'default', {
 });
 ```
 
+### 1.1 Custom Consent Event
+
+Järjestelmä lähettää myös `cookie_consent_update` custom eventin GTM:lle kun käyttäjä tekee valinnan:
+
+```javascript
+window.dataLayer.push({
+  event: 'cookie_consent_update',
+  consent_analytics: true / false,
+  consent_marketing: true / false,
+  consent_preferences: true / false,
+  consent_necessary: true,
+});
+```
+
+Tämä mahdollistaa yhteensopivuuden energiaykkonen.fi pääsivuston kanssa, joka käyttää samaa custom eventiä.
+
 ### 2. Tag Configuration
 
 **Analytics Tags:**
