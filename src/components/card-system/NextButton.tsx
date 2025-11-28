@@ -15,7 +15,8 @@ export function NextButton({
   variant = 'default',
 }: NextButtonProps) {
   const styles = useCardStyles();
-  const { cards, formData, completeCard, revealCard } = useCardContext();
+  const { cards, formData, completeCard, revealCard, cardStates } =
+    useCardContext();
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isHovered, setIsHovered] = useState(false);
 
@@ -26,6 +27,11 @@ export function NextButton({
 
   // Don't show on submit cards (they have their own submit button)
   if (card.config?.has_submit_button) {
+    return null;
+  }
+
+  // Hide button when card is already complete (user already clicked "Seuraava")
+  if (cardStates[card.id]?.status === 'complete') {
     return null;
   }
 
