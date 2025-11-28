@@ -48,7 +48,7 @@
         "backfaceVisibility": "hidden"
       },
       "content": {
-        "background": "linear-gradient(135deg, #059669 0%, #34d399 100%)",
+        "background": "linear-gradient(135deg, #0a7526 0%, #34d399 100%)",
         "padding": "0",
         "display": "flex",
         "flexDirection": "column",
@@ -71,8 +71,8 @@
           "enabled": true,
           "position": "bottom",
           "spacing": "24px",
-          "background": "rgba(16, 185, 129, 0.25)",
-          "hoverBackground": "rgba(16, 185, 129, 0.35)",
+          "background": "rgba(13, 148, 48, 0.25)",
+          "hoverBackground": "rgba(13, 148, 48, 0.35)",
           "backdropFilter": "blur(12px)",
           "hoverBackdropFilter": "blur(16px)",
           "border": "1px solid rgba(255, 255, 255, 0.18)",
@@ -125,7 +125,7 @@
               "letterSpacing": "0.5px"
             },
             "panel": {
-              "background": "rgba(16, 185, 129, 0.6)",
+              "background": "rgba(13, 148, 48, 0.6)",
               "backdropFilter": "blur(20px)",
               "borderTop": "1px solid rgba(255, 255, 255, 0.1)",
               "padding": "32px 24px 24px",
@@ -200,13 +200,13 @@
           "transition": "all 500ms ease"
         },
         "active": {
-          "border": "2px solid rgba(16, 185, 129, 0.5)",
-          "boxShadow": "0 0 0 0px rgba(16, 185, 129, 0.1)",
+          "border": "2px solid rgba(13, 148, 48, 0.5)",
+          "boxShadow": "0 0 0 0px rgba(13, 148, 48, 0.1)",
           "transform": "scale(1.01)",
           "background": "#ffffff"
         },
         "complete": {
-          "borderLeft": "4px solid #10b981",
+          "borderLeft": "4px solid #0a7526",
           "opacity": "1",
           "background": "#ffffff",
           "checkmark": {
@@ -215,8 +215,8 @@
             "top": "16px",
             "right": "16px",
             "size": "24px",
-            "color": "#10b981",
-            "background": "rgba(16, 185, 129, 0.1)",
+            "color": "#0a7526",
+            "background": "rgba(13, 148, 48, 0.1)",
             "borderRadius": "50%",
             "padding": "4px"
           }
@@ -237,7 +237,7 @@
       "stepIndicator": {
         "fontSize": "12px",
         "fontWeight": "600",
-        "color": "#10b981",
+        "color": "#0a7526",
         "textTransform": "uppercase",
         "letterSpacing": "1px",
         "padding": "0",
@@ -247,8 +247,8 @@
       "badge": {
         "display": "inline-block",
         "padding": "4px 12px",
-        "background": "rgba(16, 185, 129, 0.1)",
-        "color": "#10b981",
+        "background": "rgba(13, 148, 48, 0.1)",
+        "color": "#0a7526",
         "borderRadius": "100px",
         "fontSize": "11px",
         "fontWeight": "500",
@@ -288,7 +288,7 @@
         "display": "block",
         "fontSize": "11px",
         "fontWeight": "500",
-        "color": "#9ca3af",
+        "color": "#6b7280",
         "textTransform": "uppercase",
         "letterSpacing": "0.5px",
         "marginBottom": "8px",
@@ -317,11 +317,11 @@
           "borderBottomColor": "#d1d5db"
         },
         "focus": {
-          "borderBottomColor": "#10b981",
+          "borderBottomColor": "#0a7526",
           "boxShadow": "none"
         },
         "error": {
-          "borderBottomColor": "#ef4444"
+          "borderBottomColor": "#dc2626"
         },
         "disabled": {
           "opacity": "0.5",
@@ -340,7 +340,7 @@
       },
       "errorMessage": {
         "fontSize": "12px",
-        "color": "#ef4444",
+        "color": "#dc2626",
         "marginTop": "4px",
         "display": "block"
       },
@@ -379,11 +379,11 @@
           "boxShadow": "0 2px 4px rgba(0, 0, 0, 0.05)"
         },
         "buttonSelected": {
-          "borderColor": "#10b981",
+          "borderColor": "#0a7526",
           "background": "linear-gradient(135deg, #ecfdf5, #ffffff)",
           "color": "#065f46",
           "fontWeight": "500",
-          "boxShadow": "0 0 0 3px rgba(16, 185, 129, 0.1)"
+          "boxShadow": "0 0 0 3px rgba(13, 148, 48, 0.1)"
         },
         "buttonDisabled": {
           "opacity": "0.5",
@@ -392,7 +392,7 @@
           "background": "#f9fafb"
         },
         "buttonFocus": {
-          "outline": "3px solid #10b981",
+          "outline": "3px solid #0a7526",
           "outlineOffset": "2px"
         },
         "buttonContent": {
@@ -408,7 +408,7 @@
           "transition": "color 200ms ease"
         },
         "buttonIconSelected": {
-          "color": "#10b981"
+          "color": "#0a7526"
         },
         "buttonText": {
           "flex": "1",
@@ -435,7 +435,7 @@
           "flexShrink": "0"
         },
         "buttonIndicatorSelected": {
-          "color": "#10b981",
+          "color": "#0a7526",
           "transform": "scale(1.1)"
         },
         "multiSelect": {
@@ -444,7 +444,7 @@
             "marginRight": "12px",
             "width": "18px",
             "height": "18px",
-            "accentColor": "#10b981",
+            "accentColor": "#0a7526",
             "borderRadius": "4px",
             "borderWidth": "2px",
             "borderStyle": "solid",
@@ -452,8 +452,8 @@
             "transition": "all 200ms ease"
           },
           "checkboxChecked": {
-            "backgroundColor": "#10b981",
-            "borderColor": "#10b981",
+            "backgroundColor": "#0a7526",
+            "borderColor": "#0a7526",
             "backgroundImage": "url(\"data:image/svg+xml,%3csvg viewBox='0 0 16 16' fill='white' xmlns='http://www.w3.org/2000/svg'%3e%3cpath d='m13.854 3.646-7.5 7.5a.5.5 0 0 1-.708 0l-3.5-3.5a.5.5 0 1 1 .708-.708L6 10.293l7.146-7.147a.5.5 0 0 1 .708.708z'/%3e%3c/svg%3e\")"
           }
         },
@@ -520,7 +520,7 @@
       "metricLabel": {
         "fontSize": "11px",
         "fontWeight": "500",
-        "color": "#9ca3af",
+        "color": "#6b7280",
         "textTransform": "uppercase",
         "letterSpacing": "0.5px",
         "marginBottom": "12px",
@@ -529,7 +529,7 @@
       "metricValue": {
         "fontSize": "48px",
         "fontWeight": "200",
-        "color": "#10b981",
+        "color": "#0a7526",
         "lineHeight": "1.1",
         "marginBottom": "0",
         "display": "inline-block"
@@ -545,11 +545,11 @@
         "padding": "10px 16px",
         "fontSize": "14px",
         "fontWeight": "500",
-        "color": "#10b981",
+        "color": "#0a7526",
         "background": "transparent",
         "borderWidth": "1px",
         "borderStyle": "solid",
-        "borderColor": "#10b981",
+        "borderColor": "#0a7526",
         "borderRadius": "8px",
         "cursor": "pointer",
         "transition": "all 200ms ease",
@@ -560,12 +560,12 @@
         "height": "40px"
       },
       "editButtonHover": {
-        "borderColor": "#059669",
-        "background": "#10b981",
+        "borderColor": "#0a7526",
+        "background": "#0a7526",
         "color": "#ffffff"
       },
       "editButtonFocus": {
-        "outline": "2px solid #10b981",
+        "outline": "2px solid #0a7526",
         "outlineOffset": "1px"
       },
       "editIcon": {
@@ -600,8 +600,8 @@
           "transition": "border-color 200ms ease"
         },
         "inputWrapperFocus": {
-          "borderColor": "#10b981",
-          "boxShadow": "0 0 0 3px rgba(16, 185, 129, 0.1)"
+          "borderColor": "#0a7526",
+          "boxShadow": "0 0 0 3px rgba(13, 148, 48, 0.1)"
         },
         "input": {
           "width": "100%",
@@ -616,11 +616,11 @@
           "textAlign": "center"
         },
         "inputFocus": {
-          "borderColor": "#10b981",
-          "boxShadow": "0 0 0 3px rgba(16, 185, 129, 0.1)"
+          "borderColor": "#0a7526",
+          "boxShadow": "0 0 0 3px rgba(13, 148, 48, 0.1)"
         },
         "inputError": {
-          "borderColor": "#ef4444",
+          "borderColor": "#dc2626",
           "boxShadow": "0 0 0 3px rgba(239, 68, 68, 0.1)"
         },
         "unitLabel": {
@@ -650,7 +650,7 @@
           "fontSize": "14px",
           "fontWeight": "500",
           "color": "#ffffff",
-          "background": "#10b981",
+          "background": "#0a7526",
           "border": "none",
           "borderRadius": "6px",
           "cursor": "pointer",
@@ -660,9 +660,9 @@
           "minWidth": "100px"
         },
         "saveButtonHover": {
-          "background": "#059669",
+          "background": "#0a7526",
           "transform": "translateY(-1px)",
-          "boxShadow": "0 2px 4px rgba(16, 185, 129, 0.2)"
+          "boxShadow": "0 2px 4px rgba(13, 148, 48, 0.2)"
         },
         "saveButtonDisabled": {
           "opacity": "0.5",
@@ -720,7 +720,7 @@
         "marginTop": "8px",
         "padding": "8px 12px",
         "background": "#fef2f2",
-        "borderLeft": "3px solid #ef4444",
+        "borderLeft": "3px solid #dc2626",
         "borderRadius": "4px",
         "fontSize": "12px",
         "color": "#b91c1c"
@@ -751,7 +751,7 @@
           "color": "#1f2937"
         },
         "highlight": {
-          "color": "#10b981",
+          "color": "#0a7526",
           "fontWeight": "600"
         }
       },
@@ -804,7 +804,7 @@
       "borderLeftColor": "#6b7280",
       "icon": {
         "fontSize": "24px",
-        "color": "#10b981",
+        "color": "#0a7526",
         "marginBottom": "12px"
       },
       "content": {
@@ -831,17 +831,17 @@
         "padding": "14px 28px",
         "fontSize": "14px",
         "fontWeight": "500",
-        "color": "#10b981",
+        "color": "#0a7526",
         "background": "transparent",
         "border": "none",
-        "borderBottom": "2px solid #10b981",
+        "borderBottom": "2px solid #0a7526",
         "borderRadius": "0",
         "textTransform": "uppercase",
         "letterSpacing": "0.5px",
         "cursor": "pointer",
         "transition": "all 200ms ease",
         "hover": {
-          "background": "#10b981",
+          "background": "#0a7526",
           "color": "#ffffff",
           "transform": "translateY(-1px)"
         },
@@ -868,7 +868,7 @@
         "fontSize": "16px",
         "fontWeight": "500",
         "color": "#ffffff",
-        "background": "#10b981",
+        "background": "#0a7526",
         "border": "none",
         "borderRadius": "8px",
         "textTransform": "uppercase",
@@ -879,13 +879,13 @@
         "overflow": "hidden"
       },
       "buttonHover": {
-        "background": "#059669",
+        "background": "#0a7526",
         "transform": "translateY(-2px)",
-        "boxShadow": "0 8px 20px rgba(16, 185, 129, 0.3)"
+        "boxShadow": "0 8px 20px rgba(13, 148, 48, 0.3)"
       },
       "buttonActive": {
         "transform": "translateY(0)",
-        "boxShadow": "0 4px 12px rgba(16, 185, 129, 0.2)"
+        "boxShadow": "0 4px 12px rgba(13, 148, 48, 0.2)"
       },
       "buttonDisabled": {
         "opacity": "0.5",
@@ -911,7 +911,7 @@
       },
       "buttonSuccess": {
         "_comment": "Success state after submission",
-        "background": "#10b981",
+        "background": "#0a7526",
         "icon": "✓",
         "text": "Onnistui!"
       },
@@ -928,17 +928,17 @@
         "padding": "14px 28px",
         "fontSize": "14px",
         "fontWeight": "500",
-        "color": "#10b981",
+        "color": "#0a7526",
         "background": "transparent",
         "border": "none",
-        "borderBottom": "2px solid #10b981",
+        "borderBottom": "2px solid #0a7526",
         "borderRadius": "0",
         "textTransform": "uppercase",
         "letterSpacing": "0.5px",
         "cursor": "pointer",
         "transition": "all 200ms ease",
         "hover": {
-          "background": "#10b981",
+          "background": "#0a7526",
           "color": "#ffffff",
           "transform": "translateY(-1px)"
         },
@@ -982,13 +982,14 @@
         },
         "cardStream": {
           "width": "100%",
-          "padding": "8px",
+          "padding": "4px",
           "maxHeight": "none"
         },
         "card": {
-          "padding": "24px",
-          "borderRadius": "8px",
-          "marginBottom": "16px"
+          "padding": "20px 12px",
+          "borderRadius": "0",
+          "marginBottom": "16px",
+          "border": "none"
         },
         "title": {
           "fontSize": "20px"
@@ -1047,15 +1048,15 @@
     "colors": {
       "_comment": "Global color palette - Minimal theme",
       "brand": {
-        "primary": "#10b981",
-        "primaryHover": "#059669",
+        "primary": "#0a7526",
+        "primaryHover": "#086320",
         "primaryLight": "#ecfdf5"
       },
       "text": {
         "primary": "#1f2937",
-        "secondary": "#6b7280",
-        "tertiary": "#9ca3af",
-        "placeholder": "#d1d5db",
+        "secondary": "#4b5563",
+        "tertiary": "#6b7280",
+        "placeholder": "#9ca3af",
         "inverse": "#ffffff"
       },
       "background": {
@@ -1067,14 +1068,14 @@
       "border": {
         "default": "#e5e7eb",
         "hover": "#d1d5db",
-        "focus": "#10b981",
+        "focus": "#0a7526",
         "subtle": "#f9fafb"
       },
       "state": {
-        "error": "#ef4444",
-        "warning": "#f59e0b",
-        "success": "#10b981",
-        "info": "#3b82f6"
+        "error": "#dc2626",
+        "warning": "#d97706",
+        "success": "#0a7526",
+        "info": "#2563eb"
       }
     },
     "typography": {
@@ -1107,7 +1108,7 @@
     },
     "accessibility": {
       "_comment": "Accessibility settings",
-      "focusOutline": "3px solid #10b981",
+      "focusOutline": "3px solid #0a7526",
       "focusOutlineOffset": "2px",
       "minContrastRatio": "4.5:1",
       "minTouchTarget": "44px",

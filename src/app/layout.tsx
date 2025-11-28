@@ -7,6 +7,7 @@ import GoogleTagManager, {
   GoogleTagManagerNoScript,
 } from '@/components/GoogleTagManager';
 import { CookieConsentBanner } from '@/components/CookieConsentBanner';
+import IframeResizer from '@/components/IframeResizer';
 import { GTM_ID } from '@/config/gtm';
 
 const inter = Inter({
@@ -44,8 +45,9 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="fi">
       <head>
+        <title>E1 Calculator - Energiaykkönen</title>
         <link
           href="https://fonts.googleapis.com/icon?family=Material+Icons"
           rel="stylesheet"
@@ -57,6 +59,7 @@ export default function RootLayout({
         {/* Google Tag Manager (noscript) */}
         <GoogleTagManagerNoScript gtmId={GTM_ID} />
         <DisableConsole />
+        <IframeResizer />
         {children}
         {/* Cookie Consent Banner */}
         <CookieConsentBanner />

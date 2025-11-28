@@ -306,6 +306,10 @@ export async function getLookupDefault(
     if (error.code === 'PGRST116') {
       return null;
     } // Not found
+    // Handle cases where error might be empty object (seen in logs)
+    if (Object.keys(error).length === 0 || (!error.code && !error.message)) {
+      return null;
+    }
     throw new Error(`Failed to fetch lookup default: ${error.message}`);
   }
 

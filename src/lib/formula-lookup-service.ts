@@ -88,6 +88,14 @@ export async function getFormulaLookupByName(
     if (error.code === 'PGRST116') {
       return null; // Not found
     }
+    // Handle cases where error might be empty object (seen in logs)
+    if (Object.keys(error).length === 0 || (!error.code && !error.message)) {
+      console.warn(
+        'Empty error received fetching formula lookup, treating as not found:',
+        name
+      );
+      return null;
+    }
     console.error('Error fetching formula lookup:', error);
     throw error;
   }

@@ -119,27 +119,17 @@ export function CardProvider({
           sessionId
         );
 
-        // Check completion using database logic with proper session isolation
+        // Track completion in database (for analytics) but don't auto-advance
+        // User must click "Seuraava" button to advance
         const shouldBeComplete = await checkCardCompletion(
           fieldCard.id,
           sessionId
         );
 
-        // Update card completion state based on database logic
         if (shouldBeComplete) {
           await updateCardCompletion(fieldCard.id, sessionId, true, fieldName);
         }
-
-        if (shouldBeComplete) {
-          // Update local state to reflect completion
-          setCardStates(prev => ({
-            ...prev,
-            [fieldCard.id]: { ...prev[fieldCard.id], status: 'complete' },
-          }));
-
-          // Handle reveal timing for next card
-          await handleCardCompleted(fieldCard);
-        }
+        // NOTE: Removed automatic card reveal - user clicks "Seuraava" button instead
       }
     },
     [cards, sessionId, formData]
@@ -203,71 +193,14 @@ export function CardProvider({
     }));
   }, []);
 
-  const revealCard = useCallback(
-    (cardId: string) => {
-      const card = cards.find(c => c.id === cardId);
-      setCardStates(prev => ({
-        ...prev,
-        [cardId]: { ...prev[cardId], isRevealed: true },
-      }));
-
-      // Auto-complete non-form cards when revealed and cascade to next
-      if (
-        card &&
-        (card.type === 'info' ||
-          card.type === 'visual' ||
-          card.type === 'calculation')
-      ) {
-        setCardStates(prev => ({
-          ...prev,
-          [cardId]: { ...prev[cardId], status: 'complete', isRevealed: true },
-        }));
-
-        const currentIndex = cards.findIndex(c => c.id === cardId);
-        const nextCard = cards[currentIndex + 1];
-        if (nextCard) {
-          const timing = card.reveal_timing;
-          if (timing?.timing === 'after_delay') {
-            const delayMs = (timing.delay_seconds || 3) * 1000;
-            setTimeout(() => revealCard(nextCard.id), delayMs);
-          } else {
-            revealCard(nextCard.id);
-          }
-        }
-      }
-    },
-    [cards]
-  );
-
-  // Handle card completion and reveal timing logic
-  const handleCardCompleted = useCallback(
-    async (card: CardTemplate) => {
-      const currentCardIndex = cards.findIndex(c => c.id === card.id);
-      const nextCard = cards[currentCardIndex + 1];
-
-      if (nextCard) {
-        // Treat missing or empty reveal_timing as immediate
-        const revealTiming = card.reveal_timing;
-
-        // Use reveal_timing (required for all cards)
-        if (revealTiming && (revealTiming as any).timing) {
-          if (revealTiming.timing === 'immediately') {
-            revealCard(nextCard.id);
-          } else if (revealTiming.timing === 'after_delay') {
-            const delayMs = (revealTiming.delay_seconds || 3) * 1000;
-            setTimeout(() => {
-              revealCard(nextCard.id);
-            }, delayMs);
-          }
-        } else {
-          // No reveal_timing defined - require proper reveal_timing to be set
-          // Default to immediate reveal for now to prevent system from breaking
-          revealCard(nextCard.id);
-        }
-      }
-    },
-    [cards, revealCard]
-  );
+  const revealCard = useCallback((cardId: string) => {
+    setCardStates(prev => ({
+      ...prev,
+      [cardId]: { ...prev[cardId], isRevealed: true },
+    }));
+    // NOTE: Removed auto-complete for info/visual/calculation cards
+    // User must click "Seuraava" button to advance to next card
+  }, []);
 
   // New function to check if a card is complete based on its type and completion rules
   const isCardComplete = useCallback(
@@ -737,6 +670,30 @@ export function CardProvider({
 
     initializeSession();
   }, [sessionId]);
+
+  // Initialize formData with default values from card_fields
+  useEffect(() => {
+    if (cards.length === 0) {
+      return;
+    }
+
+    const initialFormData: Record<string, any> = {};
+
+    cards.forEach(card => {
+      if (card.card_fields) {
+        card.card_fields.forEach(field => {
+          const defaultValue = field.validation_rules?.default;
+          if (defaultValue !== undefined && defaultValue !== null) {
+            initialFormData[field.field_name] = defaultValue;
+          }
+        });
+      }
+    });
+
+    if (Object.keys(initialFormData).length > 0) {
+      setFormData(prev => ({ ...initialFormData, ...prev }));
+    }
+  }, [cards]);
 
   const value = {
     formData,

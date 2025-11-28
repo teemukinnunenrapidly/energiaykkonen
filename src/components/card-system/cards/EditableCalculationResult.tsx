@@ -11,6 +11,7 @@ interface EditableCalculationResultProps {
   editPrompt?: string;
   validationMin?: number;
   validationMax?: number;
+  showDisplayValue?: boolean;
 }
 
 export const EditableCalculationResult: React.FC<
@@ -24,6 +25,7 @@ export const EditableCalculationResult: React.FC<
   isCalculating = false,
   validationMin,
   validationMax,
+  showDisplayValue = true,
 }) => {
   const styles = useCardStyles();
   const [isEditing, setIsEditing] = useState(false);
@@ -286,37 +288,42 @@ export const EditableCalculationResult: React.FC<
       )}
 
       {/* Display the calculated value - using calculation card styles */}
-      <div style={styles.calculationCard.resultDisplay as React.CSSProperties}>
+      {showDisplayValue && (
         <div
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '12px',
-          }}
+          style={styles.calculationCard.resultDisplay as React.CSSProperties}
         >
           <div
             style={{
-              ...(styles.calculationCard.metricValue as React.CSSProperties),
-              flex: 1,
+              display: 'flex',
+              alignItems: 'center',
+              gap: '12px',
             }}
           >
-            {displayValue}
-          </div>
-          {displayUnit && (
             <div
-              style={styles.calculationCard.metricUnit as React.CSSProperties}
+              style={{
+                ...(styles.calculationCard.metricValue as React.CSSProperties),
+                flex: 1,
+              }}
             >
-              {displayUnit}
+              {displayValue}
             </div>
-          )}
+            {displayUnit && (
+              <div
+                style={styles.calculationCard.metricUnit as React.CSSProperties}
+              >
+                {displayUnit}
+              </div>
+            )}
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Edit button - properly styled with design tokens */}
       <button
         onClick={handleEdit}
         style={{
-          ...(styles.calculationCard.editButton as React.CSSProperties),
+          ...((styles as any).customCalculationCard?.editButton ||
+            styles.calculationCard.editButton),
           width: '100%',
           marginTop: '16px',
           marginBottom: isOverridden ? '8px' : '0',
@@ -326,28 +333,31 @@ export const EditableCalculationResult: React.FC<
           gap: '8px',
         }}
         onMouseEnter={e => {
-          const hover = styles.calculationCard as any;
-          if (hover?.editButtonHover?.background) {
-            e.currentTarget.style.background = hover.editButtonHover.background;
+          const hover =
+            (styles as any).customCalculationCard?.editButtonHover ||
+            styles.calculationCard.editButtonHover;
+          if (hover?.background) {
+            e.currentTarget.style.background = hover.background;
           }
-          if (hover?.editButtonHover?.color) {
-            e.currentTarget.style.color = hover.editButtonHover.color;
+          if (hover?.color) {
+            e.currentTarget.style.color = hover.color;
           }
-          if (hover?.editButtonHover?.borderColor) {
-            e.currentTarget.style.borderColor =
-              hover.editButtonHover.borderColor;
+          if (hover?.borderColor) {
+            e.currentTarget.style.borderColor = hover.borderColor;
           }
         }}
         onMouseLeave={e => {
-          const base = styles.calculationCard as any;
-          if (base?.editButton?.background) {
-            e.currentTarget.style.background = base.editButton.background;
+          const base =
+            (styles as any).customCalculationCard?.editButton ||
+            styles.calculationCard.editButton;
+          if (base?.background) {
+            e.currentTarget.style.background = base.background;
           }
-          if (base?.editButton?.color) {
-            e.currentTarget.style.color = base.editButton.color;
+          if (base?.color) {
+            e.currentTarget.style.color = base.color;
           }
-          if (base?.editButton?.borderColor) {
-            e.currentTarget.style.borderColor = base.editButton.borderColor;
+          if (base?.borderColor) {
+            e.currentTarget.style.borderColor = base.borderColor;
           }
         }}
       >

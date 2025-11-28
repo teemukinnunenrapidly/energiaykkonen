@@ -1,18 +1,42 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { type CardTemplate } from '@/lib/supabase';
 import { useCardContext } from '../CardContext';
-import { EditableCalculationResult } from './EditableCalculationResult';
 import { useCardStyles } from '@/hooks/useCardStyles';
 import { gtmEvents } from '@/config/gtm';
+import { NextButton } from '../NextButton';
+import { Calculator } from 'lucide-react';
 // Sentry utilities removed; calculation errors will surface via UI or server logs
 
 interface CalculationCardProps {
   card: CardTemplate;
   onFieldFocus?: (cardId: string, fieldId: string, value: any) => void;
+  isLastCard?: boolean;
 }
 
-export function CalculationCard({ card }: CalculationCardProps) {
+export function CalculationCard({
+  card,
+  isLastCard = false,
+}: CalculationCardProps) {
   const styles = useCardStyles();
+
+  // Mobile detection
+  const [isMobile, setIsMobile] = useState(false);
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth <= 768);
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+  // Determine card style variant: 'primary' (green bg) or 'inverted' (white bg)
+  const cardStyle = card.config?.card_style || 'primary';
+  const isInverted = cardStyle === 'inverted';
+
+  // Select the appropriate style object based on variant
+  const cardStyles = isInverted
+    ? (styles as any).invertedCalculationCard
+    : (styles as any).customCalculationCard;
+
   const {
     formData,
     completeCard,
@@ -30,8 +54,11 @@ export function CalculationCard({ card }: CalculationCardProps) {
   // const [formulaName, setFormulaName] = useState<string | null>(null); // Unused for now
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitSuccess, setSubmitSuccess] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editValue, setEditValue] = useState('');
   const hasProcessedCalculationRef = useRef<boolean>(false);
   const lastDependencyValuesRef = useRef<Record<string, any>>({});
+  const isManuallyOverriddenRef = useRef<boolean>(false);
 
   // Process calculation
   useEffect(() => {
@@ -44,6 +71,11 @@ export function CalculationCard({ card }: CalculationCardProps) {
 
         if (!isThisCardRevealed) {
           hasProcessedCalculationRef.current = false;
+          return;
+        }
+
+        // Skip recalculation if user has manually overridden the value
+        if (isManuallyOverriddenRef.current) {
           return;
         }
 
@@ -333,6 +365,49 @@ export function CalculationCard({ card }: CalculationCardProps) {
     }
   };
 
+  // Inline editing helpers
+  const startEditing = () => {
+    if (!calculatedResult) {
+      return;
+    }
+    // Extract numeric value from formatted string (e.g., "23 540" -> "23540")
+    const numericStr = calculatedResult.replace(/\s/g, '').replace(',', '.');
+    setEditValue(numericStr);
+    setIsEditing(true);
+  };
+
+  const handleInlineSave = () => {
+    const parsed = parseFloat(editValue.replace(/\s/g, '').replace(',', '.'));
+    if (!isNaN(parsed)) {
+      // Format with Finnish locale
+      const formatted = parsed.toLocaleString('fi-FI');
+      // Mark as manually overridden to prevent recalculation
+      isManuallyOverriddenRef.current = true;
+      handleResultOverride(formatted);
+    }
+    setIsEditing(false);
+  };
+
+  const handleRevert = () => {
+    if (originalResult) {
+      // Clear manual override flag to allow recalculation
+      isManuallyOverriddenRef.current = false;
+      setCalculatedResult(originalResult);
+      // Also update formData
+      if (card.config?.field_name) {
+        const numericResult = parseFloat(
+          originalResult.replace(/\s/g, '').replace(',', '.')
+        );
+        if (!isNaN(numericResult)) {
+          updateField(card.config.field_name, numericResult);
+        }
+      }
+    }
+  };
+
+  const isOverridden =
+    calculatedResult !== originalResult && originalResult !== null;
+
   const handleSubmit = async () => {
     if (isSubmitting) {
       return;
@@ -382,16 +457,28 @@ export function CalculationCard({ card }: CalculationCardProps) {
   return (
     <div
       style={{
-        padding: styles.calculationCard.container.padding,
-        background: styles.calculationCard.container.background,
+        ...(cardStyles?.container || styles.calculationCard.container),
+        ...(isMobile && cardStyles?.containerMobile
+          ? cardStyles.containerMobile
+          : {}),
       }}
     >
       {/* Header section */}
       {(card.title || card.config?.description) && (
-        <div style={styles.calculationCard.header as React.CSSProperties}>
+        <div
+          style={
+            (cardStyles?.header ||
+              styles.calculationCard.header) as React.CSSProperties
+          }
+        >
+          {/* Icon */}
+          <div style={cardStyles?.iconContainer as React.CSSProperties}>
+            <Calculator style={cardStyles?.icon as React.CSSProperties} />
+          </div>
+
           <h3
             style={{
-              ...(styles.calculationCard.title as React.CSSProperties),
+              ...(cardStyles?.title || styles.calculationCard.title),
             }}
           >
             {card.title || card.name}
@@ -399,7 +486,8 @@ export function CalculationCard({ card }: CalculationCardProps) {
           {card.config?.description && (
             <p
               style={{
-                ...(styles.calculationCard.description as React.CSSProperties),
+                ...(cardStyles?.description ||
+                  styles.calculationCard.description),
               }}
             >
               {card.config.description}
@@ -409,49 +497,157 @@ export function CalculationCard({ card }: CalculationCardProps) {
       )}
 
       {/* Main Result Field */}
-      <div style={styles.calculationCard.resultSection as React.CSSProperties}>
-        <div
-          style={styles.calculationCard.resultDisplay as React.CSSProperties}
-        >
-          {error ? (
-            <div
-              style={styles.calculationCard.errorMessage as React.CSSProperties}
-            >
-              {error}
-            </div>
-          ) : calculatedResult && card.config?.enable_edit_mode ? (
-            <EditableCalculationResult
-              value={`${calculatedResult}${resultUnit ? ` ${resultUnit}` : ''}`}
-              originalValue={`${originalResult || calculatedResult}${resultUnit ? ` ${resultUnit}` : ''}`}
-              unit={resultUnit || ''}
-              onUpdate={handleResultOverride}
-              editButtonText={card.config?.edit_prompt || 'Korjaa lukemaa'}
-              isCalculating={isCalculating}
-            />
-          ) : calculatedResult ? (
-            <div
-              style={
-                styles.calculationCard.resultDisplay as React.CSSProperties
-              }
-            >
-              <div style={{ fontSize: '2rem', fontWeight: '600' }}>
+      <div
+        style={
+          (cardStyles?.resultSection ||
+            styles.calculationCard.resultSection) as React.CSSProperties
+        }
+      >
+        {error ? (
+          <div
+            style={styles.calculationCard.errorMessage as React.CSSProperties}
+          >
+            {error}
+          </div>
+        ) : calculatedResult ? (
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'baseline',
+              justifyContent: 'center',
+              flexWrap: 'wrap',
+              position: 'relative',
+            }}
+          >
+            {/* Muokattu badge */}
+            {isOverridden && (
+              <div
+                style={{
+                  position: 'absolute',
+                  top: '-24px',
+                  left: '50%',
+                  transform: 'translateX(-50%)',
+                  background: isInverted
+                    ? cardStyles?.overriddenBadge?.background ||
+                      'rgba(13,148,48,0.2)'
+                    : 'rgba(255,255,255,0.2)',
+                  color: isInverted
+                    ? cardStyles?.overriddenBadge?.color ||
+                      styles.colors.brand.primary
+                    : '#ffffff',
+                  fontSize: '0.75rem',
+                  padding: '2px 10px',
+                  borderRadius: '12px',
+                  fontWeight: 500,
+                }}
+              >
+                Muokattu
+              </div>
+            )}
+            {isEditing ? (
+              <input
+                type="text"
+                value={editValue}
+                onChange={e => setEditValue(e.target.value)}
+                onKeyDown={e => {
+                  if (e.key === 'Enter') {
+                    handleInlineSave();
+                  }
+                  if (e.key === 'Escape') {
+                    setIsEditing(false);
+                  }
+                }}
+                onBlur={handleInlineSave}
+                autoFocus
+                size={Math.max(editValue.length, 6)}
+                style={{
+                  ...(cardStyles?.metricValue ||
+                    styles.calculationCard.metricValue),
+                  background: 'transparent',
+                  border: 'none',
+                  borderBottom: isInverted
+                    ? cardStyles?.inputUnderline?.borderBottom ||
+                      `3px solid ${styles.colors.brand.primary}60`
+                    : '3px solid rgba(255,255,255,0.6)',
+                  outline: 'none',
+                  textAlign: 'center',
+                  caretColor: isInverted
+                    ? cardStyles?.inputUnderline?.caretColor ||
+                      styles.colors.brand.primary
+                    : '#ffffff',
+                }}
+              />
+            ) : (
+              <div
+                onClick={
+                  card.config?.enable_edit_mode ? startEditing : undefined
+                }
+                style={{
+                  ...(cardStyles?.metricValue ||
+                    styles.calculationCard.metricValue),
+                  cursor: card.config?.enable_edit_mode ? 'pointer' : 'default',
+                  transition: 'opacity 0.2s',
+                }}
+                title={
+                  card.config?.enable_edit_mode
+                    ? 'Klikkaa muokataksesi'
+                    : undefined
+                }
+              >
                 {String(calculatedResult || '')}
               </div>
-              <div style={{ fontSize: '1.2rem', color: '#6b7280' }}>
-                {resultUnit || (card.title?.includes('hinta') ? '€' : 'kWh')}
-              </div>
-            </div>
-          ) : (
+            )}
             <div
               style={
-                styles.calculationCard.resultDisplay as React.CSSProperties
+                cardStyles?.metricUnit || styles.calculationCard.metricUnit
               }
             >
-              Syötä arvot yllä nähdäksesi laskelman
+              {resultUnit || (card.title?.includes('hinta') ? '€' : 'kWh')}
             </div>
+          </div>
+        ) : (
+          <div
+            style={styles.calculationCard.resultDisplay as React.CSSProperties}
+          >
+            Syötä arvot yllä nähdäksesi laskelman
+          </div>
+        )}
+      </div>
+
+      {/* Edit/Revert Button */}
+      {calculatedResult && card.config?.enable_edit_mode && !isEditing && (
+        <div style={cardStyles?.editSection as React.CSSProperties}>
+          {isOverridden ? (
+            <button
+              onClick={handleRevert}
+              style={{
+                ...(cardStyles?.editButton || {}),
+                width: '100%',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '8px',
+              }}
+            >
+              ↩ Palauta laskettu arvo ({originalResult} {resultUnit})
+            </button>
+          ) : (
+            <button
+              onClick={startEditing}
+              style={{
+                ...(cardStyles?.editButton || {}),
+                width: '100%',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '8px',
+              }}
+            >
+              ✏️ Korjaa lukemaa
+            </button>
           )}
         </div>
-      </div>
+      )}
 
       {/* Submit button if configured */}
       {canSubmit && (
@@ -471,6 +667,15 @@ export function CalculationCard({ card }: CalculationCardProps) {
               : 'Lähetä'}
         </button>
       )}
+
+      {/* Next Button */}
+      <div style={cardStyles?.nextButtonSection as React.CSSProperties}>
+        <NextButton
+          card={card}
+          isLastCard={isLastCard}
+          variant={isInverted ? 'default' : 'inverse'}
+        />
+      </div>
     </div>
   );
 }

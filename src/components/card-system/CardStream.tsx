@@ -25,8 +25,23 @@ export function CardStream({
 }: CardStreamProps) {
   const { cards, shouldBeRevealed, cardStates } = useCardContext();
   const styles = useCardStyles();
-  // Temporary rule: hide visuals for specific cards entirely
+
+  // Mobile detection for removing borders
+  const [isMobile, setIsMobile] = useState(false);
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth <= 768);
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+  // Check if visual column should be rendered for a card
   const shouldRenderVisual = useCallback((card: any) => {
+    // Config-based full-width flag takes priority
+    if (card.config?.full_width === true) {
+      return false;
+    }
+
+    // Fallback to hardcoded blocking for specific cards
     const title = String(card?.title || card?.name || '').toLowerCase();
     const blocked: string[] = [
       'arvio kokonaiskulutuksesta vuositasolla',
@@ -192,6 +207,7 @@ export function CardStream({
           {visibleCards.map(card => {
             const isActive = activeCardId === card.id;
             const isComplete = cardStates[card.id]?.status === 'complete';
+            const isLastCard = cards.indexOf(card) === cards.length - 1;
 
             return (
               <React.Fragment key={card.id}>
@@ -205,17 +221,17 @@ export function CardStream({
                     marginBottom: styles.card.base.marginBottom,
                   }}
                 >
-                  {/* Left: visual column (default placement) - always reserve width to keep card sizes consistent */}
-                  {!forceShowInline && (
-                    <div
-                      style={{
-                        flex: `0 0 ${styles.layout.visualSupportRatio || '35%'}`,
-                        minWidth: 0,
-                      }}
-                    >
-                      {shouldRenderVisual(card) &&
-                      (card.visual_objects ||
-                        (card as any).config?.linked_visual_object_id) ? (
+                  {/* Left: visual column (default placement) - only render if card should have visual */}
+                  {!forceShowInline &&
+                    shouldRenderVisual(card) &&
+                    (card.visual_objects ||
+                      (card as any).config?.linked_visual_object_id) && (
+                      <div
+                        style={{
+                          flex: `0 0 ${styles.layout.visualSupportRatio || '35%'}`,
+                          minWidth: 0,
+                        }}
+                      >
                         <div
                           style={{
                             background: styles.card.base.background,
@@ -230,41 +246,62 @@ export function CardStream({
                             <VisualSupport activeCard={card} compact={false} />
                           </div>
                         </div>
-                      ) : (
-                        <div style={{ height: '100%' }} />
-                      )}
-                    </div>
-                  )}
+                      </div>
+                    )}
 
                   {/* Right: interactive card */}
                   <div
                     style={{
                       flex: 1,
                       minWidth: 0,
-                      background: isActive
-                        ? styles.card.states.active.background
-                        : isComplete
-                          ? styles.card.states.complete.background
-                          : styles.card.base.background,
-                      borderRadius: styles.card.base.borderRadius,
-                      overflow: styles.card.base.overflow,
-                      borderTop: isActive
-                        ? styles.card.states.active.border
-                        : styles.card.base.border,
-                      borderRight: isActive
-                        ? styles.card.states.active.border
-                        : styles.card.base.border,
-                      borderBottom: isActive
-                        ? styles.card.states.active.border
-                        : styles.card.base.border,
-                      borderLeft: isActive
-                        ? styles.card.states.active.border
-                        : isComplete
-                          ? styles.card.states.complete.borderLeft
-                          : styles.card.base.border,
-                      boxShadow: isActive
-                        ? styles.card.states.active.boxShadow
-                        : styles.card.base.boxShadow,
+                      // Skip base card styling for full_width cards (they have their own container styling)
+                      ...(card.config?.full_width
+                        ? {
+                            background: 'transparent',
+                            borderRadius: isMobile
+                              ? '0'
+                              : styles.card.base.borderRadius,
+                            overflow: styles.card.base.overflow,
+                            border: 'none',
+                            boxShadow: 'none',
+                          }
+                        : {
+                            background: isActive
+                              ? styles.card.states.active.background
+                              : isComplete
+                                ? styles.card.states.complete.background
+                                : styles.card.base.background,
+                            borderRadius: isMobile
+                              ? '0'
+                              : styles.card.base.borderRadius,
+                            overflow: styles.card.base.overflow,
+                            // Remove borders on mobile
+                            ...(isMobile
+                              ? {
+                                  border: 'none',
+                                }
+                              : {
+                                  borderTop: isActive
+                                    ? styles.card.states.active.border
+                                    : styles.card.base.border,
+                                  borderRight: isActive
+                                    ? styles.card.states.active.border
+                                    : styles.card.base.border,
+                                  borderBottom: isActive
+                                    ? styles.card.states.active.border
+                                    : styles.card.base.border,
+                                  borderLeft: isActive
+                                    ? styles.card.states.active.border
+                                    : isComplete
+                                      ? styles.card.states.complete.borderLeft
+                                      : styles.card.base.border,
+                                }),
+                            boxShadow: isMobile
+                              ? 'none'
+                              : isActive
+                                ? styles.card.states.active.boxShadow
+                                : styles.card.base.boxShadow,
+                          }),
                       transform: isActive
                         ? styles.card.states.active.transform
                         : 'scale(1)',
@@ -283,8 +320,12 @@ export function CardStream({
                         <div
                           style={{
                             margin: '0 0 0 0',
-                            borderTopLeftRadius: styles.card.base.borderRadius,
-                            borderTopRightRadius: styles.card.base.borderRadius,
+                            borderTopLeftRadius: isMobile
+                              ? '0'
+                              : styles.card.base.borderRadius,
+                            borderTopRightRadius: isMobile
+                              ? '0'
+                              : styles.card.base.borderRadius,
                             borderBottomLeftRadius: 0,
                             borderBottomRightRadius: 0,
                             overflow: 'hidden',
@@ -348,7 +389,11 @@ export function CardStream({
                           </svg>
                         </div>
                       )}
-                    <CardRenderer card={card} onFieldFocus={onFieldFocus} />
+                    <CardRenderer
+                      card={card}
+                      onFieldFocus={onFieldFocus}
+                      isLastCard={isLastCard}
+                    />
                   </div>
                 </div>
 
@@ -367,7 +412,7 @@ export function CardStream({
                 display: 'flex',
                 flexDirection: 'column',
                 alignItems: 'center',
-                color: '#9CA3AF',
+                color: '#4b5563',
               }}
             >
               <style>{`

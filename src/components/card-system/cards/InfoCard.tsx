@@ -1,27 +1,15 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import type { CardTemplate } from '@/lib/supabase';
 import { useCardStyles } from '@/hooks/useCardStyles';
-import { useCardContext } from '../CardContext';
+import { NextButton } from '../NextButton';
 
 interface InfoCardProps {
   card: CardTemplate;
+  isLastCard?: boolean;
 }
 
-export function InfoCard({ card }: InfoCardProps) {
+export function InfoCard({ card, isLastCard = false }: InfoCardProps) {
   const styles = useCardStyles();
-  const { completeCard, cardStates } = useCardContext();
-
-  // Auto-complete info card when it becomes revealed
-  useEffect(() => {
-    const cardState = cardStates[card.id];
-    const isRevealed = cardState?.isRevealed;
-    const isComplete = cardState?.status === 'complete';
-
-    if (isRevealed && !isComplete) {
-      console.log(`✅ Auto-completing info card: ${card.name}`);
-      completeCard(card.id);
-    }
-  }, [card.id, card.name, completeCard, cardStates]);
 
   return (
     <div
@@ -74,6 +62,9 @@ export function InfoCard({ card }: InfoCardProps) {
           dangerouslySetInnerHTML={{ __html: card.config.content }}
         />
       )}
+
+      {/* Next Button */}
+      <NextButton card={card} isLastCard={isLastCard} />
     </div>
   );
 }

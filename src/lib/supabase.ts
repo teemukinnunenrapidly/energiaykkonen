@@ -236,7 +236,8 @@ export interface CardField {
     | 'radio'
     | 'buttons'
     | 'checkbox'
-    | 'textarea';
+    | 'textarea'
+    | 'quantity';
   label: string;
   placeholder?: string;
   help_text?: string;
@@ -247,6 +248,8 @@ export interface CardField {
     minLength?: number;
     maxLength?: number;
     selectOnlyOne?: boolean; // For buttons field type - single vs multiple selection
+    step?: number; // For quantity field type - increment/decrement step
+    default?: number; // For quantity field type - default value
   };
   width: 'full' | 'half' | 'third';
   display_order: number;

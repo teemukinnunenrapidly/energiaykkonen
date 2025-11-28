@@ -30,7 +30,7 @@
   /* Cards */
   --cs-card-background: #ffffff;
   --cs-card-border-radius: 12px;
-  --cs-card-border-left: 4px solid #10b981;
+  --cs-card-border-left: 4px solid #0d9430;
   --cs-card-padding: 32px;
   --cs-card-margin-bottom: 20px;
   --cs-card-box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
@@ -52,7 +52,7 @@
   --cs-font-weight-semibold: 600;
 
   /* Colors */
-  --cs-color-brand-primary: #10b981;
+  --cs-color-brand-primary: #0d9430;
   --cs-color-text-primary: #1f2937;
   --cs-color-text-secondary: #6b7280;
   --cs-color-border-default: #e5e7eb;

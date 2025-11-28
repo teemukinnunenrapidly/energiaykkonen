@@ -178,7 +178,7 @@ export function VisualSupport({
               justifyContent: 'center',
               background:
                 (styles.visualSupport.content.background as any) ||
-                'linear-gradient(135deg,#10b981,#34d399)',
+                'linear-gradient(135deg,#0d9430,#34d399)',
             }}
           >
             {/* Sample-only PDF teaser with some structure */}
@@ -374,7 +374,7 @@ export function VisualSupport({
                     style={{
                       flex: 1,
                       background: '#ecfdf5',
-                      border: '2px solid #10b981',
+                      border: '2px solid #0d9430',
                       borderRadius: 8,
                       padding: 10,
                     }}
@@ -845,7 +845,7 @@ export function VisualSupport({
                     style={{
                       flex: 1,
                       background: '#ecfdf5',
-                      border: '2px solid #10b981',
+                      border: '2px solid #0d9430',
                       borderRadius: 8,
                       padding: 10,
                     }}

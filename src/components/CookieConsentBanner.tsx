@@ -204,7 +204,7 @@ export function CookieConsentBanner({
                 href="https://energiaykkonen.fi/evasteseloste/"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-blue-600 hover:underline"
+                className="text-blue-700 underline hover:text-blue-900"
               >
                 Lue lisää evästeselosteesta
               </a>

@@ -18,7 +18,7 @@ export const styles = StyleSheet.create({
     alignItems: 'flex-start',
     paddingBottom: 8, // Further reduced
     borderBottomWidth: 2,
-    borderBottomColor: '#10b981',
+    borderBottomColor: '#0d9430',
     borderBottomStyle: 'solid',
     marginBottom: 15, // Further reduced
   },
@@ -142,7 +142,7 @@ export const styles = StyleSheet.create({
     backgroundColor: '#fef2f2',
   },
   systemBoxNew: {
-    borderColor: '#10b981',
+    borderColor: '#0d9430',
     backgroundColor: '#ecfdf5',
   },
   systemTitle: {
@@ -244,16 +244,16 @@ export const styles = StyleSheet.create({
     color: '#ef4444',
   },
   positive: {
-    color: '#10b981',
+    color: '#0d9430',
   },
   elyNote: {
     fontSize: 8,
-    color: '#059669',
+    color: '#0a7526',
     fontWeight: 500,
   },
   elyNoteDescription: {
     fontSize: 7,
-    color: '#059669',
+    color: '#0a7526',
     lineHeight: 1.3,
     paddingTop: 8,
     marginTop: 4,
@@ -298,7 +298,7 @@ export const styles = StyleSheet.create({
     fontSize: 8, // Reduced from 9
   },
   listIcon: {
-    color: '#10b981',
+    color: '#0d9430',
     marginRight: 8,
     fontWeight: 'bold',
   },
