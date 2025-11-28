@@ -38,12 +38,13 @@ export function FormCard({
   const styles = useCardStyles();
   const isMobile = useIsMobile();
 
-  // Determine card style variant: 'default', 'inverted', 'visual-overlay', 'cta', or 'cta-inverted'
+  // Determine card style variant: 'default', 'inverted', 'visual-overlay', 'cta', 'cta-inverted', or 'ctacard'
   const cardStyle = card.config?.card_style || 'default';
   const isHighlight = cardStyle === 'inverted';
   const isVisualOverlay = cardStyle === 'visual-overlay';
   const isCta = cardStyle === 'cta';
   const isCtaInverted = cardStyle === 'cta-inverted';
+  // const isCtacard = cardStyle === 'ctacard';
   const highlightStyles = isHighlight
     ? (styles as any).highlightFormCard
     : null;
@@ -54,6 +55,7 @@ export function FormCard({
   const ctaInvertedStyles = isCtaInverted
     ? (styles as any).ctaFormCardInverted
     : null;
+  // const ctacardStyles = isCtacard ? (styles as any).ctacard : null;
 
   const {
     formData,
@@ -503,12 +505,14 @@ export function FormCard({
               <label
                 style={{
                   display: 'flex',
-                  alignItems: 'center',
-                  gap: '8px',
+                  alignItems: 'flex-start',
+                  gap: 'clamp(14px, 3vw, 18px)',
                   cursor: isCardCompleted ? 'not-allowed' : 'pointer',
-                  fontSize: styles.typography.fontSizeBase,
+                  fontSize: 'clamp(14px, 3vw, 16px)',
                   fontWeight: styles.formElements.label.fontWeight,
                   color: styles.colors.text.primary,
+                  lineHeight: '1.6',
+                  padding: 'clamp(4px, 1vw, 6px) 0',
                 }}
               >
                 <input
@@ -522,27 +526,50 @@ export function FormCard({
                   disabled={isCardCompleted}
                   style={{
                     accentColor: styles.colors.brand.primary,
+                    width: 'clamp(20px, 4.5vw, 22px)',
+                    height: 'clamp(20px, 4.5vw, 22px)',
+                    minWidth: '20px',
+                    minHeight: '20px',
+                    marginTop: '2px',
+                    flexShrink: 0,
+                    cursor: isCardCompleted ? 'not-allowed' : 'pointer',
+                    transform: 'scale(1.3)',
+                    transformOrigin: 'left center',
                   }}
                 />
-                {field.field_name === 'gdpr_consent' ? (
-                  <>
-                    Hyväksyn{' '}
-                    <a
-                      href="https://energiaykkonen.fi/tietosuojaseloste/"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      style={{
-                        color: styles.colors.brand.primary,
-                        textDecoration: 'underline',
-                      }}
-                      onClick={e => e.stopPropagation()}
-                    >
-                      tietosuojaselosteen
-                    </a>
-                  </>
-                ) : (
-                  field.label
-                )}
+                <span style={{ flex: 1, paddingTop: '2px' }}>
+                  {field.field_name === 'gdpr_consent' ? (
+                    <>
+                      Hyväksyn{' '}
+                      <a
+                        href="https://energiaykkonen.fi/tietosuojaseloste/"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        style={{
+                          color: styles.colors.brand.primary,
+                          textDecoration: 'underline',
+                          fontWeight: styles.typography.fontWeightMedium,
+                          fontSize: 'inherit',
+                          transition: 'color 200ms ease',
+                          padding: '0 2px',
+                        }}
+                        onClick={e => e.stopPropagation()}
+                        onMouseEnter={e => {
+                          e.currentTarget.style.color =
+                            styles.colors.brand.primaryHover;
+                        }}
+                        onMouseLeave={e => {
+                          e.currentTarget.style.color =
+                            styles.colors.brand.primary;
+                        }}
+                      >
+                        tietosuojaselosteen
+                      </a>
+                    </>
+                  ) : (
+                    field.label
+                  )}
+                </span>
               </label>
             </div>
             {field.help_text && (
@@ -1275,10 +1302,12 @@ export function FormCard({
                 style={{
                   display: 'flex',
                   alignItems: 'flex-start',
-                  gap: '8px',
+                  gap: 'clamp(14px, 3vw, 18px)',
                   cursor: 'pointer',
-                  fontSize: styles.typography.fontSizeBase,
+                  fontSize: 'clamp(14px, 3vw, 16px)',
                   color: styles.colors.text.primary,
+                  lineHeight: '1.6',
+                  padding: 'clamp(4px, 1vw, 6px) 0',
                 }}
               >
                 <input
@@ -1287,27 +1316,52 @@ export function FormCard({
                   onChange={e =>
                     handleFieldChange(field.field_name, e.target.checked)
                   }
-                  style={{ accentColor: styles.colors.brand.primary }}
+                  style={{
+                    accentColor: styles.colors.brand.primary,
+                    width: 'clamp(20px, 4.5vw, 22px)',
+                    height: 'clamp(20px, 4.5vw, 22px)',
+                    minWidth: '20px',
+                    minHeight: '20px',
+                    marginTop: '2px',
+                    flexShrink: 0,
+                    cursor: 'pointer',
+                    transform: 'scale(1.3)',
+                    transformOrigin: 'left center',
+                  }}
                 />
-                {field.field_name === 'gdpr_consent' ? (
-                  <>
-                    Hyväksyn{' '}
-                    <a
-                      href="https://energiaykkonen.fi/tietosuojaseloste/"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      style={{
-                        color: styles.colors.brand.primary,
-                        textDecoration: 'underline',
-                      }}
-                      onClick={e => e.stopPropagation()}
-                    >
-                      tietosuojaselosteen
-                    </a>
-                  </>
-                ) : (
-                  field.label
-                )}
+                <span style={{ flex: 1, paddingTop: '2px' }}>
+                  {field.field_name === 'gdpr_consent' ? (
+                    <>
+                      Hyväksyn{' '}
+                      <a
+                        href="https://energiaykkonen.fi/tietosuojaseloste/"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        style={{
+                          color: styles.colors.brand.primary,
+                          textDecoration: 'underline',
+                          fontWeight: styles.typography.fontWeightMedium,
+                          fontSize: 'inherit',
+                          transition: 'color 200ms ease',
+                          padding: '0 2px',
+                        }}
+                        onClick={e => e.stopPropagation()}
+                        onMouseEnter={e => {
+                          e.currentTarget.style.color =
+                            styles.colors.brand.primaryHover;
+                        }}
+                        onMouseLeave={e => {
+                          e.currentTarget.style.color =
+                            styles.colors.brand.primary;
+                        }}
+                      >
+                        tietosuojaselosteen
+                      </a>
+                    </>
+                  ) : (
+                    field.label
+                  )}
+                </span>
               </label>
               {error && (
                 <p

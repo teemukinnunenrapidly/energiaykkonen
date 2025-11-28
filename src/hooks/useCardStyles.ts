@@ -41,12 +41,21 @@ export function useCardStyles() {
         position: 'relative',
         overflow: 'hidden',
       },
+      // Mobile: smaller padding for better space utilization
+      containerMobile: {
+        padding: 'clamp(20px, 4vw, 24px) clamp(16px, 3.5vw, 20px)',
+        borderRadius: '0',
+      },
       header: {
-        marginBottom: '32px',
+        marginBottom: 'clamp(20px, 4vw, 32px)',
         width: '100%',
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
+      },
+      // Mobile header adjustments
+      headerMobile: {
+        marginBottom: 'clamp(16px, 3vw, 24px)',
       },
       iconContainer: {
         width: 'clamp(48px, 10vw, 64px)', // Fluid size
@@ -57,7 +66,7 @@ export function useCardStyles() {
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        marginBottom: '24px',
+        marginBottom: 'clamp(16px, 3vw, 24px)',
         boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
         border: '1px solid rgba(255, 255, 255, 0.2)',
       },
@@ -82,7 +91,7 @@ export function useCardStyles() {
         lineHeight: '1.6',
       },
       resultSection: {
-        margin: '40px 0',
+        margin: 'clamp(24px, 5vw, 40px) 0',
         width: '100%',
         display: 'flex',
         justifyContent: 'center',
@@ -129,7 +138,7 @@ export function useCardStyles() {
       editSection: {
         width: '100%',
         maxWidth: '400px',
-        margin: '0 auto 40px auto',
+        margin: '0 auto clamp(24px, 5vw, 40px) auto',
       },
       nextButtonSection: {
         width: '100%',
@@ -155,18 +164,22 @@ export function useCardStyles() {
         position: 'relative',
         overflow: 'hidden',
       },
-      // Mobile: remove border
+      // Mobile: remove border and use smaller padding
       containerMobile: {
         border: 'none',
         borderRadius: '0',
-        padding: 'clamp(20px, 4vw, 32px) clamp(12px, 3vw, 24px)',
+        padding: 'clamp(20px, 4vw, 24px) clamp(16px, 3.5vw, 20px)',
       },
       header: {
-        marginBottom: '32px',
+        marginBottom: 'clamp(20px, 4vw, 32px)',
         width: '100%',
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
+      },
+      // Mobile header adjustments
+      headerMobile: {
+        marginBottom: 'clamp(16px, 3vw, 24px)',
       },
       iconContainer: {
         width: 'clamp(48px, 10vw, 64px)',
@@ -177,7 +190,7 @@ export function useCardStyles() {
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        marginBottom: '24px',
+        marginBottom: 'clamp(16px, 3vw, 24px)',
         boxShadow: '0 4px 12px rgba(10, 117, 38, 0.1)',
         border: `1px solid ${styles.colors.brand.primary}30`,
       },
@@ -202,7 +215,7 @@ export function useCardStyles() {
         lineHeight: '1.6',
       },
       resultSection: {
-        margin: '40px 0',
+        margin: 'clamp(24px, 5vw, 40px) 0',
         width: '100%',
         display: 'flex',
         justifyContent: 'center',
@@ -250,7 +263,7 @@ export function useCardStyles() {
       editSection: {
         width: '100%',
         maxWidth: '400px',
-        margin: '0 auto 40px auto',
+        margin: '0 auto clamp(24px, 5vw, 40px) auto',
       },
       nextButtonSection: {
         width: '100%',
@@ -318,9 +331,10 @@ export function useCardStyles() {
         marginRight: 0,
         borderRadius: 0,
         minHeight: '100%',
+        padding: 'clamp(20px, 4vw, 24px) clamp(16px, 3.5vw, 20px)',
       },
       header: {
-        marginBottom: '24px',
+        marginBottom: 'clamp(16px, 3vw, 24px)',
         textAlign: 'center',
       },
       title: {
@@ -342,7 +356,7 @@ export function useCardStyles() {
       },
       submitWrapper: {
         width: '100%',
-        marginTop: '16px',
+        marginTop: 'clamp(12px, 2vw, 16px)',
       },
       submitButton: {
         width: '100%',
@@ -381,8 +395,8 @@ export function useCardStyles() {
       // Mobile: stack vertically
       wrapperMobile: {
         gridTemplateColumns: '1fr',
-        gap: '24px',
-        padding: 'clamp(24px, 4vw, 40px) clamp(12px, 3vw, 24px)',
+        gap: 'clamp(20px, 4vw, 24px)',
+        padding: 'clamp(20px, 4vw, 40px) clamp(16px, 3.5vw, 24px)',
         textAlign: 'center',
         border: 'none',
         borderRadius: '0',
@@ -404,7 +418,7 @@ export function useCardStyles() {
         zIndex: 2,
         display: 'flex',
         flexDirection: 'column',
-        gap: '20px',
+        gap: 'clamp(16px, 3vw, 20px)',
       },
       // Badge/label above title
       badge: {
@@ -474,7 +488,7 @@ export function useCardStyles() {
         boxShadow: '0 8px 32px rgba(0, 0, 0, 0.15)',
       },
       formHeader: {
-        marginBottom: '24px',
+        marginBottom: 'clamp(16px, 3vw, 24px)',
         textAlign: 'center',
       },
       formTitle: {
@@ -495,7 +509,7 @@ export function useCardStyles() {
       },
       submitWrapper: {
         width: '100%',
-        marginTop: '20px',
+        marginTop: 'clamp(16px, 3vw, 20px)',
       },
       submitButton: {
         width: '100%',
@@ -642,7 +656,7 @@ export function useCardStyles() {
       },
       submitWrapper: {
         width: '100%',
-        marginTop: '20px',
+        marginTop: 'clamp(16px, 3vw, 20px)',
       },
       // Green submit button on white form
       submitButton: {
@@ -725,7 +739,7 @@ export function useCardStyles() {
       },
       header: {
         width: '100%',
-        marginBottom: '24px',
+        marginBottom: 'clamp(16px, 3vw, 24px)',
         textAlign: 'center',
       },
       title: {
@@ -747,7 +761,7 @@ export function useCardStyles() {
       },
       submitWrapper: {
         width: '100%',
-        marginTop: '20px',
+        marginTop: 'clamp(16px, 3vw, 20px)',
       },
       submitButton: {
         width: '100%',
@@ -765,6 +779,102 @@ export function useCardStyles() {
         background: styles.colors.brand.primaryHover,
         transform: 'translateY(-1px)',
         boxShadow: '0 4px 12px rgba(10, 117, 38, 0.3)',
+      },
+    },
+    // CTA Card style - balanced layout with title, description, and form in one card
+    ctacard: {
+      // Outer wrapper - full width with clean white background
+      wrapper: {
+        width: '100%',
+        background: '#ffffff',
+        borderRadius: '16px',
+        padding: 'clamp(32px, 5vw, 48px) clamp(24px, 4vw, 40px)',
+        display: 'grid',
+        gridTemplateColumns: '1fr 1fr',
+        gap: 'clamp(32px, 5vw, 48px)',
+        alignItems: 'start',
+        position: 'relative',
+        overflow: 'hidden',
+        border: `2px solid ${styles.colors.brand.primary}`,
+        boxShadow: '0 8px 32px rgba(10, 117, 38, 0.12)',
+      },
+      // Mobile: stack vertically
+      wrapperMobile: {
+        gridTemplateColumns: '1fr',
+        gap: 'clamp(20px, 4vw, 24px)',
+        padding: 'clamp(20px, 4vw, 32px) clamp(16px, 3.5vw, 24px)',
+        border: 'none',
+        borderRadius: '0',
+        boxShadow: 'none',
+      },
+      // Left column - content area (title + description)
+      contentColumn: {
+        position: 'relative',
+        zIndex: 2,
+        display: 'flex',
+        flexDirection: 'column',
+        gap: 'clamp(12px, 2vw, 16px)',
+      },
+      // Header section with title
+      header: {
+        display: 'flex',
+        flexDirection: 'column',
+        gap: 'clamp(8px, 1.5vw, 12px)',
+      },
+      title: {
+        fontSize: 'clamp(24px, 4vw, 32px)',
+        fontWeight: styles.typography.fontWeightSemibold,
+        color: styles.colors.brand.primary,
+        lineHeight: '1.2',
+        letterSpacing: '-0.01em',
+        margin: 0,
+      },
+      description: {
+        fontSize: 'clamp(15px, 2vw, 17px)',
+        color: styles.colors.text.secondary,
+        lineHeight: '1.6',
+        margin: 0,
+      },
+      // Right column - form container
+      formColumn: {
+        position: 'relative',
+        zIndex: 2,
+        background: '#f9fafb',
+        borderRadius: '12px',
+        padding: 'clamp(24px, 4vw, 32px)',
+        border: `1px solid ${styles.colors.border.default}`,
+      },
+      // Mobile: remove background and border for clean look
+      formColumnMobile: {
+        background: 'transparent',
+        borderRadius: '0',
+        padding: '0',
+        border: 'none',
+      },
+      formSection: {
+        width: '100%',
+      },
+      submitWrapper: {
+        width: '100%',
+        marginTop: 'clamp(16px, 3vw, 20px)',
+      },
+      submitButton: {
+        width: '100%',
+        padding: '16px 24px',
+        fontSize: '16px',
+        fontWeight: styles.typography.fontWeightSemibold,
+        color: '#ffffff',
+        background: styles.colors.brand.primary,
+        border: 'none',
+        borderRadius: '10px',
+        cursor: 'pointer',
+        transition: 'all 200ms ease',
+        boxShadow: '0 4px 14px rgba(10, 117, 38, 0.25)',
+      },
+      submitButtonHover: {
+        background: styles.colors.brand.primaryHover,
+        transform: 'translateY(-2px)',
+        boxShadow: '0 6px 20px rgba(10, 117, 38, 0.35)',
       },
     },
   };

@@ -466,10 +466,13 @@ export function CalculationCard({
       {/* Header section */}
       {(card.title || card.config?.description) && (
         <div
-          style={
-            (cardStyles?.header ||
-              styles.calculationCard.header) as React.CSSProperties
-          }
+          style={{
+            ...((cardStyles?.header ||
+              styles.calculationCard.header) as React.CSSProperties),
+            ...(isMobile && cardStyles?.headerMobile
+              ? cardStyles.headerMobile
+              : {}),
+          }}
         >
           {/* Icon */}
           <div style={cardStyles?.iconContainer as React.CSSProperties}>

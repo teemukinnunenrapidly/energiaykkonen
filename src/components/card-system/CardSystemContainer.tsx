@@ -19,8 +19,8 @@ interface CardSystemContainerProps {
 function CardSystemInner({
   maxWidth,
   fullWidth = false,
-  showVisualSupport = true,
-  height,
+  // showVisualSupport = true,
+  // height,
   forceMode,
   showBlurredCards = false,
 }: CardSystemContainerProps) {
@@ -87,10 +87,10 @@ function CardSystemInner({
   const isMobileMode = forceMode === 'mobile' || detectedMobile;
 
   // Find the active card from cards list
-  const activeCard = cards.find(c => c.id === activeContext.cardId);
+  // const activeCard = cards.find(c => c.id === activeContext.cardId);
 
   // Get visual object from active card
-  const visualObject = activeCard?.visual_objects;
+  // const visualObject = activeCard?.visual_objects;
 
   // Auto-select first card with visual objects for better UX (when no active card)
   useEffect(() => {
@@ -115,6 +115,7 @@ function CardSystemInner({
   return (
     <div
       ref={containerRef}
+      data-card-system
       style={{
         margin: '0 auto',
         minHeight: styles.container.minHeight,

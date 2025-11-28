@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useCardStyles } from '@/hooks/useCardStyles';
 import type { CardTemplate } from '@/lib/supabase';
+import { X } from 'lucide-react';
 
 interface VisualSupportProps {
   activeCard?: CardTemplate;
@@ -147,8 +148,11 @@ export function VisualSupport({
     return (
       <div
         style={{
+          width: '100%',
+          maxWidth: '100%',
           background: styles.visualSupport.content.background,
           padding: 0,
+          margin: 0,
           display: 'flex',
           alignItems: 'stretch',
           gap: 0,
@@ -185,8 +189,8 @@ export function VisualSupport({
             <div
               aria-label="PDF preview (sample)"
               style={{
-                width: '86%',
-                height: '86%',
+                width: 'clamp(88%, 86%, 90%)',
+                height: 'clamp(88%, 86%, 90%)',
                 background: '#ffffff',
                 borderRadius: 8,
                 boxShadow: '0 20px 60px rgba(0,0,0,.25)',
@@ -195,9 +199,14 @@ export function VisualSupport({
               }}
             >
               {/* Header bar */}
-              <div style={{ height: 42, background: '#eef2f7' }} />
+              <div
+                style={{
+                  height: 'clamp(36px, 42px, 48px)',
+                  background: '#eef2f7',
+                }}
+              />
               {/* Title + meta rows */}
-              <div style={{ padding: 18 }}>
+              <div style={{ padding: 'clamp(12px, 3vw, 18px)' }}>
                 {/* Title: Säästölaskelma */}
                 <div
                   style={{
@@ -242,8 +251,8 @@ export function VisualSupport({
                     background: '#f9fafb',
                     border: '1px solid #e5e7eb',
                     borderRadius: 6,
-                    padding: 10,
-                    marginTop: 8,
+                    padding: 'clamp(8px, 2vw, 10px)',
+                    marginTop: 'clamp(6px, 1.5vw, 8px)',
                   }}
                 >
                   <div
@@ -258,7 +267,9 @@ export function VisualSupport({
                   >
                     Asiakkaan tiedot
                   </div>
-                  <div style={{ display: 'flex', gap: 12 }}>
+                  <div
+                    style={{ display: 'flex', gap: 'clamp(8px, 2vw, 12px)' }}
+                  >
                     <div style={{ flex: 1, filter: 'blur(4px)' }}>
                       <div
                         style={{
@@ -319,14 +330,20 @@ export function VisualSupport({
                 </div>
 
                 {/* System comparison boxes (mobile) */}
-                <div style={{ display: 'flex', gap: 12, marginTop: 8 }}>
+                <div
+                  style={{
+                    display: 'flex',
+                    gap: 'clamp(8px, 2vw, 12px)',
+                    marginTop: 'clamp(6px, 1.5vw, 8px)',
+                  }}
+                >
                   <div
                     style={{
                       flex: 1,
                       background: '#fef2f2',
                       border: '2px solid #ef4444',
                       borderRadius: 8,
-                      padding: 10,
+                      padding: 'clamp(8px, 2vw, 10px)',
                     }}
                   >
                     <div
@@ -376,7 +393,7 @@ export function VisualSupport({
                       background: '#ecfdf5',
                       border: '2px solid #0d9430',
                       borderRadius: 8,
-                      padding: 10,
+                      padding: 'clamp(8px, 2vw, 10px)',
                     }}
                   >
                     <div
@@ -425,13 +442,13 @@ export function VisualSupport({
               <div
                 style={{
                   position: 'absolute',
-                  left: 12,
-                  bottom: 12,
+                  left: 'clamp(8px, 2vw, 12px)',
+                  bottom: 'clamp(8px, 2vw, 12px)',
                   color: '#ffffff',
                   background: 'rgba(0,0,0,.35)',
-                  padding: '6px 10px',
+                  padding: 'clamp(4px, 1vw, 6px) clamp(8px, 2vw, 10px)',
                   borderRadius: 6,
-                  fontSize: 12,
+                  fontSize: 'clamp(10px, 2.5vw, 12px)',
                 }}
               >
                 Esimerkkiesikatselu
@@ -458,13 +475,19 @@ export function VisualSupport({
                   position: 'absolute',
                   top: 0,
                   left: 0,
+                  right: 0,
                   width: '100%',
                   height: '100%',
                   objectFit: 'cover',
                   opacity: 1,
                   zIndex: 0,
-                  borderTopLeftRadius: styles.card.base.borderRadius,
-                  borderTopRightRadius: styles.card.base.borderRadius,
+                  // Remove border-radius on mobile (compact mode) for full width
+                  borderTopLeftRadius: compact
+                    ? 0
+                    : styles.card.base.borderRadius,
+                  borderTopRightRadius: compact
+                    ? 0
+                    : styles.card.base.borderRadius,
                   borderBottomLeftRadius: 0,
                   borderBottomRightRadius: 0,
                 }}
@@ -498,7 +521,7 @@ export function VisualSupport({
                   style={{
                     display: mobile.button?.display || 'block',
                     position: 'absolute',
-                    bottom: '24px',
+                    bottom: 'clamp(16px, 4vw, 24px)',
                     left: '50%',
                     transform: 'translateX(-50%)',
                     background:
@@ -511,14 +534,17 @@ export function VisualSupport({
                       mobile.button?.border ||
                       '1px solid rgba(255, 255, 255, 0.2)',
                     borderRadius: mobile.button?.borderRadius || '100px',
-                    padding: mobile.button?.padding || '14px 28px',
+                    padding:
+                      mobile.button?.padding ||
+                      `clamp(10px, 3vw, 14px) clamp(20px, 4vw, 28px)`,
                     cursor: 'pointer',
                     transition:
                       (styles.animations as any)?.transitions?.fast ||
                       'all 200ms cubic-bezier(0.4, 0, 0.2, 1)',
                     zIndex: 10,
                     color: mobile.button?.color || '#ffffff',
-                    fontSize: mobile.button?.fontSize || '14px',
+                    fontSize:
+                      mobile.button?.fontSize || 'clamp(12px, 3vw, 14px)',
                     fontWeight: mobile.button?.fontWeight || '500',
                     letterSpacing: mobile.button?.letterSpacing || '0.5px',
                   }}
@@ -546,7 +572,9 @@ export function VisualSupport({
                   borderTop:
                     mobile.panel?.borderTop ||
                     '1px solid rgba(255, 255, 255, 0.1)',
-                  padding: mobile.panel?.padding || '32px 24px 24px',
+                  padding:
+                    mobile.panel?.padding ||
+                    'clamp(20px, 5vw, 32px) clamp(16px, 4vw, 24px) clamp(16px, 4vw, 24px)',
                   transform: mobilePanelOpen
                     ? 'translateY(0)'
                     : 'translateY(100%)',
@@ -554,27 +582,79 @@ export function VisualSupport({
                     mobile.panel?.transition ||
                     'all 300ms cubic-bezier(0.4, 0, 0.2, 1)',
                   zIndex: 9,
-                  cursor: 'pointer',
                 }}
-                onClick={() => setMobilePanelOpen(false)}
               >
+                {/* Close button */}
+                <button
+                  onClick={e => {
+                    e.stopPropagation();
+                    setMobilePanelOpen(false);
+                  }}
+                  aria-label="Sulje"
+                  style={{
+                    position: 'absolute',
+                    top: 'clamp(12px, 3vw, 16px)',
+                    right: 'clamp(12px, 3vw, 16px)',
+                    width: 'clamp(32px, 8vw, 40px)',
+                    height: 'clamp(32px, 8vw, 40px)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    background: 'rgba(255, 255, 255, 0.15)',
+                    backdropFilter: 'blur(8px)',
+                    WebkitBackdropFilter: 'blur(8px)',
+                    border: '1px solid rgba(255, 255, 255, 0.2)',
+                    borderRadius: '50%',
+                    color: '#ffffff',
+                    cursor: 'pointer',
+                    transition: 'all 200ms ease',
+                    zIndex: 10,
+                  }}
+                  onMouseEnter={e => {
+                    e.currentTarget.style.background =
+                      'rgba(255, 255, 255, 0.25)';
+                    e.currentTarget.style.borderColor =
+                      'rgba(255, 255, 255, 0.4)';
+                  }}
+                  onMouseLeave={e => {
+                    e.currentTarget.style.background =
+                      'rgba(255, 255, 255, 0.15)';
+                    e.currentTarget.style.borderColor =
+                      'rgba(255, 255, 255, 0.2)';
+                  }}
+                >
+                  <X
+                    size={20}
+                    style={{
+                      width: 'clamp(18px, 4.5vw, 20px)',
+                      height: 'clamp(18px, 4.5vw, 20px)',
+                      minWidth: '18px',
+                      minHeight: '18px',
+                    }}
+                  />
+                </button>
                 <div
                   style={{
-                    width: '40px',
+                    width: 'clamp(32px, 8vw, 40px)',
                     height: '4px',
                     background: 'rgba(255, 255, 255, 0.3)',
                     borderRadius: '100px',
-                    margin: '0 auto 20px',
+                    margin: '0 auto clamp(12px, 3vw, 20px)',
                   }}
                 />
                 {content.title && (
                   <div
                     style={{
-                      fontSize: mobile.panel?.title?.fontSize || '24px',
+                      fontSize:
+                        mobile.panel?.title?.fontSize ||
+                        'clamp(20px, 5vw, 24px)',
                       fontWeight: mobile.panel?.title?.fontWeight || '300',
                       color: mobile.panel?.title?.color || '#ffffff',
-                      marginBottom: mobile.panel?.title?.marginBottom || '16px',
+                      marginBottom:
+                        mobile.panel?.title?.marginBottom ||
+                        'clamp(12px, 3vw, 16px)',
                       lineHeight: '1.2',
+                      paddingRight: 'clamp(48px, 12vw, 56px)',
                     }}
                   >
                     {content.title}
@@ -583,19 +663,21 @@ export function VisualSupport({
                 {content.description && (
                   <div
                     style={{
-                      fontSize: mobile.panel?.subtitle?.fontSize || '14px',
+                      fontSize:
+                        mobile.panel?.subtitle?.fontSize ||
+                        'clamp(13px, 3.5vw, 14px)',
                       color:
                         mobile.panel?.subtitle?.color ||
                         'rgba(255, 255, 255, 0.9)',
                       lineHeight: mobile.panel?.subtitle?.lineHeight || '1.6',
                       marginBottom:
-                        mobile.panel?.subtitle?.marginBottom || '20px',
+                        mobile.panel?.subtitle?.marginBottom ||
+                        'clamp(16px, 4vw, 20px)',
                     }}
                   >
                     {content.description}
                   </div>
                 )}
-                {/* Remove overlaying close button to avoid covering text */}
               </div>
             </>
           );
@@ -608,6 +690,7 @@ export function VisualSupport({
   return (
     <div
       style={{
+        width: '100%',
         height: '100%',
         display: 'flex',
         flexDirection: 'column',
@@ -616,6 +699,7 @@ export function VisualSupport({
       {/* Image area only */}
       <div
         style={{
+          width: '100%',
           background: styles.visualSupport.content.background,
           padding: 0,
           display: 'flex',

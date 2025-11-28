@@ -110,13 +110,6 @@ export function CardStream({
       .sort((a, b) => a.display_order - b.display_order);
   }, [cards, shouldBeRevealed]);
 
-  const hasMore = useMemo(() => {
-    const locked = cards
-      .filter(card => !shouldBeRevealed(card))
-      .sort((a, b) => a.display_order - b.display_order);
-    return locked.length > 0;
-  }, [cards, shouldBeRevealed]);
-
   // Find active card for visual support
   // Keep variable for potential future use; do not flag as unused
   void activeCardId; // silence unused var in current render path
@@ -198,9 +191,6 @@ export function CardStream({
               : {}),
           }}
         >
-          {/* Spacer for first card */}
-          <div style={{ height: '20px' }}></div>
-
           {/* Inline Visual Support for Mobile - per card, image first */}
 
           {/* Visible Cards with inline visual on desktop */}
@@ -319,6 +309,7 @@ export function CardStream({
                         (card as any).config?.linked_visual_object_id) && (
                         <div
                           style={{
+                            width: '100%',
                             margin: '0 0 0 0',
                             borderTopLeftRadius: isMobile
                               ? '0'
@@ -338,7 +329,7 @@ export function CardStream({
                             const bannerH =
                               !tokenH || tokenH === 'auto' ? '180px' : tokenH;
                             return (
-                              <div style={{ height: bannerH }}>
+                              <div style={{ width: '100%', height: bannerH }}>
                                 <VisualSupport
                                   activeCard={card}
                                   compact={true}
@@ -347,46 +338,6 @@ export function CardStream({
                               </div>
                             );
                           })()}
-                        </div>
-                      )}
-                    {isComplete &&
-                      styles.card.states.complete.checkmark?.enabled && (
-                        <div
-                          style={{
-                            position: styles.card.states.complete.checkmark
-                              .position as any,
-                            top: styles.card.states.complete.checkmark.top,
-                            right: styles.card.states.complete.checkmark.right,
-                            width: styles.card.states.complete.checkmark.size,
-                            height: styles.card.states.complete.checkmark.size,
-                            background:
-                              styles.card.states.complete.checkmark.background,
-                            borderRadius:
-                              styles.card.states.complete.checkmark
-                                .borderRadius,
-                            padding:
-                              styles.card.states.complete.checkmark.padding,
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            color: styles.card.states.complete.checkmark.color,
-                          }}
-                        >
-                          <svg
-                            width="16"
-                            height="16"
-                            viewBox="0 0 16 16"
-                            fill="none"
-                            xmlns="http://www.w3.org/2000/svg"
-                          >
-                            <path
-                              d="M13.5 4.5L6 12L2.5 8.5"
-                              stroke="currentColor"
-                              strokeWidth="2"
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                            />
-                          </svg>
                         </div>
                       )}
                     <CardRenderer
@@ -403,41 +354,6 @@ export function CardStream({
               </React.Fragment>
             );
           })}
-
-          {/* Subtle call-to-action under cards */}
-          {hasMore && (
-            <div
-              style={{
-                padding: '12px 0 4px',
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                color: '#4b5563',
-              }}
-            >
-              <style>{`
-                @keyframes e1ArrowBounce { 0%,100% { transform: translateY(0); opacity: .8 } 50% { transform: translateY(4px); opacity: 1 } }
-              `}</style>
-              <div
-                style={{
-                  fontSize: '16px',
-                  lineHeight: 1,
-                  animation: 'e1ArrowBounce 1.4s ease-in-out infinite',
-                }}
-              >
-                ▾
-              </div>
-              <div
-                style={{
-                  marginTop: '6px',
-                  fontSize: '16px',
-                  textAlign: 'center',
-                }}
-              >
-                Siirry eteenpäin vastaamalla kysymyksiin.
-              </div>
-            </div>
-          )}
         </div>
       </div>
 
