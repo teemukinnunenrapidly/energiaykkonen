@@ -533,14 +533,16 @@ export function useCardStyles() {
         border: `2px solid ${styles.colors.brand.primary}`,
         boxShadow: '0 10px 40px rgba(10, 117, 38, 0.1)',
       },
-      // Mobile: stack vertically
+      // Mobile: stack vertically, remove background for clean edge-to-edge look
       wrapperMobile: {
         gridTemplateColumns: '1fr',
         gap: '24px',
-        padding: 'clamp(24px, 4vw, 40px) clamp(12px, 3vw, 24px)',
+        padding: '24px 16px',
         textAlign: 'center',
         border: 'none',
         borderRadius: '0',
+        background: 'transparent',
+        boxShadow: 'none',
       },
       // Decorative background element - subtle green tint
       backgroundDecoration: {
@@ -627,6 +629,13 @@ export function useCardStyles() {
         borderRadius: '16px',
         padding: 'clamp(24px, 4vw, 36px)',
         boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)',
+      },
+      // Mobile: remove white background and extra padding to avoid nested container effect
+      formColumnMobile: {
+        background: 'transparent',
+        borderRadius: '0',
+        padding: '0',
+        boxShadow: 'none',
       },
       formSection: {
         width: '100%',

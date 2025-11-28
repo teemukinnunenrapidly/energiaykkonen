@@ -297,7 +297,7 @@ export function FormCard({
                 handleFieldChange(field.field_name, e.target.value)
               }
               onFocus={() => handleFieldFocus(field)}
-              onBlur={() => handleFieldBlur(field)}
+              onBlur={() => handleFieldBlur()}
               disabled={isCardCompleted}
               style={{
                 ...(styles.formElements.input as React.CSSProperties),
@@ -351,7 +351,7 @@ export function FormCard({
                 handleFieldChange(field.field_name, e.target.value)
               }
               onFocus={() => handleFieldFocus(field)}
-              onBlur={() => handleFieldBlur(field)}
+              onBlur={() => handleFieldBlur()}
               disabled={isCardCompleted}
               style={{
                 ...(styles.formElements.input as React.CSSProperties),
@@ -450,7 +450,7 @@ export function FormCard({
                           handleFieldChange(field.field_name, e.target.value)
                         }
                         onFocus={() => handleFieldFocus(field)}
-                        onBlur={() => handleFieldBlur(field)}
+                        onBlur={() => handleFieldBlur()}
                         disabled={isCardCompleted}
                         style={{
                           accentColor: styles.colors.brand.primary,
@@ -518,7 +518,7 @@ export function FormCard({
                     handleFieldChange(field.field_name, e.target.checked)
                   }
                   onFocus={() => handleFieldFocus(field)}
-                  onBlur={() => handleFieldBlur(field)}
+                  onBlur={() => handleFieldBlur()}
                   disabled={isCardCompleted}
                   style={{
                     accentColor: styles.colors.brand.primary,
@@ -588,7 +588,7 @@ export function FormCard({
                 handleFieldChange(field.field_name, e.target.value)
               }
               onFocus={() => handleFieldFocus(field)}
-              onBlur={() => handleFieldBlur(field)}
+              onBlur={() => handleFieldBlur()}
               disabled={isCardCompleted}
               style={{
                 ...(styles.formElements.input as React.CSSProperties),
@@ -1173,7 +1173,7 @@ export function FormCard({
   if (isCtaInverted && ctaInvertedStyles) {
     const ctaBadge = card.config?.cta_badge || null;
 
-    // Custom label style for dark (green) background in form area
+    // Custom label style for form area - left-aligned on mobile
     const getInvertedLabelStyle = () => ({
       display: styles.formElements.label.display,
       fontSize: styles.formElements.label.fontSize,
@@ -1183,24 +1183,38 @@ export function FormCard({
       letterSpacing: styles.formElements.label.letterSpacing,
       marginBottom: styles.formElements.label.marginBottom,
       transition: styles.formElements.label.transition,
+      textAlign: 'left' as const, // Always left-align labels
     });
 
-    // Custom input style for dark background
+    // Custom input style - transparent background with full border on all devices
     const getInvertedInputStyle = (
       fieldName: string,
       error: string | undefined
-    ) => ({
-      ...(styles.formElements.input as React.CSSProperties),
-      background: ctaInvertedStyles.formInputBackground,
-      borderColor: ctaInvertedStyles.formInputBorder,
-      ...(focusedField === fieldName
-        ? {
-            borderColor: '#ffffff',
-            boxShadow: '0 0 0 3px rgba(255,255,255,0.2)',
-          }
-        : {}),
-      ...(error ? styles.formElements.input.error : {}),
-    });
+    ) => {
+      let borderColor = ctaInvertedStyles.formInputBorder;
+      if (error) {
+        borderColor = styles.colors.state.error;
+      } else if (focusedField === fieldName) {
+        borderColor = styles.colors.brand.primary;
+      }
+
+      return {
+        width: '100%',
+        padding: '12px 16px',
+        fontSize: '16px',
+        background: 'transparent',
+        borderTop: `1px solid ${borderColor}`,
+        borderRight: `1px solid ${borderColor}`,
+        borderBottom: `1px solid ${borderColor}`,
+        borderLeft: `1px solid ${borderColor}`,
+        borderRadius: '8px',
+        outline: 'none',
+        transition: 'border-color 200ms ease, box-shadow 200ms ease',
+        ...(focusedField === fieldName
+          ? { boxShadow: '0 0 0 3px rgba(10, 117, 38, 0.15)' }
+          : {}),
+      };
+    };
 
     // Render field with inverted styles for dark background
     const renderInvertedField = (field: any) => {
@@ -1216,6 +1230,7 @@ export function FormCard({
             <div
               style={{
                 marginBottom: styles.formElements.formGroup.marginBottom,
+                textAlign: 'left', // Override centered text from mobile wrapper
               }}
             >
               <label style={getInvertedLabelStyle()}>
@@ -1231,7 +1246,7 @@ export function FormCard({
                   handleFieldChange(field.field_name, e.target.value)
                 }
                 onFocus={() => handleFieldFocus(field)}
-                onBlur={() => handleFieldBlur(field)}
+                onBlur={() => handleFieldBlur()}
                 style={getInvertedInputStyle(field.field_name, error)}
               />
               {error && (
@@ -1253,12 +1268,13 @@ export function FormCard({
             <div
               style={{
                 marginBottom: styles.formElements.formGroup.marginBottom,
+                textAlign: 'left', // Override centered text from mobile wrapper
               }}
             >
               <label
                 style={{
                   display: 'flex',
-                  alignItems: 'center',
+                  alignItems: 'flex-start',
                   gap: '8px',
                   cursor: 'pointer',
                   fontSize: styles.typography.fontSizeBase,
@@ -1351,94 +1367,112 @@ export function FormCard({
               'Täytä tietosi ja saat automaattisen säästölaskelman sähköpostiisi.'}
           </p>
 
-          {/* Benefits section */}
-          <div style={{ marginTop: '32px' }}>
-            <h3
-              style={{
-                fontSize: '18px',
-                fontWeight: 600,
-                color: '#0a7526',
-                marginBottom: '16px',
-                margin: 0,
-                marginTop: 0,
-              }}
-            >
-              Energiaykkönen Oy
-            </h3>
-            <ul
-              style={{
-                listStyle: 'none',
-                padding: 0,
-                margin: '16px 0 0 0',
-                display: 'flex',
-                flexDirection: 'column',
-                gap: '12px',
-              }}
-            >
-              <li
+          {/* Benefits section - only show on desktop, mobile shows after form */}
+          {!isMobile && (
+            <div style={{ marginTop: '32px' }}>
+              <h3
                 style={{
-                  display: 'flex',
-                  alignItems: 'flex-start',
-                  gap: '10px',
-                  fontSize: '15px',
-                  color: '#374151',
-                  lineHeight: 1.5,
+                  fontSize: '18px',
+                  fontWeight: 600,
+                  color: '#0a7526',
+                  margin: 0,
                 }}
               >
-                <span
-                  style={{ color: '#0a7526', flexShrink: 0, marginTop: '2px' }}
-                >
-                  ✓
-                </span>
-                <span>
-                  Lämmitysjärjestelmien asiantuntija tuhansien kohteiden
-                  kokemuksella
-                </span>
-              </li>
-              <li
+                Energiaykkönen Oy
+              </h3>
+              <ul
                 style={{
+                  listStyle: 'none',
+                  padding: 0,
+                  margin: '16px 0 0 0',
                   display: 'flex',
-                  alignItems: 'flex-start',
-                  gap: '10px',
-                  fontSize: '15px',
-                  color: '#374151',
-                  lineHeight: 1.5,
+                  flexDirection: 'column',
+                  gap: '12px',
                 }}
               >
-                <span
-                  style={{ color: '#0a7526', flexShrink: 0, marginTop: '2px' }}
+                <li
+                  style={{
+                    display: 'flex',
+                    alignItems: 'flex-start',
+                    gap: '10px',
+                    fontSize: '15px',
+                    color: '#374151',
+                    lineHeight: 1.5,
+                  }}
                 >
-                  ✓
-                </span>
-                <span>
-                  Asiakkaistamme 94 % suosittelee palvelujamme myös tuttavilleen
-                </span>
-              </li>
-              <li
-                style={{
-                  display: 'flex',
-                  alignItems: 'flex-start',
-                  gap: '10px',
-                  fontSize: '15px',
-                  color: '#374151',
-                  lineHeight: 1.5,
-                }}
-              >
-                <span
-                  style={{ color: '#0a7526', flexShrink: 0, marginTop: '2px' }}
+                  <span
+                    style={{
+                      color: '#0a7526',
+                      flexShrink: 0,
+                      marginTop: '2px',
+                    }}
+                  >
+                    ✓
+                  </span>
+                  <span>
+                    Lämmitysjärjestelmien asiantuntija tuhansien kohteiden
+                    kokemuksella
+                  </span>
+                </li>
+                <li
+                  style={{
+                    display: 'flex',
+                    alignItems: 'flex-start',
+                    gap: '10px',
+                    fontSize: '15px',
+                    color: '#374151',
+                    lineHeight: 1.5,
+                  }}
                 >
-                  ✓
-                </span>
-                <span>
-                  5 vuoden asennustakuu ja 10 vuoden huolenpitosopimus
-                </span>
-              </li>
-            </ul>
-          </div>
+                  <span
+                    style={{
+                      color: '#0a7526',
+                      flexShrink: 0,
+                      marginTop: '2px',
+                    }}
+                  >
+                    ✓
+                  </span>
+                  <span>
+                    Asiakkaistamme 94 % suosittelee palvelujamme myös
+                    tuttavilleen
+                  </span>
+                </li>
+                <li
+                  style={{
+                    display: 'flex',
+                    alignItems: 'flex-start',
+                    gap: '10px',
+                    fontSize: '15px',
+                    color: '#374151',
+                    lineHeight: 1.5,
+                  }}
+                >
+                  <span
+                    style={{
+                      color: '#0a7526',
+                      flexShrink: 0,
+                      marginTop: '2px',
+                    }}
+                  >
+                    ✓
+                  </span>
+                  <span>
+                    5 vuoden asennustakuu ja 10 vuoden huolenpitosopimus
+                  </span>
+                </li>
+              </ul>
+            </div>
+          )}
         </div>
 
         {/* Right column - Form with green background */}
-        <div style={ctaInvertedStyles.formColumn as React.CSSProperties}>
+        <div
+          style={{
+            ...(ctaInvertedStyles.formColumn as React.CSSProperties),
+            ...(isMobile ? ctaInvertedStyles.formColumnMobile : {}),
+          }}
+        >
           <div style={ctaInvertedStyles.formSection as React.CSSProperties}>
             {card.card_fields
               .sort((a, b) => (a.display_order || 0) - (b.display_order || 0))
@@ -1539,6 +1573,91 @@ export function FormCard({
             )}
           </div>
         </div>
+
+        {/* Benefits section - only show on mobile, after form */}
+        {isMobile && (
+          <div style={{ marginTop: '24px', textAlign: 'left' }}>
+            <h3
+              style={{
+                fontSize: '18px',
+                fontWeight: 600,
+                color: '#0a7526',
+                margin: 0,
+              }}
+            >
+              Energiaykkönen Oy
+            </h3>
+            <ul
+              style={{
+                listStyle: 'none',
+                padding: 0,
+                margin: '16px 0 0 0',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '12px',
+              }}
+            >
+              <li
+                style={{
+                  display: 'flex',
+                  alignItems: 'flex-start',
+                  gap: '10px',
+                  fontSize: '15px',
+                  color: '#374151',
+                  lineHeight: 1.5,
+                }}
+              >
+                <span
+                  style={{ color: '#0a7526', flexShrink: 0, marginTop: '2px' }}
+                >
+                  ✓
+                </span>
+                <span>
+                  Lämmitysjärjestelmien asiantuntija tuhansien kohteiden
+                  kokemuksella
+                </span>
+              </li>
+              <li
+                style={{
+                  display: 'flex',
+                  alignItems: 'flex-start',
+                  gap: '10px',
+                  fontSize: '15px',
+                  color: '#374151',
+                  lineHeight: 1.5,
+                }}
+              >
+                <span
+                  style={{ color: '#0a7526', flexShrink: 0, marginTop: '2px' }}
+                >
+                  ✓
+                </span>
+                <span>
+                  Asiakkaistamme 94 % suosittelee palvelujamme myös tuttavilleen
+                </span>
+              </li>
+              <li
+                style={{
+                  display: 'flex',
+                  alignItems: 'flex-start',
+                  gap: '10px',
+                  fontSize: '15px',
+                  color: '#374151',
+                  lineHeight: 1.5,
+                }}
+              >
+                <span
+                  style={{ color: '#0a7526', flexShrink: 0, marginTop: '2px' }}
+                >
+                  ✓
+                </span>
+                <span>
+                  5 vuoden asennustakuu ja 10 vuoden huolenpitosopimus
+                </span>
+              </li>
+            </ul>
+          </div>
+        )}
       </div>
     );
   }
