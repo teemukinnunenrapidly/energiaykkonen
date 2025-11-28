@@ -4,7 +4,31 @@ import { useCardContext } from '../CardContext';
 import { useCardStyles } from '@/hooks/useCardStyles';
 import { gtmEvents } from '@/config/gtm';
 import { NextButton } from '../NextButton';
-import { Calculator } from 'lucide-react';
+import {
+  Calculator,
+  Euro,
+  Zap,
+  Flame,
+  TrendingUp,
+  BarChart3,
+  PiggyBank,
+  Coins,
+  Gauge,
+  type LucideIcon,
+} from 'lucide-react';
+
+// Icon mapping for configurable icons
+const iconMap: Record<string, LucideIcon> = {
+  calculator: Calculator,
+  euro: Euro,
+  zap: Zap,
+  flame: Flame,
+  trending: TrendingUp,
+  chart: BarChart3,
+  piggybank: PiggyBank,
+  coins: Coins,
+  gauge: Gauge,
+};
 // Sentry utilities removed; calculation errors will surface via UI or server logs
 
 interface CalculationCardProps {
@@ -352,7 +376,21 @@ export function CalculationCard({
       );
       if (!isNaN(numericResult)) {
         updateField(card.config.field_name, numericResult);
-        // Stored overridden result in field
+
+        // Also store as override for the calculation engine
+        // Extract formula name from main_result (e.g., [calc:laskennallinen-energiantarve-kwh] -> laskennallinen-energiantarve-kwh)
+        if (card.config?.main_result) {
+          const shortcodeMatch = card.config.main_result.match(
+            /\[(?:calc|lookup):([^\]]+)\]/
+          );
+          if (shortcodeMatch) {
+            const formulaName = shortcodeMatch[1];
+            updateField(`override_${formulaName}`, numericResult);
+            console.log(
+              `🔄 Stored override value for '${formulaName}': ${numericResult}`
+            );
+          }
+        }
       }
     }
 
@@ -400,6 +438,18 @@ export function CalculationCard({
         );
         if (!isNaN(numericResult)) {
           updateField(card.config.field_name, numericResult);
+
+          // Clear the override value so calculation engine uses calculated value
+          if (card.config?.main_result) {
+            const shortcodeMatch = card.config.main_result.match(
+              /\[(?:calc|lookup):([^\]]+)\]/
+            );
+            if (shortcodeMatch) {
+              const formulaName = shortcodeMatch[1];
+              updateField(`override_${formulaName}`, null);
+              console.log(`🔄 Cleared override value for '${formulaName}'`);
+            }
+          }
         }
       }
     }
@@ -474,9 +524,17 @@ export function CalculationCard({
               : {}),
           }}
         >
-          {/* Icon */}
+          {/* Icon - configurable via card.config.icon */}
           <div style={cardStyles?.iconContainer as React.CSSProperties}>
-            <Calculator style={cardStyles?.icon as React.CSSProperties} />
+            {(() => {
+              const IconComponent =
+                iconMap[card.config?.icon?.toLowerCase()] || Calculator;
+              return (
+                <IconComponent
+                  style={cardStyles?.icon as React.CSSProperties}
+                />
+              );
+            })()}
           </div>
 
           <h3
