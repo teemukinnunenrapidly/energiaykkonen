@@ -1493,7 +1493,7 @@ export function FormCard({
                     style={{
                       textAlign: 'center',
                       padding: '20px',
-                      color: '#ffffff',
+                      color: '#0a7526',
                       fontSize: '16px',
                       fontWeight: '500',
                     }}
@@ -1509,7 +1509,7 @@ export function FormCard({
                           target="_blank"
                           rel="noopener noreferrer"
                           style={{
-                            color: '#ffffff',
+                            color: '#0a7526',
                             textDecoration: 'underline',
                             fontWeight: 600,
                           }}

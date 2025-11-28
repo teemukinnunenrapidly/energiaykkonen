@@ -115,15 +115,6 @@ export const SavingsReportPDF: React.FC<{ data: PDFData }> = ({ data }) => (
               </Text>
             </View>
             <View style={styles.customerRow}>
-              <Text style={styles.customerLabel}>Rakennusvuosi:</Text>
-              <Text style={styles.customerValue}>
-                {data.buildingYear ||
-                  data.building_year ||
-                  data.rakennusvuosi ||
-                  '1987'}
-              </Text>
-            </View>
-            <View style={styles.customerRow}>
               <Text style={styles.customerLabel}>Pinta-ala:</Text>
               <Text style={styles.customerValue}>
                 {data.buildingArea ||
