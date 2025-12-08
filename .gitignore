@@ -67,3 +67,6 @@ node_modules/
 # Sentry Config File
 .env.sentry-build-plugin
 .env*.local
+
+# Repopack output
+repopack-output.txt
