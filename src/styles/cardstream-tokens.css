@@ -131,3 +131,25 @@
     width: 100%;
   }
 }
+
+/* === MOBILE INPUT ZOOM PREVENTION === */
+/* iOS zooms when input font-size < 16px */
+@media (max-width: 768px) {
+  input,
+  select,
+  textarea {
+    font-size: 16px !important;
+  }
+}
+
+/* === EMBED IFRAME SUPPORT === */
+/* Smooth height transitions for iframe embedding */
+html {
+  height: auto;
+}
+
+body {
+  min-height: 100vh;
+  /* Prevent body scroll in iframe context */
+  overflow-x: hidden;
+}

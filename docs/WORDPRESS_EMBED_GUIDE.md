@@ -4,15 +4,23 @@
 
 This guide explains how to embed the E1 Calculator into any WordPress website using an iframe with automatic height adjustment.
 
+## Embed URL
+
+**Production:** `https://laskuri.energiaykkonen.fi/embed`
+
+The `/embed` route provides a widget-only view without header, footer, or navigation.
+
 ## Current Implementation Status
 
-### ✅ Already Implemented:
+### Already Implemented:
 
-1. **CORS Headers** - Application allows embedding from any domain (`frame-ancestors *`)
+1. **CORS Headers** - API allows cross-origin requests
 2. **Responsive Design** - Calculator adapts to container width
 3. **Mobile Support** - Works on all devices
+4. **Dedicated Embed Route** - Clean widget-only view at `/embed`
+5. **Auto-resize** - Height adjustment via postMessage
 
-### 🎯 Embed Methods Available:
+### Embed Methods Available:
 
 ## Method 1: Simple iframe (No Auto-resize)
 
@@ -20,10 +28,11 @@ Paste this HTML into any WordPress page/post using the HTML block:
 
 ```html
 <iframe
-  src="http://localhost:3001/"
+  src="https://laskuri.energiaykkonen.fi/embed"
   width="100%"
   height="2000"
   frameborder="0"
+  loading="lazy"
   style="border: none; overflow: hidden;"
 >
 </iframe>
@@ -45,14 +54,11 @@ Add this script to your WordPress theme's header or use a plugin like "Insert He
   // E1 Calculator Auto-resize Handler
   window.addEventListener('message', function (event) {
     // Security: Only accept messages from the calculator domain
-    if (
-      event.origin !== 'http://localhost:3001' &&
-      event.origin !== 'https://your-production-domain.com'
-    ) {
+    if (event.origin !== 'https://laskuri.energiaykkonen.fi') {
       return;
     }
 
-    if (event.data && event.data.type === 'calculator-resize') {
+    if (event.data && event.data.type === 'E1_CALCULATOR_RESIZE') {
       const iframes = document.querySelectorAll('.e1-calculator-iframe');
       iframes.forEach(function (iframe) {
         if (event.data.height) {
@@ -71,11 +77,12 @@ Use this HTML in WordPress pages/posts:
 ```html
 <iframe
   class="e1-calculator-iframe"
-  src="http://localhost:3001/"
+  src="https://laskuri.energiaykkonen.fi/embed"
   width="100%"
-  height="600"
+  height="800"
   frameborder="0"
   scrolling="no"
+  loading="lazy"
   style="border: none; overflow: hidden; transition: height 0.3s ease;"
 >
 </iframe>
@@ -91,12 +98,10 @@ Add this code to your theme's `functions.php` file:
 // E1 Calculator Shortcode
 function e1_calculator_shortcode($atts) {
     $atts = shortcode_atts(array(
-        'height' => '600',
-        'theme' => 'default',
-        'lang' => 'fi'
+        'height' => '800'
     ), $atts);
 
-    $calculator_url = 'http://localhost:3001/';
+    $calculator_url = 'https://laskuri.energiaykkonen.fi/embed';
 
     // Add auto-resize script (only once per page)
     static $script_added = false;
@@ -105,27 +110,27 @@ function e1_calculator_shortcode($atts) {
     if (!$script_added) {
         $output .= '<script>
         window.addEventListener("message", function(event) {
-            if (event.origin !== "http://localhost:3001") return;
-            if (event.data && event.data.type === "calculator-resize") {
-                const iframe = document.getElementById("e1-calc-' . uniqid() . '");
-                if (iframe && event.data.height) {
-                    iframe.style.height = event.data.height + "px";
-                }
+            if (event.origin !== "https://laskuri.energiaykkonen.fi") return;
+            if (event.data && event.data.type === "E1_CALCULATOR_RESIZE") {
+                document.querySelectorAll(".e1-calculator-iframe").forEach(function(iframe) {
+                    if (event.data.height) {
+                        iframe.style.height = event.data.height + "px";
+                    }
+                });
             }
         });
         </script>';
         $script_added = true;
     }
 
-    $iframe_id = 'e1-calc-' . uniqid();
-
     $output .= '<iframe
-        id="' . $iframe_id . '"
+        class="e1-calculator-iframe"
         src="' . $calculator_url . '"
         width="100%"
         height="' . esc_attr($atts['height']) . '"
         frameborder="0"
         scrolling="no"
+        loading="lazy"
         style="border: none; overflow: hidden; transition: height 0.3s ease;">
     </iframe>';
 
@@ -194,33 +199,93 @@ Wrap the iframe in a styled container:
 </div>
 ```
 
+## UX & UI Best Practices
+
+### 1. No Internal Scrollbars
+The embed includes `scrolling="no"` and the calculator uses `overflow: hidden` to prevent ghost scrollbars. The auto-resize script ensures the iframe height always matches the content.
+
+### 2. Smooth Height Transitions
+Add `transition: height 0.3s ease-out;` to the iframe CSS for smooth animations when content changes height (e.g., moving between form steps).
+
+### 3. Mobile Optimization
+- The calculator is fully responsive and works on screens as narrow as 320px
+- Input fields have 16px minimum font size to prevent iOS auto-zoom
+- The embed has 16px horizontal padding to prevent edge clipping
+
+### 4. Loading State
+The embed displays a green spinner while loading to avoid white flash. For dark-themed sites, the iframe background is transparent by default.
+
+### 5. Input Focus (iOS Zoom Prevention)
+Mobile input fields use 16px font size to prevent iOS Safari from zooming when users tap input fields.
+
+## Technical Optimizations
+
+### Resize Message Debouncing
+The calculator debounces resize messages (100ms) to prevent flooding the parent window with hundreds of postMessage calls during animations or rapid DOM changes.
+
+### Infinite Growth Prevention
+- Height comparison before sending: Only sends resize message if height actually changed
+- `overflow: hidden` on html/body prevents recursive height growth loops
+- The hook tracks previous height and skips duplicate messages
+
+### Lazy Loading
+All iframe examples include `loading="lazy"` attribute, which:
+- Improves PageSpeed scores on the WordPress site
+- Only loads the calculator when it approaches the viewport
+- Reduces initial page load time
+
 ## Testing Checklist
 
 Before going live, test:
 
+**Functionality:**
 - [ ] Calculator loads correctly
 - [ ] Auto-resize works when changing form fields
-- [ ] Mobile responsive behavior
 - [ ] Form submission works
 - [ ] PDF generation works
 - [ ] Email notifications sent
 - [ ] No console errors
 - [ ] HTTPS works (production)
 
+**UX & Visual:**
+- [ ] No internal scrollbars (test by expanding all sections)
+- [ ] Smooth height transitions when navigating steps
+- [ ] Mobile responsive (test on 320px width / iPhone SE)
+- [ ] No iOS input zoom when focusing text fields
+- [ ] No white flash during initial load
+- [ ] Card borders visible (not clipped at edges)
+
 ## Security Considerations
+
+### HTTPS Required
+The embed URL **must** use HTTPS (`https://laskuri.energiaykkonen.fi/embed`). Using HTTP will cause Mixed Content errors and the calculator will not load.
+
+### Content Security Policy (CSP)
+The calculator's CSP `frame-ancestors` directive controls which domains can embed it:
+
+**Currently allowed:**
+- `'self'` - laskuri.energiaykkonen.fi
+- `https://energiaykkonen.fi`
+- `https://*.energiaykkonen.fi`
+- `https://www.energiaykkonen.fi`
+- `localhost` (development only)
+
+**To add new domains:** Contact the development team to update `next.config.ts`.
 
 ### Current Security Features:
 
-1. **Input Sanitization** - All inputs are sanitized
-2. **CORS Headers** - Configured for cross-origin
-3. **Rate Limiting** - Form submissions are rate-limited
-4. **CSP Headers** - Content Security Policy active
+1. **HSTS** - HTTP Strict Transport Security enforces HTTPS
+2. **Input Sanitization** - All inputs are sanitized
+3. **CORS Headers** - Configured for cross-origin API access
+4. **Rate Limiting** - Form submissions are rate-limited
+5. **CSP Headers** - Restricts embedding to whitelisted domains
+6. **Origin Validation** - Resize messages only accepted from calculator domain
 
-### Recommended for Production:
+### For WordPress Administrators:
 
-1. Update the origin check in resize script to your production domain
-2. Use HTTPS for production embedding
-3. Consider adding domain whitelist for embedding
+1. Always use `https://` in iframe src (never `http://`)
+2. Keep the origin check in resize script (`https://laskuri.energiaykkonen.fi`)
+3. If embedding fails, check browser console for CSP errors
 
 ## Troubleshooting
 
@@ -244,13 +309,13 @@ Before going live, test:
 
 ## Production Deployment
 
-When moving to production:
+The embed URL is ready for production:
+- **Embed URL:** `https://laskuri.energiaykkonen.fi/embed`
 
-1. Update all `http://localhost:3001` references to your production URL
-2. Update CORS origin checks
-3. Enable HTTPS
-4. Test on multiple browsers
-5. Monitor error logs
+Before going live:
+1. Test on multiple browsers
+2. Verify auto-resize works correctly
+3. Monitor error logs
 
 ## Advanced Integration
 
@@ -260,7 +325,7 @@ Pre-fill form fields via URL:
 
 ```html
 <iframe
-  src="http://localhost:3001/?name=John&email=john@example.com"
+  src="https://laskuri.energiaykkonen.fi/embed?name=John&email=john@example.com"
   ...
 ></iframe>
 ```
@@ -285,7 +350,7 @@ window.addEventListener('message', function (event) {
 Future feature - pass theme parameter:
 
 ```html
-<iframe src="http://localhost:3001/?theme=dark" ...></iframe>
+<iframe src="https://laskuri.energiaykkonen.fi/embed?theme=dark" ...></iframe>
 ```
 
 ## Support

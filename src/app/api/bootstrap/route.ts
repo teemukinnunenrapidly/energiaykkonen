@@ -1,6 +1,16 @@
 import { NextResponse } from 'next/server';
 import { supabase } from '@/lib/supabase';
 
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Methods': 'GET, OPTIONS',
+  'Access-Control-Allow-Headers': 'Content-Type',
+};
+
+export async function OPTIONS() {
+  return NextResponse.json({}, { status: 200, headers: corsHeaders });
+}
+
 export async function GET() {
   try {
     // 1) Fetch active cards with fields in display order
@@ -13,7 +23,7 @@ export async function GET() {
     if (cardsError) {
       return NextResponse.json(
         { success: false, error: cardsError.message },
-        { status: 500 }
+        { status: 500, headers: corsHeaders }
       );
     }
 
@@ -89,12 +99,12 @@ export async function GET() {
         defaults,
         visualObjectsById,
       },
-      { status: 200 }
+      { status: 200, headers: corsHeaders }
     );
   } catch (e) {
     return NextResponse.json(
       { success: false, error: 'Internal server error' },
-      { status: 500 }
+      { status: 500, headers: corsHeaders }
     );
   }
 }

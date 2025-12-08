@@ -7,6 +7,16 @@ import { NextRequest, NextResponse } from 'next/server';
 import { supabase } from '@/lib/supabase';
 import type { AnalyticsEventData } from '@/lib/analytics';
 
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Methods': 'POST, OPTIONS',
+  'Access-Control-Allow-Headers': 'Content-Type',
+};
+
+export async function OPTIONS() {
+  return NextResponse.json({}, { status: 200, headers: corsHeaders });
+}
+
 export async function POST(request: NextRequest) {
   try {
     const eventData: AnalyticsEventData = await request.json();
@@ -15,7 +25,7 @@ export async function POST(request: NextRequest) {
     if (!eventData.event || !eventData.timestamp) {
       return NextResponse.json(
         { error: 'Missing required fields: event, timestamp' },
-        { status: 400 }
+        { status: 400, headers: corsHeaders }
       );
     }
 
@@ -50,19 +60,19 @@ export async function POST(request: NextRequest) {
       // logging intentionally minimal; Sentry disabled per Vercel integration
       return NextResponse.json(
         { error: 'Failed to store analytics event' },
-        { status: 500 }
+        { status: 500, headers: corsHeaders }
       );
     }
 
     return NextResponse.json(
       { success: true, message: 'Analytics event stored successfully' },
-      { status: 201 }
+      { status: 201, headers: corsHeaders }
     );
   } catch (error) {
     // logging intentionally minimal; Sentry disabled per Vercel integration
     return NextResponse.json(
       { error: 'Internal server error' },
-      { status: 500 }
+      { status: 500, headers: corsHeaders }
     );
   }
 }

@@ -1,0 +1,23 @@
+/* Embed-specific styles */
+
+/* Transparent background for iframe embedding */
+html,
+body {
+  background: transparent !important;
+}
+
+/* Prevent infinite growth bug and scroll issues */
+html {
+  /* Prevent html from adding to scrollHeight calculation */
+  overflow: hidden;
+  height: auto;
+}
+
+body {
+  /* Allow content to determine height, prevent horizontal scroll */
+  overflow-x: hidden;
+  overflow-y: hidden;
+  min-height: auto;
+}
+
+/* Hide cookie consent in embed mode (handled by parent WordPress site) */
