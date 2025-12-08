@@ -2,13 +2,6 @@ import type { NextConfig } from 'next';
 import { withSentryConfig } from '@sentry/nextjs';
 
 const nextConfig: NextConfig = {
-  /* config options here */
-  eslint: {
-    // Temporarily ignore during builds to get the app working
-    // We'll fix these errors systematically after deployment
-    ignoreDuringBuilds: true,
-  },
-
   // Enable strict mode for better error detection
   reactStrictMode: true,
 

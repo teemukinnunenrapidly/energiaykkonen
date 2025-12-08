@@ -11,26 +11,6 @@ const compat = new FlatCompat({
 });
 
 const eslintConfig = [
-  ...compat.extends('next/core-web-vitals', 'next/typescript'),
-  {
-    plugins: {
-      prettier: prettier,
-    },
-    rules: {
-      'prettier/prettier': 'error',
-      '@typescript-eslint/no-unused-vars': 'error',
-      '@typescript-eslint/no-explicit-any': 'off',
-      'prefer-const': 'error',
-      'no-var': 'error',
-      'no-console': 'warn',
-      eqeqeq: ['error', 'always'],
-      curly: ['error', 'all'],
-      'no-duplicate-imports': 'error',
-      'no-unreachable': 'error',
-      'no-unused-expressions': 'error',
-      'react-hooks/exhaustive-deps': 'off',
-    },
-  },
   {
     ignores: [
       'node_modules/**',
@@ -53,6 +33,26 @@ const eslintConfig = [
       '.env*',
       '*.log',
     ],
+  },
+  ...compat.extends('next/core-web-vitals', 'next/typescript'),
+  {
+    plugins: {
+      prettier: prettier,
+    },
+    rules: {
+      'prettier/prettier': 'error',
+      '@typescript-eslint/no-unused-vars': 'error',
+      '@typescript-eslint/no-explicit-any': 'off',
+      'prefer-const': 'error',
+      'no-var': 'error',
+      'no-console': 'warn',
+      eqeqeq: ['error', 'always'],
+      curly: ['error', 'all'],
+      'no-duplicate-imports': 'error',
+      'no-unreachable': 'error',
+      'no-unused-expressions': 'error',
+      'react-hooks/exhaustive-deps': 'off',
+    },
   },
 ];
 
